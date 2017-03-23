@@ -1425,7 +1425,7 @@ public class SecondaryIndexTest extends CQLTester
         assertTrue(waitForIndex(keyspace(), tableName, "idx"));
 
         assertRows(execute("SELECT * FROM %s WHERE v = ?", udt1), row(1, udt1), row(0, udt1));
-        assertRows(execute("SELECT * FROM %s WHERE v = ?", udt2));
+        assertEmpty(execute("SELECT * FROM %s WHERE v = ?", udt2));
 
         execute("DELETE FROM %s WHERE k = 0");
         assertRows(execute("SELECT * FROM %s WHERE v = ?", udt1), row(1, udt1));
@@ -1460,7 +1460,7 @@ public class SecondaryIndexTest extends CQLTester
         assertRows(execute("SELECT * FROM %s WHERE v = ?", set(udt2)), row(2, set(udt2)));
 
         execute("DELETE FROM %s WHERE k = 2");
-        assertRows(execute("SELECT * FROM %s WHERE v = ?", set(udt2)));
+        assertEmpty(execute("SELECT * FROM %s WHERE v = ?", set(udt2)));
 
         dropIndex("DROP INDEX %s.idx");
         assertInvalidMessage("Index 'idx' could not be found", "DROP INDEX " + KEYSPACE + ".idx");
@@ -1492,7 +1492,7 @@ public class SecondaryIndexTest extends CQLTester
         assertRows(execute("SELECT * FROM %s WHERE v CONTAINS ?", udt2), row(1, set(udt1, udt2)), row(2, set(udt2)));
 
         execute("DELETE FROM %s WHERE k = 1");
-        assertRows(execute("SELECT * FROM %s WHERE v CONTAINS ?", udt1));
+        assertEmpty(execute("SELECT * FROM %s WHERE v CONTAINS ?", udt1));
         assertRows(execute("SELECT * FROM %s WHERE v CONTAINS ?", udt2), row(2, set(udt2)));
 
         dropIndex("DROP INDEX %s.idx");
