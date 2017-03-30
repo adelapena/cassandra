@@ -1,4 +1,5 @@
 2.1.18
+ * Fix queries over secondary index on partition key columns not returning rows with only static columns (CASSANDRA-13147)
  * Log stacktrace of uncaught exceptions (CASSANDRA-13108)
  * Remove unused repositories (CASSANDRA-13278)
 

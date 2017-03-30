@@ -1368,11 +1368,10 @@ public class SelectStatement implements CQLStatement
 
         CQL3Row.RowIterator iter = cfm.comparator.CQL3RowBuilder(cfm, now).group(cells);
 
-        // If there is static columns but there is no non-static row, then provided the select was a full
-        // partition selection (i.e. not a 2ndary index search and there was no condition on clustering columns)
+        // If there is static columns but there is no non-static row and there was no condition on clustering columns,
         // then we want to include the static columns in the result set (and we're done).
         CQL3Row staticRow = iter.getStaticRow();
-        if (staticRow != null && !iter.hasNext() && !usesSecondaryIndexing && hasNoClusteringColumnsRestriction())
+        if (staticRow != null && !iter.hasNext() && hasNoClusteringColumnsRestriction())
         {
             result.newRow();
             for (ColumnDefinition def : selection.getColumns())
