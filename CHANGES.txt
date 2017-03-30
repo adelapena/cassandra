@@ -13,6 +13,7 @@
  * Exceptions encountered calling getSeeds() breaks OTC thread (CASSANDRA-13018)
  * Commitlog replay may fail if last mutation is within 4 bytes of end of segment (CASSANDRA-13282)
 Merged from 2.1:
+ * Fix queries over secondary index on partition key columns not returning rows with only static columns (CASSANDRA-13147)
  * Remove unused repositories (CASSANDRA-13278)
  * Log stacktrace of uncaught exceptions (CASSANDRA-13108)
 
