@@ -1372,7 +1372,7 @@ public class SelectStatement implements CQLStatement
         // and the select was a full partition selection (i.e. there was no condition on clustering or regular columns),
         // we want to include the static columns in the result set (and we're done).
         CQL3Row staticRow = iter.getStaticRow();
-        if (staticRow != null && !iter.hasNext() && hasNoRegularColumnsRestriction() && hasNoClusteringColumnsRestriction())
+        if (staticRow != null && !iter.hasNext() && hasNoClusteringColumnsRestriction() && hasNoRegularColumnsRestriction())
         {
             result.newRow();
             for (ColumnDefinition def : selection.getColumns())
