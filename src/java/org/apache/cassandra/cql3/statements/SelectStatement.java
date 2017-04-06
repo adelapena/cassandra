@@ -1368,10 +1368,11 @@ public class SelectStatement implements CQLStatement
 
         CQL3Row.RowIterator iter = cfm.comparator.CQL3RowBuilder(cfm, now).group(cells);
 
-        // If there is static columns but there is no non-static row and there was no condition on clustering columns,
-        // then we want to include the static columns in the result set (and we're done).
+        // If there is static columns but there is no non-static row,
+        // and the select was a full partition selection (i.e. there was no condition on clustering or regular columns),
+        // we want to include the static columns in the result set (and we're done).
         CQL3Row staticRow = iter.getStaticRow();
-        if (staticRow != null && !iter.hasNext() && hasNoClusteringColumnsRestriction())
+        if (staticRow != null && !iter.hasNext() && hasNoRegularColumnsRestriction() && hasNoClusteringColumnsRestriction())
         {
             result.newRow();
             for (ColumnDefinition def : selection.getColumns())
@@ -1448,6 +1449,16 @@ public class SelectStatement implements CQLStatement
         for (int i = 0; i < columnRestrictions.length; i++)
             if (columnRestrictions[i] != null)
                 return false;
+        return true;
+    }
+
+    private boolean hasNoRegularColumnsRestriction()
+    {
+        for (ColumnDefinition def : restrictedColumns.keySet())
+        {
+            if (def.kind == ColumnDefinition.Kind.REGULAR)
+                return false;
+        }
         return true;
     }
 
