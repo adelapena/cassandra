@@ -713,10 +713,11 @@ public class SelectStatement implements CQLStatement
         int protocolVersion = options.getProtocolVersion();
         CQL3Row.RowIterator iter = cfm.comparator.CQL3RowBuilder(cfm, now).group(cells);
 
-        // If there is static columns but there is no non-static row and there was no condition on clustering columns,
-        // then we want to include the static columns in the result set (and we're done).
+        // If there is no rows, and there's no restriction on clustering/regular columns,
+        // then provided the select was a full partition selection,
+        // we want to include static columns and we're done.
         CQL3Row staticRow = iter.getStaticRow();
-        if (staticRow != null && !iter.hasNext() && restrictions.hasNoClusteringColumnsRestriction())
+        if (staticRow != null && !iter.hasNext() && !restrictions.hasClusteringColumnsRestriction() && restrictions.hasNoClusteringColumnsRestriction())
         {
             result.newRow(protocolVersion);
             for (ColumnDefinition def : selection.getColumns())
