@@ -1090,7 +1090,7 @@ public class SecondaryIndexTest extends CQLTester
     public void droppingIndexInvalidatesPreparedStatements() throws Throwable
     {
         createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY ((a), b))");
-        String indexName = createIndex("CREATE INDEX c_idx ON %s(c)");
+        String indexName = createIndex("CREATE INDEX ON %s(c)");
         MD5Digest cqlId = prepareStatement("SELECT * FROM %s.%s WHERE c=?").statementId;
 
         assertNotNull(QueryProcessor.instance.getPrepared(cqlId));
@@ -1458,7 +1458,7 @@ public class SecondaryIndexTest extends CQLTester
         execute("INSERT INTO %s (k, v) VALUES (?, ?)", 1, set(udt1, udt2));
         assertInvalidMessage("Frozen collections only support full()", "CREATE INDEX idx ON %s (keys(v))");
         assertInvalidMessage("Frozen collections only support full()", "CREATE INDEX idx ON %s (values(v))");
-        String indexName = createIndex("CREATE INDEX idx ON %s (full(v))");
+        String indexName = createIndex("CREATE INDEX ON %s (full(v))");
 
         execute("INSERT INTO %s (k, v) VALUES (?, ?)", 2, set(udt2));
         assertTrue(waitForIndex(keyspace(), tableName, indexName));
@@ -1490,10 +1490,10 @@ public class SecondaryIndexTest extends CQLTester
 
         execute("INSERT INTO %s (k, v) VALUES (?, ?)", 1, set(udt1));
         assertInvalidMessage("Cannot create index on keys of column v with non-map type",
-                             "CREATE INDEX idx ON %s (keys(v))");
+                             "CREATE INDEX ON %s (keys(v))");
         assertInvalidMessage("full() indexes can only be created on frozen collections",
-                             "CREATE INDEX idx ON %s (full(v))");
-        String indexName = createIndex("CREATE INDEX idx ON %s (values(v))");
+                             "CREATE INDEX ON %s (full(v))");
+        String indexName = createIndex("CREATE INDEX ON %s (values(v))");
 
         execute("INSERT INTO %s (k, v) VALUES (?, ?)", 2, set(udt2));
         execute("UPDATE %s SET v = v + ? WHERE k = ?", set(udt2), 1);

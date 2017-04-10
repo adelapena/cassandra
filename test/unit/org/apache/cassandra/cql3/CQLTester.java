@@ -99,9 +99,12 @@ public abstract class CQLTester
 
     public static final List<ProtocolVersion> PROTOCOL_VERSIONS = new ArrayList<>(ProtocolVersion.SUPPORTED.size());
 
-    private static final String CREATE_INDEX_NAME = "(\\s*(\\w*|\"\\w*\")\\s*)";
-    private static final String CREATE_INDEX_REGEX = String.format("\\A\\s*CREATE(?:\\s+CUSTOM)?\\s+INDEX(?:\\s+IF\\s+NOT\\s+EXISTS)?\\s*" +
-                                                                     "%s?\\s*ON\\s+(%<s\\.)?%<s\\s*(\\(%<s\\))?", CREATE_INDEX_NAME);
+    private static final String CREATE_INDEX_NAME_REGEX = "(\\s*(\\w*|\"\\w*\")\\s*)";
+    private static final String CREATE_INDEX_REGEX = String.format("\\A\\s*CREATE(?:\\s+CUSTOM)?\\s+INDEX" +
+                                                                   "(?:\\s+IF\\s+NOT\\s+EXISTS)?\\s*" +
+                                                                   "%s?\\s*ON\\s+(%<s\\.)?%<s\\s*" +
+                                                                   "(\\((?:\\s*\\w+\\s*\\()?%<s\\))?",
+                                                                   CREATE_INDEX_NAME_REGEX);
     private static final Pattern CREATE_INDEX_PATTERN = Pattern.compile(CREATE_INDEX_REGEX, Pattern.CASE_INSENSITIVE);
 
     /** Return the current server version if supported by the driver, else
