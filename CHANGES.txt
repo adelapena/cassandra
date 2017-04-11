@@ -77,6 +77,7 @@
  * Address message coalescing regression (CASSANDRA-12676)
  * Delete illegal character from StandardTokenizerImpl.jflex (CASSANDRA-13417)
 Merged from 3.0:
+ * Fix SSTableLoader fail when the loaded table contains dropped columns (CASSANDRA-13276)
  * Fix NPE issue in StorageService (CASSANDRA-13060)
  * Make reading of range tombstones more reliable (CASSANDRA-12811)
  * Fix startup problems due to schema tables not completely flushed (CASSANDRA-12213)
