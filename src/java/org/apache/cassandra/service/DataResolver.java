@@ -38,6 +38,7 @@ import org.apache.cassandra.dht.AbstractBounds;
 import org.apache.cassandra.dht.ExcludingBounds;
 import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.exceptions.ReadTimeoutException;
+import org.apache.cassandra.index.Index;
 import org.apache.cassandra.net.*;
 import org.apache.cassandra.tracing.Tracing;
 import org.apache.cassandra.utils.FBUtilities;
@@ -109,6 +110,11 @@ public class DataResolver extends ResponseResolver
 
         DataLimits.Counter mergedResultCounter =
             command.limits().newCounter(command.nowInSec(), true, command.selectsFullPartition(), enforceStrictLiveness);
+
+        ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(command.metadata().cfId);
+        Index index = command.getIndex(cfs);
+        if (index != null)
+            mergedResultCounter.useRowFilter(index.getIndexQueryFilter(command.rowFilter()), command.metadata());
 
         UnfilteredPartitionIterator merged = mergeWithShortReadProtection(iters, sources, mergedResultCounter);
         FilteredPartitions filtered =

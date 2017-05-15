@@ -20,6 +20,7 @@
  */
 package org.apache.cassandra.index;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -30,20 +31,28 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.exceptions.QueryValidationException;
 import org.apache.cassandra.Util;
 import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.CQLTester;
 import org.apache.cassandra.cql3.ColumnIdentifier;
+import org.apache.cassandra.cql3.QueryProcessor;
 import org.apache.cassandra.cql3.restrictions.IndexRestrictions;
 import org.apache.cassandra.cql3.restrictions.StatementRestrictions;
 import org.apache.cassandra.cql3.statements.IndexTarget;
 import org.apache.cassandra.cql3.statements.ModificationStatement;
 import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.ColumnFilter;
+import org.apache.cassandra.db.filter.DataLimits;
+import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
+import org.apache.cassandra.db.rows.Cell;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.transactions.IndexTransaction;
@@ -792,6 +801,75 @@ public class CustomIndexTest extends CQLTester
         assertEquals(1, index.finishCalls);
     }
 
+    @Test
+    public void coordinatorSideFilteringTest() throws Throwable
+    {
+        createTable("CREATE TABLE %s(k int, c int, v int, PRIMARY KEY(k,c))");
+        execute("INSERT INTO %s (k, c, v) VALUES (?, ?, ?)", 0, 0, 0);
+        execute("INSERT INTO %s (k, c, v) VALUES (?, ?, ?)", 0, 1, 1);
+        execute("INSERT INTO %s (k, c, v) VALUES (?, ?, ?)", 0, 2, 0);
+        execute("INSERT INTO %s (k, c, v) VALUES (?, ?, ?)", 1, 0, 1);
+        execute("INSERT INTO %s (k, c, v) VALUES (?, ?, ?)", 1, 1, 0);
+        execute("INSERT INTO %s (k, c, v) VALUES (?, ?, ?)", 1, 2, 1);
+        execute("INSERT INTO %s (k, c, v) VALUES (?, ?, ?)", 2, 0, 0);
+
+        String indexName = "coordinator_side_filtering_test_idx";
+        createIndex(String.format("CREATE CUSTOM INDEX %s ON %%s(v) USING '%s'",
+                                  indexName,
+                                  ExpressionFilteringIndex.class.getName()));
+        class Tester
+        {
+            private final Session session = sessionNet();
+
+            private void test(String indexName, String query, Object[]... rows) throws Throwable
+            {
+                String formattedQuery = formatQuery(String.format(query, indexName));
+                assertRows(executeFormattedQuery(formattedQuery), rows);
+                assertRows(QueryProcessor.executeInternalWithPaging(formattedQuery, 1), rows);
+                assertRows(QueryProcessor.executeInternalWithPaging(formattedQuery, 2), rows);
+                assertRowsNet(session.execute(formattedQuery), rows);
+                assertRowsNet(session.execute(new SimpleStatement(formattedQuery).setFetchSize(1)), rows);
+                assertRowsNet(session.execute(new SimpleStatement(formattedQuery).setFetchSize(2)), rows);
+            }
+        }
+        Tester tester = new Tester();
+
+        // test query with empty results
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s, 2)");
+
+        // test regular query
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0)", row(1, 1), row(0, 0), row(0, 2), row(2, 0));
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,1)", row(1, 0), row(1, 2), row(0, 1));
+
+        // test partition-directed query (SinglePartitionReadCommand)
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) AND k=0", row(0, 0), row(0, 2));
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) AND k=1", row(1, 1));
+
+        // test IN operator (SinglePartitionReadCommand.Group is not used with 2i)
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) AND k IN (0,1)", row(0, 0), row(0, 2), row(1, 1));
+
+        // test ALLOW FILTERING
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) AND c=2 ALLOW FILTERING", row(0, 2));
+
+        // test LIMIT
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) LIMIT 1", row(1, 1));
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) LIMIT 2", row(1, 1), row(0, 0));
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,1) LIMIT 1", row(1, 0));
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,1) LIMIT 2", row(1, 0), row(1, 2));
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) AND k IN (0,1) LIMIT 1", row(0, 0));
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) AND k IN (0,1) LIMIT 2", row(0, 0), row(0, 2));
+
+        // test PER PARTITION LIMIT
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) PER PARTITION LIMIT 1", row(1, 1), row(0, 0), row(2, 0));
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,1) PER PARTITION LIMIT 1", row(1, 0), row(0, 1));
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) AND k=1 PER PARTITION LIMIT 1", row(1, 1));
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) AND k IN (0,1) PER PARTITION LIMIT 1", row(0, 0), row(1, 1));
+
+        // test GROUP BY
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,0) GROUP BY k", row(1, 1), row(0, 0), row(2, 0));
+        tester.test(indexName, "SELECT k,c FROM %%s WHERE expr(%s,1) GROUP BY k", row(1, 0), row(0, 1));
+    }
+
     // Used for index creation above
     public static class BrokenCustom2I extends StubIndex
     {
@@ -1095,6 +1173,88 @@ public class CustomIndexTest extends CQLTester
 
                 public void removeRow(Row row) { }
 
+            };
+        }
+    }
+
+    /**
+     * An {@link Index} that selects rows whose indexed column value is equals to the requested custom expression.
+     * The implementation relies only on {@link #customExpressionFor(CFMetaData, ByteBuffer)}, while the searcher
+     * returns all the rows satifying the key range.
+     */
+    public static final class ExpressionFilteringIndex extends StubIndex
+    {
+        private final CFMetaData metadata;
+        private final ColumnDefinition columnDefinition;
+
+        public ExpressionFilteringIndex(ColumnFamilyStore baseCfs, IndexMetadata metadata)
+        {
+            super(baseCfs, metadata);
+            this.metadata = baseCfs.metadata;
+            String columnName = metadata.options.get(IndexTarget.TARGET_OPTION_NAME);
+            assert columnName != null;
+            columnDefinition = baseCfs.metadata.getColumnDefinition(UTF8Type.instance.decompose(columnName));
+        }
+
+        @Override
+        public RowFilter getPostIndexQueryFilter(RowFilter filter)
+        {
+            return filter.without(filter.getExpressions()
+                                        .stream()
+                                        .filter(RowFilter.Expression::isCustom)
+                                        .findFirst()
+                                        .orElseThrow(() -> new IllegalArgumentException("Expression not found")));
+        }
+
+        @Override
+        public AbstractType<?> customExpressionValueType()
+        {
+            return Int32Type.instance;
+        }
+
+        @Override
+        public RowFilter.CustomExpression customExpressionFor(CFMetaData cfm, ByteBuffer value)
+        {
+            return new RowFilter.CustomExpression(cfm, getIndexMetadata(), value)
+            {
+                @Override
+                public boolean isSatisfiedBy(CFMetaData metadata, DecoratedKey partitionKey, Row row)
+                {
+                    Cell cell = row.getCell(columnDefinition);
+                    return cell != null && ByteBufferUtil.compareUnsigned(cell.value(), value) == 0;
+                }
+            };
+        }
+
+        @Override
+        public Searcher searcherFor(ReadCommand command)
+        {
+            return (ReadExecutionController executionController) -> {
+                ReadCommand all;
+                if (command instanceof SinglePartitionReadCommand)
+                {
+                    SinglePartitionReadCommand cmd = (SinglePartitionReadCommand) command;
+                    all = SinglePartitionReadCommand.create(metadata,
+                                                            cmd.nowInSec(),
+                                                            cmd.partitionKey(),
+                                                            cmd.clusteringIndexFilter().getSlices(cmd.metadata()));
+                }
+                else if (command instanceof PartitionRangeReadCommand)
+                {
+                    PartitionRangeReadCommand cmd = (PartitionRangeReadCommand) command;
+                    all = PartitionRangeReadCommand.create(false,
+                                                           metadata,
+                                                           cmd.nowInSec(),
+                                                           ColumnFilter.all(metadata),
+                                                           RowFilter.NONE,
+                                                           DataLimits.NONE,
+                                                           cmd.dataRange());
+                }
+                else
+                {
+                    throw new UnsupportedOperationException();
+                }
+                return all.executeLocally(executionController);
             };
         }
     }

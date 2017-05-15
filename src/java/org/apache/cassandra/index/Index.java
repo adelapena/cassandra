@@ -20,12 +20,14 @@
  */
 package org.apache.cassandra.index;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 
+import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.db.*;
@@ -317,16 +319,39 @@ public interface Index
 
     /**
      * If the index supports custom search expressions using the
-     * {@code}SELECT * FROM table WHERE expr(index_name, expression){@code} syntax, this
+     * {@code SELECT * FROM table WHERE expr(index_name, expression)} syntax, this
      * method should return the expected type of the expression argument.
      * For example, if the index supports custom expressions as Strings, calls to this
-     * method should return {@code}UTF8Type.instance{@code}.
+     * method should return {@code UTF8Type.instance}.
      * If the index implementation does not support custom expressions, then it should
      * return null.
      * @return an the type of custom index expressions supported by this index, or an
      *         null if custom expressions are not supported.
      */
     public AbstractType<?> customExpressionValueType();
+
+    /**
+     * If the index supports custom search expressions using the
+     * {@code SELECT * FROM table WHERE expr(index_name, expression)} syntax, this method should return a new
+     * {@link RowFilter.CustomExpression} for the specified expression value. Index implementations may provide their
+     * own implementations using method {@link RowFilter.CustomExpression#isSatisfiedBy(CFMetaData, DecoratedKey, Row)}
+     * to filter reconcilled rows in the coordinator. Otherwise, the default implementation will accept all rows.
+     * See CASSANDRA-8272 for further details.
+     *
+     * @param cfm the indexed column family metadata
+     * @param value the custom expression value
+     * @return a custom index expression for the specified value
+     */
+    default RowFilter.CustomExpression customExpressionFor(CFMetaData cfm, ByteBuffer value)
+    {
+        return new RowFilter.CustomExpression(cfm, getIndexMetadata(), value)
+        {
+            public boolean isSatisfiedBy(CFMetaData metadata, DecoratedKey partitionKey, Row row)
+            {
+                return true;
+            }
+        };
+    }
 
     /**
      * Transform an initial RowFilter into the filter that will still need to applied
@@ -339,6 +364,21 @@ public interface Index
      *         the index was used to narrow the initial result set
      */
     public RowFilter getPostIndexQueryFilter(RowFilter filter);
+
+    /**
+     * Transform an initial RowFilter into the filter that this index can cover, without any of the expressions to be
+     * applied after the index initial scan.
+     * Used in {@link ReadCommand#postReconciliationProcessing(PartitionIterator)} to discard stale index results,
+     * and in {@link org.apache.cassandra.db.filter.DataLimits.Counter#useRowFilter(RowFilter, CFMetaData)} to don't
+     * count stale index results as valid.
+     *
+     * @param filter the intial filter belonging to a ReadCommand
+     * @return the (hopefully) reduced filter that only filters the results of the index scan
+     */
+    default RowFilter getIndexQueryFilter(RowFilter filter)
+    {
+        return filter.without(getPostIndexQueryFilter(filter).getExpressions());
+    }
 
     /**
      * Return an estimate of the number of results this index is expected to return for any given

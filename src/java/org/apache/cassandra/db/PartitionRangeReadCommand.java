@@ -395,19 +395,6 @@ public class PartitionRangeReadCommand extends ReadCommand
             sb.append(dataRange.toCQLString(metadata()));
     }
 
-    /**
-     * Allow to post-process the result of the query after it has been reconciled on the coordinator
-     * but before it is passed to the CQL layer to return the ResultSet.
-     *
-     * See CASSANDRA-8717 for why this exists.
-     */
-    public PartitionIterator postReconciliationProcessing(PartitionIterator result)
-    {
-        ColumnFamilyStore cfs = Keyspace.open(metadata().ksName).getColumnFamilyStore(metadata().cfName);
-        Index index = getIndex(cfs);
-        return index == null ? result : index.postProcessorFor(this).apply(result, this);
-    }
-
     @Override
     public boolean selectsFullPartition()
     {

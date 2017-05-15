@@ -230,6 +230,9 @@ public abstract class DataLimits
         protected final int nowInSec;
         protected final boolean assumeLiveData;
         private final boolean enforceStrictLiveness;
+        private CFMetaData metadata;
+        private RowFilter rowFilter;
+        private DecoratedKey partitionKey;
 
         // false means we do not propagate our stop signals onto the iterator, we only count
         private boolean enforceLimits = true;
@@ -239,6 +242,21 @@ public abstract class DataLimits
             this.nowInSec = nowInSec;
             this.assumeLiveData = assumeLiveData;
             this.enforceStrictLiveness = enforceStrictLiveness;
+        }
+
+        /**
+         * Sets a row filter to don't count the rows not satisfying it, they'll be treated as if they weren't alive.
+         *
+         * @param rowFilter a row filter
+         * @param metadata the filtered table metadata
+         * @return this with the specified row filter
+         */
+        public Counter useRowFilter(RowFilter rowFilter, CFMetaData metadata)
+        {
+            assert metadata != null && rowFilter != null;
+            this.metadata = metadata;
+            this.rowFilter = rowFilter;
+            return this;
         }
 
         public Counter onlyCount()
@@ -300,6 +318,11 @@ public abstract class DataLimits
             return assumeLiveData || row.hasLiveData(nowInSec, enforceStrictLiveness);
         }
 
+        protected boolean accepts(Row row)
+        {
+            return isLive(row) && (metadata == null || rowFilter.isSatisfiedBy(metadata, partitionKey, row, nowInSec));
+        }
+
         @Override
         protected BaseRowIterator<?> applyToPartition(BaseRowIterator<?> partition)
         {
@@ -324,7 +347,8 @@ public abstract class DataLimits
         {
             if (enforceLimits)
                 super.attachTo(rows);
-            applyToPartition(rows.partitionKey(), rows.staticRow());
+            partitionKey = rows.partitionKey();
+            applyToPartition(partitionKey, rows.staticRow());
             if (isDoneForPartition())
                 stopInPartition();
         }
@@ -483,7 +507,7 @@ public abstract class DataLimits
             @Override
             public Row applyToRow(Row row)
             {
-                if (isLive(row))
+                if (accepts(row))
                     incrementRowCount();
                 return row;
             }
@@ -941,7 +965,7 @@ public abstract class DataLimits
                     return null;
                 }
 
-                if (isLive(row))
+                if (accepts(row))
                 {
                     hasGroupStarted = true;
                     incrementRowCount();
@@ -1367,7 +1391,7 @@ public abstract class DataLimits
             public Row applyToRow(Row row)
             {
                 // In the internal format, a row == a super column, so that's what we want to count.
-                if (isLive(row))
+                if (accepts(row))
                 {
                     ++cellsCounted;
                     if (++cellsInCurrentPartition >= cellPerPartitionLimit)

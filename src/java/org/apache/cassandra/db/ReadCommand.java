@@ -428,11 +428,16 @@ public abstract class ReadCommand extends MonitorableImpl implements ReadQuery
                                     ? rowFilter()
                                     : index.getPostIndexQueryFilter(rowFilter());
 
+            // If we've used a 2ndary index, the limits should take the index expression into account
+            DataLimits.Counter counter = limits.newCounter(nowInSec(), false, selectsFullPartition(), metadata.enforceStrictLiveness());
+            if (searcher != null)
+                counter.useRowFilter(index.getIndexQueryFilter(rowFilter()), metadata());
+
             // TODO: We'll currently do filtering by the rowFilter here because it's convenient. However,
             // we'll probably want to optimize by pushing it down the layer (like for dropped columns) as it
             // would be more efficient (the sooner we discard stuff we know we don't care, the less useless
             // processing we do on it).
-            return limits().filter(updatedFilter.filter(resultIterator, nowInSec()), nowInSec(), selectsFullPartition());
+            return counter.applyTo(updatedFilter.filter(resultIterator, nowInSec()));
         }
         catch (RuntimeException | Error e)
         {
@@ -443,9 +448,34 @@ public abstract class ReadCommand extends MonitorableImpl implements ReadQuery
 
     protected abstract void recordLatency(TableMetrics metric, long latencyNanos);
 
+    /**
+     * Allow to post-process the result of the query after it has been reconciled on the coordinator
+     * but before it is passed to the CQL layer to return the ResultSet.
+     *
+     * See CASSANDRA-8717 for why this exists.
+     */
+    public PartitionIterator postReconciliationProcessing(PartitionIterator result)
+    {
+        ColumnFamilyStore cfs = Keyspace.open(metadata().ksName).getColumnFamilyStore(metadata().cfName);
+        Index index = getIndex(cfs);
+        if (index == null)
+            return result;
+
+        // Indexes on replica can return results that don't match the query but are necessary
+        // to avoid stale entries from other nodes (see #8272) so we should filter those out now.
+        if (!isForThrift())
+        {
+            RowFilter indexFilter = index.getIndexQueryFilter(rowFilter());
+            result = indexFilter.filter(result, metadata(), nowInSec());
+        }
+
+        // Apply index specific post-processor.
+        return index.postProcessorFor(this).apply(result, this);
+    }
+
     public PartitionIterator executeInternal(ReadExecutionController controller)
     {
-        return UnfilteredPartitionIterators.filter(executeLocally(controller), nowInSec());
+        return postReconciliationProcessing(UnfilteredPartitionIterators.filter(executeLocally(controller), nowInSec()));
     }
 
     public ReadExecutionController executionController()

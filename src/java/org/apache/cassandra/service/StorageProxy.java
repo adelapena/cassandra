@@ -1757,7 +1757,7 @@ public class StorageProxy implements StorageProxyMBean
         for (int i = 0; i < cmdCount; i++)
         {
             assert reads[i].isDone();
-            results.add(reads[i].getResult());
+            results.add(commands.get(i).postReconciliationProcessing(reads[i].getResult()));
         }
 
         return PartitionIterators.concat(results);
@@ -1859,7 +1859,7 @@ public class StorageProxy implements StorageProxyMBean
         PartitionIterator getResult()
         {
             assert result != null;
-            return result;
+            return command.postReconciliationProcessing(result);
         }
     }
 

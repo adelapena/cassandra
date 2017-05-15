@@ -1209,38 +1209,23 @@ public class SinglePartitionReadCommand extends ReadCommand
             // Note that the only difference between the command in a group must be the partition key on which
             // they applied.
             boolean enforceStrictLiveness = commands.get(0).metadata().enforceStrictLiveness();
-            return limits.filter(UnfilteredPartitionIterators.filter(executeLocally(controller, false), nowInSec),
+            List<PartitionIterator> partitions = new ArrayList<>(commands.size());
+            for (SinglePartitionReadCommand cmd : commands)
+                partitions.add(cmd.postReconciliationProcessing(UnfilteredPartitionIterators.filter(cmd.executeLocally(controller), nowInSec)));
+
+            return limits.filter(PartitionIterators.concat(partitions),
                                  nowInSec,
                                  selectsFullPartitions,
                                  enforceStrictLiveness);
         }
 
-        public UnfilteredPartitionIterator executeLocally(ReadExecutionController executionController)
+        public UnfilteredPartitionIterator executeLocally(ReadExecutionController controller)
         {
-            return executeLocally(executionController, true);
-        }
-
-        /**
-         * Implementation of {@link ReadQuery#executeLocally(ReadExecutionController)}.
-         *
-         * @param executionController - the {@code ReadExecutionController} protecting the read.
-         * @param sort - whether to sort the inner commands by partition key, required for merging the iterator
-         *               later on. This will be false when called by {@link ReadQuery#executeInternal(ReadExecutionController)}
-         *               because in this case it is safe to do so as there is no merging involved and we don't want to
-         *               change the old behavior which was to not sort by partition.
-         *
-         * @return - the iterator that can be used to retrieve the query result.
-         */
-        private UnfilteredPartitionIterator executeLocally(ReadExecutionController executionController, boolean sort)
-        {
-            List<Pair<DecoratedKey, UnfilteredPartitionIterator>> partitions = new ArrayList<>(commands.size());
-            for (SinglePartitionReadCommand cmd : commands)
-                partitions.add(Pair.of(cmd.partitionKey, cmd.executeLocally(executionController)));
-
-            if (sort)
-                Collections.sort(partitions, (p1, p2) -> p1.getLeft().compareTo(p2.getLeft()));
-
-            return UnfilteredPartitionIterators.concat(partitions.stream().map(p -> p.getRight()).collect(Collectors.toList()));
+            return UnfilteredPartitionIterators.concat(commands.stream()
+                                               .map(cmd -> Pair.of(cmd.partitionKey, cmd.executeLocally(controller)))
+                                               .sorted(Comparator.comparing(Pair::getLeft))
+                                               .map(Pair::getRight)
+                                               .collect(Collectors.toCollection(() -> new ArrayList<>(commands.size()))));
         }
 
         public QueryPager getPager(PagingState pagingState, ProtocolVersion protocolVersion)

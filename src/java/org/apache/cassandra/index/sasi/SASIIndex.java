@@ -223,6 +223,11 @@ public class SASIIndex implements Index, INotificationConsumer
         return null;
     }
 
+    public RowFilter getIndexQueryFilter(RowFilter filter)
+    {
+        return filter.withoutExpressions();
+    }
+
     public RowFilter getPostIndexQueryFilter(RowFilter filter)
     {
         return filter.withoutExpressions();
