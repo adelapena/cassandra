@@ -104,6 +104,7 @@ public class NodeTool
                 ReplayBatchlog.class,
                 SetCacheCapacity.class,
                 SetHintedHandoffThrottleInKB.class,
+                SetBatchlogReplayThrottleInKB.class,
                 SetCompactionThreshold.class,
                 SetCompactionThroughput.class,
                 GetConcurrentCompactors.class,
