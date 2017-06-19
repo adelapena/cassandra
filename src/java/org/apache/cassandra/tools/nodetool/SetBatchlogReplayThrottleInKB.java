@@ -22,7 +22,8 @@ import io.airlift.command.Command;
 import org.apache.cassandra.tools.NodeProbe;
 import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
 
-@Command(name = "setbatchlogreplaythrottlekb", description =  "Set batchlog replay throttle in KB per second, or 0 to disable throttling")
+@Command(name = "setbatchlogreplaythrottlekb", description = "Set batchlog replay throttle in KB per second, or 0 to disable throttling. " +
+                                                             "This will be reduced proportionally to the number of nodes in the cluster.")
 public class SetBatchlogReplayThrottleInKB extends NodeToolCmd
 {
     @Arguments(title = "throttle_in_kb", usage = "<value_in_kb_per_sec>", description = "Value in KB per second", required = true)
