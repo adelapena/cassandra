@@ -227,7 +227,10 @@ public class BatchlogManager implements BatchlogManagerMBean
             int endpointThrottleInKB = throttleInKB / endpointsCount;
             double throughput = endpointThrottleInKB == 0 ? Double.MAX_VALUE : endpointThrottleInKB * 1024.0;
             if (rateLimiter.getRate() != throughput)
+            {
+                logger.debug("Updating batchlog replay throttle to {} KB/s, {} KB/s per endpoint", throttleInKB, endpointThrottleInKB);
                 rateLimiter.setRate(throughput);
+            }
         }
     }
 
