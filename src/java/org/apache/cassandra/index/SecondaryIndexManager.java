@@ -511,6 +511,16 @@ public class SecondaryIndexManager implements IndexRegistry
     }
 
     /**
+     * Performs a snapshot of all custom indices.
+     */
+    public void snapshotWithoutFlush(String snapshotName) {
+        executeAllBlocking(indexes.values()
+                .stream()
+                .filter(index -> !index.getBackingTable().isPresent()),
+                (index) -> index.getSnapshotWithoutFlushTask(snapshotName));
+    }
+    
+    /**
      * @return all indexes which are marked as built and ready to use
      */
     public List<String> getBuiltIndexNames()
