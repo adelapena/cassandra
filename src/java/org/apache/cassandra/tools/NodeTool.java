@@ -77,6 +77,7 @@ public class NodeTool
                 DisableGossip.class,
                 EnableHandoff.class,
                 GcStats.class,
+                GetBatchlogReplayTrottleInKB.class,
                 GetCompactionThreshold.class,
                 GetCompactionThroughput.class,
                 GetTimeout.class,
