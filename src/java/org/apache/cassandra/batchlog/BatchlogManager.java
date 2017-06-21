@@ -95,6 +95,8 @@ public class BatchlogManager implements BatchlogManagerMBean
             throw new RuntimeException(e);
         }
 
+        replayFailedBatches();
+
         batchlogTasks.scheduleWithFixedDelay(this::replayFailedBatches,
                                              StorageService.RING_DELAY,
                                              REPLAY_INTERVAL,
