@@ -1491,6 +1491,19 @@ public class StorageService extends NotificationBroadcasterSupport implements IE
      * Called when bootstrap did finish successfully
      */
     private void bootstrapFinished() {
+
+        // Blocking replay any failed batches found in batchlog, see CASSANDRA-13629
+        try
+        {
+            logger.info("Replaying batchlog during bootstrap");
+            BatchlogManager.instance.forceBatchlogReplay();
+        }
+        catch (Exception e)
+        {
+            logger.error("Error while replaying batchlog during bootstrap. Bootstrap will have to be restarted.", e);
+            return;
+        }
+
         markViewsAsBuilt();
         isBootstrapMode = false;
     }

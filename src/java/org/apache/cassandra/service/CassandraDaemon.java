@@ -45,7 +45,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.cassandra.batchlog.BatchlogManager;
 import org.apache.cassandra.concurrent.ScheduledExecutors;
 import org.apache.cassandra.schema.TableMetadata;
 import org.apache.cassandra.config.DatabaseDescriptor;
@@ -394,18 +393,6 @@ public class CassandraDaemon
         int sizeRecorderInterval = Integer.getInteger("cassandra.size_recorder_interval", 5 * 60);
         if (sizeRecorderInterval > 0)
             ScheduledExecutors.optionalTasks.scheduleWithFixedDelay(SizeEstimatesRecorder.instance, 30, sizeRecorderInterval, TimeUnit.SECONDS);
-
-        // Replay any failed batches found in batchlog
-        try
-        {
-            logger.info("Replaying batchlog");
-            BatchlogManager.instance.forceBatchlogReplay();
-        }
-        catch (Exception e)
-        {
-            JVMStabilityInspector.inspectThrowable(e);
-            logger.error("Error while replaying batchlog", e);
-        }
 
         // Native transport
         nativeTransportService = new NativeTransportService();
