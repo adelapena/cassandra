@@ -17,21 +17,17 @@
  */
 package org.apache.cassandra.tools.nodetool;
 
-import io.airlift.command.Arguments;
 import io.airlift.command.Command;
 import org.apache.cassandra.tools.NodeProbe;
 import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
 
-@Command(name = "setbatchlogreplaythrottlekb", description = "Set batchlog replay throttle in KB per second, or 0 to disable throttling. " +
-                                                             "This will be reduced proportionally to the number of nodes in the cluster.")
-public class SetBatchlogReplayThrottleInKB extends NodeToolCmd
+@Command(name = "getbatchlogreplaythrottle", description = "Print batchlog replay throttle in KB/s. " +
+                                                           "This is reduced proportionally to the number of nodes in the cluster.")
+public class GetBatchlogReplayTrottle extends NodeToolCmd
 {
-    @Arguments(title = "throttle_in_kb", usage = "<value_in_kb_per_sec>", description = "Value in KB per second", required = true)
-    private Integer throttleInKB = null;
-
     @Override
     public void execute(NodeProbe probe)
     {
-        probe.setBatchlogReplayThrottleInKB(throttleInKB);
+        System.out.println("Batchlog replay throttle: " + probe.getBatchlogReplayThrottle() + " KB/s");
     }
 }
