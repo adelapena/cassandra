@@ -268,9 +268,11 @@ public final class SystemKeyspace
               "CREATE TABLE %s ("
               + "keyspace_name text,"
               + "view_name text,"
+              + "start_token varchar,"
+              + "end_token varchar,"
               + "last_token varchar,"
               + "generation_number int,"
-              + "PRIMARY KEY ((keyspace_name), view_name))")
+              + "PRIMARY KEY ((keyspace_name), view_name, start_token, end_token))")
               .build();
 
     private static final TableMetadata BuiltViews =
@@ -457,7 +459,7 @@ public final class SystemKeyspace
 
     public static void setViewRemoved(String keyspaceName, String viewName)
     {
-        String buildReq = "DELETE FROM %S.%s WHERE keyspace_name = ? AND view_name = ? IF EXISTS";
+        String buildReq = "DELETE FROM %s.%s WHERE keyspace_name = ? AND view_name = ?";
         executeInternal(String.format(buildReq, SchemaConstants.SYSTEM_KEYSPACE_NAME, VIEWS_BUILDS_IN_PROGRESS), keyspaceName, viewName);
         forceBlockingFlush(VIEWS_BUILDS_IN_PROGRESS);
 
@@ -466,12 +468,11 @@ public final class SystemKeyspace
         forceBlockingFlush(BUILT_VIEWS);
     }
 
-    public static void beginViewBuild(String ksname, String viewName, int generationNumber)
+    public static void beginViewBuild(String ksname, String viewName, Range<Token> range, int generationNumber)
     {
-        executeInternal(format("INSERT INTO system.%s (keyspace_name, view_name, generation_number) VALUES (?, ?, ?)", VIEWS_BUILDS_IN_PROGRESS),
-                        ksname,
-                        viewName,
-                        generationNumber);
+        String req = "INSERT INTO system.%s (keyspace_name, view_name, start_token, end_token, generation_number) VALUES (?, ?, ?, ?, ?)";
+        Token.TokenFactory factory = ViewsBuildsInProgress.partitioner.getTokenFactory();
+        executeInternal(format(req, VIEWS_BUILDS_IN_PROGRESS), ksname, viewName, factory.toString(range.left), factory.toString(range.right), generationNumber);
     }
 
     public static void finishViewBuildStatus(String ksname, String viewName)
@@ -482,7 +483,7 @@ public final class SystemKeyspace
         // Also, if writing to the built_view succeeds, but the view_builds_in_progress deletion fails, we will be able
         // to skip the view build next boot.
         setViewBuilt(ksname, viewName, false);
-        executeInternal(String.format("DELETE FROM system.%s WHERE keyspace_name = ? AND view_name = ? IF EXISTS", VIEWS_BUILDS_IN_PROGRESS), ksname, viewName);
+        executeInternal(String.format("DELETE FROM system.%s WHERE keyspace_name = ? AND view_name = ?", VIEWS_BUILDS_IN_PROGRESS), ksname, viewName);
         forceBlockingFlush(VIEWS_BUILDS_IN_PROGRESS);
     }
 
@@ -491,17 +492,22 @@ public final class SystemKeyspace
         setViewBuilt(ksname, viewName, true);
     }
 
-    public static void updateViewBuildStatus(String ksname, String viewName, Token token)
+    public static void updateViewBuildStatus(String ksname, String viewName, Range<Token> range, Token token)
     {
-        String req = "INSERT INTO system.%s (keyspace_name, view_name, last_token) VALUES (?, ?, ?)";
+        String req = "INSERT INTO system.%s (keyspace_name, view_name, start_token, end_token, last_token) VALUES (?, ?, ?, ?, ?)";
         Token.TokenFactory factory = ViewsBuildsInProgress.partitioner.getTokenFactory();
-        executeInternal(format(req, VIEWS_BUILDS_IN_PROGRESS), ksname, viewName, factory.toString(token));
+        executeInternal(format(req, VIEWS_BUILDS_IN_PROGRESS), ksname, viewName, factory.toString(range.left), factory.toString(range.right), factory.toString(token));
     }
 
-    public static Pair<Integer, Token> getViewBuildStatus(String ksname, String viewName)
+    public static Pair<Integer, Token> getViewBuildStatus(String ksname, String viewName, Range<Token> range)
     {
-        String req = "SELECT generation_number, last_token FROM system.%s WHERE keyspace_name = ? AND view_name = ?";
-        UntypedResultSet queryResultSet = executeInternal(format(req, VIEWS_BUILDS_IN_PROGRESS), ksname, viewName);
+        String req = "SELECT generation_number, last_token FROM system.%s WHERE keyspace_name = ? AND view_name = ? AND start_token = ? AND end_token = ?";
+        Token.TokenFactory factory = ViewsBuildsInProgress.partitioner.getTokenFactory();
+        UntypedResultSet queryResultSet = executeInternal(format(req, VIEWS_BUILDS_IN_PROGRESS),
+                                                          ksname,
+                                                          viewName,
+                                                          factory.toString(range.left),
+                                                          factory.toString(range.right));
         if (queryResultSet == null || queryResultSet.isEmpty())
             return null;
 
@@ -513,7 +519,6 @@ public final class SystemKeyspace
             generation = row.getInt("generation_number");
         if (row.has("last_key"))
         {
-            Token.TokenFactory factory = ViewsBuildsInProgress.partitioner.getTokenFactory();
             lastKey = factory.fromString(row.getString("last_key"));
         }
 

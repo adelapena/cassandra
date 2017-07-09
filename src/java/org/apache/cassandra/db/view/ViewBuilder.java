@@ -23,12 +23,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.annotation.Nullable;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +53,8 @@ public class ViewBuilder extends CompactionInfo.Holder
 {
     private final ColumnFamilyStore baseCfs;
     private final View view;
+    public final Range<Token> range;
+    private final ViewBuilderController controller;
     private final UUID compactionId;
     private volatile Token prevToken = null;
 
@@ -63,10 +62,12 @@ public class ViewBuilder extends CompactionInfo.Holder
 
     private volatile boolean isStopped = false;
 
-    public ViewBuilder(ColumnFamilyStore baseCfs, View view)
+    public ViewBuilder(ColumnFamilyStore baseCfs, View view, Range<Token> range, ViewBuilderController controller)
     {
         this.baseCfs = baseCfs;
         this.view = view;
+        this.range = range;
+        this.controller = controller;
         compactionId = UUIDGen.getTimeUUID();
     }
 
@@ -101,7 +102,7 @@ public class ViewBuilder extends CompactionInfo.Holder
 
     public void run()
     {
-        logger.debug("Starting view builder for {}.{}", baseCfs.metadata.keyspace, view.name);
+        logger.debug("Starting view builder for {}.{} for range {}", baseCfs.metadata.keyspace, view.name, range);
         UUID localHostId = SystemKeyspace.getLocalHostId();
         String ksname = baseCfs.metadata.keyspace, viewName = view.name;
 
@@ -113,20 +114,19 @@ public class ViewBuilder extends CompactionInfo.Holder
             return;
         }
 
-        Iterable<Range<Token>> ranges = StorageService.instance.getLocalRanges(baseCfs.metadata.keyspace);
-        final Pair<Integer, Token> buildStatus = SystemKeyspace.getViewBuildStatus(ksname, viewName);
+        final Pair<Integer, Token> buildStatus = SystemKeyspace.getViewBuildStatus(ksname, viewName, range);
         Token lastToken;
         Function<org.apache.cassandra.db.lifecycle.View, Iterable<SSTableReader>> function;
         if (buildStatus == null)
         {
-            logger.debug("Starting new view build. flushing base table {}.{}", baseCfs.metadata.keyspace, baseCfs.name);
+            logger.debug("Starting new view build for range {}. flushing base table {}.{}", range, baseCfs.metadata.keyspace, baseCfs.name);
             lastToken = null;
 
             //We don't track the generation number anymore since if a rebuild is stopped and
             //restarted the max generation filter may yield no sstables due to compactions.
             //We only care about max generation *during* a build, not across builds.
             //see CASSANDRA-13405
-            SystemKeyspace.beginViewBuild(ksname, viewName, 0);
+            SystemKeyspace.beginViewBuild(ksname, viewName, range, 0);
         }
         else
         {
@@ -139,6 +139,7 @@ public class ViewBuilder extends CompactionInfo.Holder
 
         prevToken = lastToken;
         long keysBuilt = 0;
+
         try (Refs<SSTableReader> sstables = baseCfs.selectAndReference(function).refs;
              ReducingKeyIterator iter = new ReducingKeyIterator(sstables))
         {
@@ -149,18 +150,15 @@ public class ViewBuilder extends CompactionInfo.Holder
                 Token token = key.getToken();
                 if (lastToken == null || lastToken.compareTo(token) < 0)
                 {
-                    for (Range<Token> range : ranges)
+                    if (range.contains(token))
                     {
-                        if (range.contains(token))
-                        {
-                            buildKey(key);
-                            ++keysBuilt;
+                        buildKey(key);
+                        ++keysBuilt;
 
-                            if (prevToken == null || prevToken.compareTo(token) != 0)
-                            {
-                                SystemKeyspace.updateViewBuildStatus(ksname, viewName, key.getToken());
-                                prevToken = token;
-                            }
+                        if (prevToken == null || prevToken.compareTo(token) != 0)
+                        {
+                            SystemKeyspace.updateViewBuildStatus(ksname, viewName, range, key.getToken());
+                            prevToken = token;
                         }
                     }
 
@@ -170,13 +168,17 @@ public class ViewBuilder extends CompactionInfo.Holder
 
             if (!isStopped)
             {
-                logger.debug("Marking view({}.{}) as built covered {} keys ", ksname, viewName, keysBuilt);
-                SystemKeyspace.finishViewBuildStatus(ksname, viewName);
-                updateDistributed(ksname, viewName, localHostId);
+                logger.debug("Completed build of view({}.{}) for range {} after covering {} keys ", ksname, viewName, range, keysBuilt);
+                if (controller.notifyFinished(range, keysBuilt))
+                {
+                    logger.debug("Marking view({}.{}) as built after covering {} keys ", ksname, viewName, controller.keysBuilt());
+                    SystemKeyspace.finishViewBuildStatus(ksname, viewName);
+                    updateDistributed(ksname, viewName, localHostId);
+                }
             }
             else
             {
-                logger.debug("Stopped build for view({}.{}) after covering {} keys", ksname, viewName, keysBuilt);
+                logger.debug("Stopped build for view({}.{}) for range {} after covering {} keys", ksname, viewName, range, keysBuilt);
             }
         }
         catch (Exception e)
