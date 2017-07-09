@@ -171,7 +171,7 @@ public class ViewBuilder extends CompactionInfo.Holder
                 logger.debug("Completed build of view({}.{}) for range {} after covering {} keys ", ksname, viewName, range, keysBuilt);
                 if (controller.notifyFinished(range, keysBuilt))
                 {
-                    logger.debug("Marking view({}.{}) as built after covering {} keys ", ksname, viewName, controller.keysBuilt());
+                    logger.debug("Marking view({}.{}) as built after covering {} keys ", ksname, viewName, controller.builtKeys());
                     SystemKeyspace.finishViewBuildStatus(ksname, viewName);
                     updateDistributed(ksname, viewName, localHostId);
                 }

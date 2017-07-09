@@ -32,65 +32,60 @@ import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.service.StorageService;
 
+/**
+ * Builds a materialized view for the local token ranges.
+ * <p>
+ * The build is parellelized in at least {@link #concurrencyFactor()} {@link ViewBuilder} tasks that are run in the
+ * {@link CompactionManager}.
+ */
 class ViewBuilderController
 {
     private final ColumnFamilyStore baseCfs;
     private final View view;
 
     /** The local token ranges covered by this builder */
-    private final Set<Range<Token>> coveredRanges;
+    private final Collection<Range<Token>> ranges;
 
-    /** The pending view builders per covered local token range */
-    private final Map<Range<Token>, ViewBuilder> pendingBuilders;
+    /** The pending view builders associated to their covered token range */
+    private final Map<Range<Token>, ViewBuilder> builders;
 
     /** The count of keys built by all the token range view builders */
-    private volatile long totalBuiltKeys = 0;
+    private volatile long builtKeys = 0;
 
     ViewBuilderController(ColumnFamilyStore baseCfs, View view)
     {
         this.baseCfs = baseCfs;
         this.view = view;
-        coveredRanges = new HashSet<>(StorageService.instance.getLocalRanges(baseCfs.metadata.keyspace));
-        pendingBuilders = split(coveredRanges, DatabaseDescriptor.getConcurrentCompactors())
-                          .stream().collect(Collectors.toMap(r -> r, r -> new ViewBuilder(baseCfs, view, r, this)));
+        ranges = StorageService.instance.getLocalRanges(baseCfs.metadata.keyspace);
+        builders = split(ranges, concurrencyFactor())
+                   .stream().collect(Collectors.toMap(r -> r, r -> new ViewBuilder(baseCfs, view, r, this)));
     }
 
-    /**
-     * Starts the view building.
-     */
-    void start()
+    private static int concurrencyFactor()
     {
-        pendingBuilders.values().forEach(CompactionManager.instance::submitViewBuilder);
-    }
-
-    /**
-     * Stops the view building.
-     */
-    void stop()
-    {
-        pendingBuilders.values().forEach(ViewBuilder::stop);
+        return DatabaseDescriptor.getConcurrentCompactors();
     }
 
     /**
      * Splits the specified token ranges in at least {@code minParts} token ranges.
      *
-     * @param ranges   a collection of token ranges to be split
+     * @param ranges a collection of token ranges to be split
      * @param minParts the minimum number of returned ranges
      * @return at least {@code minParts} token ranges covering {@code ranges}
      */
-    private static Set<Range<Token>> split(Collection<Range<Token>> ranges, int minParts)
+    private static Collection<Range<Token>> split(Collection<Range<Token>> ranges, int minParts)
     {
         int numRanges = ranges.size();
         if (numRanges >= minParts)
         {
-            return new HashSet<>(ranges);
+            return ranges;
         }
         else
         {
             int partsPerRange = (int) Math.ceil((double) minParts / numRanges);
             return ranges.stream()
                          .map(range -> split(range, partsPerRange))
-                         .flatMap(Set::stream)
+                         .flatMap(Collection::stream)
                          .collect(Collectors.toSet());
         }
     }
@@ -102,7 +97,7 @@ class ViewBuilderController
      * @param parts the number of subranges
      * @return {@code parts} even subranges of {@code range}
      */
-    private static Set<Range<Token>> split(Range<Token> range, int parts)
+    private static Collection<Range<Token>> split(Range<Token> range, int parts)
     {
         IPartitioner partitioner = DatabaseDescriptor.getPartitioner();
         Set<Range<Token>> subranges = new HashSet<>(parts);
@@ -117,43 +112,59 @@ class ViewBuilderController
     }
 
     /**
-     * Adds any new uncovered token range to the build.
+     * Starts the view building.
      */
-    private void updateCoveredRanges()
+    void start()
     {
-        // Find new ranges that are not covered yet
-        Collection<Range<Token>> ranges = StorageService.instance.getLocalRanges(baseCfs.metadata.keyspace);
-        Set<Range<Token>> newRanges = ranges.stream()
-                                            .filter(range -> coveredRanges.stream().noneMatch(r -> r.contains(range)))
-                                            .collect(Collectors.toSet());
+        builders.values().forEach(CompactionManager.instance::submitViewBuilder);
+    }
 
-        // Split the new ranges to satisfy the concurrency factor and run a new view builder for each of them
-        int minTasks = DatabaseDescriptor.getConcurrentCompactors() - coveredRanges.size();
-        coveredRanges.addAll(newRanges);
-        split(newRanges, minTasks).stream()
-                                  .map(r -> new ViewBuilder(baseCfs, view, r, this))
-                                  .peek(b -> pendingBuilders.put(b.range, b))
-                                  .forEach(CompactionManager.instance::submitViewBuilder);
+    /**
+     * Stops the view building.
+     */
+    void stop()
+    {
+        builders.values().forEach(ViewBuilder::stop);
     }
 
     /**
      * Notifies that the view building for the specified token range has finished after covering the specified number of
-     * keys, and returns if this was the last pending range building so the view building can be cosidered as finished.
+     * keys, checks if there are any new local ranges to be processed, and returns if this was the last pending range
+     * building so the view building can be cosidered as finished.
      *
-     * @param range     the token range covered by the finished view builder
+     * @param range the token range covered by the finished view builder
      * @param builtKeys the number of keys covered by the finished builder
-     * @return {@code true} if this was the last pending range building, {@code false} otherwise
+     * @return {@code true} if this was the last pending range build, {@code false} otherwise
      */
     synchronized boolean notifyFinished(Range<Token> range, long builtKeys)
     {
-        updateCoveredRanges();
-        totalBuiltKeys += builtKeys;
-        pendingBuilders.remove(range);
-        return pendingBuilders.isEmpty();
+        this.builtKeys += builtKeys;
+        builders.remove(range);
+
+        if (builders.isEmpty())
+        {
+            // Find any possible new local ranges that has not been considered yet
+            Collection<Range<Token>> localRanges = StorageService.instance.getLocalRanges(baseCfs.metadata.keyspace);
+            Set<Range<Token>> newRanges = localRanges.stream()
+                                                     .filter(x -> ranges.stream().noneMatch(y -> y.contains(x)))
+                                                     .collect(Collectors.toSet());
+
+            // If there are no new local ranges we are done
+            if (newRanges.isEmpty())
+                return true;
+
+            // Split the new ranges to satisfy the concurrency factor and run a new view builder for each of them
+            ranges.addAll(newRanges);
+            split(newRanges, concurrencyFactor()).stream()
+                                                 .map(r -> new ViewBuilder(baseCfs, view, r, this))
+                                                 .peek(b -> builders.put(b.range, b))
+                                                 .forEach(CompactionManager.instance::submitViewBuilder);
+        }
+        return false;
     }
 
-    long keysBuilt()
+    long builtKeys()
     {
-        return totalBuiltKeys;
+        return builtKeys;
     }
 }
