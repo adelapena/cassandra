@@ -28,7 +28,6 @@ import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
 import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.compaction.CompactionManager;
 import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.schema.ColumnMetadata;
 import org.apache.cassandra.schema.KeyspaceMetadata;
@@ -57,7 +56,7 @@ public class View
     public volatile List<ColumnMetadata> baseNonPKColumnsInViewPK;
 
     private final boolean includeAllColumns;
-    private ViewBuilder builder;
+    private ViewBuilderController builderController;
 
     // Only the raw statement can be final, because the statement cannot always be prepared when the MV is initialized.
     // For example, during startup, this view will be initialized as part of the Keyspace.open() work; preparing a statement
@@ -210,15 +209,15 @@ public class View
 
     public synchronized void build()
     {
-        if (this.builder != null)
+        if (builderController != null)
         {
             logger.debug("Stopping current view builder due to schema change");
-            this.builder.stop();
-            this.builder = null;
+            builderController.stop();
+            builderController = null;
         }
 
-        this.builder = new ViewBuilder(baseCfs, this);
-        CompactionManager.instance.submitViewBuilder(builder);
+        builderController = new ViewBuilderController(baseCfs, this);
+        builderController.start();
     }
 
     @Nullable
