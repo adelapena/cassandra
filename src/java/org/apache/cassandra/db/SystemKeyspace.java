@@ -271,6 +271,7 @@ public final class SystemKeyspace
               + "start_token varchar,"
               + "end_token varchar,"
               + "last_token varchar,"
+              + "keys_built bigint,"
               + "generation_number int,"
               + "PRIMARY KEY ((keyspace_name), view_name, start_token, end_token))")
               .build();
@@ -492,16 +493,22 @@ public final class SystemKeyspace
         setViewBuilt(ksname, viewName, true);
     }
 
-    public static void updateViewBuildStatus(String ksname, String viewName, Range<Token> range, Token token)
+    public static void updateViewBuildStatus(String ksname, String viewName, Range<Token> range, Token lastToken, long keysBuilt)
     {
-        String req = "INSERT INTO system.%s (keyspace_name, view_name, start_token, end_token, last_token) VALUES (?, ?, ?, ?, ?)";
+        String req = "INSERT INTO system.%s (keyspace_name, view_name, start_token, end_token, last_token, keys_built) VALUES (?, ?, ?, ?, ?, ?)";
         Token.TokenFactory factory = ViewsBuildsInProgress.partitioner.getTokenFactory();
-        executeInternal(format(req, VIEWS_BUILDS_IN_PROGRESS), ksname, viewName, factory.toString(range.left), factory.toString(range.right), factory.toString(token));
+        executeInternal(format(req, VIEWS_BUILDS_IN_PROGRESS),
+                        ksname,
+                        viewName,
+                        factory.toString(range.left),
+                        factory.toString(range.right),
+                        factory.toString(lastToken),
+                        keysBuilt);
     }
 
-    public static Pair<Integer, Token> getViewBuildStatus(String ksname, String viewName, Range<Token> range)
+    public static Pair<Token, Long> getViewBuildStatus(String ksname, String viewName, Range<Token> range)
     {
-        String req = "SELECT generation_number, last_token FROM system.%s WHERE keyspace_name = ? AND view_name = ? AND start_token = ? AND end_token = ?";
+        String req = "SELECT last_token, keys_built FROM system.%s WHERE keyspace_name = ? AND view_name = ? AND start_token = ? AND end_token = ?";
         Token.TokenFactory factory = ViewsBuildsInProgress.partitioner.getTokenFactory();
         UntypedResultSet queryResultSet = executeInternal(format(req, VIEWS_BUILDS_IN_PROGRESS),
                                                           ksname,
@@ -513,16 +520,14 @@ public final class SystemKeyspace
 
         UntypedResultSet.Row row = queryResultSet.one();
 
-        Integer generation = null;
-        Token lastKey = null;
-        if (row.has("generation_number"))
-            generation = row.getInt("generation_number");
-        if (row.has("last_key"))
-        {
-            lastKey = factory.fromString(row.getString("last_key"));
-        }
+        Token lastToken = null;
+        long keysBuilt = 0;
+        if (row.has("last_token"))
+            lastToken = factory.fromString(row.getString("last_token"));
+        if (row.has("keys_built"))
+            keysBuilt = row.getLong("keys_built");
 
-        return Pair.create(generation, lastKey);
+        return Pair.create(lastToken, keysBuilt);
     }
 
     public static synchronized void saveTruncationRecord(ColumnFamilyStore cfs, long truncatedAt, CommitLogPosition position)
