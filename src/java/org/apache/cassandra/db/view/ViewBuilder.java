@@ -43,7 +43,6 @@ import org.apache.cassandra.io.sstable.ReducingKeyIterator;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.repair.SystemDistributedKeyspace;
 import org.apache.cassandra.service.StorageProxy;
-import org.apache.cassandra.service.StorageService;
 import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.UUIDGen;
@@ -57,6 +56,7 @@ public class ViewBuilder extends CompactionInfo.Holder
     private final ViewBuilderController controller;
     private final UUID compactionId;
     private volatile Token prevToken = null;
+    private volatile long keysBuilt = 0;
 
     private static final Logger logger = LoggerFactory.getLogger(ViewBuilder.class);
 
@@ -114,9 +114,8 @@ public class ViewBuilder extends CompactionInfo.Holder
             return;
         }
 
-        final Pair<Integer, Token> buildStatus = SystemKeyspace.getViewBuildStatus(ksname, viewName, range);
+        final Pair<Token, Long> buildStatus = SystemKeyspace.getViewBuildStatus(ksname, viewName, range);
         Token lastToken;
-        Function<org.apache.cassandra.db.lifecycle.View, Iterable<SSTableReader>> function;
         if (buildStatus == null)
         {
             logger.debug("Starting new view build for range {}. flushing base table {}.{}", range, baseCfs.metadata.keyspace, baseCfs.name);
@@ -130,17 +129,21 @@ public class ViewBuilder extends CompactionInfo.Holder
         }
         else
         {
-            lastToken = buildStatus.right;
-            logger.debug("Resuming view build from token {}. flushing base table {}.{}", lastToken, baseCfs.metadata.keyspace, baseCfs.name);
+            lastToken = buildStatus.left;
+            keysBuilt = buildStatus.right;
+            logger.debug("Resuming view build for range {} from token {} with {} covered keys. flushing base table {}.{}",
+                         range, lastToken, keysBuilt, baseCfs.metadata.keyspace, baseCfs.name);
         }
 
         baseCfs.forceBlockingFlush();
+
+        Function<org.apache.cassandra.db.lifecycle.View, Iterable<SSTableReader>> function;
         function = org.apache.cassandra.db.lifecycle.View.selectFunction(SSTableSet.CANONICAL);
 
         prevToken = lastToken;
-        long keysBuilt = 0;
 
-        try (Refs<SSTableReader> sstables = baseCfs.selectAndReference(function).refs;
+        try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(function);
+             Refs<SSTableReader> sstables = viewFragment.refs;
              ReducingKeyIterator iter = new ReducingKeyIterator(sstables))
         {
             SystemDistributedKeyspace.startViewBuild(ksname, viewName, localHostId);
@@ -157,7 +160,7 @@ public class ViewBuilder extends CompactionInfo.Holder
 
                         if (prevToken == null || prevToken.compareTo(token) != 0)
                         {
-                            SystemKeyspace.updateViewBuildStatus(ksname, viewName, range, key.getToken());
+                            SystemKeyspace.updateViewBuildStatus(ksname, viewName, range, token, keysBuilt);
                             prevToken = token;
                         }
                     }
@@ -208,25 +211,8 @@ public class ViewBuilder extends CompactionInfo.Holder
 
     public CompactionInfo getCompactionInfo()
     {
-        long rangesLeft = 0, rangesTotal = 0;
-        Token lastToken = prevToken;
-
-        // This approximation is not very accurate, but since we do not have a method which allows us to calculate the
-        // percentage of a range covered by a second range, this is the best approximation that we can calculate.
-        // Instead, we just count the total number of ranges that haven't been seen by the node (we use the order of
-        // the tokens to determine whether they have been seen yet or not), and the total number of ranges that a node
-        // has.
-        for (Range<Token> range : StorageService.instance.getLocalRanges(baseCfs.keyspace.getName()))
-        {
-            rangesLeft++;
-            rangesTotal++;
-            // This will reset rangesLeft, so that the number of ranges left will be less than the total ranges at the
-            // end of the method.
-            if (lastToken == null || range.contains(lastToken))
-                rangesLeft = 0;
-        }
-
-        return new CompactionInfo(baseCfs.metadata(), OperationType.VIEW_BUILD, rangesLeft, rangesTotal, "ranges", compactionId);
+        long keysTotal = baseCfs.estimatedKeysForRange(range);
+        return new CompactionInfo(baseCfs.metadata(), OperationType.VIEW_BUILD, keysBuilt, keysTotal, "ranges", compactionId);
     }
 
     public void stop()
