@@ -217,7 +217,6 @@ public class View
         }
 
         builderController = new ViewBuilderController(baseCfs, this);
-        builderController.start();
     }
 
     @Nullable

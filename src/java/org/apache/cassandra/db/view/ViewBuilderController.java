@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
+
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.compaction.CompactionManager;
@@ -31,6 +33,8 @@ import org.apache.cassandra.dht.IPartitioner;
 import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.service.StorageService;
+
+import static java.util.stream.Collectors.toConcurrentMap;
 
 /**
  * Builds a materialized view for the local token ranges.
@@ -44,21 +48,25 @@ class ViewBuilderController
     private final View view;
 
     /** The local token ranges covered by this builder */
-    private final Collection<Range<Token>> ranges;
+    private final Set<Range<Token>> ranges;
 
-    /** The pending view builders associated to their covered token range */
+    /** The pending view builders associated to the start token of their covered token range */
     private final Map<Range<Token>, ViewBuilder> builders;
 
     /** The count of keys built by all the token range view builders */
     private volatile long builtKeys = 0;
 
+    /** If the view building has been stopped */
+    private volatile boolean stopped = false;
+
     ViewBuilderController(ColumnFamilyStore baseCfs, View view)
     {
         this.baseCfs = baseCfs;
         this.view = view;
-        ranges = StorageService.instance.getLocalRanges(baseCfs.metadata.keyspace);
+        ranges = Sets.newConcurrentHashSet(StorageService.instance.getLocalRanges(baseCfs.metadata.keyspace));
         builders = split(ranges, concurrencyFactor())
-                   .stream().collect(Collectors.toMap(r -> r, r -> new ViewBuilder(baseCfs, view, r, this)));
+                   .stream().collect(toConcurrentMap(r -> r, r -> new ViewBuilder(baseCfs, view, r, this)));
+        builders.values().forEach(CompactionManager.instance::submitViewBuilder);
     }
 
     private static int concurrencyFactor()
@@ -112,19 +120,14 @@ class ViewBuilderController
     }
 
     /**
-     * Starts the view building.
-     */
-    void start()
-    {
-        builders.values().forEach(CompactionManager.instance::submitViewBuilder);
-    }
-
-    /**
      * Stops the view building.
      */
-    void stop()
+    synchronized void stop()
     {
+        stopped = true;
         builders.values().forEach(ViewBuilder::stop);
+        builders.clear();
+        ranges.clear();
     }
 
     /**
@@ -138,6 +141,9 @@ class ViewBuilderController
      */
     synchronized boolean notifyFinished(Range<Token> range, long builtKeys)
     {
+        if (stopped)
+            return false;
+
         this.builtKeys += builtKeys;
         builders.remove(range);
 
