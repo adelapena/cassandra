@@ -948,7 +948,7 @@ public class SelectStatement implements CQLStatement
                 assert !forView;
                 verifyOrderingIsAllowed(restrictions);
                 orderingComparator = getOrderingComparator(cfm, selection, restrictions);
-                isReversed = isReversed(cfm);
+                isReversed = isReversed(cfm, restrictions);
                 if (isReversed)
                     orderingComparator = Collections.reverseOrder(orderingComparator);
             }
@@ -1134,7 +1134,7 @@ public class SelectStatement implements CQLStatement
             return orderingIndexes;
         }
 
-        private boolean isReversed(CFMetaData cfm) throws InvalidRequestException
+        private boolean isReversed(CFMetaData cfm, StatementRestrictions restrictions) throws InvalidRequestException
         {
             Boolean[] reversedMap = new Boolean[cfm.clusteringColumns().size()];
             int i = 0;
@@ -1146,9 +1146,12 @@ public class SelectStatement implements CQLStatement
                 checkTrue(def.isClusteringColumn(),
                           "Order by is currently only supported on the clustered columns of the PRIMARY KEY, got %s", def.name);
 
-                checkTrue(i++ == def.position(),
-                          "Order by currently only support the ordering of columns following their declared order in the PRIMARY KEY");
-
+                while (i != def.position())
+                {
+                    checkTrue(restrictions.isColumnRestrictedByEq(cfm.clusteringColumns().get(i++)),
+                              "Order by currently only supports the ordering of columns following their declared order in the PRIMARY KEY");
+                }
+                i++;
                 reversedMap[def.position()] = (reversed != def.isReversedType());
             }
 
