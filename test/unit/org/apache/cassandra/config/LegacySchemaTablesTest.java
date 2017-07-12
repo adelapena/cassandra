@@ -155,6 +155,7 @@ public class LegacySchemaTablesTest
             c.validation_class = columnDef.getValidation_class();
             c.index_name = columnDef.getIndex_name();
             c.index_type = IndexType.KEYS;
+            c.index_options = Collections.EMPTY_MAP;
             thriftCfDef.column_metadata.add(c);
         }
 

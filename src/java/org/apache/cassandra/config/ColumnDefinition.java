@@ -280,7 +280,7 @@ public class ColumnDefinition extends ColumnSpecification
     public ColumnDefinition setIndexType(IndexType indexType, Map<String,String> indexOptions)
     {
         this.indexType = indexType;
-        this.indexOptions = indexOptions;
+        this.indexOptions = indexOptions == null ? Collections.EMPTY_MAP : indexOptions;
         return this;
     }
 

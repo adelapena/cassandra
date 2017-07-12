@@ -1,7 +1,8 @@
 2.2.11
+ * Fixed NPE in ColumnDefinition.getIndexOptions (CASSANDRA-13958)
  * Fix toJSONString for the UDT, tuple and collection types (CASSANDRA-13592)
  * Fix nested Tuples/UDTs validation (CASSANDRA-13646)
- * Remove unused max_value_size_in_mb config setting from yaml (CASSANDRA-13625
+ * Remove unused max_value_size_in_mb config setting from yaml (CASSANDRA-13625)
 
 
 2.2.10
