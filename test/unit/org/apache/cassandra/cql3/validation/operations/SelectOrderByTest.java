@@ -747,13 +747,33 @@ public class SelectOrderByTest extends CQLTester
                    row(0, 0, 2, 2)
         );
 
-        assertRows(execute("SELECT * FROM %s WHERE a=? AND b=? AND c>=? ORDER BY c", 0, 0, 1),
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND b=? ORDER BY c ASC", 0, 0),
+                   row(0, 0, 0, 0),
+                   row(0, 0, 1, 1),
+                   row(0, 0, 2, 2)
+        );
+
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND b=? ORDER BY c DESC", 0, 0),
+                   row(0, 0, 2, 2),
+                   row(0, 0, 1, 1),
+                   row(0, 0, 0, 0)
+        );
+
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND b=? AND c>=? ORDER BY c ASC", 0, 0, 1),
                    row(0, 0, 1, 1),
                    row(0, 0, 2, 2));
 
-        assertRows(execute("SELECT * FROM %s WHERE a=? AND b=? AND c IN (?, ?) ORDER BY c", 0, 0, 1, 2),
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND b=? AND c>=? ORDER BY c DESC", 0, 0, 1),
+                   row(0, 0, 2, 2),
+                   row(0, 0, 1, 1));
+
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND b=? AND c IN (?, ?) ORDER BY c ASC", 0, 0, 1, 2),
                    row(0, 0, 1, 1),
                    row(0, 0, 2, 2));
+
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND b=? AND c IN (?, ?) ORDER BY c DESC", 0, 0, 1, 2),
+                   row(0, 0, 2, 2),
+                   row(0, 0, 1, 1));
 
         assertInvalidMessage(errorMsg, "SELECT * FROM %s WHERE a=? AND b<? ORDER BY c DESC", 0, 1);
 
@@ -761,37 +781,63 @@ public class SelectOrderByTest extends CQLTester
         assertInvalidMessage(errorMsg, "SELECT * FROM %s WHERE a=? AND (b, c) >= (?, ?) ORDER BY c", 0, 0, 0);
         assertInvalidMessage(errorMsg, "SELECT * FROM %s WHERE a=? AND (b, c) < (?, ?) ORDER BY c", 0, 0, 0);
         assertInvalidMessage(errorMsg, "SELECT * FROM %s WHERE a=? AND (b, c) <= (?, ?) ORDER BY c", 0, 0, 0);
-        assertRows(execute("SELECT * FROM %s WHERE a=? AND (b, c) = (?, ?) ORDER BY c", 0, 0, 0),
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND (b, c) = (?, ?) ORDER BY c ASC", 0, 0, 0),
+                   row(0, 0, 0, 0));
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND (b, c) = (?, ?) ORDER BY c DESC", 0, 0, 0),
                    row(0, 0, 0, 0));
 
         assertInvalidMessage(errorMsg, "SELECT * FROM %s WHERE a=? AND (b, c) > ? ORDER BY c", 0, tuple(0, 0));
         assertInvalidMessage(errorMsg, "SELECT * FROM %s WHERE a=? AND (b, c) >= ? ORDER BY c", 0, tuple(0, 0));
         assertInvalidMessage(errorMsg, "SELECT * FROM %s WHERE a=? AND (b, c) < ? ORDER BY c", 0, tuple(0, 0));
         assertInvalidMessage(errorMsg, "SELECT * FROM %s WHERE a=? AND (b, c) <= ? ORDER BY c", 0, tuple(0, 0));
-        assertRows(execute("SELECT * FROM %s WHERE a=? AND (b, c) = ? ORDER BY c", 0, tuple(0, 0)),
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND (b, c) = ? ORDER BY c ASC", 0, tuple(0, 0)),
+                   row(0, 0, 0, 0));
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND (b, c) = ? ORDER BY c DESC", 0, tuple(0, 0)),
                    row(0, 0, 0, 0));
 
-        assertRows(execute("SELECT * FROM %s WHERE a IN (?, ?) AND b=? AND c>=? ORDER BY c", 0, 1, 0, 0),
+        assertRows(execute("SELECT * FROM %s WHERE a IN (?, ?) AND b=? AND c>=? ORDER BY c ASC", 0, 1, 0, 0),
                    row(0, 0, 0, 0),
                    row(0, 0, 1, 1),
                    row(0, 0, 2, 2));
 
-        assertRows(execute("SELECT * FROM %s WHERE a IN (?, ?) AND b=? ORDER BY c", 0, 1, 0),
+        assertRows(execute("SELECT * FROM %s WHERE a IN (?, ?) AND b=? AND c>=? ORDER BY c DESC", 0, 1, 0, 0),
+                   row(0, 0, 2, 2),
+                   row(0, 0, 1, 1),
+                   row(0, 0, 0, 0));
+
+        assertRows(execute("SELECT * FROM %s WHERE a IN (?, ?) AND b=? ORDER BY c ASC", 0, 1, 0),
                    row(0, 0, 0, 0),
                    row(0, 0, 1, 1),
                    row(0, 0, 2, 2));
 
-        assertRows(execute("SELECT * FROM %s WHERE a=? AND b IN (?) ORDER BY c", 0, 1),
+        assertRows(execute("SELECT * FROM %s WHERE a IN (?, ?) AND b=? ORDER BY c DESC", 0, 1, 0),
+                   row(0, 0, 2, 2),
+                   row(0, 0, 1, 1),
+                   row(0, 0, 0, 0));
+
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND b IN (?) ORDER BY c ASC", 0, 1),
                    row(0, 1, 0, 3),
                    row(0, 1, 1, 4),
                    row(0, 1, 2, 5));
 
-        assertRows(execute("SELECT * FROM %s WHERE a=? AND (b, c) IN ((?, ?)) ORDER BY c", 0, 1, 1),
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND b IN (?) ORDER BY c DESC", 0, 1),
+                   row(0, 1, 2, 5),
+                   row(0, 1, 1, 4),
+                   row(0, 1, 0, 3));
+
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND (b, c) IN ((?, ?)) ORDER BY c ASC", 0, 1, 1),
                    row(0, 1, 1, 4));
 
-        assertRows(execute("SELECT * FROM %s WHERE a=? AND b IN (?, ?) AND c=? ORDER BY b", 0, 0, 1, 2),
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND (b, c) IN ((?, ?)) ORDER BY c DESC", 0, 1, 1),
+                   row(0, 1, 1, 4));
+
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND b IN (?, ?) AND c=? ORDER BY b ASC", 0, 0, 1, 2),
                    row(0, 0, 2, 2),
                    row(0, 1, 2, 5));
+
+        assertRows(execute("SELECT * FROM %s WHERE a=? AND b IN (?, ?) AND c=? ORDER BY b DESC", 0, 0, 1, 2),
+                   row(0, 1, 2, 5),
+                   row(0, 0, 2, 2));
 
         assertInvalidMessage(errorMsg, "SELECT * FROM %s WHERE a=? AND b IN ? ORDER BY c", 0, list(0));
         assertInvalidMessage(errorMsg, "SELECT * FROM %s WHERE a=? AND b IN (?,?) ORDER BY c", 0, 1, 3);
