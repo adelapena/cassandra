@@ -99,7 +99,7 @@ public final class SystemKeyspace
     public static final String SIZE_ESTIMATES = "size_estimates";
     public static final String AVAILABLE_RANGES = "available_ranges";
     public static final String TRANSFERRED_RANGES = "transferred_ranges";
-    public static final String VIEWS_BUILDS_IN_PROGRESS = "views_builds_in_progress";
+    public static final String VIEWS_BUILDS_IN_PROGRESS = "views_builds_in_progress_v2";
     public static final String BUILT_VIEWS = "built_views";
     public static final String PREPARED_STATEMENTS = "prepared_statements";
     public static final String REPAIRS = "repairs";
