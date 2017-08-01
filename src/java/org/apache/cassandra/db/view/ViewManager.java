@@ -137,7 +137,17 @@ public class ViewManager
 
     public void addView(ViewMetadata definition)
     {
-        View view = new View(definition, keyspace.getColumnFamilyStore(definition.baseTableId));
+        ColumnFamilyStore cfs;
+        try
+        {
+            cfs = keyspace.getColumnFamilyStore(definition.baseTableId);
+        }
+        catch (IllegalArgumentException e)
+        {
+            logger.warn("Skipping addition of materialized view over unknown CF " + definition.baseTableId);
+            return;
+        }
+        View view = new View(definition, cfs);
         forTable(view.getDefinition().baseTableId).add(view);
         viewsByName.put(definition.name, view);
     }
