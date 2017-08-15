@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -50,6 +52,7 @@ public class SplitterTest
     {
         randomSplitTestVNodes(new RandomPartitioner());
     }
+
     @Test
     public void randomSplitTestVNodesMurmur3Partitioner()
     {
@@ -62,9 +65,9 @@ public class SplitterTest
         Random r = new Random();
         for (int i = 0; i < 10000; i++)
         {
-            List<Range<Token>> localRanges = generateLocalRanges(1, r.nextInt(4)+1, splitter, r, partitioner instanceof RandomPartitioner);
+            List<Range<Token>> localRanges = generateLocalRanges(1, r.nextInt(4) + 1, splitter, r, partitioner instanceof RandomPartitioner);
             List<Token> boundaries = splitter.splitOwnedRanges(r.nextInt(9) + 1, localRanges, false);
-            assertTrue("boundaries = "+boundaries+" ranges = "+localRanges, assertRangeSizeEqual(localRanges, boundaries, partitioner, splitter, true));
+            assertTrue("boundaries = " + boundaries + " ranges = " + localRanges, assertRangeSizeEqual(localRanges, boundaries, partitioner, splitter, true));
         }
     }
 
@@ -77,7 +80,7 @@ public class SplitterTest
             // we need many tokens to be able to split evenly over the disks
             int numTokens = 172 + r.nextInt(128);
             int rf = r.nextInt(4) + 2;
-            int parts = r.nextInt(5)+1;
+            int parts = r.nextInt(5) + 1;
             List<Range<Token>> localRanges = generateLocalRanges(numTokens, rf, splitter, r, partitioner instanceof RandomPartitioner);
             List<Token> boundaries = splitter.splitOwnedRanges(parts, localRanges, true);
             if (!assertRangeSizeEqual(localRanges, boundaries, partitioner, splitter, false))
@@ -149,10 +152,74 @@ public class SplitterTest
         List<Range<Token>> localRanges = new ArrayList<>(localTokens);
         for (int i = 0; i < randomTokens.size() - 1; i++)
         {
-            assert randomTokens.get(i).compareTo(randomTokens.get(i+1)) < 0;
-            localRanges.add(new Range<>(randomTokens.get(i), randomTokens.get(i+1)));
+            assert randomTokens.get(i).compareTo(randomTokens.get(i + 1)) < 0;
+            localRanges.add(new Range<>(randomTokens.get(i), randomTokens.get(i + 1)));
             i++;
         }
         return localRanges;
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testSplit()
+    {
+        long min = Long.MIN_VALUE;
+        long max = Long.MAX_VALUE;
+
+        // regular single range
+        testSplit(1, newHashSet(range(1, 100)), newHashSet(range(1, 100)));
+        testSplit(2, newHashSet(range(1, 100)), newHashSet(range(1, 50), range(50, 100)));
+        testSplit(4, newHashSet(range(1, 100)), newHashSet(range(1, 25), range(25, 50), range(50, 75), range(75, 100)));
+
+        // single range too small to be partitioned
+        testSplit(1, newHashSet(range(1, 2)), newHashSet(range(1, 2)));
+        testSplit(2, newHashSet(range(1, 2)), newHashSet(range(1, 2)));
+        testSplit(4, newHashSet(range(1, 4)), newHashSet(range(1, 4)));
+        testSplit(8, newHashSet(range(1, 2)), newHashSet(range(1, 2)));
+
+        // single wrapping range
+        testSplit(2, newHashSet(range(4, -4)), newHashSet(range(4, max), range(max, -4)));
+        testSplit(2, newHashSet(range(2, -6)), newHashSet(range(2, max - 2), range(max - 2, -6)));
+        testSplit(2, newHashSet(range(6, -4)), newHashSet(range(6, min + 1), range(min + 1, -4)));
+
+        // single range around partitioner min/max values
+        testSplit(2, newHashSet(range(max - 8, min)), newHashSet(range(max - 8, max - 4), range(max - 4, max)));
+        testSplit(2, newHashSet(range(max - 8, max)), newHashSet(range(max - 8, max - 4), range(max - 4, max)));
+        testSplit(2, newHashSet(range(min, min + 8)), newHashSet(range(min, min + 4), range(min + 4, min + 8)));
+        testSplit(2, newHashSet(range(max, min + 8)), newHashSet(range(max, min + 4), range(min + 4, min + 8)));
+        testSplit(2, newHashSet(range(max - 4, min + 4)), newHashSet(range(max - 4, max), range(max, min + 4)));
+        testSplit(2, newHashSet(range(max - 4, min + 8)), newHashSet(range(max - 4, min + 2), range(min + 2, min + 8)));
+
+        // multiple ranges
+        testSplit(1, newHashSet(range(1, 100), range(200, 300)), newHashSet(range(1, 100), range(200, 300)));
+        testSplit(2, newHashSet(range(1, 100), range(200, 300)), newHashSet(range(1, 100), range(200, 300)));
+        testSplit(4,
+                  newHashSet(range(1, 100), range(200, 300)),
+                  newHashSet(range(1, 50), range(50, 100), range(200, 250), range(250, 300)));
+        testSplit(4,
+                  newHashSet(range(1, 100), range(200, 300), range(max - 4, min + 4)),
+                  newHashSet(range(1, 50),
+                             range(50, 100),
+                             range(200, 250),
+                             range(250, 300),
+                             range(max, min + 4),
+                             range(max - 4, max)));
+    }
+
+    private static void testSplit(int parts, Set<Range<Token>> ranges, Set<Range<Token>> expected)
+    {
+        Splitter splitter = new Murmur3Partitioner().splitter().get();
+        Set<Range<Token>> actual = splitter.split(ranges, parts);
+        assertEquals(expected, actual);
+    }
+
+    private static Range<Token> range(long left, long right)
+    {
+        return new Range<>(token(left), token(right));
+    }
+
+    private static Token token(long n)
+    {
+        return new Murmur3Partitioner.LongToken(n);
     }
 }
