@@ -272,7 +272,6 @@ public final class SystemKeyspace
               + "end_token varchar,"
               + "last_token varchar,"
               + "keys_built bigint,"
-              + "generation_number int,"
               + "PRIMARY KEY ((keyspace_name), view_name, start_token, end_token))")
               .build();
 
@@ -469,11 +468,11 @@ public final class SystemKeyspace
         forceBlockingFlush(BUILT_VIEWS);
     }
 
-    public static void beginViewBuild(String ksname, String viewName, Range<Token> range, int generationNumber)
+    public static void beginViewBuild(String ksname, String viewName, Range<Token> range)
     {
-        String req = "INSERT INTO system.%s (keyspace_name, view_name, start_token, end_token, generation_number) VALUES (?, ?, ?, ?, ?)";
+        String req = "INSERT INTO system.%s (keyspace_name, view_name, start_token, end_token) VALUES (?, ?, ?, ?)";
         Token.TokenFactory factory = ViewBuildsInProgress.partitioner.getTokenFactory();
-        executeInternal(format(req, VIEW_BUILDS_IN_PROGRESS), ksname, viewName, factory.toString(range.left), factory.toString(range.right), generationNumber);
+        executeInternal(format(req, VIEW_BUILDS_IN_PROGRESS), ksname, viewName, factory.toString(range.left), factory.toString(range.right));
     }
 
     public static void finishViewBuildStatus(String ksname, String viewName)

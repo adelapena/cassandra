@@ -120,12 +120,7 @@ public class ViewBuilderTask extends CompactionInfo.Holder
         {
             logger.debug("Starting new view build for range {}. flushing base table {}.{}", range, baseCfs.metadata.keyspace, baseCfs.name);
             lastToken = null;
-
-            //We don't track the generation number anymore since if a rebuild is stopped and
-            //restarted the max generation filter may yield no sstables due to compactions.
-            //We only care about max generation *during* a build, not across builds.
-            //see CASSANDRA-13405
-            SystemKeyspace.beginViewBuild(ksname, viewName, range, 0);
+            SystemKeyspace.beginViewBuild(ksname, viewName, range);
         }
         else
         {
