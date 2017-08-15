@@ -19,204 +19,120 @@
 package org.apache.cassandra.db.view;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.google.common.base.Function;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.collect.Sets;
 
-import org.apache.cassandra.concurrent.ScheduledExecutors;
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.compaction.CompactionInfo;
+import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.compaction.CompactionManager;
-import org.apache.cassandra.db.compaction.OperationType;
-import org.apache.cassandra.db.lifecycle.SSTableSet;
-import org.apache.cassandra.db.partitions.*;
-import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.dht.Token;
-import org.apache.cassandra.io.sstable.ReducingKeyIterator;
-import org.apache.cassandra.io.sstable.format.SSTableReader;
-import org.apache.cassandra.repair.SystemDistributedKeyspace;
-import org.apache.cassandra.service.StorageProxy;
-import org.apache.cassandra.utils.FBUtilities;
-import org.apache.cassandra.utils.Pair;
-import org.apache.cassandra.utils.UUIDGen;
-import org.apache.cassandra.utils.concurrent.Refs;
+import org.apache.cassandra.service.StorageService;
 
-public class ViewBuilder extends CompactionInfo.Holder
+import static java.util.stream.Collectors.toConcurrentMap;
+
+/**
+ * Builds a materialized view for the local token ranges.
+ * <p>
+ * The build is parellelized in at least {@link #concurrencyFactor()} {@link ViewBuilderTask} tasks that are run in the
+ * {@link CompactionManager}.
+ */
+class ViewBuilder
 {
     private final ColumnFamilyStore baseCfs;
     private final View view;
-    public final Range<Token> range;
-    private final ViewBuilderController controller;
-    private final UUID compactionId;
-    private volatile Token prevToken = null;
-    private volatile long keysBuilt = 0;
 
-    private static final Logger logger = LoggerFactory.getLogger(ViewBuilder.class);
+    /** The local token ranges covered by this builder */
+    private final Set<Range<Token>> ranges;
 
-    private volatile boolean isStopped = false;
+    /** The pending view builders associated to the start token of their covered token range */
+    private final Map<Range<Token>, ViewBuilderTask> tasks;
 
-    public ViewBuilder(ColumnFamilyStore baseCfs, View view, Range<Token> range, ViewBuilderController controller)
+    /** The count of keys built by all the token range view builders */
+    private volatile long builtKeys = 0;
+
+    /** If the view building has been stopped */
+    private volatile boolean stopped = false;
+
+    ViewBuilder(ColumnFamilyStore baseCfs, View view)
     {
         this.baseCfs = baseCfs;
         this.view = view;
-        this.range = range;
-        this.controller = controller;
-        compactionId = UUIDGen.getTimeUUID();
+        ranges = Sets.newConcurrentHashSet(StorageService.instance.getLocalRanges(baseCfs.metadata.keyspace));
+        tasks = split(ranges, concurrencyFactor())
+                   .stream().collect(toConcurrentMap(r -> r, r -> new ViewBuilderTask(baseCfs, view, r, this)));
+        tasks.values().forEach(CompactionManager.instance::submitViewBuilder);
     }
 
-    private void buildKey(DecoratedKey key)
+    private static int concurrencyFactor()
     {
-        ReadQuery selectQuery = view.getReadQuery();
-
-        if (!selectQuery.selectsKey(key))
-        {
-            logger.trace("Skipping {}, view query filters", key);
-            return;
-        }
-
-        int nowInSec = FBUtilities.nowInSeconds();
-        SinglePartitionReadCommand command = view.getSelectStatement().internalReadForView(key, nowInSec);
-
-        // We're rebuilding everything from what's on disk, so we read everything, consider that as new updates
-        // and pretend that there is nothing pre-existing.
-        UnfilteredRowIterator empty = UnfilteredRowIterators.noRowsIterator(baseCfs.metadata(), key, Rows.EMPTY_STATIC_ROW, DeletionTime.LIVE, false);
-
-        try (ReadExecutionController orderGroup = command.executionController();
-             UnfilteredRowIterator data = UnfilteredPartitionIterators.getOnlyElement(command.executeLocally(orderGroup), command))
-        {
-            Iterator<Collection<Mutation>> mutations = baseCfs.keyspace.viewManager
-                                                      .forTable(baseCfs.metadata.id)
-                                                      .generateViewUpdates(Collections.singleton(view), data, empty, nowInSec, true);
-
-            AtomicLong noBase = new AtomicLong(Long.MAX_VALUE);
-            mutations.forEachRemaining(m -> StorageProxy.mutateMV(key.getKey(), m, true, noBase, System.nanoTime()));
-        }
+        return DatabaseDescriptor.getConcurrentCompactors();
     }
 
-    public void run()
+    private static Set<Range<Token>> split(Set<Range<Token>> ranges, int parts)
     {
-        logger.debug("Starting view builder for {}.{} for range {}", baseCfs.metadata.keyspace, view.name, range);
-        UUID localHostId = SystemKeyspace.getLocalHostId();
-        String ksname = baseCfs.metadata.keyspace, viewName = view.name;
-
-        if (SystemKeyspace.isViewBuilt(ksname, viewName))
-        {
-            logger.debug("View already marked built for {}.{}", baseCfs.metadata.keyspace, view.name);
-            if (!SystemKeyspace.isViewStatusReplicated(ksname, viewName))
-                updateDistributed(ksname, viewName, localHostId);
-            return;
-        }
-
-        final Pair<Token, Long> buildStatus = SystemKeyspace.getViewBuildStatus(ksname, viewName, range);
-        Token lastToken;
-        if (buildStatus == null)
-        {
-            logger.debug("Starting new view build for range {}. flushing base table {}.{}", range, baseCfs.metadata.keyspace, baseCfs.name);
-            lastToken = null;
-
-            //We don't track the generation number anymore since if a rebuild is stopped and
-            //restarted the max generation filter may yield no sstables due to compactions.
-            //We only care about max generation *during* a build, not across builds.
-            //see CASSANDRA-13405
-            SystemKeyspace.beginViewBuild(ksname, viewName, range, 0);
-        }
-        else
-        {
-            lastToken = buildStatus.left;
-            keysBuilt = buildStatus.right;
-            logger.debug("Resuming view build for range {} from token {} with {} covered keys. flushing base table {}.{}",
-                         range, lastToken, keysBuilt, baseCfs.metadata.keyspace, baseCfs.name);
-        }
-
-        baseCfs.forceBlockingFlush();
-
-        Function<org.apache.cassandra.db.lifecycle.View, Iterable<SSTableReader>> function;
-        function = org.apache.cassandra.db.lifecycle.View.selectFunction(SSTableSet.CANONICAL);
-
-        prevToken = lastToken;
-
-        try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(function);
-             Refs<SSTableReader> sstables = viewFragment.refs;
-             ReducingKeyIterator iter = new ReducingKeyIterator(sstables))
-        {
-            SystemDistributedKeyspace.startViewBuild(ksname, viewName, localHostId);
-            while (!isStopped && iter.hasNext())
-            {
-                DecoratedKey key = iter.next();
-                Token token = key.getToken();
-                if (lastToken == null || lastToken.compareTo(token) < 0)
-                {
-                    if (range.contains(token))
-                    {
-                        buildKey(key);
-                        ++keysBuilt;
-
-                        if (prevToken == null || prevToken.compareTo(token) != 0)
-                        {
-                            SystemKeyspace.updateViewBuildStatus(ksname, viewName, range, token, keysBuilt);
-                            prevToken = token;
-                        }
-                    }
-
-                    lastToken = null;
-                }
-            }
-
-            if (!isStopped)
-            {
-                logger.debug("Completed build of view({}.{}) for range {} after covering {} keys ", ksname, viewName, range, keysBuilt);
-                if (controller.notifyFinished(range, keysBuilt))
-                {
-                    logger.debug("Marking view({}.{}) as built after covering {} keys ", ksname, viewName, controller.builtKeys());
-                    SystemKeyspace.finishViewBuildStatus(ksname, viewName);
-                    updateDistributed(ksname, viewName, localHostId);
-                }
-            }
-            else
-            {
-                logger.debug("Stopped build for view({}.{}) for range {} after covering {} keys", ksname, viewName, range, keysBuilt);
-            }
-        }
-        catch (Exception e)
-        {
-            ScheduledExecutors.nonPeriodicTasks.schedule(() -> CompactionManager.instance.submitViewBuilder(this),
-                                                         5,
-                                                         TimeUnit.MINUTES);
-            logger.warn("Materialized View failed to complete, sleeping 5 minutes before restarting", e);
-        }
+        // the partitioner could not have a splitter, in that case we return the ranges unchanged
+        return DatabaseDescriptor.getPartitioner()
+                                 .splitter()
+                                 .map(splitter -> splitter.split(ranges, parts))
+                                 .orElse(ranges);
     }
 
-    private void updateDistributed(String ksname, String viewName, UUID localHostId)
+    /**
+     * Stops the view building.
+     */
+    synchronized void stop()
     {
-        try
-        {
-            SystemDistributedKeyspace.successfulViewBuild(ksname, viewName, localHostId);
-            SystemKeyspace.setViewBuiltReplicated(ksname, viewName);
-        }
-        catch (Exception e)
-        {
-            ScheduledExecutors.nonPeriodicTasks.schedule(() -> CompactionManager.instance.submitViewBuilder(this),
-                                                         5,
-                                                         TimeUnit.MINUTES);
-            logger.warn("Failed to updated the distributed status of view, sleeping 5 minutes before retrying", e);
-        }
+        stopped = true;
+        tasks.values().forEach(ViewBuilderTask::stop);
+        tasks.clear();
+        ranges.clear();
     }
 
-    public CompactionInfo getCompactionInfo()
+    /**
+     * Notifies that the view building for the specified token range has finished after covering the specified number of
+     * keys, checks if there are any new local ranges to be processed, and returns if this was the last pending range
+     * building so the view building can be cosidered as finished.
+     *
+     * @param range the token range covered by the finished view builder
+     * @param builtKeys the number of keys covered by the finished builder
+     * @return {@code true} if this was the last pending range build, {@code false} otherwise
+     */
+    synchronized boolean notifyFinished(Range<Token> range, long builtKeys)
     {
-        long keysTotal = baseCfs.estimatedKeysForRange(range);
-        return new CompactionInfo(baseCfs.metadata(), OperationType.VIEW_BUILD, keysBuilt, keysTotal, "ranges", compactionId);
+        if (stopped)
+            return false;
+
+        this.builtKeys += builtKeys;
+        tasks.remove(range);
+
+        if (tasks.isEmpty())
+        {
+            // Find any possible new local ranges that has not been considered yet
+            Collection<Range<Token>> localRanges = StorageService.instance.getLocalRanges(baseCfs.metadata.keyspace);
+            Set<Range<Token>> newRanges = localRanges.stream()
+                                                     .filter(x -> ranges.stream().noneMatch(y -> y.contains(x)))
+                                                     .collect(Collectors.toSet());
+
+            // If there are no new local ranges we are done
+            if (newRanges.isEmpty())
+                return true;
+
+            // Split the new ranges to satisfy the concurrency factor and run a new view builder for each of them
+            ranges.addAll(newRanges);
+            split(newRanges, concurrencyFactor()).stream()
+                                                 .map(r -> new ViewBuilderTask(baseCfs, view, r, this))
+                                                 .peek(t -> tasks.put(t.range, t))
+                                                 .forEach(CompactionManager.instance::submitViewBuilder);
+        }
+        return false;
     }
 
-    public void stop()
+    long builtKeys()
     {
-        isStopped = true;
+        return builtKeys;
     }
 }

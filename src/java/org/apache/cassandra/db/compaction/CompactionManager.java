@@ -50,7 +50,7 @@ import org.apache.cassandra.db.lifecycle.SSTableIntervalTree;
 import org.apache.cassandra.db.lifecycle.SSTableSet;
 import org.apache.cassandra.db.lifecycle.View;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
-import org.apache.cassandra.db.view.ViewBuilder;
+import org.apache.cassandra.db.view.ViewBuilderTask;
 import org.apache.cassandra.dht.Bounds;
 import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.dht.Token;
@@ -1728,20 +1728,20 @@ public class CompactionManager implements CompactionManagerMBean
         }
     }
 
-    public Future<?> submitViewBuilder(final ViewBuilder builder)
+    public Future<?> submitViewBuilder(final ViewBuilderTask task)
     {
         Runnable runnable = new Runnable()
         {
             public void run()
             {
-                metrics.beginCompaction(builder);
+                metrics.beginCompaction(task);
                 try
                 {
-                    builder.run();
+                    task.run();
                 }
                 finally
                 {
-                    metrics.finishCompaction(builder);
+                    metrics.finishCompaction(task);
                 }
             }
         };

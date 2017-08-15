@@ -56,7 +56,7 @@ public class View
     public volatile List<ColumnMetadata> baseNonPKColumnsInViewPK;
 
     private final boolean includeAllColumns;
-    private ViewBuilderController builderController;
+    private ViewBuilder builder;
 
     // Only the raw statement can be final, because the statement cannot always be prepared when the MV is initialized.
     // For example, during startup, this view will be initialized as part of the Keyspace.open() work; preparing a statement
@@ -209,14 +209,14 @@ public class View
 
     public synchronized void build()
     {
-        if (builderController != null)
+        if (builder != null)
         {
             logger.debug("Stopping current view builder due to schema change");
-            builderController.stop();
-            builderController = null;
+            builder.stop();
+            builder = null;
         }
 
-        builderController = new ViewBuilderController(baseCfs, this);
+        builder = new ViewBuilder(baseCfs, this);
     }
 
     @Nullable
