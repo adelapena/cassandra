@@ -99,7 +99,7 @@ public final class SystemKeyspace
     public static final String SIZE_ESTIMATES = "size_estimates";
     public static final String AVAILABLE_RANGES = "available_ranges";
     public static final String TRANSFERRED_RANGES = "transferred_ranges";
-    public static final String VIEWS_BUILDS_IN_PROGRESS = "views_builds_in_progress_v2";
+    public static final String VIEW_BUILDS_IN_PROGRESS = "view_builds_in_progress";
     public static final String BUILT_VIEWS = "built_views";
     public static final String PREPARED_STATEMENTS = "prepared_statements";
     public static final String REPAIRS = "repairs";
@@ -262,8 +262,8 @@ public final class SystemKeyspace
               + "PRIMARY KEY ((operation, keyspace_name), peer))")
               .build();
 
-    private static final TableMetadata ViewsBuildsInProgress =
-        parse(VIEWS_BUILDS_IN_PROGRESS,
+    private static final TableMetadata ViewBuildsInProgress =
+        parse(VIEW_BUILDS_IN_PROGRESS,
               "views builds current progress",
               "CREATE TABLE %s ("
               + "keyspace_name text,"
@@ -340,7 +340,7 @@ public final class SystemKeyspace
                          SizeEstimates,
                          AvailableRanges,
                          TransferredRanges,
-                         ViewsBuildsInProgress,
+                         ViewBuildsInProgress,
                          BuiltViews,
                          PreparedStatements,
                          Repairs);
@@ -461,8 +461,8 @@ public final class SystemKeyspace
     public static void setViewRemoved(String keyspaceName, String viewName)
     {
         String buildReq = "DELETE FROM %s.%s WHERE keyspace_name = ? AND view_name = ?";
-        executeInternal(String.format(buildReq, SchemaConstants.SYSTEM_KEYSPACE_NAME, VIEWS_BUILDS_IN_PROGRESS), keyspaceName, viewName);
-        forceBlockingFlush(VIEWS_BUILDS_IN_PROGRESS);
+        executeInternal(String.format(buildReq, SchemaConstants.SYSTEM_KEYSPACE_NAME, VIEW_BUILDS_IN_PROGRESS), keyspaceName, viewName);
+        forceBlockingFlush(VIEW_BUILDS_IN_PROGRESS);
 
         String builtReq = "DELETE FROM %s.\"%s\" WHERE keyspace_name = ? AND view_name = ? IF EXISTS";
         executeInternal(String.format(builtReq, SchemaConstants.SYSTEM_KEYSPACE_NAME, BUILT_VIEWS), keyspaceName, viewName);
@@ -472,8 +472,8 @@ public final class SystemKeyspace
     public static void beginViewBuild(String ksname, String viewName, Range<Token> range, int generationNumber)
     {
         String req = "INSERT INTO system.%s (keyspace_name, view_name, start_token, end_token, generation_number) VALUES (?, ?, ?, ?, ?)";
-        Token.TokenFactory factory = ViewsBuildsInProgress.partitioner.getTokenFactory();
-        executeInternal(format(req, VIEWS_BUILDS_IN_PROGRESS), ksname, viewName, factory.toString(range.left), factory.toString(range.right), generationNumber);
+        Token.TokenFactory factory = ViewBuildsInProgress.partitioner.getTokenFactory();
+        executeInternal(format(req, VIEW_BUILDS_IN_PROGRESS), ksname, viewName, factory.toString(range.left), factory.toString(range.right), generationNumber);
     }
 
     public static void finishViewBuildStatus(String ksname, String viewName)
@@ -484,8 +484,8 @@ public final class SystemKeyspace
         // Also, if writing to the built_view succeeds, but the view_builds_in_progress deletion fails, we will be able
         // to skip the view build next boot.
         setViewBuilt(ksname, viewName, false);
-        executeInternal(String.format("DELETE FROM system.%s WHERE keyspace_name = ? AND view_name = ?", VIEWS_BUILDS_IN_PROGRESS), ksname, viewName);
-        forceBlockingFlush(VIEWS_BUILDS_IN_PROGRESS);
+        executeInternal(String.format("DELETE FROM system.%s WHERE keyspace_name = ? AND view_name = ?", VIEW_BUILDS_IN_PROGRESS), ksname, viewName);
+        forceBlockingFlush(VIEW_BUILDS_IN_PROGRESS);
     }
 
     public static void setViewBuiltReplicated(String ksname, String viewName)
@@ -496,8 +496,8 @@ public final class SystemKeyspace
     public static void updateViewBuildStatus(String ksname, String viewName, Range<Token> range, Token lastToken, long keysBuilt)
     {
         String req = "INSERT INTO system.%s (keyspace_name, view_name, start_token, end_token, last_token, keys_built) VALUES (?, ?, ?, ?, ?, ?)";
-        Token.TokenFactory factory = ViewsBuildsInProgress.partitioner.getTokenFactory();
-        executeInternal(format(req, VIEWS_BUILDS_IN_PROGRESS),
+        Token.TokenFactory factory = ViewBuildsInProgress.partitioner.getTokenFactory();
+        executeInternal(format(req, VIEW_BUILDS_IN_PROGRESS),
                         ksname,
                         viewName,
                         factory.toString(range.left),
@@ -509,8 +509,8 @@ public final class SystemKeyspace
     public static Pair<Token, Long> getViewBuildStatus(String ksname, String viewName, Range<Token> range)
     {
         String req = "SELECT last_token, keys_built FROM system.%s WHERE keyspace_name = ? AND view_name = ? AND start_token = ? AND end_token = ?";
-        Token.TokenFactory factory = ViewsBuildsInProgress.partitioner.getTokenFactory();
-        UntypedResultSet queryResultSet = executeInternal(format(req, VIEWS_BUILDS_IN_PROGRESS),
+        Token.TokenFactory factory = ViewBuildsInProgress.partitioner.getTokenFactory();
+        UntypedResultSet queryResultSet = executeInternal(format(req, VIEW_BUILDS_IN_PROGRESS),
                                                           ksname,
                                                           viewName,
                                                           factory.toString(range.left),
