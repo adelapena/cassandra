@@ -20,8 +20,15 @@ package org.apache.cassandra.dht;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Partition splitter.
@@ -127,4 +134,55 @@ public abstract class Splitter
         return t.equals(partitioner.getMinimumToken()) ? partitioner.getMaximumToken() : t;
     }
 
+    /**
+     * Splits the specified token ranges in at least {@code parts} subranges.
+     * <p>
+     * Each returned subrange will be contained in exactly one of the specified ranges.
+     *
+     * @param ranges a collection of token ranges to be split
+     * @param parts the minimum number of returned ranges
+     * @return at least {@code minParts} token ranges covering {@code ranges}
+     */
+    public Set<Range<Token>> split(Collection<Range<Token>> ranges, int parts)
+    {
+        int numRanges = ranges.size();
+        if (numRanges >= parts)
+        {
+            return Sets.newHashSet(ranges);
+        }
+        else
+        {
+            int partsPerRange = (int) Math.ceil((double) parts / numRanges);
+            return ranges.stream()
+                         .map(range -> split(range, partsPerRange))
+                         .flatMap(Collection::stream)
+                         .collect(toSet());
+        }
+    }
+
+    /**
+     * Splits the specified token range in at least {@code minParts} subranges, unless the range has not enough tokens
+     * in which case the range will be returned without splitting.
+     *
+     * @param range a token range
+     * @param parts the number of subranges
+     * @return {@code parts} even subranges of {@code range}
+     */
+    private Set<Range<Token>> split(Range<Token> range, int parts)
+    {
+        // the range might not have enough tokens to split
+        BigInteger numTokens = valueForToken(token(range.right)).subtract(valueForToken(range.left)).abs();
+        if (BigInteger.valueOf(parts).compareTo(numTokens) > 0)
+            return Collections.singleton(range);
+
+        Token left = range.left;
+        Set<Range<Token>> subranges = new HashSet<>(parts);
+        for (double i = 1; i <= parts; i++)
+        {
+            Token right = partitioner.split(range.left, range.right, i / parts);
+            subranges.add(new Range<>(left, right));
+            left = right;
+        }
+        return subranges;
+    }
 }

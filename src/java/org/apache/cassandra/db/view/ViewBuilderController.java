@@ -19,7 +19,6 @@
 package org.apache.cassandra.db.view;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,7 +28,6 @@ import com.google.common.collect.Sets;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.compaction.CompactionManager;
-import org.apache.cassandra.dht.IPartitioner;
 import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.service.StorageService;
@@ -74,49 +72,13 @@ class ViewBuilderController
         return DatabaseDescriptor.getConcurrentCompactors();
     }
 
-    /**
-     * Splits the specified token ranges in at least {@code minParts} token ranges.
-     *
-     * @param ranges a collection of token ranges to be split
-     * @param minParts the minimum number of returned ranges
-     * @return at least {@code minParts} token ranges covering {@code ranges}
-     */
-    private static Collection<Range<Token>> split(Collection<Range<Token>> ranges, int minParts)
+    private static Set<Range<Token>> split(Set<Range<Token>> ranges, int parts)
     {
-        int numRanges = ranges.size();
-        if (numRanges >= minParts)
-        {
-            return ranges;
-        }
-        else
-        {
-            int partsPerRange = (int) Math.ceil((double) minParts / numRanges);
-            return ranges.stream()
-                         .map(range -> split(range, partsPerRange))
-                         .flatMap(Collection::stream)
-                         .collect(Collectors.toSet());
-        }
-    }
-
-    /**
-     * Splits the specified token range in {@code parts} subranges.
-     *
-     * @param range a token range
-     * @param parts the number of subranges
-     * @return {@code parts} even subranges of {@code range}
-     */
-    private static Collection<Range<Token>> split(Range<Token> range, int parts)
-    {
-        IPartitioner partitioner = DatabaseDescriptor.getPartitioner();
-        Set<Range<Token>> subranges = new HashSet<>(parts);
-        Token left = range.left;
-        for (double i = 1; i <= parts; i++)
-        {
-            Token right = partitioner.split(range.left, range.right, i / parts);
-            subranges.add(new Range<>(left, right));
-            left = right;
-        }
-        return subranges;
+        // the partitioner could not have a splitter, in that case we return the ranges unchanged
+        return DatabaseDescriptor.getPartitioner()
+                                 .splitter()
+                                 .map(splitter -> splitter.split(ranges, parts))
+                                 .orElse(ranges);
     }
 
     /**
