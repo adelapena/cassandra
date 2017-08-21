@@ -53,7 +53,7 @@ public class ViewBuilderTask extends CompactionInfo.Holder
     private final ColumnFamilyStore baseCfs;
     private final View view;
     public final Range<Token> range;
-    private final ViewBuilder controller;
+    private final ViewBuilder builder;
     private final UUID compactionId;
     private volatile Token prevToken = null;
     private volatile long keysBuilt = 0;
@@ -62,12 +62,12 @@ public class ViewBuilderTask extends CompactionInfo.Holder
 
     private volatile boolean isStopped = false;
 
-    public ViewBuilderTask(ColumnFamilyStore baseCfs, View view, Range<Token> range, ViewBuilder controller)
+    public ViewBuilderTask(ColumnFamilyStore baseCfs, View view, Range<Token> range, ViewBuilder builder)
     {
         this.baseCfs = baseCfs;
         this.view = view;
         this.range = range;
-        this.controller = controller;
+        this.builder = builder;
         compactionId = UUIDGen.getTimeUUID();
     }
 
@@ -167,9 +167,9 @@ public class ViewBuilderTask extends CompactionInfo.Holder
             if (!isStopped)
             {
                 logger.debug("Completed build of view({}.{}) for range {} after covering {} keys ", ksname, viewName, range, keysBuilt);
-                if (controller.notifyFinished(range, keysBuilt))
+                if (builder.notifyFinished(range, keysBuilt))
                 {
-                    logger.debug("Marking view({}.{}) as built after covering {} keys ", ksname, viewName, controller.builtKeys());
+                    logger.debug("Marking view({}.{}) as built after covering {} keys ", ksname, viewName, builder.builtKeys());
                     SystemKeyspace.finishViewBuildStatus(ksname, viewName);
                     updateDistributed(ksname, viewName, localHostId);
                 }
