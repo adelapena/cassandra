@@ -50,6 +50,10 @@ import org.apache.cassandra.utils.concurrent.Refs;
 
 public class ViewBuilderTask extends CompactionInfo.Holder
 {
+    private static final Logger logger = LoggerFactory.getLogger(ViewBuilderTask.class);
+
+    private static final int ROWS_BETWEEN_CHECKPOINTS = 1000;
+
     private final ColumnFamilyStore baseCfs;
     private final View view;
     public final Range<Token> range;
@@ -57,9 +61,6 @@ public class ViewBuilderTask extends CompactionInfo.Holder
     private final UUID compactionId;
     private volatile Token prevToken = null;
     private volatile long keysBuilt = 0;
-
-    private static final Logger logger = LoggerFactory.getLogger(ViewBuilderTask.class);
-
     private volatile boolean isStopped = false;
 
     public ViewBuilderTask(ColumnFamilyStore baseCfs, View view, Range<Token> range, ViewBuilder builder)
@@ -155,7 +156,8 @@ public class ViewBuilderTask extends CompactionInfo.Holder
 
                         if (prevToken == null || prevToken.compareTo(token) != 0)
                         {
-                            SystemKeyspace.updateViewBuildStatus(ksname, viewName, range, token, keysBuilt);
+                            if (keysBuilt % ROWS_BETWEEN_CHECKPOINTS == 0)
+                                SystemKeyspace.updateViewBuildStatus(ksname, viewName, range, token, keysBuilt);
                             prevToken = token;
                         }
                     }
