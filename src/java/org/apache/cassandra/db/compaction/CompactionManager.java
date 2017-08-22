@@ -1857,7 +1857,7 @@ public class CompactionManager implements CompactionManagerMBean
     {
         public ViewBuildExecutor()
         {
-            super(1, DatabaseDescriptor.getConcurrentValidations(), "ViewBuildExecutor", new SynchronousQueue<>());
+            super(1, DatabaseDescriptor.getConcurrentViewBuilders(), "ViewBuildExecutor", new SynchronousQueue<>());
         }
     }
 
@@ -1984,10 +1984,20 @@ public class CompactionManager implements CompactionManagerMBean
         validationExecutor.setMaximumPoolSize(value);
     }
 
-    public void setConcurrentViewBuilds(int value)
+    public void setConcurrentViewBuilders(int value)
     {
-        value = value > 0 ? value : Integer.MAX_VALUE;
-        viewBuildExecutor.setMaximumPoolSize(value);
+        if (value > viewBuildExecutor.getCorePoolSize())
+        {
+            // we are increasing the value
+            viewBuildExecutor.setMaximumPoolSize(value);
+            viewBuildExecutor.setCorePoolSize(value);
+        }
+        else if (value < viewBuildExecutor.getCorePoolSize())
+        {
+            // we are reducing the value
+            viewBuildExecutor.setCorePoolSize(value);
+            viewBuildExecutor.setMaximumPoolSize(value);
+        }
     }
 
     public int getCoreCompactorThreads()

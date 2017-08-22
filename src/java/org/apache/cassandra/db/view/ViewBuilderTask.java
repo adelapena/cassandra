@@ -152,7 +152,7 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
 
                         if (prevToken == null || prevToken.compareTo(token) != 0)
                         {
-                            if (keysBuilt % ROWS_BETWEEN_CHECKPOINTS == 0)
+                            if (keysBuilt % ROWS_BETWEEN_CHECKPOINTS == 1)
                                 SystemKeyspace.updateViewBuildStatus(ksname, viewName, range, token, keysBuilt);
                             prevToken = token;
                         }
