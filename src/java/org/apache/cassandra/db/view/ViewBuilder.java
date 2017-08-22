@@ -94,12 +94,10 @@ class ViewBuilder
                                               .filter(x -> builtRanges.stream().noneMatch(y -> y.contains(x)))
                                               .collect(toSet());
 
-        // If there are no new ranges we should mark the view as built
+        // If there are no new ranges we should finish the build
         if (ranges.isEmpty())
         {
-            logger.debug("Marking view({}.{}) as built after covering {} keys ", ksName, view.name, keysBuilt);
-            SystemKeyspace.finishViewBuildStatus(ksName, view.name);
-            updateDistributed();
+            finish();
             return;
         }
 
@@ -135,6 +133,13 @@ class ViewBuilder
                 logger.warn("Materialized View failed to complete, sleeping 5 minutes before restarting", t);
             }
         });
+    }
+
+    private void finish()
+    {
+        logger.debug("Marking view({}.{}) as built after covering {} keys ", ksName, view.name, keysBuilt);
+        SystemKeyspace.finishViewBuildStatus(ksName, view.name);
+        updateDistributed();
     }
 
     private void updateDistributed()
