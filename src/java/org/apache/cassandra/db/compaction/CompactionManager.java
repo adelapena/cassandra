@@ -123,8 +123,9 @@ public class CompactionManager implements CompactionManagerMBean
     private final CompactionExecutor executor = new CompactionExecutor();
     private final CompactionExecutor validationExecutor = new ValidationExecutor();
     private final static CompactionExecutor cacheCleanupExecutor = new CacheCleanupExecutor();
+    private final CompactionExecutor viewBuildExecutor = new ViewBuildExecutor();
 
-    private final CompactionMetrics metrics = new CompactionMetrics(executor, validationExecutor);
+    private final CompactionMetrics metrics = new CompactionMetrics(executor, validationExecutor, viewBuildExecutor);
     private final Multiset<ColumnFamilyStore> compactingCF = ConcurrentHashMultiset.create();
 
     private final RateLimiter compactionRateLimiter = RateLimiter.create(Double.MAX_VALUE);
@@ -215,6 +216,7 @@ public class CompactionManager implements CompactionManagerMBean
         // shutdown executors to prevent further submission
         executor.shutdown();
         validationExecutor.shutdown();
+        viewBuildExecutor.shutdown();
 
         // interrupt compactions and validations
         for (Holder compactionHolder : CompactionMetrics.getCompactions())
@@ -225,7 +227,7 @@ public class CompactionManager implements CompactionManagerMBean
         // wait for tasks to terminate
         // compaction tasks are interrupted above, so it shuold be fairy quick
         // until not interrupted tasks to complete.
-        for (ExecutorService exec : Arrays.asList(executor, validationExecutor))
+        for (ExecutorService exec : Arrays.asList(executor, validationExecutor, viewBuildExecutor))
         {
             try
             {
@@ -1635,6 +1637,21 @@ public class CompactionManager implements CompactionManagerMBean
         return executor.submitIfRunning(runnable, "index build");
     }
 
+    public ListenableFuture<Long> submitViewBuilder(final ViewBuilderTask task)
+    {
+        return viewBuildExecutor.submitIfRunning(() -> {
+            metrics.beginCompaction(task);
+            try
+            {
+                return task.call();
+            }
+            finally
+            {
+                metrics.finishCompaction(task);
+            }
+        }, "view build");
+    }
+
     public Future<?> submitCacheWrite(final AutoSavingCache.Writer writer)
     {
         Runnable runnable = new Runnable()
@@ -1728,31 +1745,6 @@ public class CompactionManager implements CompactionManagerMBean
         }
     }
 
-    public Future<?> submitViewBuilder(final ViewBuilderTask task)
-    {
-        Runnable runnable = new Runnable()
-        {
-            public void run()
-            {
-                metrics.beginCompaction(task);
-                try
-                {
-                    task.run();
-                }
-                finally
-                {
-                    metrics.finishCompaction(task);
-                }
-            }
-        };
-        if (executor.isShutdown())
-        {
-            logger.info("Compaction executor has shut down, not submitting index build");
-            return null;
-        }
-
-        return executor.submit(runnable);
-    }
     public int getActiveCompactions()
     {
         return CompactionMetrics.getCompactions().size();
@@ -1827,7 +1819,7 @@ public class CompactionManager implements CompactionManagerMBean
          * @return the future that will deliver the task result, or a future that has already been
          *         cancelled if the task could not be submitted.
          */
-        public ListenableFuture<?> submitIfRunning(Callable<?> task, String name)
+        public <T> ListenableFuture<T> submitIfRunning(Callable<T> task, String name)
         {
             if (isShutdown())
             {
@@ -1837,7 +1829,7 @@ public class CompactionManager implements CompactionManagerMBean
 
             try
             {
-                ListenableFutureTask ret = ListenableFutureTask.create(task);
+                ListenableFutureTask<T> ret = ListenableFutureTask.create(task);
                 submit(ret);
                 return ret;
             }
@@ -1858,6 +1850,14 @@ public class CompactionManager implements CompactionManagerMBean
         public ValidationExecutor()
         {
             super(1, DatabaseDescriptor.getConcurrentValidations(), "ValidationExecutor", new SynchronousQueue<Runnable>());
+        }
+    }
+
+    private static class ViewBuildExecutor extends CompactionExecutor
+    {
+        public ViewBuildExecutor()
+        {
+            super(1, DatabaseDescriptor.getConcurrentValidations(), "ViewBuildExecutor", new SynchronousQueue<>());
         }
     }
 
@@ -1984,6 +1984,12 @@ public class CompactionManager implements CompactionManagerMBean
         validationExecutor.setMaximumPoolSize(value);
     }
 
+    public void setConcurrentViewBuilds(int value)
+    {
+        value = value > 0 ? value : Integer.MAX_VALUE;
+        viewBuildExecutor.setMaximumPoolSize(value);
+    }
+
     public int getCoreCompactorThreads()
     {
         return executor.getCorePoolSize();
@@ -2022,6 +2028,26 @@ public class CompactionManager implements CompactionManagerMBean
     public void setMaximumValidatorThreads(int number)
     {
         validationExecutor.setMaximumPoolSize(number);
+    }
+
+    public int getCoreViewBuildThreads()
+    {
+        return viewBuildExecutor.getCorePoolSize();
+    }
+
+    public void setCoreViewBuildThreads(int number)
+    {
+        viewBuildExecutor.setCorePoolSize(number);
+    }
+
+    public int getMaximumViewBuildThreads()
+    {
+        return viewBuildExecutor.getMaximumPoolSize();
+    }
+
+    public void setMaximumViewBuildThreads(int number)
+    {
+        viewBuildExecutor.setMaximumPoolSize(number);
     }
 
     /**

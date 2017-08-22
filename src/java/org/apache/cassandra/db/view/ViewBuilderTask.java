@@ -22,21 +22,28 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.base.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.cassandra.concurrent.ScheduledExecutors;
-import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.ColumnFamilyStore;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.DeletionTime;
+import org.apache.cassandra.db.Mutation;
+import org.apache.cassandra.db.ReadExecutionController;
+import org.apache.cassandra.db.ReadQuery;
+import org.apache.cassandra.db.SinglePartitionReadCommand;
+import org.apache.cassandra.db.SystemKeyspace;
 import org.apache.cassandra.db.compaction.CompactionInfo;
-import org.apache.cassandra.db.compaction.CompactionManager;
 import org.apache.cassandra.db.compaction.OperationType;
 import org.apache.cassandra.db.lifecycle.SSTableSet;
-import org.apache.cassandra.db.partitions.*;
-import org.apache.cassandra.db.rows.*;
+import org.apache.cassandra.db.partitions.UnfilteredPartitionIterators;
+import org.apache.cassandra.db.rows.Rows;
+import org.apache.cassandra.db.rows.UnfilteredRowIterator;
+import org.apache.cassandra.db.rows.UnfilteredRowIterators;
 import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.io.sstable.ReducingKeyIterator;
@@ -48,7 +55,7 @@ import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.UUIDGen;
 import org.apache.cassandra.utils.concurrent.Refs;
 
-public class ViewBuilderTask extends CompactionInfo.Holder
+public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<Long>
 {
     private static final Logger logger = LoggerFactory.getLogger(ViewBuilderTask.class);
 
@@ -57,18 +64,15 @@ public class ViewBuilderTask extends CompactionInfo.Holder
     private final ColumnFamilyStore baseCfs;
     private final View view;
     public final Range<Token> range;
-    private final ViewBuilder builder;
-    private final UUID compactionId;
-    private volatile Token prevToken = null;
     private volatile long keysBuilt = 0;
     private volatile boolean isStopped = false;
+    private final UUID compactionId;
 
-    public ViewBuilderTask(ColumnFamilyStore baseCfs, View view, Range<Token> range, ViewBuilder builder)
+    ViewBuilderTask(ColumnFamilyStore baseCfs, View view, Range<Token> range)
     {
         this.baseCfs = baseCfs;
         this.view = view;
         this.range = range;
-        this.builder = builder;
         compactionId = UUIDGen.getTimeUUID();
     }
 
@@ -93,27 +97,19 @@ public class ViewBuilderTask extends CompactionInfo.Holder
              UnfilteredRowIterator data = UnfilteredPartitionIterators.getOnlyElement(command.executeLocally(orderGroup), command))
         {
             Iterator<Collection<Mutation>> mutations = baseCfs.keyspace.viewManager
-                                                      .forTable(baseCfs.metadata.id)
-                                                      .generateViewUpdates(Collections.singleton(view), data, empty, nowInSec, true);
+                                                       .forTable(baseCfs.metadata.id)
+                                                       .generateViewUpdates(Collections.singleton(view), data, empty, nowInSec, true);
 
             AtomicLong noBase = new AtomicLong(Long.MAX_VALUE);
             mutations.forEachRemaining(m -> StorageProxy.mutateMV(key.getKey(), m, true, noBase, System.nanoTime()));
         }
     }
 
-    public void run()
+    public Long call()
     {
         logger.debug("Starting view build for {}.{} for range {}", baseCfs.metadata.keyspace, view.name, range);
         UUID localHostId = SystemKeyspace.getLocalHostId();
         String ksname = baseCfs.metadata.keyspace, viewName = view.name;
-
-        if (SystemKeyspace.isViewBuilt(ksname, viewName))
-        {
-            logger.debug("View already marked built for {}.{}", baseCfs.metadata.keyspace, view.name);
-            if (!SystemKeyspace.isViewStatusReplicated(ksname, viewName))
-                updateDistributed(ksname, viewName, localHostId);
-            return;
-        }
 
         final Pair<Token, Long> buildStatus = SystemKeyspace.getViewBuildStatus(ksname, viewName, range);
         Token lastToken;
@@ -136,7 +132,7 @@ public class ViewBuilderTask extends CompactionInfo.Holder
         Function<org.apache.cassandra.db.lifecycle.View, Iterable<SSTableReader>> function;
         function = org.apache.cassandra.db.lifecycle.View.selectFunction(SSTableSet.CANONICAL);
 
-        prevToken = lastToken;
+        Token prevToken = lastToken;
 
         try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(function);
              Refs<SSTableReader> sstables = viewFragment.refs;
@@ -167,51 +163,22 @@ public class ViewBuilderTask extends CompactionInfo.Holder
             }
 
             if (!isStopped)
-            {
                 logger.debug("Completed build of view({}.{}) for range {} after covering {} keys ", ksname, viewName, range, keysBuilt);
-                if (builder.notifyFinished(range, keysBuilt))
-                {
-                    logger.debug("Marking view({}.{}) as built after covering {} keys ", ksname, viewName, builder.builtKeys());
-                    SystemKeyspace.finishViewBuildStatus(ksname, viewName);
-                    updateDistributed(ksname, viewName, localHostId);
-                }
-            }
             else
-            {
                 logger.debug("Stopped build for view({}.{}) for range {} after covering {} keys", ksname, viewName, range, keysBuilt);
-            }
         }
-        catch (Exception e)
-        {
-            ScheduledExecutors.nonPeriodicTasks.schedule(() -> CompactionManager.instance.submitViewBuilder(this),
-                                                         5,
-                                                         TimeUnit.MINUTES);
-            logger.warn("Materialized View failed to complete, sleeping 5 minutes before restarting", e);
-        }
+
+        return keysBuilt;
     }
 
-    private void updateDistributed(String ksname, String viewName, UUID localHostId)
-    {
-        try
-        {
-            SystemDistributedKeyspace.successfulViewBuild(ksname, viewName, localHostId);
-            SystemKeyspace.setViewBuiltReplicated(ksname, viewName);
-        }
-        catch (Exception e)
-        {
-            ScheduledExecutors.nonPeriodicTasks.schedule(() -> CompactionManager.instance.submitViewBuilder(this),
-                                                         5,
-                                                         TimeUnit.MINUTES);
-            logger.warn("Failed to updated the distributed status of view, sleeping 5 minutes before retrying", e);
-        }
-    }
-
+    @Override
     public CompactionInfo getCompactionInfo()
     {
         long keysTotal = baseCfs.estimatedKeysForRange(range);
         return new CompactionInfo(baseCfs.metadata(), OperationType.VIEW_BUILD, keysBuilt, keysTotal, "ranges", compactionId);
     }
 
+    @Override
     public void stop()
     {
         isStopped = true;
