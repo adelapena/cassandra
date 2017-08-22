@@ -47,8 +47,8 @@ import static java.util.stream.Collectors.toSet;
 /**
  * Builds a materialized view for the local token ranges.
  * <p>
- * The build is parellelized in at least {@link #concurrencyFactor()} {@link ViewBuilderTask tasks} that are run in the
- * compaction manager.
+ * The build is parellelized in at least {@link DatabaseDescriptor#getConcurrentViewBuilders()}
+ * {@link ViewBuilderTask tasks}.
  */
 class ViewBuilder
 {
@@ -109,7 +109,7 @@ class ViewBuilder
         List<ListenableFuture<Long>> futures;
         futures = DatabaseDescriptor.getPartitioner()
                                     .splitter()
-                                    .map(splitter -> splitter.split(ranges, concurrencyFactor()))
+                                    .map(s -> s.split(ranges, DatabaseDescriptor.getConcurrentViewBuilders()))
                                     .orElse(ranges)
                                     .stream()
                                     .map(range -> new ViewBuilderTask(baseCfs, view, range))
@@ -150,11 +150,6 @@ class ViewBuilder
             ScheduledExecutors.nonPeriodicTasks.schedule(this::updateDistributed, 5, TimeUnit.MINUTES);
             logger.warn("Failed to update the distributed status of view, sleeping 5 minutes before retrying", e);
         }
-    }
-
-    private static int concurrencyFactor()
-    {
-        return DatabaseDescriptor.getConcurrentCompactors();
     }
 
     /**
