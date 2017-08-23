@@ -1629,21 +1629,6 @@ public class CompactionManager implements CompactionManagerMBean
         return executor.submitIfRunning(runnable, "index build");
     }
 
-    public ListenableFuture<Long> submitViewBuilder(final ViewBuilderTask task)
-    {
-        return viewBuildExecutor.submitIfRunning(() -> {
-            metrics.beginCompaction(task);
-            try
-            {
-                return task.call();
-            }
-            finally
-            {
-                metrics.finishCompaction(task);
-            }
-        }, "view build");
-    }
-
     public Future<?> submitCacheWrite(final AutoSavingCache.Writer writer)
     {
         Runnable runnable = new Runnable()
@@ -1735,6 +1720,21 @@ public class CompactionManager implements CompactionManagerMBean
              */
             return time -> true;
         }
+    }
+
+    public ListenableFuture<Long> submitViewBuilder(final ViewBuilderTask task)
+    {
+        return viewBuildExecutor.submitIfRunning(() -> {
+            metrics.beginCompaction(task);
+            try
+            {
+                return task.call();
+            }
+            finally
+            {
+                metrics.finishCompaction(task);
+            }
+        }, "view build");
     }
 
     public int getActiveCompactions()
