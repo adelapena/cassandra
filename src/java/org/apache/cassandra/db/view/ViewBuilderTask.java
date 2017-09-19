@@ -26,6 +26,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,10 +136,11 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
 
         try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(function);
              Refs<SSTableReader> sstables = viewFragment.refs;
-             ReducingKeyIterator iter = new ReducingKeyIterator(sstables))
+             ReducingKeyIterator keyIter = new ReducingKeyIterator(sstables))
         {
             SystemDistributedKeyspace.startViewBuild(ksname, viewName, localHostId);
 
+            PeekingIterator<DecoratedKey> iter = Iterators.peekingIterator(keyIter);
             while (!isStopped && iter.hasNext())
             {
                 DecoratedKey key = iter.next();
@@ -147,6 +150,13 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
                 {
                     buildKey(key);
                     ++keysBuilt;
+                    //build other keys sharing the same token
+                    while (iter.hasNext() && iter.peek().getToken().equals(token))
+                    {
+                        key = iter.next();
+                        buildKey(key);
+                        ++keysBuilt;
+                    }
                     if (keysBuilt % ROWS_BETWEEN_CHECKPOINTS == 1)
                         SystemKeyspace.updateViewBuildStatus(ksname, viewName, range, token, keysBuilt);
                     prevToken = token;
