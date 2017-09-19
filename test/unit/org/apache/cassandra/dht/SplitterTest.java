@@ -255,4 +255,160 @@ public class SplitterTest
         Range<Token> wrapAround = new Range<>(splitter.tokenForValue(BigInteger.valueOf(5)), splitter.tokenForValue(BigInteger.valueOf(-5)));
         assertEquals(fullRangeSize.subtract(BigInteger.TEN), splitter.tokensInRange(wrapAround));
     }
+
+    @Test
+    public void testElapsedTokensRandomPartitioner()
+    {
+        testElapsedMultiRange(new RandomPartitioner());
+    }
+
+    @Test
+    public void testElapsedTokensMurmur3Partitioner()
+    {
+        testElapsedMultiRange(new Murmur3Partitioner());
+    }
+
+    public void testElapsedMultiRange(IPartitioner partitioner)
+    {
+        Splitter splitter = partitioner.splitter().get();
+        // small range
+        Range<Token> smallRange = new Range<>(splitter.tokenForValue(BigInteger.valueOf(-1)), splitter.tokenForValue(BigInteger.valueOf(1)));
+        testElapsedTokens(partitioner, smallRange, true);
+
+        // medium range
+        Range<Token> mediumRange = new Range<>(splitter.tokenForValue(BigInteger.valueOf(0)), splitter.tokenForValue(BigInteger.valueOf(123456789)));
+        testElapsedTokens(partitioner, mediumRange, true);
+
+        // wrapped range
+        BigInteger min = splitter.valueForToken(partitioner.getMinimumToken());
+        BigInteger max = splitter.valueForToken(partitioner.getMaximumToken());
+        Range<Token> wrappedRange = new Range<>(splitter.tokenForValue(max.subtract(BigInteger.valueOf(1350))),
+                                         splitter.tokenForValue(min.add(BigInteger.valueOf(20394))));
+        testElapsedTokens(partitioner, wrappedRange, true);
+
+        // full range
+        Range<Token> fullRange = new Range<>(partitioner.getMinimumToken(), partitioner.getMaximumToken());
+        testElapsedTokens(partitioner, fullRange, false);
+    }
+
+    public void testElapsedTokens(IPartitioner partitioner, Range<Token> range, boolean partialRange)
+    {
+        Splitter splitter = partitioner.splitter().get();
+
+        BigInteger left = splitter.valueForToken(range.left);
+        BigInteger right = splitter.valueForToken(range.right);
+        BigInteger tokensInRange = splitter.tokensInRange(range);
+
+        // elapsedTokens(left, (left, right]) = 0
+        assertEquals(BigInteger.ZERO, splitter.elapsedTokens(splitter.tokenForValue(left), range));
+
+        // elapsedTokens(right, (left, right]) = tokensInRange((left, right])
+        assertEquals(tokensInRange, splitter.elapsedTokens(splitter.tokenForValue(right), range));
+
+        // elapsedTokens(left+1, (left, right]) = 1
+        assertEquals(BigInteger.ONE, splitter.elapsedTokens(splitter.tokenForValue(left.add(BigInteger.ONE)), range));
+
+        // elapsedTokens(right-1, (left, right]) = tokensInRange((left, right]) - 1
+        assertEquals(tokensInRange.subtract(BigInteger.ONE), splitter.elapsedTokens(splitter.tokenForValue(right.subtract(BigInteger.ONE)), range));
+
+        // elapsedTokens(midpoint, (left, right]) + tokensInRange((midpoint, right]) = tokensInRange
+        Token midpoint = partitioner.midpoint(range.left, range.right);
+        assertEquals(tokensInRange, splitter.elapsedTokens(midpoint, range).add(splitter.tokensInRange(new Range<>(midpoint, range.right))));
+
+        if (partialRange)
+        {
+            // elapsedTokens(right + 1, (left, right]) = 0
+            assertEquals(BigInteger.ZERO, splitter.elapsedTokens(splitter.tokenForValue(right.add(BigInteger.ONE)), range));
+        }
+    }
+
+    @Test
+    public void testPositionInRangeRandomPartitioner()
+    {
+        testPositionInRangeMultiRange(new RandomPartitioner());
+    }
+
+    @Test
+    public void testPositionInRangeMurmur3Partitioner()
+    {
+        testPositionInRangeMultiRange(new Murmur3Partitioner());
+    }
+
+    public void testPositionInRangeMultiRange(IPartitioner partitioner)
+    {
+        Splitter splitter = partitioner.splitter().get();
+
+        // Test tiny range
+        Token start = splitter.tokenForValue(BigInteger.ZERO);
+        Token end = splitter.tokenForValue(BigInteger.valueOf(3));
+        Range range = new Range<>(start, end);
+        assertEquals(0.0, splitter.positionInRange(start, range), 0.01);
+        assertEquals(0.33, splitter.positionInRange(splitter.tokenForValue(BigInteger.valueOf(1)), range), 0.01);
+        assertEquals(0.66, splitter.positionInRange(splitter.tokenForValue(BigInteger.valueOf(2)), range), 0.01);
+        assertEquals(1.0, splitter.positionInRange(end, range), 0.01);
+        // Token not in range should return -1.0 for position
+        Token notInRange = splitter.tokenForValue(BigInteger.valueOf(10));
+        assertEquals(-1.0, splitter.positionInRange(notInRange, range), 0.0);
+
+
+        // Test medium range
+        start = splitter.tokenForValue(BigInteger.ZERO);
+        end = splitter.tokenForValue(BigInteger.valueOf(1000));
+        range = new Range<>(start, end);
+        testPositionInRange(partitioner, splitter, range);
+
+        // Test wrap-around range
+        start = splitter.tokenForValue(splitter.valueForToken(partitioner.getMaximumToken()).subtract(BigInteger.valueOf(123456789)));
+        end = splitter.tokenForValue(splitter.valueForToken(partitioner.getMinimumToken()).add(BigInteger.valueOf(123456789)));
+        range = new Range<>(start, end);
+        testPositionInRange(partitioner, splitter, range);
+
+        // Test full range
+        testPositionInRange(partitioner, splitter, new Range<>(partitioner.getMinimumToken(), partitioner.getMaximumToken()));
+        testPositionInRange(partitioner, splitter, new Range<>(partitioner.getMinimumToken(), partitioner.getMinimumToken()));
+        testPositionInRange(partitioner, splitter, new Range<>(partitioner.getMaximumToken(), partitioner.getMaximumToken()));
+        testPositionInRange(partitioner, splitter, new Range<>(splitter.tokenForValue(BigInteger.ONE), splitter.tokenForValue(BigInteger.ONE)));
+    }
+
+    private void testPositionInRange(IPartitioner partitioner, Splitter splitter, Range<Token> range)
+    {
+        Range<Token> actualRange = range;
+        //full range case
+        if (range.left.equals(range.right))
+        {
+            actualRange = new Range<>(partitioner.getMinimumToken(), partitioner.getMaximumToken());
+        }
+        assertEquals(0.0, splitter.positionInRange(actualRange.left, range), 0.01);
+        assertEquals(0.25, splitter.positionInRange(getTokenInPosition(partitioner, actualRange, 0.25), range), 0.01);
+        assertEquals(0.37, splitter.positionInRange(getTokenInPosition(partitioner, actualRange, 0.373), range), 0.01);
+        assertEquals(0.5, splitter.positionInRange(getTokenInPosition(partitioner, actualRange, 0.5), range), 0.01);
+        assertEquals(0.75, splitter.positionInRange(getTokenInPosition(partitioner, actualRange, 0.75), range), 0.01);
+        assertEquals(0.99, splitter.positionInRange(getTokenInPosition(partitioner, actualRange, 0.999), range), 0.01);
+        assertEquals(1.0, splitter.positionInRange(actualRange.right, range), 0.01);
+    }
+
+    private Token getTokenInPosition(IPartitioner partitioner, Range<Token> range, double position)
+    {
+        if (range.left.equals(range.right))
+        {
+            range = new Range<>(partitioner.getMinimumToken(), partitioner.getMaximumToken());
+        }
+        Splitter splitter = partitioner.splitter().get();
+        BigInteger totalTokens = splitter.tokensInRange(range);
+        BigInteger elapsedTokens = BigDecimal.valueOf(position).multiply(new BigDecimal(totalTokens)).toBigInteger();
+        BigInteger tokenInPosition = splitter.valueForToken(range.left).add(elapsedTokens);
+        return getWrappedToken(partitioner, tokenInPosition);
+    }
+
+    private Token getWrappedToken(IPartitioner partitioner, BigInteger position)
+    {
+        Splitter splitter = partitioner.splitter().get();
+        BigInteger maxTokenValue = splitter.valueForToken(partitioner.getMaximumToken());
+        BigInteger minTokenValue = splitter.valueForToken(partitioner.getMinimumToken());
+        if (position.compareTo(maxTokenValue) > 0)
+        {
+            position = minTokenValue.add(position.subtract(maxTokenValue));
+        }
+        return splitter.tokenForValue(position);
+    }
 }
