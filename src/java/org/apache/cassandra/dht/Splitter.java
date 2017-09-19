@@ -18,6 +18,7 @@
 
 package org.apache.cassandra.dht;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,6 +63,58 @@ public abstract class Splitter
             totalTokens = totalTokens.add(valueForToken(token(unwrapped.right)).subtract(valueForToken(unwrapped.left))).abs();
         }
         return totalTokens;
+    }
+
+    /**
+     * Computes the number of elapsed tokens from the range start until this token
+     * @return the number of tokens from the range start to the token
+     */
+    @VisibleForTesting
+    protected BigInteger elapsedTokens(Token token, Range<Token> range)
+    {
+        // No token elapsed since range does not contain token
+        if (!range.contains(token))
+            return BigInteger.ZERO;
+
+        BigInteger elapsedTokens = BigInteger.ZERO;
+        for (Range<Token> unwrapped : range.unwrap())
+        {
+            if (unwrapped.contains(token))
+            {
+                elapsedTokens = elapsedTokens.add(tokensInRange(new Range<>(unwrapped.left, token)));
+            }
+            else if (token.compareTo(unwrapped.left) < 0)
+            {
+                elapsedTokens = elapsedTokens.add(tokensInRange(unwrapped));
+            }
+        }
+        return elapsedTokens;
+    }
+
+    /**
+     * Computes the normalized position of this token relative to this range
+     * @return A number between 0.0 and 1.0 representing this token's position
+     * in this range or -1.0 if this range doesn't contain this token.
+     */
+    public double positionInRange(Token token, Range<Token> range)
+    {
+        //full range case
+        if (range.left.equals(range.right))
+            return positionInRange(token, new Range(partitioner.getMinimumToken(), partitioner.getMaximumToken()));
+
+        // leftmost token means we are on position 0.0
+        if (token.equals(range.left))
+            return 0.0;
+
+        // rightmost token means we are on position 1.0
+        if (token.equals(range.right))
+            return 1.0;
+
+        // Impossible to find position when token is not contained in range
+        if (!range.contains(token))
+            return -1.0;
+
+        return new BigDecimal(elapsedTokens(token, range)).divide(new BigDecimal(tokensInRange(range)), 3, BigDecimal.ROUND_HALF_EVEN).doubleValue();
     }
 
     public List<Token> splitOwnedRanges(int parts, List<Range<Token>> localRanges, boolean dontSplitRanges)

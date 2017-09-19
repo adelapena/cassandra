@@ -67,13 +67,15 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
     private volatile long keysBuilt = 0;
     private volatile boolean isStopped = false;
     private final UUID compactionId;
+    private volatile Token prevToken;
 
     ViewBuilderTask(ColumnFamilyStore baseCfs, View view, Range<Token> range)
     {
         this.baseCfs = baseCfs;
         this.view = view;
         this.range = range;
-        compactionId = UUIDGen.getTimeUUID();
+        this.compactionId = UUIDGen.getTimeUUID();
+        this.prevToken = null;
     }
 
     private void buildKey(DecoratedKey key)
@@ -112,27 +114,23 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
         String ksname = baseCfs.metadata.keyspace, viewName = view.name;
 
         final Pair<Token, Long> buildStatus = SystemKeyspace.getViewBuildStatus(ksname, viewName, range);
-        Token lastToken;
-        if (buildStatus == null)
+        if (buildStatus == null || buildStatus.right == 0)
         {
             logger.debug("Starting new view build for range {}. flushing base table {}.{}", range, baseCfs.metadata.keyspace, baseCfs.name);
-            lastToken = null;
             SystemKeyspace.beginViewBuild(ksname, viewName, range);
         }
         else
         {
-            lastToken = buildStatus.left;
+            prevToken = buildStatus.left;
             keysBuilt = buildStatus.right;
             logger.debug("Resuming view build for range {} from token {} with {} covered keys. flushing base table {}.{}",
-                         range, lastToken, keysBuilt, baseCfs.metadata.keyspace, baseCfs.name);
+                         range, prevToken, keysBuilt, baseCfs.metadata.keyspace, baseCfs.name);
         }
 
         baseCfs.forceBlockingFlush();
 
         Function<org.apache.cassandra.db.lifecycle.View, Iterable<SSTableReader>> function;
         function = org.apache.cassandra.db.lifecycle.View.selectFunction(SSTableSet.CANONICAL);
-
-        Token prevToken = lastToken;
 
         try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(function);
              Refs<SSTableReader> sstables = viewFragment.refs;
@@ -143,7 +141,7 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
             {
                 DecoratedKey key = iter.next();
                 Token token = key.getToken();
-                if (lastToken == null || lastToken.compareTo(token) < 0)
+                if (prevToken == null || prevToken.compareTo(token) < 0)
                 {
                     if (range.contains(token))
                     {
@@ -157,8 +155,6 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
                             prevToken = token;
                         }
                     }
-
-                    lastToken = null;
                 }
             }
 
@@ -174,8 +170,17 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
     @Override
     public CompactionInfo getCompactionInfo()
     {
-        long keysTotal = baseCfs.estimatedKeysForRange(range);
-        return new CompactionInfo(baseCfs.metadata(), OperationType.VIEW_BUILD, keysBuilt, keysTotal, "ranges", compactionId);
+        // If there's splitter, calculate progress based on last token position
+        if (range.left.getPartitioner().splitter().isPresent())
+        {
+            long progress = prevToken == null? 0 : Math.round(prevToken.getPartitioner().splitter().get().positionInRange(prevToken, range) * 1000);
+            return new CompactionInfo(baseCfs.metadata(), OperationType.VIEW_BUILD, progress, 1000, "token range parts", compactionId);
+        }
+
+        // When there is no splitter, estimate based on number of total keys but
+        // take the max with keysBuilt + 1 to avoid having more completed than total
+        long keysTotal = Math.max(keysBuilt + 1, baseCfs.estimatedKeysForRange(range));
+        return new CompactionInfo(baseCfs.metadata(), OperationType.VIEW_BUILD, keysBuilt, keysTotal, "keys", compactionId);
     }
 
     @Override
