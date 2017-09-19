@@ -130,7 +130,7 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
         baseCfs.forceBlockingFlush();
 
         Function<org.apache.cassandra.db.lifecycle.View, Iterable<SSTableReader>> function;
-        function = org.apache.cassandra.db.lifecycle.View.selectFunction(SSTableSet.CANONICAL);
+        function = org.apache.cassandra.db.lifecycle.View.select(SSTableSet.CANONICAL, s -> range.intersects(s.getBounds()));
 
         try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(function);
              Refs<SSTableReader> sstables = viewFragment.refs;
