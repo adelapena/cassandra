@@ -181,6 +181,7 @@ public class SplitterTest
         testSplit(2, newHashSet(range(4, -4)), newHashSet(range(4, max), range(max, -4)));
         testSplit(2, newHashSet(range(2, -6)), newHashSet(range(2, max - 2), range(max - 2, -6)));
         testSplit(2, newHashSet(range(6, -4)), newHashSet(range(6, min + 1), range(min + 1, -4)));
+        testSplit(2, newHashSet(range(1, 0)), newHashSet(range(min + 1, 0), range(1, min + 1)));
 
         // single range around partitioner min/max values
         testSplit(2, newHashSet(range(max - 8, min)), newHashSet(range(max - 8, max - 4), range(max - 4, max)));
@@ -221,5 +222,37 @@ public class SplitterTest
     private static Token token(long n)
     {
         return new Murmur3Partitioner.LongToken(n);
+    }
+
+    @Test
+    public void testTokensInRangeRandomPartitioner()
+    {
+        testTokensInRange(new RandomPartitioner());
+    }
+
+    @Test
+    public void testTokensInRangeMurmur3Partitioner()
+    {
+        testTokensInRange(new Murmur3Partitioner());
+    }
+
+    public void testTokensInRange(IPartitioner partitioner)
+    {
+        Splitter splitter = partitioner.splitter().get();
+
+        // test full range
+        Range<Token> fullRange = new Range(partitioner.getMinimumToken(), partitioner.getMaximumToken());
+        BigInteger fullRangeSize = splitter.valueForToken(partitioner.getMaximumToken()).subtract(splitter.valueForToken(partitioner.getMinimumToken()));
+        assertEquals(fullRangeSize, splitter.tokensInRange(fullRange));
+        fullRange = new Range<>(splitter.tokenForValue(BigInteger.valueOf(-10)), splitter.tokenForValue(BigInteger.valueOf(-10)));
+        assertEquals(fullRangeSize, splitter.tokensInRange(fullRange));
+
+        // test small range
+        Range<Token> smallRange = new Range<>(splitter.tokenForValue(BigInteger.valueOf(-5)), splitter.tokenForValue(BigInteger.valueOf(5)));
+        assertEquals(BigInteger.valueOf(10), splitter.tokensInRange(smallRange));
+
+        // test wrap-around range
+        Range<Token> wrapAround = new Range<>(splitter.tokenForValue(BigInteger.valueOf(5)), splitter.tokenForValue(BigInteger.valueOf(-5)));
+        assertEquals(fullRangeSize.subtract(BigInteger.TEN), splitter.tokensInRange(wrapAround));
     }
 }
