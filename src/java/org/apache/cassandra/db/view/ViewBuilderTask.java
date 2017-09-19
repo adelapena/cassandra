@@ -137,24 +137,19 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
              ReducingKeyIterator iter = new ReducingKeyIterator(sstables))
         {
             SystemDistributedKeyspace.startViewBuild(ksname, viewName, localHostId);
+
             while (!isStopped && iter.hasNext())
             {
                 DecoratedKey key = iter.next();
                 Token token = key.getToken();
-                if (prevToken == null || prevToken.compareTo(token) < 0)
+                //skip tokens already built or not present in range
+                if (range.contains(token) && (prevToken == null || token.compareTo(prevToken) > 0))
                 {
-                    if (range.contains(token))
-                    {
-                        buildKey(key);
-                        ++keysBuilt;
-
-                        if (prevToken == null || prevToken.compareTo(token) != 0)
-                        {
-                            if (keysBuilt % ROWS_BETWEEN_CHECKPOINTS == 1)
-                                SystemKeyspace.updateViewBuildStatus(ksname, viewName, range, token, keysBuilt);
-                            prevToken = token;
-                        }
-                    }
+                    buildKey(key);
+                    ++keysBuilt;
+                    if (keysBuilt % ROWS_BETWEEN_CHECKPOINTS == 1)
+                        SystemKeyspace.updateViewBuildStatus(ksname, viewName, range, token, keysBuilt);
+                    prevToken = token;
                 }
             }
 
