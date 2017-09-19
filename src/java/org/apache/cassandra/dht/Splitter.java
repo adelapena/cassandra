@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 
 import static java.util.stream.Collectors.toSet;
@@ -42,9 +43,26 @@ public abstract class Splitter
         this.partitioner = partitioner;
     }
 
+    @VisibleForTesting
     protected abstract Token tokenForValue(BigInteger value);
 
+    @VisibleForTesting
     protected abstract BigInteger valueForToken(Token token);
+
+    @VisibleForTesting
+    protected BigInteger tokensInRange(Range<Token> range)
+    {
+        //full range case
+        if (range.left.equals(range.right))
+            return tokensInRange(new Range(partitioner.getMinimumToken(), partitioner.getMaximumToken()));
+
+        BigInteger totalTokens = BigInteger.ZERO;
+        for (Range<Token> unwrapped : range.unwrap())
+        {
+            totalTokens = totalTokens.add(valueForToken(token(unwrapped.right)).subtract(valueForToken(unwrapped.left))).abs();
+        }
+        return totalTokens;
+    }
 
     public List<Token> splitOwnedRanges(int parts, List<Range<Token>> localRanges, boolean dontSplitRanges)
     {
@@ -171,7 +189,7 @@ public abstract class Splitter
     private Set<Range<Token>> split(Range<Token> range, int parts)
     {
         // the range might not have enough tokens to split
-        BigInteger numTokens = valueForToken(token(range.right)).subtract(valueForToken(range.left)).abs();
+        BigInteger numTokens = tokensInRange(range);
         if (BigInteger.valueOf(parts).compareTo(numTokens) > 0)
             return Collections.singleton(range);
 
