@@ -24,8 +24,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
+
+import org.apache.cassandra.utils.Pair;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
@@ -59,9 +62,9 @@ public class SplitterTest
         randomSplitTestVNodes(new Murmur3Partitioner());
     }
 
-    public void randomSplitTestNoVNodes(IPartitioner partitioner)
+    private static void randomSplitTestNoVNodes(IPartitioner partitioner)
     {
-        Splitter splitter = partitioner.splitter().get();
+        Splitter splitter = getSplitter(partitioner);
         Random r = new Random();
         for (int i = 0; i < 10000; i++)
         {
@@ -71,9 +74,9 @@ public class SplitterTest
         }
     }
 
-    public void randomSplitTestVNodes(IPartitioner partitioner)
+    private static void randomSplitTestVNodes(IPartitioner partitioner)
     {
-        Splitter splitter = partitioner.splitter().get();
+        Splitter splitter = getSplitter(partitioner);
         Random r = new Random();
         for (int i = 0; i < 10000; i++)
         {
@@ -88,7 +91,7 @@ public class SplitterTest
         }
     }
 
-    private boolean assertRangeSizeEqual(List<Range<Token>> localRanges, List<Token> tokens, IPartitioner partitioner, Splitter splitter, boolean splitIndividualRanges)
+    private static boolean assertRangeSizeEqual(List<Range<Token>> localRanges, List<Token> tokens, IPartitioner partitioner, Splitter splitter, boolean splitIndividualRanges)
     {
         Token start = partitioner.getMinimumToken();
         List<BigInteger> splits = new ArrayList<>();
@@ -116,7 +119,7 @@ public class SplitterTest
         return allBalanced;
     }
 
-    private BigInteger sumOwnedBetween(List<Range<Token>> localRanges, Token start, Token end, Splitter splitter, boolean splitIndividualRanges)
+    private static BigInteger sumOwnedBetween(List<Range<Token>> localRanges, Token start, Token end, Splitter splitter, boolean splitIndividualRanges)
     {
         BigInteger sum = BigInteger.ZERO;
         for (Range<Token> range : localRanges)
@@ -136,7 +139,7 @@ public class SplitterTest
         return sum;
     }
 
-    private List<Range<Token>> generateLocalRanges(int numTokens, int rf, Splitter splitter, Random r, boolean randomPartitioner)
+    private static List<Range<Token>> generateLocalRanges(int numTokens, int rf, Splitter splitter, Random r, boolean randomPartitioner)
     {
         int localTokens = numTokens * rf;
         List<Token> randomTokens = new ArrayList<>();
@@ -160,68 +163,117 @@ public class SplitterTest
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    public void testSplit()
+    public void testSplitMurmur3Partitioner()
     {
-        long min = Long.MIN_VALUE;
-        long max = Long.MAX_VALUE;
+        testSplit(new Murmur3Partitioner());
+    }
+
+    @Test
+    public void testSplitRandomPartitioner()
+    {
+        testSplit(new RandomPartitioner());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void testSplit(IPartitioner partitioner)
+    {
+        boolean isRandom = partitioner instanceof RandomPartitioner;
+        Splitter splitter = getSplitter(partitioner);
+        BigInteger min = splitter.valueForToken(partitioner.getMinimumToken());
+        BigInteger max = splitter.valueForToken(partitioner.getMaximumToken());
+        BigInteger first = isRandom ? RandomPartitioner.ZERO : min;
+        BigInteger last = isRandom ? max.subtract(BigInteger.valueOf(1)) : max;
+        BigInteger midpoint = last.add(first).divide(BigInteger.valueOf(2));
 
         // regular single range
-        testSplit(1, newHashSet(range(1, 100)), newHashSet(range(1, 100)));
-        testSplit(2, newHashSet(range(1, 100)), newHashSet(range(1, 50), range(50, 100)));
-        testSplit(4, newHashSet(range(1, 100)), newHashSet(range(1, 25), range(25, 50), range(50, 75), range(75, 100)));
+        testSplit(partitioner, 1, newHashSet(Pair.create(1, 100)), newHashSet(Pair.create(1, 100)));
+        testSplit(partitioner, 2,
+                  newHashSet(Pair.create(1, 100)),
+                  newHashSet(Pair.create(1, 50), Pair.create(50, 100)));
+        testSplit(partitioner, 4,
+                  newHashSet(Pair.create(1, 100)),
+                  newHashSet(Pair.create(1, 25), Pair.create(25, 50), Pair.create(50, 75), Pair.create(75, 100)));
 
         // single range too small to be partitioned
-        testSplit(1, newHashSet(range(1, 2)), newHashSet(range(1, 2)));
-        testSplit(2, newHashSet(range(1, 2)), newHashSet(range(1, 2)));
-        testSplit(4, newHashSet(range(1, 4)), newHashSet(range(1, 4)));
-        testSplit(8, newHashSet(range(1, 2)), newHashSet(range(1, 2)));
+        testSplit(partitioner, 1, newHashSet(Pair.create(1, 2)), newHashSet(Pair.create(1, 2)));
+        testSplit(partitioner, 2, newHashSet(Pair.create(1, 2)), newHashSet(Pair.create(1, 2)));
+        testSplit(partitioner, 4, newHashSet(Pair.create(1, 4)), newHashSet(Pair.create(1, 4)));
+        testSplit(partitioner, 8, newHashSet(Pair.create(1, 2)), newHashSet(Pair.create(1, 2)));
 
         // single wrapping range
-        testSplit(2, newHashSet(range(4, -4)), newHashSet(range(4, max), range(max, -4)));
-        testSplit(2, newHashSet(range(2, -6)), newHashSet(range(2, max - 2), range(max - 2, -6)));
-        testSplit(2, newHashSet(range(6, -4)), newHashSet(range(6, min + 1), range(min + 1, -4)));
-        testSplit(2, newHashSet(range(1, 0)), newHashSet(range(min + 1, 0), range(1, min + 1)));
+        BigInteger cutpoint = isRandom ? midpoint.add(BigInteger.valueOf(7)) : min.add(BigInteger.valueOf(6));
+        testSplit(partitioner, 2,
+                  newHashSet(Pair.create(8, 4)),
+                  newHashSet(Pair.create(8, cutpoint), Pair.create(cutpoint, 4)));
 
         // single range around partitioner min/max values
-        testSplit(2, newHashSet(range(max - 8, min)), newHashSet(range(max - 8, max - 4), range(max - 4, max)));
-        testSplit(2, newHashSet(range(max - 8, max)), newHashSet(range(max - 8, max - 4), range(max - 4, max)));
-        testSplit(2, newHashSet(range(min, min + 8)), newHashSet(range(min, min + 4), range(min + 4, min + 8)));
-        testSplit(2, newHashSet(range(max, min + 8)), newHashSet(range(max, min + 4), range(min + 4, min + 8)));
-        testSplit(2, newHashSet(range(max - 4, min + 4)), newHashSet(range(max - 4, max), range(max, min + 4)));
-        testSplit(2, newHashSet(range(max - 4, min + 8)), newHashSet(range(max - 4, min + 2), range(min + 2, min + 8)));
+        testSplit(partitioner, 2,
+                  newHashSet(Pair.create(max.subtract(BigInteger.valueOf(8)), min)),
+                  newHashSet(Pair.create(max.subtract(BigInteger.valueOf(8)), max.subtract(BigInteger.valueOf(4))),
+                             Pair.create(max.subtract(BigInteger.valueOf(4)), isRandom ? first : max)));
+        testSplit(partitioner, 2,
+                  newHashSet(Pair.create(max.subtract(BigInteger.valueOf(8)), max)),
+                  newHashSet(Pair.create(max.subtract(BigInteger.valueOf(8)), max.subtract(BigInteger.valueOf(4))),
+                             Pair.create(max.subtract(BigInteger.valueOf(4)), max)));
+        testSplit(partitioner, 2,
+                  newHashSet(Pair.create(min, min.add(BigInteger.valueOf(8)))),
+                  newHashSet(Pair.create(min, min.add(BigInteger.valueOf(4))),
+                             Pair.create(min.add(BigInteger.valueOf(4)), min.add(BigInteger.valueOf(8)))));
+        testSplit(partitioner, 2,
+                  newHashSet(Pair.create(max, min.add(BigInteger.valueOf(8)))),
+                  newHashSet(Pair.create(max, min.add(BigInteger.valueOf(4))),
+                             Pair.create(min.add(BigInteger.valueOf(4)), min.add(BigInteger.valueOf(8)))));
+        testSplit(partitioner, 2,
+                  newHashSet(Pair.create(max.subtract(BigInteger.valueOf(4)), min.add(BigInteger.valueOf(4)))),
+                  newHashSet(Pair.create(max.subtract(BigInteger.valueOf(4)), last),
+                             Pair.create(last, min.add(BigInteger.valueOf(4)))));
+        testSplit(partitioner, 2,
+                  newHashSet(Pair.create(max.subtract(BigInteger.valueOf(4)), min.add(BigInteger.valueOf(8)))),
+                  newHashSet(Pair.create(max.subtract(BigInteger.valueOf(4)), min.add(BigInteger.valueOf(2))),
+                             Pair.create(min.add(BigInteger.valueOf(2)), min.add(BigInteger.valueOf(8)))));
 
         // multiple ranges
-        testSplit(1, newHashSet(range(1, 100), range(200, 300)), newHashSet(range(1, 100), range(200, 300)));
-        testSplit(2, newHashSet(range(1, 100), range(200, 300)), newHashSet(range(1, 100), range(200, 300)));
-        testSplit(4,
-                  newHashSet(range(1, 100), range(200, 300)),
-                  newHashSet(range(1, 50), range(50, 100), range(200, 250), range(250, 300)));
-        testSplit(4,
-                  newHashSet(range(1, 100), range(200, 300), range(max - 4, min + 4)),
-                  newHashSet(range(1, 50),
-                             range(50, 100),
-                             range(200, 250),
-                             range(250, 300),
-                             range(max, min + 4),
-                             range(max - 4, max)));
+        testSplit(partitioner, 1,
+                  newHashSet(Pair.create(1, 100), Pair.create(200, 300)),
+                  newHashSet(Pair.create(1, 100), Pair.create(200, 300)));
+        testSplit(partitioner, 2,
+                  newHashSet(Pair.create(1, 100), Pair.create(200, 300)),
+                  newHashSet(Pair.create(1, 100), Pair.create(200, 300)));
+        testSplit(partitioner, 4,
+                  newHashSet(Pair.create(1, 100), Pair.create(200, 300)),
+                  newHashSet(Pair.create(1, 50), Pair.create(50, 100), Pair.create(200, 250), Pair.create(250, 300)));
+        testSplit(partitioner, 4,
+                  newHashSet(Pair.create(1, 100),
+                             Pair.create(200, 300),
+                             Pair.create(max.subtract(BigInteger.valueOf(4)), min.add(BigInteger.valueOf(4)))),
+                  newHashSet(Pair.create(1, 50),
+                             Pair.create(50, 100),
+                             Pair.create(200, 250),
+                             Pair.create(250, 300),
+                             Pair.create(last, min.add(BigInteger.valueOf(4))),
+                             Pair.create(max.subtract(BigInteger.valueOf(4)), last)));
     }
 
-    private static void testSplit(int parts, Set<Range<Token>> ranges, Set<Range<Token>> expected)
+    private static void testSplit(IPartitioner partitioner, int parts, Set<Pair<Object, Object>> ranges, Set<Pair<Object, Object>> expected)
     {
-        Splitter splitter = new Murmur3Partitioner().splitter().get();
-        Set<Range<Token>> actual = splitter.split(ranges, parts);
-        assertEquals(expected, actual);
+        Splitter splitter = getSplitter(partitioner);
+        Set<Range<Token>> splittedRanges = splitter.split(ranges(partitioner, ranges), parts);
+        assertEquals(ranges(partitioner, expected), splittedRanges);
     }
 
-    private static Range<Token> range(long left, long right)
+    private static Set<Range<Token>> ranges(IPartitioner partitioner, Set<Pair<Object, Object>> pairs)
     {
-        return new Range<>(token(left), token(right));
+        return pairs.stream().map(pair -> range(partitioner, pair)).collect(Collectors.toSet());
     }
 
-    private static Token token(long n)
+    private static Range<Token> range(IPartitioner partitioner, Pair<?, ?> pair)
     {
-        return new Murmur3Partitioner.LongToken(n);
+        return new Range<>(token(partitioner, pair.left), token(partitioner, pair.right));
+    }
+
+    private static Token token(IPartitioner partitioner, Object n)
+    {
+        return partitioner.getTokenFactory().fromString(n.toString());
     }
 
     @Test
@@ -236,12 +288,12 @@ public class SplitterTest
         testTokensInRange(new Murmur3Partitioner());
     }
 
-    public void testTokensInRange(IPartitioner partitioner)
+    private static void testTokensInRange(IPartitioner partitioner)
     {
-        Splitter splitter = partitioner.splitter().get();
+        Splitter splitter = getSplitter(partitioner);
 
         // test full range
-        Range<Token> fullRange = new Range(partitioner.getMinimumToken(), partitioner.getMaximumToken());
+        Range<Token> fullRange = new Range<>(partitioner.getMinimumToken(), partitioner.getMaximumToken());
         BigInteger fullRangeSize = splitter.valueForToken(partitioner.getMaximumToken()).subtract(splitter.valueForToken(partitioner.getMinimumToken()));
         assertEquals(fullRangeSize, splitter.tokensInRange(fullRange));
         fullRange = new Range<>(splitter.tokenForValue(BigInteger.valueOf(-10)), splitter.tokenForValue(BigInteger.valueOf(-10)));
@@ -268,9 +320,9 @@ public class SplitterTest
         testElapsedMultiRange(new Murmur3Partitioner());
     }
 
-    public void testElapsedMultiRange(IPartitioner partitioner)
+    private static void testElapsedMultiRange(IPartitioner partitioner)
     {
-        Splitter splitter = partitioner.splitter().get();
+        Splitter splitter = getSplitter(partitioner);
         // small range
         Range<Token> smallRange = new Range<>(splitter.tokenForValue(BigInteger.valueOf(-1)), splitter.tokenForValue(BigInteger.valueOf(1)));
         testElapsedTokens(partitioner, smallRange, true);
@@ -283,7 +335,7 @@ public class SplitterTest
         BigInteger min = splitter.valueForToken(partitioner.getMinimumToken());
         BigInteger max = splitter.valueForToken(partitioner.getMaximumToken());
         Range<Token> wrappedRange = new Range<>(splitter.tokenForValue(max.subtract(BigInteger.valueOf(1350))),
-                                         splitter.tokenForValue(min.add(BigInteger.valueOf(20394))));
+                                                splitter.tokenForValue(min.add(BigInteger.valueOf(20394))));
         testElapsedTokens(partitioner, wrappedRange, true);
 
         // full range
@@ -291,9 +343,9 @@ public class SplitterTest
         testElapsedTokens(partitioner, fullRange, false);
     }
 
-    public void testElapsedTokens(IPartitioner partitioner, Range<Token> range, boolean partialRange)
+    private static void testElapsedTokens(IPartitioner partitioner, Range<Token> range, boolean partialRange)
     {
-        Splitter splitter = partitioner.splitter().get();
+        Splitter splitter = getSplitter(partitioner);
 
         BigInteger left = splitter.valueForToken(range.left);
         BigInteger right = splitter.valueForToken(range.right);
@@ -334,14 +386,14 @@ public class SplitterTest
         testPositionInRangeMultiRange(new Murmur3Partitioner());
     }
 
-    public void testPositionInRangeMultiRange(IPartitioner partitioner)
+    private static void testPositionInRangeMultiRange(IPartitioner partitioner)
     {
-        Splitter splitter = partitioner.splitter().get();
+        Splitter splitter = getSplitter(partitioner);
 
         // Test tiny range
         Token start = splitter.tokenForValue(BigInteger.ZERO);
         Token end = splitter.tokenForValue(BigInteger.valueOf(3));
-        Range range = new Range<>(start, end);
+        Range<Token> range = new Range<>(start, end);
         assertEquals(0.0, splitter.positionInRange(start, range), 0.01);
         assertEquals(0.33, splitter.positionInRange(splitter.tokenForValue(BigInteger.valueOf(1)), range), 0.01);
         assertEquals(0.66, splitter.positionInRange(splitter.tokenForValue(BigInteger.valueOf(2)), range), 0.01);
@@ -370,7 +422,7 @@ public class SplitterTest
         testPositionInRange(partitioner, splitter, new Range<>(splitter.tokenForValue(BigInteger.ONE), splitter.tokenForValue(BigInteger.ONE)));
     }
 
-    private void testPositionInRange(IPartitioner partitioner, Splitter splitter, Range<Token> range)
+    private static void testPositionInRange(IPartitioner partitioner, Splitter splitter, Range<Token> range)
     {
         Range<Token> actualRange = range;
         //full range case
@@ -387,22 +439,22 @@ public class SplitterTest
         assertEquals(1.0, splitter.positionInRange(actualRange.right, range), 0.01);
     }
 
-    private Token getTokenInPosition(IPartitioner partitioner, Range<Token> range, double position)
+    private static Token getTokenInPosition(IPartitioner partitioner, Range<Token> range, double position)
     {
         if (range.left.equals(range.right))
         {
             range = new Range<>(partitioner.getMinimumToken(), partitioner.getMaximumToken());
         }
-        Splitter splitter = partitioner.splitter().get();
+        Splitter splitter = getSplitter(partitioner);
         BigInteger totalTokens = splitter.tokensInRange(range);
         BigInteger elapsedTokens = BigDecimal.valueOf(position).multiply(new BigDecimal(totalTokens)).toBigInteger();
         BigInteger tokenInPosition = splitter.valueForToken(range.left).add(elapsedTokens);
         return getWrappedToken(partitioner, tokenInPosition);
     }
 
-    private Token getWrappedToken(IPartitioner partitioner, BigInteger position)
+    private static Token getWrappedToken(IPartitioner partitioner, BigInteger position)
     {
-        Splitter splitter = partitioner.splitter().get();
+        Splitter splitter = getSplitter(partitioner);
         BigInteger maxTokenValue = splitter.valueForToken(partitioner.getMaximumToken());
         BigInteger minTokenValue = splitter.valueForToken(partitioner.getMinimumToken());
         if (position.compareTo(maxTokenValue) > 0)
@@ -410,5 +462,10 @@ public class SplitterTest
             position = minTokenValue.add(position.subtract(maxTokenValue));
         }
         return splitter.tokenForValue(position);
+    }
+
+    private static Splitter getSplitter(IPartitioner partitioner)
+    {
+        return partitioner.splitter().orElseThrow(() -> new AssertionError(partitioner.getClass() + " must have a splitter"));
     }
 }
