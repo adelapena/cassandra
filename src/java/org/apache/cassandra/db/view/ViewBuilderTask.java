@@ -53,7 +53,6 @@ import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.repair.SystemDistributedKeyspace;
 import org.apache.cassandra.service.StorageProxy;
 import org.apache.cassandra.utils.FBUtilities;
-import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.UUIDGen;
 import org.apache.cassandra.utils.concurrent.Refs;
 
@@ -71,13 +70,14 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
     private final UUID compactionId;
     private volatile Token prevToken;
 
-    ViewBuilderTask(ColumnFamilyStore baseCfs, View view, Range<Token> range)
+    ViewBuilderTask(ColumnFamilyStore baseCfs, View view, Range<Token> range, Token lastToken, long keysBuilt)
     {
         this.baseCfs = baseCfs;
         this.view = view;
         this.range = range;
         this.compactionId = UUIDGen.getTimeUUID();
-        this.prevToken = null;
+        this.prevToken = lastToken;
+        this.keysBuilt = keysBuilt;
     }
 
     private void buildKey(DecoratedKey key)
@@ -113,21 +113,14 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
     {
         logger.debug("Starting view build for {}.{} for range {}", baseCfs.metadata.keyspace, view.name, range);
         UUID localHostId = SystemKeyspace.getLocalHostId();
-        String ksname = baseCfs.metadata.keyspace, viewName = view.name;
+        String ksName = baseCfs.metadata.keyspace;
 
-        final Pair<Token, Long> buildStatus = SystemKeyspace.getViewBuildStatus(ksname, viewName, range);
-        if (buildStatus == null || buildStatus.right == 0)
-        {
-            logger.debug("Starting new view build for range {}. flushing base table {}.{}", range, baseCfs.metadata.keyspace, baseCfs.name);
-            SystemKeyspace.beginViewBuild(ksname, viewName, range);
-        }
+        if (prevToken == null)
+            logger.debug("Starting new view build for range {}. flushing base table {}.{}",
+                         range, baseCfs.metadata.keyspace, baseCfs.name);
         else
-        {
-            prevToken = buildStatus.left;
-            keysBuilt = buildStatus.right;
             logger.debug("Resuming view build for range {} from token {} with {} covered keys. flushing base table {}.{}",
-                         range, prevToken, keysBuilt, baseCfs.metadata.keyspace, baseCfs.name);
-        }
+                         range, prevToken, keysBuilt, ksName, baseCfs.name);
 
         baseCfs.forceBlockingFlush();
 
@@ -138,7 +131,7 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
              Refs<SSTableReader> sstables = viewFragment.refs;
              ReducingKeyIterator keyIter = new ReducingKeyIterator(sstables))
         {
-            SystemDistributedKeyspace.startViewBuild(ksname, viewName, localHostId);
+            SystemDistributedKeyspace.startViewBuild(ksName, view.name, localHostId);
 
             PeekingIterator<DecoratedKey> iter = Iterators.peekingIterator(keyIter);
             while (!isStopped && iter.hasNext())
@@ -158,18 +151,32 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
                         ++keysBuilt;
                     }
                     if (keysBuilt % ROWS_BETWEEN_CHECKPOINTS == 1)
-                        SystemKeyspace.updateViewBuildStatus(ksname, viewName, range, token, keysBuilt);
+                        SystemKeyspace.updateViewBuildStatus(ksName, view.name, range, token, keysBuilt);
                     prevToken = token;
                 }
             }
-
-            if (!isStopped)
-                logger.debug("Completed build of view({}.{}) for range {} after covering {} keys ", ksname, viewName, range, keysBuilt);
-            else
-                logger.debug("Stopped build for view({}.{}) for range {} after covering {} keys", ksname, viewName, range, keysBuilt);
         }
 
+        finish();
+
         return keysBuilt;
+    }
+
+    private void finish()
+    {
+        String ksName = baseCfs.keyspace.getName();
+        if (!isStopped)
+        {
+            // Save the completed status using the end of the range as last token. This way it will be possible for
+            // future view build attempts to don't even create a task for this range
+            SystemKeyspace.updateViewBuildStatus(ksName, view.name, range, range.right, keysBuilt);
+
+            logger.debug("Completed build of view({}.{}) for range {} after covering {} keys ", ksName, view.name, range, keysBuilt);
+        }
+        else
+        {
+            logger.debug("Stopped build for view({}.{}) for range {} after covering {} keys", ksName, view.name, range, keysBuilt);
+        }
     }
 
     @Override
@@ -178,7 +185,7 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
         // If there's splitter, calculate progress based on last token position
         if (range.left.getPartitioner().splitter().isPresent())
         {
-            long progress = prevToken == null? 0 : Math.round(prevToken.getPartitioner().splitter().get().positionInRange(prevToken, range) * 1000);
+            long progress = prevToken == null ? 0 : Math.round(prevToken.getPartitioner().splitter().get().positionInRange(prevToken, range) * 1000);
             return new CompactionInfo(baseCfs.metadata(), OperationType.VIEW_BUILD, progress, 1000, "token range parts", compactionId);
         }
 

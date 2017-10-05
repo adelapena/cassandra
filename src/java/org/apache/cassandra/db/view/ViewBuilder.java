@@ -18,12 +18,14 @@
 
 package org.apache.cassandra.db.view;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -40,24 +42,27 @@ import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.repair.SystemDistributedKeyspace;
 import org.apache.cassandra.service.StorageService;
+import org.apache.cassandra.utils.Pair;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 /**
  * Builds a materialized view for the local token ranges.
  * <p>
- * The build is parellelized in at least {@link DatabaseDescriptor#getConcurrentViewBuilders()}
- * {@link ViewBuilderTask tasks}.
+ * The build is split in at least {@link #NUM_TASKS} {@link ViewBuilderTask tasks}, suitable of being parallelized by
+ * the {@link CompactionManager} which will execute them.
  */
 class ViewBuilder
 {
     private static final Logger logger = LoggerFactory.getLogger(ViewBuilderTask.class);
 
+    private static final int NUM_TASKS = Runtime.getRuntime().availableProcessors() * 4;
+
     private final ColumnFamilyStore baseCfs;
     private final View view;
     private final String ksName;
     private final Set<Range<Token>> builtRanges = Sets.newConcurrentHashSet();
+    private final Map<Range<Token>, Pair<Token, Long>> pendingRanges = Maps.newConcurrentMap();
     private final Set<ViewBuilderTask> tasks = Sets.newConcurrentHashSet();
     private volatile long keysBuilt = 0;
     private volatile boolean isStopped = false;
@@ -76,11 +81,37 @@ class ViewBuilder
         }
         else
         {
-            buildPendingLocalRanges();
+            loadStatusAndBuild();
         }
     }
 
-    private void buildPendingLocalRanges()
+    private void loadStatusAndBuild()
+    {
+        loadStatus();
+        build();
+    }
+
+    private void loadStatus()
+    {
+        builtRanges.clear();
+        pendingRanges.clear();
+        SystemKeyspace.getViewBuildStatus(ksName, view.name)
+                      .forEach((range, pair) ->
+                               {
+                                   Token lastToken = pair.left;
+                                   if (lastToken != null && lastToken.equals(range.right))
+                                   {
+                                       builtRanges.add(range);
+                                       keysBuilt += pair.right;
+                                   }
+                                   else
+                                   {
+                                       pendingRanges.put(range, pair);
+                                   }
+                               });
+    }
+
+    private void build()
     {
         if (isStopped)
         {
@@ -88,32 +119,41 @@ class ViewBuilder
             return;
         }
 
-        // Get those local token ranges for which the view hasn't already been built
-        Collection<Range<Token>> localRanges = StorageService.instance.getLocalRanges(ksName);
-        Set<Range<Token>> ranges = localRanges.stream()
-                                              .filter(x -> builtRanges.stream().noneMatch(y -> y.contains(x)))
-                                              .collect(toSet());
+        // Get the local ranges for which the view hasn't already been built nor it's building
+        Set<Range<Token>> newRanges = StorageService.instance.getLocalRanges(ksName)
+                                                             .stream()
+                                                             .map(r -> r.subtractAll(builtRanges))
+                                                             .flatMap(Set::stream)
+                                                             .map(r -> r.subtractAll(pendingRanges.keySet()))
+                                                             .flatMap(Set::stream)
+                                                             .collect(Collectors.toSet());
 
-        // If there are no new ranges we should finish the build
-        if (ranges.isEmpty())
+        // If there are no new nor pending ranges we should finish the build
+        if (newRanges.isEmpty() && pendingRanges.isEmpty())
         {
             finish();
             return;
         }
 
-        // Split the ranges according to the concurrency factor and submit a new view build task for each of them.
-        // We record of all the submitted tasks to be able of getting the number of built keys, even if the build is
-        // interrupted.
-        List<ListenableFuture<Long>> futures;
-        futures = DatabaseDescriptor.getPartitioner()
-                                    .splitter()
-                                    .map(s -> s.split(ranges, DatabaseDescriptor.getConcurrentViewBuilders()))
-                                    .orElse(ranges)
-                                    .stream()
-                                    .map(range -> new ViewBuilderTask(baseCfs, view, range))
-                                    .peek(tasks::add)
-                                    .map(CompactionManager.instance::submitViewBuilder)
-                                    .collect(toList());
+        // Split the new local ranges and add them to the pending set
+        DatabaseDescriptor.getPartitioner()
+                          .splitter()
+                          .map(s -> s.split(newRanges, NUM_TASKS))
+                          .orElse(newRanges)
+                          .forEach(r -> pendingRanges.put(r, Pair.<Token, Long>create(null, 0L)));
+
+        // Submit a new view build task for each building range.
+        // We keep record of all the submitted tasks to be able of stopping them.
+        List<ListenableFuture<Long>> futures = pendingRanges.entrySet()
+                                                            .stream()
+                                                            .map(e -> new ViewBuilderTask(baseCfs,
+                                                                                          view,
+                                                                                          e.getKey(),
+                                                                                          e.getValue().left,
+                                                                                          e.getValue().right))
+                                                            .peek(tasks::add)
+                                                            .map(CompactionManager.instance::submitViewBuilder)
+                                                            .collect(toList());
 
         // Add a callback to process any eventual new local range and mark the view as built, doing a delayed retry if
         // the tasks don't succeed
@@ -123,13 +163,14 @@ class ViewBuilder
             public void onSuccess(List<Long> result)
             {
                 keysBuilt += result.stream().mapToLong(x -> x).sum();
-                builtRanges.addAll(ranges);
-                buildPendingLocalRanges();
+                builtRanges.addAll(pendingRanges.keySet());
+                pendingRanges.clear();
+                build();
             }
 
             public void onFailure(Throwable t)
             {
-                ScheduledExecutors.nonPeriodicTasks.schedule(() -> buildPendingLocalRanges(), 5, TimeUnit.MINUTES);
+                ScheduledExecutors.nonPeriodicTasks.schedule(() -> loadStatusAndBuild(), 5, TimeUnit.MINUTES);
                 logger.warn("Materialized View failed to complete, sleeping 5 minutes before restarting", t);
             }
         });

@@ -468,13 +468,6 @@ public final class SystemKeyspace
         forceBlockingFlush(BUILT_VIEWS);
     }
 
-    public static void beginViewBuild(String ksname, String viewName, Range<Token> range)
-    {
-        String req = "INSERT INTO system.%s (keyspace_name, view_name, start_token, end_token) VALUES (?, ?, ?, ?)";
-        Token.TokenFactory factory = ViewBuildsInProgress.partitioner.getTokenFactory();
-        executeInternal(format(req, VIEW_BUILDS_IN_PROGRESS), ksname, viewName, factory.toString(range.left), factory.toString(range.right));
-    }
-
     public static void finishViewBuildStatus(String ksname, String viewName)
     {
         // We flush the view built first, because if we fail now, we'll restart at the last place we checkpointed
@@ -505,28 +498,28 @@ public final class SystemKeyspace
                         keysBuilt);
     }
 
-    public static Pair<Token, Long> getViewBuildStatus(String ksname, String viewName, Range<Token> range)
+    public static Map<Range<Token>, Pair<Token, Long>> getViewBuildStatus(String ksname, String viewName)
     {
-        String req = "SELECT last_token, keys_built FROM system.%s WHERE keyspace_name = ? AND view_name = ? AND start_token = ? AND end_token = ?";
+        String req = "SELECT start_token, end_token, last_token, keys_built FROM system.%s WHERE keyspace_name = ? AND view_name = ?";
         Token.TokenFactory factory = ViewBuildsInProgress.partitioner.getTokenFactory();
-        UntypedResultSet queryResultSet = executeInternal(format(req, VIEW_BUILDS_IN_PROGRESS),
-                                                          ksname,
-                                                          viewName,
-                                                          factory.toString(range.left),
-                                                          factory.toString(range.right));
-        if (queryResultSet == null || queryResultSet.isEmpty())
-            return null;
+        UntypedResultSet rs = executeInternal(format(req, VIEW_BUILDS_IN_PROGRESS), ksname, viewName);
 
-        UntypedResultSet.Row row = queryResultSet.one();
+        if (rs == null || rs.isEmpty())
+            return Collections.emptyMap();
 
-        Token lastToken = null;
-        long keysBuilt = 0;
-        if (row.has("last_token"))
-            lastToken = factory.fromString(row.getString("last_token"));
-        if (row.has("keys_built"))
-            keysBuilt = row.getLong("keys_built");
+        Map<Range<Token>, Pair<Token, Long>> status = new HashMap<>();
+        for (UntypedResultSet.Row row : rs)
+        {
+            Token start = factory.fromString(row.getString("start_token"));
+            Token end = factory.fromString(row.getString("end_token"));
+            Range<Token> range = new Range<>(start, end);
 
-        return Pair.create(lastToken, keysBuilt);
+            Token lastToken = row.has("last_token") ? factory.fromString(row.getString("last_token")) : null;
+            long keysBuilt = row.has("keys_built") ? row.getLong("keys_built") : 0;
+
+            status.put(range, Pair.create(lastToken, keysBuilt));
+        }
+        return status;
     }
 
     public static synchronized void saveTruncationRecord(ColumnFamilyStore cfs, long truncatedAt, CommitLogPosition position)
