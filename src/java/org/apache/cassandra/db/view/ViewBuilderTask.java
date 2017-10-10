@@ -64,11 +64,11 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
 
     private final ColumnFamilyStore baseCfs;
     private final View view;
-    public final Range<Token> range;
-    private volatile long keysBuilt = 0;
-    private volatile boolean isStopped = false;
+    private final Range<Token> range;
     private final UUID compactionId;
     private volatile Token prevToken;
+    private volatile long keysBuilt = 0;
+    private volatile boolean isStopped = false;
 
     ViewBuilderTask(ColumnFamilyStore baseCfs, View view, Range<Token> range, Token lastToken, long keysBuilt)
     {
