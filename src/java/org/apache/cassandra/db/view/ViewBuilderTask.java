@@ -50,7 +50,6 @@ import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.io.sstable.ReducingKeyIterator;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
-import org.apache.cassandra.repair.SystemDistributedKeyspace;
 import org.apache.cassandra.service.StorageProxy;
 import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.UUIDGen;
@@ -112,7 +111,6 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
     public Long call()
     {
         logger.debug("Starting view build for {}.{} for range {}", baseCfs.metadata.keyspace, view.name, range);
-        UUID localHostId = SystemKeyspace.getLocalHostId();
         String ksName = baseCfs.metadata.keyspace;
 
         if (prevToken == null)
@@ -131,8 +129,6 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
              Refs<SSTableReader> sstables = viewFragment.refs;
              ReducingKeyIterator keyIter = new ReducingKeyIterator(sstables))
         {
-            SystemDistributedKeyspace.startViewBuild(ksName, view.name, localHostId);
-
             PeekingIterator<DecoratedKey> iter = Iterators.peekingIterator(keyIter);
             while (!isStopped && iter.hasNext())
             {

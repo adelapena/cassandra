@@ -61,6 +61,7 @@ class ViewBuilder
     private final ColumnFamilyStore baseCfs;
     private final View view;
     private final String ksName;
+    private final UUID localHostId = SystemKeyspace.getLocalHostId();
     private final Set<Range<Token>> builtRanges = Sets.newConcurrentHashSet();
     private final Map<Range<Token>, Pair<Token, Long>> pendingRanges = Maps.newConcurrentMap();
     private final Set<ViewBuilderTask> tasks = Sets.newConcurrentHashSet();
@@ -81,6 +82,7 @@ class ViewBuilder
         }
         else
         {
+            SystemDistributedKeyspace.startViewBuild(ksName, view.name, localHostId);
             loadStatusAndBuild();
         }
     }
@@ -187,7 +189,6 @@ class ViewBuilder
     {
         try
         {
-            UUID localHostId = SystemKeyspace.getLocalHostId();
             SystemDistributedKeyspace.successfulViewBuild(ksName, view.name, localHostId);
             SystemKeyspace.setViewBuiltReplicated(ksName, view.name);
         }
