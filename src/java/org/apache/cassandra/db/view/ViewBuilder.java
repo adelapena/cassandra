@@ -73,7 +73,10 @@ class ViewBuilder
         this.baseCfs = baseCfs;
         this.view = view;
         ksName = baseCfs.metadata.keyspace;
+    }
 
+    public void start()
+    {
         if (SystemKeyspace.isViewBuilt(ksName, view.name))
         {
             logger.debug("View already marked built for {}.{}", ksName, view.name);

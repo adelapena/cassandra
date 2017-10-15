@@ -199,6 +199,7 @@ public class View
         }
 
         builder = new ViewBuilder(baseCfs, this);
+        builder.start();
     }
 
     @Nullable
