@@ -283,7 +283,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
      * @return {@code true} if the index is building, {@code false} otherwise
      */
     @VisibleForTesting
-    public boolean isIndexBuilding(String indexName)
+    public synchronized boolean isIndexBuilding(String indexName)
     {
         AtomicInteger counter = inProgressBuilds.get(indexName);
         return counter != null && counter.get() > 0;
