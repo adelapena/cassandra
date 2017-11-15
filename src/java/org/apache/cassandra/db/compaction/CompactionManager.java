@@ -1849,7 +1849,7 @@ public class CompactionManager implements CompactionManagerMBean
     {
         public ViewBuildExecutor()
         {
-            super(1, DatabaseDescriptor.getConcurrentViewBuilders(), "ViewBuildExecutor", new LinkedBlockingQueue<>());
+            super(DatabaseDescriptor.getConcurrentViewBuilders(), "ViewBuildExecutor");
         }
     }
 
