@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,7 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,7 @@ import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.repair.SystemDistributedKeyspace;
 import org.apache.cassandra.service.StorageService;
+import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.Pair;
 
 import static java.util.stream.Collectors.toList;
@@ -67,6 +70,7 @@ class ViewBuilder
     private final Set<ViewBuilderTask> tasks = Sets.newConcurrentHashSet();
     private volatile long keysBuilt = 0;
     private volatile boolean isStopped = false;
+    private volatile Future<?> future = Futures.immediateFuture(null);
 
     ViewBuilder(ColumnFamilyStore baseCfs, View view)
     {
@@ -116,7 +120,7 @@ class ViewBuilder
                                });
     }
 
-    private void build()
+    private synchronized void build()
     {
         if (isStopped)
         {
@@ -178,7 +182,8 @@ class ViewBuilder
                 ScheduledExecutors.nonPeriodicTasks.schedule(() -> loadStatusAndBuild(), 5, TimeUnit.MINUTES);
                 logger.warn("Materialized View failed to complete, sleeping 5 minutes before restarting", t);
             }
-        });
+        }, MoreExecutors.directExecutor());
+        this.future = future;
     }
 
     private void finish()
@@ -209,5 +214,6 @@ class ViewBuilder
     {
         isStopped = true;
         tasks.forEach(ViewBuilderTask::stop);
+        FBUtilities.waitOnFuture(future);
     }
 }

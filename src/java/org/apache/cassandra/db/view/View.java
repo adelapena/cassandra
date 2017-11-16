@@ -191,15 +191,22 @@ public class View
 
     public synchronized void build()
     {
+        stopBuild();
+        builder = new ViewBuilder(baseCfs, this);
+        builder.start();
+    }
+
+    /**
+     * Stops the building of this view, no-op if it isn't building.
+     */
+    synchronized void stopBuild()
+    {
         if (builder != null)
         {
             logger.debug("Stopping current view builder due to schema change");
             builder.stop();
             builder = null;
         }
-
-        builder = new ViewBuilder(baseCfs, this);
-        builder.start();
     }
 
     @Nullable

@@ -163,6 +163,16 @@ public class ViewManager
         SystemDistributedKeyspace.setViewRemoved(keyspace.getName(), view.name);
     }
 
+    /**
+     * Stops the building of the specified view, no-op if it isn't building.
+     *
+     * @param name the name of the view
+     */
+    public void stopBuild(String name)
+    {
+        viewsByName.get(name).stopBuild();
+    }
+
     public View getByName(String name)
     {
         return viewsByName.get(name);

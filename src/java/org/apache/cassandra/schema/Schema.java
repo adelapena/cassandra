@@ -691,6 +691,7 @@ public final class Schema
 
     private void dropView(ViewMetadata metadata)
     {
+        Keyspace.open(metadata.keyspace).viewManager.stopBuild(metadata.name);
         dropTable(metadata.metadata);
     }
 
