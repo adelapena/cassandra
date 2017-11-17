@@ -632,7 +632,7 @@ public final class Schema
         viewsDiff.entriesDiffering().values().forEach(diff -> alterView(diff.rightValue()));
 
         // deal with all removed, added, and altered views
-        Keyspace.open(before.name).viewManager.reload();
+        Keyspace.open(before.name).viewManager.reload(true);
 
         // notify on everything dropped
         udasDiff.entriesOnlyOnLeft().values().forEach(this::notifyDropAggregate);

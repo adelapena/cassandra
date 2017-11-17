@@ -93,7 +93,7 @@ public class ViewManager
         return viewsByName.values();
     }
 
-    public void reload()
+    public void reload(boolean buildAllViews)
     {
         Map<String, ViewMetadata> newViewsByName = new HashMap<>();
         for (ViewMetadata definition : keyspace.getMetadata().views)
@@ -112,6 +112,9 @@ public class ViewManager
             if (!viewsByName.containsKey(entry.getKey()))
                 addView(entry.getValue());
         }
+
+        if (!buildAllViews)
+            return;
 
         // Building views involves updating view build status in the system_distributed
         // keyspace and therefore it requires ring information. This check prevents builds
