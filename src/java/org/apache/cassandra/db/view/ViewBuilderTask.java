@@ -110,17 +110,14 @@ public class ViewBuilderTask extends CompactionInfo.Holder implements Callable<L
 
     public Long call()
     {
-        logger.debug("Starting view build for {}.{} for range {}", baseCfs.metadata.keyspace, view.name, range);
         String ksName = baseCfs.metadata.keyspace;
 
         if (prevToken == null)
-            logger.debug("Starting new view build for range {}. flushing base table {}.{}",
-                         range, baseCfs.metadata.keyspace, baseCfs.name);
+            logger.debug("Starting new build of view({}.{}) for range {}",
+                         ksName, view.name, range);
         else
-            logger.debug("Resuming view build for range {} from token {} with {} covered keys. flushing base table {}.{}",
-                         range, prevToken, keysBuilt, ksName, baseCfs.name);
-
-        baseCfs.forceBlockingFlush();
+            logger.debug("Resuming build of view({}.{}) for range {} from token {} with {} covered keys",
+                         ksName, view.name, range, prevToken, keysBuilt);
 
         Function<org.apache.cassandra.db.lifecycle.View, Iterable<SSTableReader>> function;
         function = org.apache.cassandra.db.lifecycle.View.select(SSTableSet.CANONICAL, s -> range.intersects(s.getBounds()));

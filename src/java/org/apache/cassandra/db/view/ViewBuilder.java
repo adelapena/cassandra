@@ -90,6 +90,11 @@ class ViewBuilder
         else
         {
             SystemDistributedKeyspace.startViewBuild(ksName, view.name, localHostId);
+
+            logger.debug("Starting build of view({}.{}). Flushing base table {}.{}",
+                         ksName, view.name, ksName, baseCfs.name);
+            baseCfs.forceBlockingFlush();
+
             loadStatusAndBuild();
         }
     }
