@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class JavaUtils
 {
-    private static Logger logger = LoggerFactory.getLogger(JavaUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(JavaUtils.class);
 
     /**
      * Checks if the specified JRE support ExitOnOutOfMemory and CrashOnOutOfMemory.
@@ -49,16 +49,16 @@ public final class JavaUtils
         catch (Exception e)
         {
             logger.error("Some JRE information could not be retrieved for the JRE version: " + jreVersion, e);
-            // We will continue assuming that the version support ExitOnOutOfMemory and CrashOnOutOfMemory.
+            // We will continue assuming that the version supports ExitOnOutOfMemory and CrashOnOutOfMemory.
             return true;
         }
     }
 
     /**
      * Parses an Oracle JRE Version to extract the java version number.
-     * <p> The parsing rules are based on the following 
-     * <a href='http://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html'>String Naming Convention</a> and 
-     * <a href='http://openjdk.java.net/jeps/223'>JEP 223: New Version-String Scheme</a></p>
+     * <p> The parsing rules are based on the following
+     * <a href='http://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html'>String Naming Convention</a> and
+     * <a href='http://openjdk.java.net/jeps/223'>JEP 223: New Version-String Scheme</a>.</p>
      * @param jreVersion the Oracle JRE Version
      * @return the java version number
      * @throws NumberFormatException if the version cannot be retrieved
@@ -89,7 +89,7 @@ public final class JavaUtils
 
     /**
      * Parses an Oracle JRE Version &lt; 9 to extract the update version.
-     * <p> The parsing rules are based on the following 
+     * <p> The parsing rules are based on the following
      * <a href='http://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html'>String Naming Convention</a>.</p>
      * @param jreVersion the Oracle JRE Version
      * @return the update version
@@ -98,7 +98,7 @@ public final class JavaUtils
     private static int parseUpdateForPre9Versions(String jreVersion)
     {
         // Handle non GA versions
-        int dashSeparatorIndex = jreVersion.indexOf("-");
+        int dashSeparatorIndex = jreVersion.indexOf('-');
         if (dashSeparatorIndex > 0)
             jreVersion = jreVersion.substring(0, dashSeparatorIndex);
 
