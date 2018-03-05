@@ -202,10 +202,11 @@ public class CastFctsTest extends CQLTester
                        null));
     }
 
+    @Test
     public void testNoLossOfPrecisionForCastToDecimal() throws Throwable
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, bigint_clmn bigint, varint_clmn varint)");
-        execute("INSERT INTO %s(k, decimal_clmn) VALUES(2, 9223372036854775807, 1234567890123456789)");
+        execute("INSERT INTO %s(k, bigint_clmn, varint_clmn) VALUES(2, 9223372036854775807, 1234567890123456789)");
 
         assertRows(execute("SELECT CAST(bigint_clmn AS decimal), CAST(varint_clmn AS decimal) FROM %s"),
                    row(BigDecimal.valueOf(9223372036854775807L), BigDecimal.valueOf(1234567890123456789L)));
