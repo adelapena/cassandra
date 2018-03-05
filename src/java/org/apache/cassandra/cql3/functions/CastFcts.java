@@ -113,7 +113,8 @@ public final class CastFcts
     }
 
     /**
-     * Returns the conversion function to convert the specified type into a Decimal type
+     * Returns the conversion function to convert the specified type into a Decimal type.
+     *
      * @param inputType the input type
      * @return the conversion function to convert the specified type into a Decimal type
      */
