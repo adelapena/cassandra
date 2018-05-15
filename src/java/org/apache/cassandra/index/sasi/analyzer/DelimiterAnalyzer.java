@@ -100,4 +100,10 @@ public class DelimiterAnalyzer extends AbstractAnalyzer
     {
         return true;
     }
+
+    @Override
+    public boolean isCompatibleWith(AbstractType<?> validator)
+    {
+        return VALID_ANALYZABLE_TYPES.containsKey(validator);
+    }
 }

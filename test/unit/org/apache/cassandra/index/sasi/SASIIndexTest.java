@@ -2411,6 +2411,49 @@ public class SASIIndexTest
         Assert.assertEquals(index.searchMemtable(expression).getCount(), 0);
     }
 
+    @Test
+    public void testAnalyserValidation()
+    {
+        final String TABLE_NAME = "analyzer_validation";
+        QueryProcessor.executeOnceInternal(String.format("CREATE TABLE IF NOT EXISTS %s.%s (pk text, ck int, int_v int, uuid_v uuid, text_v text, ascii_v ascii, PRIMARY KEY (pk, ck));",
+                                                         KS_NAME,
+                                                         TABLE_NAME));
+
+        List<String> failedColumns = Arrays.asList("int_v", "uuid_v");
+        for (String failedColumn : failedColumns)
+        {
+            try
+            {
+                QueryProcessor.executeOnceInternal(String.format("CREATE CUSTOM INDEX ON %s.%s (" + failedColumn + ") "
+                        + "USING 'org.apache.cassandra.index.sasi.SASIIndex' "
+                        + "WITH OPTIONS = {'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'mode':'PREFIX'};",
+                                                                 KS_NAME,
+                                                                 TABLE_NAME));
+                Assert.fail("Expect IllegalArgumentException");
+            }
+            catch (ConfigurationException e)
+            {
+                // expected
+                Assert.assertTrue("Unexpected error message " + e.getMessage(),
+                                  e.getMessage().contains("does not support type"));
+            }
+            catch (Throwable e)
+            {
+                Assert.fail("Unexpected error " + e.getMessage());
+            }
+        }
+
+        List<String> validColumns = Arrays.asList("text_v", "ascii_v");
+        for (String validColumn : validColumns)
+        {
+            QueryProcessor.executeOnceInternal(String.format("CREATE CUSTOM INDEX ON %s.%s (" + validColumn + ") "
+                    + "USING 'org.apache.cassandra.index.sasi.SASIIndex' "
+                    + "WITH OPTIONS = {'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'mode':'PREFIX'};",
+                                                             KS_NAME,
+                                                             TABLE_NAME));
+        }
+    }
+
     private static ColumnFamilyStore loadData(Map<String, Pair<String, Integer>> data, boolean forceFlush)
     {
         return loadData(data, System.currentTimeMillis(), forceFlush);
