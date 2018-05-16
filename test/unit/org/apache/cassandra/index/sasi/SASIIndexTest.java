@@ -31,10 +31,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.cassandra.SchemaLoader;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
+import org.apache.cassandra.config.Schema;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.*;
@@ -55,6 +57,11 @@ import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.index.sasi.analyzer.AbstractAnalyzer;
+import org.apache.cassandra.index.sasi.analyzer.DelimiterAnalyzer;
+import org.apache.cassandra.index.sasi.analyzer.NoOpAnalyzer;
+import org.apache.cassandra.index.sasi.analyzer.NonTokenizingAnalyzer;
+import org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer;
 import org.apache.cassandra.index.sasi.conf.ColumnIndex;
 import org.apache.cassandra.index.sasi.disk.OnDiskIndexBuilder;
 import org.apache.cassandra.index.sasi.exceptions.TimeQuotaExceededException;
@@ -2415,43 +2422,70 @@ public class SASIIndexTest
     public void testAnalyzerValidation()
     {
         final String TABLE_NAME = "analyzer_validation";
-        QueryProcessor.executeOnceInternal(String.format("CREATE TABLE IF NOT EXISTS %s.%s (pk text, ck int, int_v int, uuid_v uuid, text_v text, ascii_v ascii, PRIMARY KEY (pk, ck));",
+        QueryProcessor.executeOnceInternal(String.format("CREATE TABLE %s.%s (" +
+                                                         "  pk text PRIMARY KEY, " +
+                                                         "  ascii_v ascii, " +
+                                                         "  bigint_v bigint, " +
+                                                         "  blob_v blob, " +
+                                                         "  boolean_v boolean, " +
+                                                         "  date_v date, " +
+                                                         "  decimal_v decimal, " +
+                                                         "  double_v double, " +
+                                                         "  float_v float, " +
+                                                         "  inet_v inet, " +
+                                                         "  int_v int, " +
+                                                         "  smallint_v smallint, " +
+                                                         "  text_v text, " +
+                                                         "  time_v time, " +
+                                                         "  timestamp_v timestamp, " +
+                                                         "  timeuuid_v timeuuid, " +
+                                                         "  tinyint_v tinyint, " +
+                                                         "  uuid_v uuid, " +
+                                                         "  varchar_v varchar, " +
+                                                         "  varint_v varint" +
+                                                         ");",
                                                          KS_NAME,
                                                          TABLE_NAME));
 
-        List<String> failedColumns = Arrays.asList("int_v", "uuid_v");
-        for (String failedColumn : failedColumns)
-        {
-            try
-            {
-                QueryProcessor.executeOnceInternal(String.format("CREATE CUSTOM INDEX ON %s.%s (" + failedColumn + ") "
-                        + "USING 'org.apache.cassandra.index.sasi.SASIIndex' "
-                        + "WITH OPTIONS = {'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'mode':'PREFIX'};",
-                                                                 KS_NAME,
-                                                                 TABLE_NAME));
-                Assert.fail("Expected ConfigurationException");
-            }
-            catch (ConfigurationException e)
-            {
-                // expected
-                Assert.assertTrue("Unexpected error message " + e.getMessage(),
-                                  e.getMessage().contains("does not support type"));
-            }
-            catch (Throwable e)
-            {
-                Assert.fail("Unexpected error " + e.getMessage());
-            }
-        }
+        Columns regulars = Schema.instance.getCFMetaData(KS_NAME, TABLE_NAME).partitionColumns().regulars;
+        List<String> allColumns = regulars.stream().map(ColumnDefinition::toString).collect(Collectors.toList());
+        List<String> textColumns = Arrays.asList("text_v", "ascii_v", "varchar_v");
 
-        List<String> validColumns = Arrays.asList("text_v", "ascii_v");
-        for (String validColumn : validColumns)
-        {
-            QueryProcessor.executeOnceInternal(String.format("CREATE CUSTOM INDEX ON %s.%s (" + validColumn + ") "
-                    + "USING 'org.apache.cassandra.index.sasi.SASIIndex' "
-                    + "WITH OPTIONS = {'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'mode':'PREFIX'};",
-                                                             KS_NAME,
-                                                             TABLE_NAME));
-        }
+        new HashMap<Class<? extends AbstractAnalyzer>, List<String>>()
+        {{
+            put(StandardAnalyzer.class, textColumns);
+            put(NonTokenizingAnalyzer.class, textColumns);
+            put(DelimiterAnalyzer.class, textColumns);
+            put(NoOpAnalyzer.class, allColumns);
+        }}
+        .forEach((analyzer, supportedColumns) -> {
+            for (String column : allColumns)
+            {
+                String query = String.format("CREATE CUSTOM INDEX ON %s.%s(%s) " +
+                                             "USING 'org.apache.cassandra.index.sasi.SASIIndex' " +
+                                             "WITH OPTIONS = {'analyzer_class': '%s', 'mode':'PREFIX'};",
+                                             KS_NAME, TABLE_NAME, column, analyzer.getName());
+
+                if (supportedColumns.contains(column))
+                {
+                    QueryProcessor.executeOnceInternal(query);
+                }
+                else
+                {
+                    try
+                    {
+                        QueryProcessor.executeOnceInternal(query);
+                        Assert.fail("Expected ConfigurationException");
+                    }
+                    catch (ConfigurationException e)
+                    {
+                        // expected
+                        Assert.assertTrue("Unexpected error message " + e.getMessage(),
+                                          e.getMessage().contains("does not support type"));
+                    }
+                }
+            }
+        });
     }
 
     private static ColumnFamilyStore loadData(Map<String, Pair<String, Integer>> data, boolean forceFlush)
