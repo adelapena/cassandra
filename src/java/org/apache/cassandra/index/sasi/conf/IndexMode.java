@@ -38,8 +38,6 @@ import org.apache.cassandra.schema.IndexMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datastax.driver.core.ColumnDefinitions;
-
 public class IndexMode
 {
     private static final Logger logger = LoggerFactory.getLogger(IndexMode.class);
@@ -100,7 +98,7 @@ public class IndexMode
         // validate that a valid analyzer class was provided if specified
         if (indexOptions.containsKey(INDEX_ANALYZER_CLASS_OPTION))
         {
-            Class<?> analyzerClass = null;
+            Class<?> analyzerClass;
             try
             {
                 analyzerClass = Class.forName(indexOptions.get(INDEX_ANALYZER_CLASS_OPTION));
@@ -115,7 +113,7 @@ public class IndexMode
             try
             {
                 analyzer = (AbstractAnalyzer) analyzerClass.newInstance();
-                if(!analyzer.isCompatibleWith(cd.type))
+                if (!analyzer.isCompatibleWith(cd.type))
                     throw new ConfigurationException(String.format("%s does not support type %s", analyzerClass.getSimpleName(), cd.type));
             }
             catch (InstantiationException | IllegalAccessException e)

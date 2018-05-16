@@ -43,7 +43,7 @@ public abstract class AbstractAnalyzer implements Iterator<ByteBuffer>
     public abstract void reset(ByteBuffer input);
 
     /**
-     * Test whether given validator is compatible with underlying analyzer
+     * Test whether the given validator is compatible with the underlying analyzer.
      *
      * @param validator
      * @return

@@ -2412,7 +2412,7 @@ public class SASIIndexTest
     }
 
     @Test
-    public void testAnalyserValidation()
+    public void testAnalyzerValidation()
     {
         final String TABLE_NAME = "analyzer_validation";
         QueryProcessor.executeOnceInternal(String.format("CREATE TABLE IF NOT EXISTS %s.%s (pk text, ck int, int_v int, uuid_v uuid, text_v text, ascii_v ascii, PRIMARY KEY (pk, ck));",
@@ -2429,7 +2429,7 @@ public class SASIIndexTest
                         + "WITH OPTIONS = {'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'mode':'PREFIX'};",
                                                                  KS_NAME,
                                                                  TABLE_NAME));
-                Assert.fail("Expect IllegalArgumentException");
+                Assert.fail("Expected ConfigurationException");
             }
             catch (ConfigurationException e)
             {
