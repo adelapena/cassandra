@@ -86,6 +86,7 @@ import org.apache.cassandra.exceptions.RequestExecutionException;
 import org.apache.cassandra.exceptions.RequestValidationException;
 import org.apache.cassandra.exceptions.UnauthorizedException;
 import org.apache.cassandra.index.SecondaryIndexManager;
+import org.apache.cassandra.index.sasi.SASIIndex;
 import org.apache.cassandra.serializers.MarshalException;
 import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.service.ClientWarn;
@@ -279,7 +280,7 @@ public class SelectStatement implements CQLStatement
         int userLimit = getLimit(options);
         int userPerPartitionLimit = getPerPartitionLimit(options);
         int pageSize = options.getPageSize();
-        ReadQuery query = getQuery(options, nowInSec, userLimit, userPerPartitionLimit, pageSize);
+        ReadQuery query = getQuery(state, options, nowInSec, userLimit, userPerPartitionLimit, pageSize);
 
         if (aggregationSpec == null && (pageSize <= 0 || (query.limits().count() <= pageSize)))
             return execute(query, options, state, nowInSec, userLimit, queryStartNanoTime);
@@ -289,19 +290,19 @@ public class SelectStatement implements CQLStatement
         return execute(Pager.forDistributedQuery(pager, cl, state.getClientState()), options, pageSize, nowInSec, userLimit, queryStartNanoTime);
     }
 
-    public ReadQuery getQuery(QueryOptions options, int nowInSec) throws RequestValidationException
+    public ReadQuery getQuery(QueryState queryState, QueryOptions options, int nowInSec) throws RequestValidationException
     {
-        return getQuery(options, nowInSec, getLimit(options), getPerPartitionLimit(options), options.getPageSize());
+        return getQuery(queryState, options, nowInSec, getLimit(options), getPerPartitionLimit(options), options.getPageSize());
     }
 
-    public ReadQuery getQuery(QueryOptions options, int nowInSec, int userLimit, int perPartitionLimit, int pageSize)
+    public ReadQuery getQuery(QueryState queryState, QueryOptions options, int nowInSec, int userLimit, int perPartitionLimit, int pageSize)
     {
         boolean isPartitionRangeQuery = restrictions.isKeyRange() || restrictions.usesSecondaryIndexing();
 
         DataLimits limit = getDataLimits(userLimit, perPartitionLimit, pageSize);
 
         if (isPartitionRangeQuery)
-            return getRangeCommand(options, limit, nowInSec);
+            return getRangeCommand(queryState, options, limit, nowInSec);
 
         return getSliceCommands(options, limit, nowInSec);
     }
@@ -449,7 +450,7 @@ public class SelectStatement implements CQLStatement
         int userLimit = getLimit(options);
         int userPerPartitionLimit = getPerPartitionLimit(options);
         int pageSize = options.getPageSize();
-        ReadQuery query = getQuery(options, nowInSec, userLimit, userPerPartitionLimit, pageSize);
+        ReadQuery query = getQuery(state, options, nowInSec, userLimit, userPerPartitionLimit, pageSize);
 
         try (ReadExecutionController executionController = query.executionController())
         {
@@ -577,7 +578,7 @@ public class SelectStatement implements CQLStatement
         return getRowFilter(QueryOptions.forInternalCalls(Collections.emptyList()));
     }
 
-    private ReadQuery getRangeCommand(QueryOptions options, DataLimits limit, int nowInSec) throws RequestValidationException
+    private ReadQuery getRangeCommand(QueryState queryState, QueryOptions options, DataLimits limit, int nowInSec) throws RequestValidationException
     {
         ClusteringIndexFilter clusteringIndexFilter = makeClusteringIndexFilter(options);
         if (clusteringIndexFilter == null)
@@ -596,6 +597,15 @@ public class SelectStatement implements CQLStatement
 
         // If there's a secondary index that the command can use, have it validate the request parameters.
         command.maybeValidateIndex();
+
+        ClientState clientState = queryState.getClientState();
+        // Warn about SASI usage.
+        if (!clientState.isInternal && !clientState.isSASIWarningIssued() &&
+            command.getIndex(Keyspace.open(cfm.ksName).getColumnFamilyStore(cfm.cfName)) instanceof SASIIndex)
+        {
+            warn(String.format(SASIIndex.USAGE_WARNING, cfm.ksName, cfm.cfName));
+            clientState.setSASIWarningIssued();
+        }
 
         return command;
     }

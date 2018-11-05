@@ -82,6 +82,9 @@ public class ClientState
     private volatile AuthenticatedUser user;
     private volatile String keyspace;
 
+    // Whether or not a once-per-connection warning about SASI stability is issued
+    private volatile boolean sasiWarningIssued = false;
+
     /**
      * Force Compact Tables to be represented as CQL ones for the current client session (simulates
      * ALTER .. DROP COMPACT STORAGE but only for this session)
@@ -437,5 +440,15 @@ public class ClientState
     private Set<Permission> authorize(IResource resource)
     {
         return user.getPermissions(resource);
+    }
+
+    public boolean isSASIWarningIssued()
+    {
+        return sasiWarningIssued;
+    }
+
+    public void setSASIWarningIssued()
+    {
+        sasiWarningIssued = true;
     }
 }

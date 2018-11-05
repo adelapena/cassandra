@@ -33,9 +33,9 @@ import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.Schema;
 import org.apache.cassandra.config.ViewDefinition;
-import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.cql3.MultiColumnRelation;
 import org.apache.cassandra.cql3.QueryOptions;
+import org.apache.cassandra.service.QueryState;
 import org.apache.cassandra.cql3.Relation;
 import org.apache.cassandra.cql3.SingleColumnRelation;
 import org.apache.cassandra.cql3.Term;
@@ -195,7 +195,7 @@ public class View
     {
         if (query == null)
         {
-            query = getSelectStatement().getQuery(QueryOptions.forInternalCalls(Collections.emptyList()), FBUtilities.nowInSeconds());
+            query = getSelectStatement().getQuery(QueryState.forInternalCalls(), QueryOptions.forInternalCalls(Collections.emptyList()), FBUtilities.nowInSeconds());
             logger.trace("View query: {}", rawSelect);
         }
 
