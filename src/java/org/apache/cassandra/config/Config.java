@@ -347,7 +347,9 @@ public class Config
     public boolean enable_user_defined_functions = false;
     public boolean enable_scripted_user_defined_functions = false;
 
-    public boolean enable_materialized_views = true;
+    public boolean enable_materialized_views = false;
+
+    public boolean enable_sasi_indexes = false;
 
     public boolean enable_transient_replication = false;
 

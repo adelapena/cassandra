@@ -208,6 +208,10 @@ Upgrading
       `cassandra.yaml:internode_tcp_connect_timeout_in_ms` and
       `cassandra.yaml:internode_tcp_user_timeout_in_ms` options respectively.
       See CASSANDRA-14358 for details.
+    - The flags 'enable_materialized_views' and 'enable_sasi_indexes' in cassandra.yaml
+      have been set as false by default. Operators should modify them to allow the
+      creation of new views and SASI indexes, the existing ones will continue working.
+      See CASSANDRA-14866 for details.
 
 Materialized Views
 -------------------
@@ -229,6 +233,14 @@ Upgrading
       alphabetically again, by their name, just like regular columns are. If you use prepared statements and
       SELECT * queries, and have both simple and collection static columns in those tables, and are upgrading from an
       earlier 3.0 version, then you might be affected by this change. Please see CASSANDRA-14638 for details.
+
+Experimental features
+---------------------
+    - An 'enable_sasi_indexes' flag, true by default, has been added to cassandra.yaml to allow operators to prevent
+      the creation of new SASI indexes, which are considered experimental and are not recommended for production use.
+      (See https://www.mail-archive.com/dev@cassandra.apache.org/msg13582.html)
+    - The flags 'enable_sasi_indexes' and 'enable_materialized_views' have been grouped under an experimental features
+      section in cassandra.yaml.
 
 3.11.3
 =====
