@@ -1561,4 +1561,9 @@ public final class SystemKeyspace
                               row.getString("query_string")));
         return r;
     }
+
+    public static boolean isPaxosTable(String keyspace, String table)
+    {
+        return SchemaConstants.SYSTEM_KEYSPACE_NAME.equals(keyspace) && PAXOS.equals(table);
+    }
 }

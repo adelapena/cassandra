@@ -17,23 +17,18 @@
  */
 package org.apache.cassandra.db;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOError;
-import java.io.IOException;
-import java.nio.file.FileStore;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiPredicate;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.RateLimiter;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +37,11 @@ import org.apache.cassandra.config.*;
 import org.apache.cassandra.db.lifecycle.LifecycleTransaction;
 import org.apache.cassandra.io.FSDiskFullWriteError;
 import org.apache.cassandra.io.FSError;
+import org.apache.cassandra.io.FSNoDiskAvailableForWriteError;
 import org.apache.cassandra.io.FSWriteError;
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.cassandra.io.sstable.*;
+import org.apache.cassandra.schema.SchemaConstants;
 import org.apache.cassandra.schema.TableMetadata;
 import org.apache.cassandra.utils.DirectorySizeCalculator;
 import org.apache.cassandra.utils.FBUtilities;
@@ -93,15 +90,11 @@ public class Directories
     public static final String TMP_SUBDIR = "tmp";
     public static final String SECONDARY_INDEX_NAME_SEPARATOR = ".";
 
-    public static final DataDirectory[] dataDirectories;
-
-    static
-    {
-        String[] locations = DatabaseDescriptor.getAllDataFileLocations();
-        dataDirectories = new DataDirectory[locations.length];
-        for (int i = 0; i < locations.length; ++i)
-            dataDirectories[i] = new DataDirectory(new File(locations[i]));
-    }
+    /**
+     * The directories used to store keyspaces data.
+     */
+    public static final DataDirectories dataDirectories = new DataDirectories(DatabaseDescriptor.getNonSystemKeyspacesDataFileLocations(),
+                                                                              DatabaseDescriptor.getSystemKeyspacesDataFileLocations());
 
     /**
      * Checks whether Cassandra has RWX permissions to the specified directory.  Logs an error with
@@ -184,7 +177,7 @@ public class Directories
 
     public Directories(final TableMetadata metadata)
     {
-        this(metadata, dataDirectories);
+        this(metadata, dataDirectories.getDataDirectoriesFor(metadata));
     }
 
     public Directories(final TableMetadata metadata, Collection<DataDirectory> paths)
@@ -445,10 +438,12 @@ public class Directories
         }
 
         if (candidates.isEmpty())
+        {
             if (tooBig)
-                throw new FSDiskFullWriteError(new IOException("Insufficient disk space to write " + writeSize + " bytes"), "");
-            else
-                throw new FSWriteError(new IOException("All configured data directories have been disallowed as unwritable for erroring out"), "");
+                throw new FSDiskFullWriteError(metadata.keyspace, writeSize);
+
+            throw new FSNoDiskAvailableForWriteError(metadata.keyspace);
+        }
 
         // shortcut for single data directory systems
         if (candidates.size() == 1)
@@ -512,6 +507,9 @@ public class Directories
             if (!DisallowedDirectories.isUnwritable(dir.location))
                 allowedDirs.add(dir);
         }
+
+        if (allowedDirs.isEmpty())
+            throw new FSNoDiskAvailableForWriteError(metadata.keyspace);
 
         Collections.sort(allowedDirs, new Comparator<DataDirectory>()
         {
@@ -592,9 +590,29 @@ public class Directories
         }
     }
 
+    /**
+     * Checks if the specified table should be stored with locale system data.
+     *
+     * <p> To minimize the risk of failures, SSTables for local system keyspaces must be stored in a single data
+     * directory. The only exception to this is the system paxos table as it can be a high traffic table.</p>
+     *
+     * @param keyspace the keyspace name
+     * @param table the table name
+     * @return {@code true} if the specified table should be stored with locale system data, {@code false} otherwise.
+     */
+    public static boolean isStoredInSystemKeyspacesDataLocation(String keyspace, String table)
+    {
+        return SchemaConstants.isLocalSystemKeyspace(keyspace) && !SystemKeyspace.isPaxosTable(keyspace, table);
+    }
+
     public static class DataDirectory
     {
         public final File location;
+
+        public DataDirectory(String location)
+        {
+            this(new File(location));
+        }
 
         public DataDirectory(File location)
         {
@@ -628,6 +646,106 @@ public class Directories
         {
             return "DataDirectory{" +
                    "location=" + location +
+                   '}';
+        }
+    }
+
+    /**
+     * Data directories used to store keyspace data.
+     */
+    public static final class DataDirectories implements Iterable<DataDirectory>
+    {
+        /**
+         * The directories for storing the system keyspaces.
+         */
+        private final DataDirectory[] systemKeyspaceDataDirectories;
+
+        /**
+         * The directories where should be stored the data of the non system keyspaces.
+         */
+        private final DataDirectory[] nonSystemKeyspacesDirectories;
+
+
+        public DataDirectories(String[] locationsForNonSystemKeyspaces, String[] locationsForSystemKeyspace)
+        {
+            nonSystemKeyspacesDirectories = toDataDirectories(locationsForNonSystemKeyspaces);
+            systemKeyspaceDataDirectories = toDataDirectories(locationsForSystemKeyspace);
+        }
+
+        private static DataDirectory[] toDataDirectories(String... locations)
+        {
+            DataDirectory[] directories = new DataDirectory[locations.length];
+            for (int i = 0; i < locations.length; ++i)
+                directories[i] = new DataDirectory(new File(locations[i]));
+            return directories;
+        }
+
+        /**
+         * Returns the data directories used to store the data of the specified keyspace.
+         *
+         * @param keyspace the keyspace name
+         * @return the data directories used to store the data of the specified keyspace
+         */
+        public DataDirectory[] getDataDirectoriesUsedBy(String keyspace)
+        {
+            if (SchemaConstants.SYSTEM_KEYSPACE_NAME.equals(keyspace)
+                    && !ArrayUtils.isEmpty(systemKeyspaceDataDirectories)
+                    && !ArrayUtils.contains(nonSystemKeyspacesDirectories, systemKeyspaceDataDirectories[0]))
+            {
+                DataDirectory[] directories = Arrays.copyOf(nonSystemKeyspacesDirectories, nonSystemKeyspacesDirectories.length + 1);
+                directories[directories.length - 1] = systemKeyspaceDataDirectories[0];
+                return directories;
+            }
+            return SchemaConstants.isLocalSystemKeyspace(keyspace) ? systemKeyspaceDataDirectories
+                                                                   : nonSystemKeyspacesDirectories;
+        }
+
+        /**
+         * Returns the data directories for the specified keyspace.
+         *
+         * @param table the table metadata
+         * @return the data directories for the specified keyspace
+         */
+        public DataDirectory[] getDataDirectoriesFor(TableMetadata table)
+        {
+            return isStoredInSystemKeyspacesDataLocation(table.keyspace, table.name) ? systemKeyspaceDataDirectories
+                                                                                     : nonSystemKeyspacesDirectories;
+        }
+
+        @Override
+        public Iterator<DataDirectory> iterator()
+        {
+            Iterator<DataDirectory> iter = Iterators.forArray(nonSystemKeyspacesDirectories);
+
+            if (nonSystemKeyspacesDirectories == systemKeyspaceDataDirectories)
+                return iter;
+
+            return Iterators.concat(iter, Iterators.forArray(systemKeyspaceDataDirectories));
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            DataDirectories that = (DataDirectories) o;
+
+            return Arrays.equals(this.systemKeyspaceDataDirectories, that.systemKeyspaceDataDirectories)
+                && Arrays.equals(this.nonSystemKeyspacesDirectories, that.nonSystemKeyspacesDirectories);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(systemKeyspaceDataDirectories, nonSystemKeyspacesDirectories);
+        }
+
+        public String toString()
+        {
+            return "DataDirectories {" +
+                   "systemKeyspaceDataDirectories=" + systemKeyspaceDataDirectories +
+                   ", nonSystemKeyspacesDirectories=" + nonSystemKeyspacesDirectories +
                    '}';
         }
     }
@@ -1003,8 +1121,7 @@ public class Directories
 
     public static List<File> getKSChildDirectories(String ksName)
     {
-        return getKSChildDirectories(ksName, dataDirectories);
-
+        return getKSChildDirectories(ksName, dataDirectories.getDataDirectoriesUsedBy(ksName));
     }
 
     // Recursively finds all the sub directories in the KS directory.
@@ -1060,21 +1177,6 @@ public class Directories
     private static String join(String... s)
     {
         return StringUtils.join(s, File.separator);
-    }
-
-    @VisibleForTesting
-    static void overrideDataDirectoriesForTest(String loc)
-    {
-        for (int i = 0; i < dataDirectories.length; ++i)
-            dataDirectories[i] = new DataDirectory(new File(loc));
-    }
-
-    @VisibleForTesting
-    static void resetDataDirectoriesAfterTest()
-    {
-        String[] locations = DatabaseDescriptor.getAllDataFileLocations();
-        for (int i = 0; i < locations.length; ++i)
-            dataDirectories[i] = new DataDirectory(new File(locations[i]));
     }
 
     private class SSTableSizeSummer extends DirectorySizeCalculator

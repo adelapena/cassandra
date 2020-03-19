@@ -21,19 +21,21 @@ package org.apache.cassandra.io;
 import java.io.File;
 import java.io.IOException;
 
-public class FSDiskFullWriteError extends FSWriteError
+/**
+ * Thrown when all the disks used by a given keyspace have been marked as unwriteable.
+ */
+public class FSNoDiskAvailableForWriteError extends FSWriteError
 {
-    public FSDiskFullWriteError(String keyspace, long mutationSize)
+    public FSNoDiskAvailableForWriteError(String keyspace)
     {
-        super(new IOException(String.format("Insufficient disk space to write %s bytes into the %s keyspace",
-                                            mutationSize,
+        super(new IOException(String.format("The data directories for the %s keyspace have been marked as unwritable",
                                             keyspace)),
-              new File(""));
+                              new File(""));
     }
 
     @Override
     public String toString()
     {
-        return "FSDiskFullWriteError";
+        return "FSNoDiskAvailableForWriteError";
     }
 }

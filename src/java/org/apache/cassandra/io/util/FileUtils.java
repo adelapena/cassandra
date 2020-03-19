@@ -41,6 +41,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.util.concurrent.RateLimiter;
 import org.slf4j.Logger;
@@ -967,6 +969,71 @@ public final class FileUtils
         public Object getAttribute(String attribute) throws IOException
         {
             return fileStore.getAttribute(attribute);
+        }
+    }
+
+
+    /**
+     * Moves the files from a directory to another directory.
+     * <p>Once a file has been copied to the target directory it will be deleted from the source directory.
+     * If a file already exist in the target directory a warning will be logged and the file will not
+     * be deleted.</p>
+     *
+     * @param source the directory containing the files to move
+     * @param target the directory where the files must be moved
+     */
+    public static void moveRecursively(Path source, Path target) throws IOException
+    {
+        logger.info("Moving {} to {}" , source, target);
+
+        if (Files.isDirectory(source))
+        {
+            Files.createDirectories(target);
+
+            try (Stream<Path> paths = Files.list(source))
+            {
+                Path[] children = paths.toArray(Path[]::new);
+
+                for (Path child : children)
+                    moveRecursively(child, target.resolve(source.relativize(child)));
+            }
+
+            deleteDirectoryIfEmpty(source);
+        }
+        else
+        {
+            if (Files.exists(target))
+            {
+                logger.warn("Cannot move the file {} to {} as the target file already exists." , source, target);
+            }
+            else
+            {
+                Files.copy(source, target, StandardCopyOption.COPY_ATTRIBUTES);
+                Files.delete(source);
+            }
+        }
+    }
+
+    /**
+     * Deletes the specified directory if it is empty
+     *
+     * @param path the path to the directory
+     */
+    public static void deleteDirectoryIfEmpty(Path path) throws IOException
+    {
+        try
+        {
+            logger.info("Deleting directory {}", path);
+            Files.delete(path);
+        }
+        catch (DirectoryNotEmptyException e)
+        {
+            try (Stream<Path> paths = Files.list(path))
+            {
+                String content = paths.map(p -> p.getFileName().toString()).collect(Collectors.joining(", "));
+
+                logger.warn("Cannot delete the directory {} as it is not empty. (Content: {})", path, content);
+            }
         }
     }
 }

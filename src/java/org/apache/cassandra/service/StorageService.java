@@ -3460,12 +3460,29 @@ public class StorageService extends NotificationBroadcasterSupport implements IE
         return stringify(Gossiper.instance.getUnreachableMembers(), true);
     }
 
+    @Override
     public String[] getAllDataFileLocations()
     {
-        String[] locations = DatabaseDescriptor.getAllDataFileLocations();
-        for (int i = 0; i < locations.length; i++)
-            locations[i] = FileUtils.getCanonicalPath(locations[i]);
-        return locations;
+        return getCanonicalPaths(DatabaseDescriptor.getAllDataFileLocations());
+    }
+
+    private String[] getCanonicalPaths(String[] paths)
+    {
+        for (int i = 0; i < paths.length; i++)
+            paths[i] = FileUtils.getCanonicalPath(paths[i]);
+        return paths;
+    }
+
+    @Override
+    public String[] getSystemKeyspacesDataFileLocations()
+    {
+        return getCanonicalPaths(DatabaseDescriptor.getSystemKeyspacesDataFileLocations());
+    }
+
+    @Override
+    public String[] getNonSystemKeyspacesDataFileLocations()
+    {
+        return getCanonicalPaths(DatabaseDescriptor.getNonSystemKeyspacesDataFileLocations());
     }
 
     public String getCommitLogLocation()

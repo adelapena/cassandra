@@ -72,6 +72,7 @@ import org.apache.cassandra.security.SSLFactory;
 import org.apache.cassandra.service.CacheService.CacheType;
 import org.apache.cassandra.utils.FBUtilities;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -612,6 +613,8 @@ public class DatabaseDescriptor
         {
             if (datadir == null)
                 throw new ConfigurationException("data_file_directories must not contain empty entry", false);
+            if (datadir.equals(conf.system_data_file_directory))
+                throw new ConfigurationException("system_data_file_directory must not be the same as any data_file_directories", false);
             if (datadir.equals(conf.commitlog_directory))
                 throw new ConfigurationException("commitlog_directory must not be the same as any data_file_directories", false);
             if (datadir.equals(conf.hints_directory))
@@ -619,20 +622,27 @@ public class DatabaseDescriptor
             if (datadir.equals(conf.saved_caches_directory))
                 throw new ConfigurationException("saved_caches_directory must not be the same as any data_file_directories", false);
 
-            try
-            {
-                dataFreeBytes = saturatedSum(dataFreeBytes, guessFileStore(datadir).getUnallocatedSpace());
-            }
-            catch (IOException e)
-            {
-                logger.debug("Error checking disk space", e);
-                throw new ConfigurationException(String.format("Unable to check disk space available to %s. Perhaps the Cassandra user does not have the necessary permissions",
-                                                               datadir), e);
-            }
+            dataFreeBytes = saturatedSum(dataFreeBytes, getUnallocatedSpace(datadir));
         }
         if (dataFreeBytes < 64 * ONE_GB) // 64 GB
             logger.warn("Only {} free across all data volumes. Consider adding more capacity to your cluster or removing obsolete snapshots",
                         FBUtilities.prettyPrintMemory(dataFreeBytes));
+
+        if (conf.system_data_file_directory != null)
+        {
+            if (conf.system_data_file_directory.equals(conf.commitlog_directory))
+                throw new ConfigurationException("system_data_file_directory must not be the same as the commitlog_directory", false);
+            if (conf.system_data_file_directory.equals(conf.saved_caches_directory))
+                throw new ConfigurationException("system_data_file_directory must not be the same as the saved_caches_directory", false);
+            if (conf.system_data_file_directory.equals(conf.hints_directory))
+                throw new ConfigurationException("system_data_file_directory must not be the same as the hints_directory", false);
+
+            long freeBytes = getUnallocatedSpace(conf.system_data_file_directory);
+
+            if (freeBytes < ONE_GB)
+                logger.warn("Only {} free in the system data volume. Consider adding more capacity or removing obsolete snapshots",
+                            FBUtilities.prettyPrintMemory(freeBytes));
+        }
 
         if (conf.commitlog_directory.equals(conf.saved_caches_directory))
             throw new ConfigurationException("saved_caches_directory must not be the same as the commitlog_directory", false);
@@ -1200,6 +1210,20 @@ public class DatabaseDescriptor
         }
     }
 
+    private static long getUnallocatedSpace(String directory)
+    {
+        try
+        {
+            return guessFileStore(directory).getUnallocatedSpace();
+        }
+        catch (IOException e)
+        {
+            logger.debug("Error checking disk space", e);
+            throw new ConfigurationException(String.format("Unable to check disk space available to %s. Perhaps the Cassandra user does not have the necessary permissions",
+                                                           directory), e);
+        }
+    }
+
     public static IEndpointSnitch createEndpointSnitch(boolean dynamic, String snitchClassName) throws ConfigurationException
     {
         if (!snitchClassName.contains("."))
@@ -1366,6 +1390,9 @@ public class DatabaseDescriptor
 
             for (String dataFileDirectory : conf.data_file_directories)
                 FileUtils.createDirectory(dataFileDirectory);
+
+            if (conf.system_data_file_directory != null)
+                FileUtils.createDirectory(conf.system_data_file_directory);
 
             if (conf.commitlog_directory == null)
                 throw new ConfigurationException("commitlog_directory must be specified", false);
@@ -1749,7 +1776,7 @@ public class DatabaseDescriptor
 
     public static int getFlushWriters()
     {
-            return conf.memtable_flush_writers;
+        return conf.memtable_flush_writers;
     }
 
     public static int getConcurrentCompactors()
@@ -1830,9 +1857,55 @@ public class DatabaseDescriptor
         conf.inter_dc_stream_throughput_outbound_megabits_per_sec = value;
     }
 
-    public static String[] getAllDataFileLocations()
+    /**
+     * Checks if the local system data must be stored in a specific location which support redundancy.
+     *
+     * @return {@code true} if the local system keyspaces data must be stored in a different location,
+     * {@code false} otherwise.
+     */
+    public static boolean useSpecificLocationForSystemData()
+    {
+        return conf.system_data_file_directory != null;
+    }
+
+    /**
+     * Returns the locations where should be stored the local system keyspaces data.
+     *
+     * <p>If the {@code system_data_file_directory} was unspecified, the local system keyspaces data should be stored
+     * in the first data directory. This approach guaranty that the server can tolerate the lost of n - 1 disks.</p>
+     *
+     * @return the locations where should be stored the local system keyspaces data
+     */
+    public static String[] getSystemKeyspacesDataFileLocations()
+    {
+        if (conf.system_data_file_directory != null)
+            return new String[] {conf.system_data_file_directory};
+
+        return conf.data_file_directories.length == 0  ? conf.data_file_directories
+                                                       : new String[] {conf.data_file_directories[0]};
+    }
+
+    /**
+     * Returns the locations where should be stored the non local system keyspaces data.
+     *
+     * @return the locations where should be stored the non local system keyspaces data
+     */
+    public static String[] getNonSystemKeyspacesDataFileLocations()
     {
         return conf.data_file_directories;
+    }
+
+    /**
+     * Returns the list of all the directories where the data files can be stored (for system and non-system keyspaces).
+     *
+     * @return the list of all the directories where the data files can be stored.
+     */
+    public static String[] getAllDataFileLocations()
+    {
+        if (conf.system_data_file_directory == null)
+            return conf.data_file_directories;
+
+        return ArrayUtils.addFirst(conf.data_file_directories, conf.system_data_file_directory);
     }
 
     public static String getCommitLogLocation()

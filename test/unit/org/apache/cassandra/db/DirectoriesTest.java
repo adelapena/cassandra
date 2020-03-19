@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -50,7 +49,6 @@ import org.apache.cassandra.io.sstable.format.SSTableFormat;
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.service.DefaultFSErrorHandler;
-import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.cassandra.utils.JVMStabilityInspector;
 
 import static org.junit.Assert.assertEquals;
@@ -88,16 +86,19 @@ public class DirectoriesTest
         tempDataDir.delete(); // hack to create a temp dir
         tempDataDir.mkdir();
 
-        Directories.overrideDataDirectoriesForTest(tempDataDir.getPath());
-        // Create two fake data dir for tests, one using CF directories, one that do not.
+       // Create two fake data dir for tests, one using CF directories, one that do not.
         createTestFiles();
     }
 
     @AfterClass
     public static void afterClass()
     {
-        Directories.resetDataDirectoriesAfterTest();
         FileUtils.deleteRecursive(tempDataDir);
+    }
+
+    private static DataDirectory[] toDataDirectories(File location) throws IOException
+    {
+        return new DataDirectory[] { new DataDirectory(location) };
     }
 
     private static void createTestFiles() throws IOException
@@ -156,7 +157,7 @@ public class DirectoriesTest
     {
         for (TableMetadata cfm : CFM)
         {
-            Directories directories = new Directories(cfm);
+            Directories directories = new Directories(cfm, toDataDirectories(tempDataDir));
             assertEquals(cfDir(cfm), directories.getDirectoryForNewSSTables());
 
             Descriptor desc = new Descriptor(cfDir(cfm), KS, cfm.name, 1, SSTableFormat.Type.BIG);
@@ -169,7 +170,7 @@ public class DirectoriesTest
     }
 
     @Test
-    public void testSecondaryIndexDirectories()
+    public void testSecondaryIndexDirectories() throws IOException
     {
         TableMetadata.Builder builder =
             TableMetadata.builder(KS, "cf")
@@ -187,8 +188,8 @@ public class DirectoriesTest
 
         TableMetadata PARENT_CFM = builder.build();
         TableMetadata INDEX_CFM = CassandraIndex.indexCfsMetadata(PARENT_CFM, indexDef);
-        Directories parentDirectories = new Directories(PARENT_CFM);
-        Directories indexDirectories = new Directories(INDEX_CFM);
+        Directories parentDirectories = new Directories(PARENT_CFM, toDataDirectories(tempDataDir));
+        Directories indexDirectories = new Directories(INDEX_CFM, toDataDirectories(tempDataDir));
         // secondary index has its own directory
         for (File dir : indexDirectories.getCFDirectories())
         {
@@ -248,11 +249,11 @@ public class DirectoriesTest
     }
 
     @Test
-    public void testSSTableLister()
+    public void testSSTableLister() throws IOException
     {
         for (TableMetadata cfm : CFM)
         {
-            Directories directories = new Directories(cfm);
+            Directories directories = new Directories(cfm, toDataDirectories(tempDataDir));
             checkFiles(cfm, directories);
         }
     }
@@ -301,7 +302,7 @@ public class DirectoriesTest
     {
         for (TableMetadata cfm : CFM)
         {
-            Directories directories = new Directories(cfm);
+            Directories directories = new Directories(cfm, toDataDirectories(tempDataDir));
 
             File tempDir = directories.getTemporaryWriteableDirectoryAsFile(10);
             tempDir.mkdir();
@@ -332,15 +333,18 @@ public class DirectoriesTest
         try
         {
             DatabaseDescriptor.setDiskFailurePolicy(DiskFailurePolicy.best_effort);
+
+            DataDirectory[] directories = Directories.dataDirectories.getDataDirectoriesUsedBy(KS);
+
             // Fake a Directory creation failure
-            if (Directories.dataDirectories.length > 0)
+            if (directories.length > 0)
             {
                 String[] path = new String[] {KS, "bad"};
-                File dir = new File(Directories.dataDirectories[0].location, StringUtils.join(path, File.separator));
+                File dir = new File(directories[0].location, StringUtils.join(path, File.separator));
                 JVMStabilityInspector.inspectThrowable(new FSWriteError(new IOException("Unable to create directory " + dir), dir));
             }
 
-            for (DataDirectory dd : Directories.dataDirectories)
+            for (DataDirectory dd : Directories.dataDirectories.getDataDirectoriesUsedBy(KS))
             {
                 File file = new File(dd.location, new File(KS, "bad").getPath());
                 assertTrue(DisallowedDirectories.isUnwritable(file));
@@ -357,7 +361,7 @@ public class DirectoriesTest
     {
         for (final TableMetadata cfm : CFM)
         {
-            final Directories directories = new Directories(cfm);
+            final Directories directories = new Directories(cfm, toDataDirectories(tempDataDir));
             assertEquals(cfDir(cfm), directories.getDirectoryForNewSSTables());
             final String n = Long.toString(System.nanoTime());
             Callable<File> directoryGetter = new Callable<File>() {
@@ -519,9 +523,9 @@ public class DirectoriesTest
     public void getDataDirectoryForFile()
     {
         Collection<DataDirectory> paths = new ArrayList<>();
-        paths.add(new DataDirectory(new File("/tmp/a")));
-        paths.add(new DataDirectory(new File("/tmp/aa")));
-        paths.add(new DataDirectory(new File("/tmp/aaa")));
+        paths.add(new DataDirectory("/tmp/a"));
+        paths.add(new DataDirectory("/tmp/aa"));
+        paths.add(new DataDirectory("/tmp/aaa"));
 
         for (TableMetadata cfm : CFM)
         {

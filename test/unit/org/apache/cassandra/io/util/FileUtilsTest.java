@@ -128,6 +128,75 @@ public class FileUtilsTest
         assertFalse(FileUtils.isContained(new File("/tmp/abc/../abc"), new File("/tmp/abcc")));
     }
 
+    @Test
+    public void testMoveFiles() throws IOException
+    {
+        Path tmpDir = Files.createTempDirectory(this.getClass().getSimpleName());
+        Path sourceDir = Files.createDirectory(tmpDir.resolve("source"));
+        Path subDir_1 = Files.createDirectory(sourceDir.resolve("a"));
+        subDir_1.resolve("file_1.txt").toFile().createNewFile();
+        subDir_1.resolve("file_2.txt").toFile().createNewFile();
+        Path subDir_11 = Files.createDirectory(subDir_1.resolve("ab"));
+        subDir_11.resolve("file_1.txt").toFile().createNewFile();
+        subDir_11.resolve("file_2.txt").toFile().createNewFile();
+        subDir_11.resolve("file_3.txt").toFile().createNewFile();
+        Path subDir_12 = Files.createDirectory(subDir_1.resolve("ac"));
+        Path subDir_2 = Files.createDirectory(sourceDir.resolve("b"));
+        subDir_2.resolve("file_1.txt").toFile().createNewFile();
+        subDir_2.resolve("file_2.txt").toFile().createNewFile();
+
+        Path targetDir = Files.createDirectory(tmpDir.resolve("target"));
+
+        FileUtils.moveRecursively(sourceDir, targetDir);
+
+        assertFalse(Files.exists(sourceDir));
+        assertTrue(Files.exists(targetDir.resolve("a/file_1.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/file_2.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ab/file_1.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ab/file_2.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ab/file_3.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ab/file_1.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ab/file_2.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ac/")));
+        assertTrue(Files.exists(targetDir.resolve("b/file_1.txt")));
+        assertTrue(Files.exists(targetDir.resolve("b/file_2.txt")));
+
+        // Tests that files can be moved into existing directories
+
+        sourceDir = Files.createDirectory(tmpDir.resolve("source2"));
+        subDir_1 = Files.createDirectory(sourceDir.resolve("a"));
+        subDir_1.resolve("file_3.txt").toFile().createNewFile();
+        subDir_11 = Files.createDirectory(subDir_1.resolve("ab"));
+        subDir_11.resolve("file_4.txt").toFile().createNewFile();
+
+        FileUtils.moveRecursively(sourceDir, targetDir);
+
+        assertFalse(Files.exists(sourceDir));
+        assertTrue(Files.exists(targetDir.resolve("a/file_1.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/file_2.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/file_3.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ab/file_1.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ab/file_2.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ab/file_3.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ab/file_4.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ab/file_1.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ab/file_2.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/ac/")));
+        assertTrue(Files.exists(targetDir.resolve("b/file_1.txt")));
+        assertTrue(Files.exists(targetDir.resolve("b/file_2.txt")));
+
+        // Tests that existing files are not replaced but trigger an error.
+
+        sourceDir = Files.createDirectory(tmpDir.resolve("source3"));
+        subDir_1 = Files.createDirectory(sourceDir.resolve("a"));
+        subDir_1.resolve("file_3.txt").toFile().createNewFile();
+        FileUtils.moveRecursively(sourceDir, targetDir);
+
+        assertTrue(Files.exists(sourceDir));
+        assertTrue(Files.exists(sourceDir.resolve("a/file_3.txt")));
+        assertTrue(Files.exists(targetDir.resolve("a/file_3.txt")));
+    }
+
     private File createFolder(Path path)
     {
         File folder = path.toFile();
