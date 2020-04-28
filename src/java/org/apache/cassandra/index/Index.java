@@ -44,7 +44,6 @@ import org.apache.cassandra.io.sstable.ReducingKeyIterator;
 import org.apache.cassandra.io.sstable.format.SSTableFlushObserver;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.schema.IndexMetadata;
-import org.apache.cassandra.utils.concurrent.OpOrder;
 
 /**
  * Consisting of a top level Index interface and two sub-interfaces which handle read and write operations,
@@ -136,6 +135,7 @@ import org.apache.cassandra.utils.concurrent.OpOrder;
  */
 public interface Index
 {
+    public static enum Loads {READS, WRITES, ALL, NONE};
 
     /*
      * Helpers for building indexes from SSTable data
@@ -186,6 +186,24 @@ public interface Index
     default IndexBuildingSupport getBuildTaskSupport()
     {
         return INDEX_BUILDER_SUPPORT;
+    }
+    
+    /**
+     * Same as {@code getBuildTaskSupport} but can be overloaded with a specific 'recover' logic different than the index building one
+     */
+    default IndexBuildingSupport getRecoveryTaskSupport()
+    {
+        return getBuildTaskSupport();
+    }
+    
+    /**
+     * When an index is initialized in can fail for a number of reasons. I could be queryable but not writable, etc
+     * 
+     * @return True if it supports it
+     */
+    default boolean supportsLoad(Loads load)
+    {
+        return load != Loads.NONE;
     }
 
     /**

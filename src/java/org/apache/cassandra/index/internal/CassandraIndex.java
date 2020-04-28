@@ -61,7 +61,6 @@ import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.Pair;
-import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.cassandra.utils.concurrent.Refs;
 
 import static org.apache.cassandra.cql3.statements.RequestValidations.checkFalse;
@@ -79,6 +78,7 @@ public abstract class CassandraIndex implements Index
     protected ColumnFamilyStore indexCfs;
     protected ColumnMetadata indexedColumn;
     protected CassandraIndexFunctions functions;
+    protected Loads supportedLoads = Loads.ALL;
 
     protected CassandraIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
     {
@@ -146,6 +146,22 @@ public abstract class CassandraIndex implements Index
                                                   CellPath path,
                                                   ByteBuffer cellValue);
 
+    
+    public boolean supportsLoad(Loads load)
+    {
+        switch (load)
+        {
+            case ALL:
+                return supportedLoads.equals(Loads.ALL);
+            case READS:
+                return supportedLoads.equals(Loads.ALL) || supportedLoads.equals(Loads.READS);
+            case WRITES:
+                return supportedLoads.equals(Loads.ALL) || supportedLoads.equals(Loads.WRITES);
+            default:
+                return false;
+        }
+    }
+    
     public ColumnMetadata getIndexedColumn()
     {
         return indexedColumn;
@@ -689,33 +705,42 @@ public abstract class CassandraIndex implements Index
     @SuppressWarnings("resource")
     private void buildBlocking()
     {
-        baseCfs.forceBlockingFlush();
-
-        try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(View.selectFunction(SSTableSet.CANONICAL));
-             Refs<SSTableReader> sstables = viewFragment.refs)
+        try
         {
-            if (sstables.isEmpty())
+            supportedLoads = Loads.ALL;
+            baseCfs.forceBlockingFlush();
+
+            try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(View.selectFunction(SSTableSet.CANONICAL));
+                 Refs<SSTableReader> sstables = viewFragment.refs)
             {
-                logger.info("No SSTable data for {}.{} to build index {} from, marking empty index as built",
-                            baseCfs.metadata.keyspace,
-                            baseCfs.metadata.name,
-                            metadata.name);
-                return;
+                if (sstables.isEmpty())
+                {
+                    logger.info("No SSTable data for {}.{} to build index {} from, marking empty index as built",
+                                baseCfs.metadata.keyspace,
+                                baseCfs.metadata.name,
+                                metadata.name);
+                    return;
+                }
+
+                logger.info("Submitting index build of {} for data in {}",
+                            metadata.name,
+                            getSSTableNames(sstables));
+
+                SecondaryIndexBuilder builder = new CollatedViewIndexBuilder(baseCfs,
+                                                                             Collections.singleton(this),
+                                                                             new ReducingKeyIterator(sstables),
+                                                                             ImmutableSet.copyOf(sstables));
+                Future<?> future = CompactionManager.instance.submitIndexBuild(builder);
+                FBUtilities.waitOnFuture(future);
+                indexCfs.forceBlockingFlush();
             }
-
-            logger.info("Submitting index build of {} for data in {}",
-                        metadata.name,
-                        getSSTableNames(sstables));
-
-            SecondaryIndexBuilder builder = new CollatedViewIndexBuilder(baseCfs,
-                                                                         Collections.singleton(this),
-                                                                         new ReducingKeyIterator(sstables),
-                                                                         ImmutableSet.copyOf(sstables));
-            Future<?> future = CompactionManager.instance.submitIndexBuild(builder);
-            FBUtilities.waitOnFuture(future);
-            indexCfs.forceBlockingFlush();
+            logger.info("Index build of {} complete", metadata.name);
         }
-        logger.info("Index build of {} complete", metadata.name);
+        catch(Throwable t)
+        {
+            supportedLoads = Loads.NONE;
+            throw t;
+        }     
     }
 
     private static String getSSTableNames(Collection<SSTableReader> sstables)
