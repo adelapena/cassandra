@@ -757,9 +757,9 @@ public class SecondaryIndexManagerTest extends CQLTester
             super(baseCfs, indexDef);
         }
 
-        public boolean supportsLoad(Loads load)
+        public boolean supportsLoad(LoadType load)
         {
-            return load.equals(Loads.READS);
+            return load.equals(LoadType.READ);
         }
     }
 }

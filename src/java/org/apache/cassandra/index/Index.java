@@ -135,7 +135,7 @@ import org.apache.cassandra.schema.IndexMetadata;
  */
 public interface Index
 {
-    public static enum Loads {READS, WRITES, ALL, NONE};
+    public static enum LoadType {READ, WRITE, ALL, NONE};
 
     /*
      * Helpers for building indexes from SSTable data
@@ -201,9 +201,9 @@ public interface Index
      * 
      * @return True if it supports it
      */
-    default boolean supportsLoad(Loads load)
+    default boolean supportsLoad(LoadType load)
     {
-        return load != Loads.NONE;
+        return load != LoadType.NONE;
     }
 
     /**

@@ -59,7 +59,7 @@ import org.apache.cassandra.db.lifecycle.View;
 import org.apache.cassandra.db.partitions.*;
 import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.exceptions.InvalidRequestException;
-import org.apache.cassandra.index.Index.Loads;
+import org.apache.cassandra.index.Index.LoadType;
 import org.apache.cassandra.index.internal.CassandraIndex;
 import org.apache.cassandra.index.transactions.*;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
@@ -445,7 +445,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     /**
      * Performs a blocking (re)indexing/recovery of the specified SSTables for the specified indexes.
      *
-     * If the index doesn't support ALL {@link Index.Loads} it performs a recovery {@link getRecoveryTaskSupport()}
+     * If the index doesn't support ALL {@link Index.LoadType} it performs a recovery {@link getRecoveryTaskSupport()}
      * instead of a build {@link getBuildTaskSupport()}
      * 
      * @param sstables      the SSTables to be (re)indexed
@@ -479,7 +479,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             Map<Index.IndexBuildingSupport, Set<Index>> byType = new HashMap<>();
             for (Index index : indexes)
             {
-                boolean isRecovery = !index.supportsLoad(Loads.ALL);
+                boolean isRecovery = !index.supportsLoad(LoadType.ALL);
                 Set<Index> stored = byType.computeIfAbsent(isRecovery ? index.getRecoveryTaskSupport()
                                                                       : index.getBuildTaskSupport(),
                                                            i -> new HashSet<>());
@@ -642,12 +642,12 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     private synchronized void markIndexBuilt(Index index, boolean isFullRebuild)
     {
         String indexName = index.getIndexMetadata().name;
-        if (isFullRebuild && index.supportsLoad(Index.Loads.READS))
+        if (isFullRebuild && index.supportsLoad(Index.LoadType.READ))
         {
             queryableIndexes.add(indexName);
             logger.info("Index [" + indexName + "] became queryable.");
         }
-        if (isFullRebuild && index.supportsLoad(Index.Loads.WRITES))
+        if (isFullRebuild && index.supportsLoad(Index.LoadType.WRITE))
         {
             writableIndexes.add(indexName);
             logger.info("Index [" + indexName + "] became writable.");

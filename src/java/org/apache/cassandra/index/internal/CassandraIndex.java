@@ -78,7 +78,7 @@ public abstract class CassandraIndex implements Index
     protected ColumnFamilyStore indexCfs;
     protected ColumnMetadata indexedColumn;
     protected CassandraIndexFunctions functions;
-    protected Loads supportedLoads = Loads.ALL;
+    protected LoadType supportedLoads = LoadType.ALL;
 
     protected CassandraIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
     {
@@ -147,16 +147,16 @@ public abstract class CassandraIndex implements Index
                                                   ByteBuffer cellValue);
 
     
-    public boolean supportsLoad(Loads load)
+    public boolean supportsLoad(LoadType load)
     {
         switch (load)
         {
             case ALL:
-                return supportedLoads.equals(Loads.ALL);
-            case READS:
-                return supportedLoads.equals(Loads.ALL) || supportedLoads.equals(Loads.READS);
-            case WRITES:
-                return supportedLoads.equals(Loads.ALL) || supportedLoads.equals(Loads.WRITES);
+                return supportedLoads == LoadType.ALL;
+            case READ:
+                return supportedLoads == LoadType.ALL || supportedLoads == LoadType.READ;
+            case WRITE:
+                return supportedLoads == LoadType.ALL || supportedLoads == LoadType.WRITE;
             default:
                 return false;
         }
@@ -707,7 +707,7 @@ public abstract class CassandraIndex implements Index
     {
         try
         {
-            supportedLoads = Loads.ALL;
+            supportedLoads = LoadType.ALL;
             baseCfs.forceBlockingFlush();
 
             try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(View.selectFunction(SSTableSet.CANONICAL));
@@ -738,7 +738,7 @@ public abstract class CassandraIndex implements Index
         }
         catch(Throwable t)
         {
-            supportedLoads = Loads.NONE;
+            supportedLoads = LoadType.NONE;
             throw t;
         }     
     }

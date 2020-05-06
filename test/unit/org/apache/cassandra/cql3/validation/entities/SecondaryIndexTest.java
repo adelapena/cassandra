@@ -1659,9 +1659,9 @@ public class SecondaryIndexTest extends CQLTester
             return null;
         }
 
-        public boolean supportsLoad(Loads load)
+        public boolean supportsLoad(LoadType load)
         {
-            return load.equals(Loads.READS);
+            return load.equals(LoadType.READ);
         }
     }
 
@@ -1681,9 +1681,9 @@ public class SecondaryIndexTest extends CQLTester
             return null;
         }
 
-        public boolean supportsLoad(Loads load)
+        public boolean supportsLoad(LoadType load)
         {
-            return load.equals(Loads.WRITES);
+            return load.equals(LoadType.WRITE);
         }
     }
 }
