@@ -59,6 +59,7 @@ import org.apache.cassandra.db.lifecycle.View;
 import org.apache.cassandra.db.partitions.*;
 import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.index.Index.Loads;
 import org.apache.cassandra.index.internal.CassandraIndex;
 import org.apache.cassandra.index.transactions.*;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
@@ -342,19 +343,32 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     }
 
     /**
-     * See {@link #rebuildIndexesBlocking(Set<String>, boolean)}
+     * Does a blocking full rebuild/recovery of the specifed indexes from all the sstables in the base table.
+     * Note also that this method of (re)building/recovering indexes:
+     * a) takes a set of index *names* rather than Indexers
+     * b) marks existing indexes removed prior to rebuilding
+     * c) fails if such marking operation conflicts with any ongoing index builds, as full rebuilds cannot be run
+     * concurrently
+     *
+     * @param indexNames the list of indexes to be rebuilt
      */
     public void rebuildIndexesBlocking(Set<String> indexNames)
     {
-        rebuildIndexesBlocking(indexNames, false);
-    }
-    
-    /**
-     * See {@link #rebuildIndexesBlocking(Set<String>, boolean)}
-     */
-    public void recoverIndexesBlocking(Set<String> indexNames)
-    {
-        rebuildIndexesBlocking(indexNames, true);
+        try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(View.selectFunction(SSTableSet.CANONICAL));
+                Refs<SSTableReader> allSSTables = viewFragment.refs)
+           {
+               Set<Index> toRebuild = indexes.values().stream()
+                                             .filter(index -> indexNames.contains(index.getIndexMetadata().name))
+                                             .filter(Index::shouldBuildBlocking)
+                                             .collect(Collectors.toSet());
+               if (toRebuild.isEmpty())
+               {
+                   logger.info("No defined indexes with the supplied names: {}", Joiner.on(',').join(indexNames));
+                   return;
+               }
+
+               buildIndexesBlocking(allSSTables, toRebuild, true);
+           }
     }
 
     /**
@@ -429,45 +443,17 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     }
     
     /**
-     * Does a blocking full rebuild/reovery of the specifed indexes from all the sstables in the base table.
-     * Note also that this method of (re)building/recovering indexes:
-     * a) takes a set of index *names* rather than Indexers
-     * b) marks existing indexes removed prior to rebuilding
-     * c) fails if such marking operation conflicts with any ongoing index builds, as full rebuilds cannot be run
-     * concurrently
-     *
-     * @param indexNames the list of indexes to be rebuilt
-     * @param isRecovery True if want to run recovery rather than rebuilding 
-     */
-    private void rebuildIndexesBlocking(Set<String> indexNames, boolean isRecovery)
-    {
-        try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(View.selectFunction(SSTableSet.CANONICAL));
-             Refs<SSTableReader> allSSTables = viewFragment.refs)
-        {
-            Set<Index> toRebuild = indexes.values().stream()
-                                          .filter(index -> indexNames.contains(index.getIndexMetadata().name))
-                                          .filter(Index::shouldBuildBlocking)
-                                          .collect(Collectors.toSet());
-            if (toRebuild.isEmpty())
-            {
-                logger.info("No defined indexes with the supplied names: {}", Joiner.on(',').join(indexNames));
-                return;
-            }
-
-            buildIndexesBlocking(allSSTables, toRebuild, true, isRecovery);
-        }
-    }
-
-    /**
      * Performs a blocking (re)indexing/recovery of the specified SSTables for the specified indexes.
      *
+     * If the index doesn't support ALL {@link Index.Loads} it performs a recovery {@link getRecoveryTaskSupport()}
+     * instead of a build {@link getBuildTaskSupport()}
+     * 
      * @param sstables      the SSTables to be (re)indexed
      * @param indexes       the indexes to be (re)built for the specifed SSTables
      * @param isFullRebuild True if this method is invoked as a full index rebuild, false otherwise
-     * @param isFullRebuild True if this method is invoked as an index rebuild or recovery
      */
     @SuppressWarnings({ "unchecked" })
-    private void buildIndexesBlocking(Collection<SSTableReader> sstables, Set<Index> indexes, boolean isFullRebuild, boolean isRecovery)
+    private void buildIndexesBlocking(Collection<SSTableReader> sstables, Set<Index> indexes, boolean isFullRebuild)
     {
         if (indexes.isEmpty())
             return;
@@ -485,7 +471,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
 
         try
         {
-            logger.info("Submitting index build of {} for data in {}",
+            logger.info("Submitting index recovery/build of {} for data in {}",
                         indexes.stream().map(i -> i.getIndexMetadata().name).collect(Collectors.joining(",")),
                         sstables.stream().map(SSTableReader::toString).collect(Collectors.joining(",")));
 
@@ -493,6 +479,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             Map<Index.IndexBuildingSupport, Set<Index>> byType = new HashMap<>();
             for (Index index : indexes)
             {
+                boolean isRecovery = !index.supportsLoad(Loads.ALL);
                 Set<Index> stored = byType.computeIfAbsent(isRecovery ? index.getRecoveryTaskSupport()
                                                                       : index.getBuildTaskSupport(),
                                                            i -> new HashSet<>());
@@ -656,9 +643,15 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     {
         String indexName = index.getIndexMetadata().name;
         if (isFullRebuild && index.supportsLoad(Index.Loads.READS))
+        {
             queryableIndexes.add(indexName);
+            logger.info("Index [" + indexName + "] became queryable.");
+        }
         if (isFullRebuild && index.supportsLoad(Index.Loads.WRITES))
+        {
             writableIndexes.add(indexName);
+            logger.info("Index [" + indexName + "] became writable.");
+        }
         
         AtomicInteger counter = inProgressBuilds.get(indexName);
         if (counter != null)
@@ -1170,10 +1163,8 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         for (Index i : indexes.values())
         {
             Index.Indexer idxr = i.indexerFor(update.partitionKey(), update.columns(), nowInSec, ctx, IndexTransaction.Type.UPDATE);
-            if (idxr != null)
+            if (idxr != null && isIndexWritable(i))
             {
-                if (!isIndexWritable(i))
-                    throw new IndexNotAvailableException(i);
                 idxrs.add(idxr);
             }
         }
@@ -1181,10 +1172,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         if (idxrs.size() == 0)
             return UpdateTransaction.NO_OP;
         else
-        {
-            Index.Indexer[] indexers = new Index.Indexer[idxrs.size()];
-            return new WriteTimeTransaction(idxrs.toArray(indexers));
-        }
+            return new WriteTimeTransaction(idxrs.toArray(new Index.Indexer[idxrs.size()]));
     }
 
     /**
@@ -1408,12 +1396,9 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
                 for (Index index : indexes)
                 {
                     Index.Indexer indexer = index.indexerFor(key, columns, nowInSec, ctx, Type.COMPACTION);
-                    if (indexer == null)
+                    if (indexer == null || !indexManager.isIndexWritable(index))
                         continue;
-                    
-                    if (!indexManager.isIndexWritable(index))
-                        throw new IndexNotAvailableException(index);
-                    
+
                     indexer.begin();
                     for (Row row : rows)
                         if (row != null)
@@ -1481,12 +1466,9 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
                 for (Index index : indexes)
                 {
                     Index.Indexer indexer = index.indexerFor(key, columns, nowInSec, ctx, Type.CLEANUP);
-                    if (indexer == null)
+                    if (indexer == null || !indexManager.isIndexWritable(index))
                         continue;
-                    
-                    if (!indexManager.isIndexWritable(index))
-                        throw new IndexNotAvailableException(index);
-                    
+
                     indexer.begin();
 
                     if (partitionDelete != null)
@@ -1546,7 +1528,6 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
                                             .stream()
                                             .filter(Index::shouldBuildBlocking)
                                             .collect(Collectors.toSet()),
-                                     false,
                                      false);
         }
     }

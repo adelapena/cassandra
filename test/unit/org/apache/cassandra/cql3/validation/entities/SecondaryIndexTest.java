@@ -40,7 +40,6 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.rows.Cell;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.exceptions.SyntaxException;
-import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.IndexNotAvailableException;
 import org.apache.cassandra.index.SecondaryIndexManager;
 import org.apache.cassandra.index.StubIndex;
@@ -1058,54 +1057,39 @@ public class SecondaryIndexTest extends CQLTester
     public void testIndexWritesWithIndexNotReady() throws Throwable
     {
         createTable("CREATE TABLE %s (pk int, ck int, value int, PRIMARY KEY (pk, ck))");
-        createIndex("CREATE CUSTOM INDEX testIndex ON %s (value) USING '" + IndexBlockingOnInitialization.class.getName() + "'");
+        String indexName = createIndex("CREATE CUSTOM INDEX ON %s (value) USING '" + BlockingStubIndex.class.getName() + "'");
 
-        try
-        {
-            execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
-            fail();
-        }
-        catch (IndexNotAvailableException e)
-        {
-            assertTrue(true);
-        }
-        finally
-        {
-            execute("DROP index " + KEYSPACE + ".testIndex");
-        }
+        execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
+        BlockingStubIndex index = (BlockingStubIndex) getCurrentColumnFamilyStore().indexManager.getIndexByName(indexName);
+        assertEquals(0, index.rowsInserted.size());
+        execute("DROP index " + KEYSPACE + "." + indexName);
     }
     
     @Test // A Bad init could leave an index only accepting reads
     public void testReadOnlyIndex() throws Throwable
     {
         String tableName = createTable("CREATE TABLE %s (pk int, ck int, value int, PRIMARY KEY (pk, ck))");
-        createIndex("CREATE CUSTOM INDEX testIndex ON %s (value) USING '" + ReadOnlyIndex.class.getName() + "'");
-        assertTrue(waitForIndex(keyspace(), tableName, "testindex"));
+        String indexName = createIndex("CREATE CUSTOM INDEX ON %s (value) USING '" + ReadOnlyIndex.class.getName() + "'");
+        assertTrue(waitForIndex(keyspace(), tableName, indexName));
 
         execute("SELECT value FROM %s WHERE value = 1");
-        try
-        {
-            execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
-            fail();
-        }
-        catch (IndexNotAvailableException e)
-        {
-            assertTrue(true);
-        }
-        finally
-        {
-            execute("DROP index " + KEYSPACE + ".testIndex");
-        }
+        execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
+
+        ReadOnlyIndex index = (ReadOnlyIndex) getCurrentColumnFamilyStore().indexManager.getIndexByName(indexName);
+        assertEquals(0, index.rowsInserted.size());
+        execute("DROP index " + KEYSPACE + "." + indexName);
     }
     
     @Test  // A Bad init could leave an index only accepting writes
     public void testWriteOnlyIndex() throws Throwable
     {
         String tableName = createTable("CREATE TABLE %s (pk int, ck int, value int, PRIMARY KEY (pk, ck))");
-        createIndex("CREATE CUSTOM INDEX testIndex ON %s (value) USING '" + WriteOnlyIndex.class.getName() + "'");
-        assertTrue(waitForIndex(keyspace(), tableName, "testindex"));
+        String indexName = createIndex("CREATE CUSTOM INDEX ON %s (value) USING '" + WriteOnlyIndex.class.getName() + "'");
+        assertTrue(waitForIndex(keyspace(), tableName, indexName));
 
         execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
+        WriteOnlyIndex index = (WriteOnlyIndex) getCurrentColumnFamilyStore().indexManager.getIndexByName(indexName);
+        assertEquals(1, index.rowsInserted.size());
         try
         {
             execute("SELECT value FROM %s WHERE value = 1");    
@@ -1117,7 +1101,7 @@ public class SecondaryIndexTest extends CQLTester
         }
         finally
         {
-            execute("DROP index " + KEYSPACE + ".testIndex");
+            execute("DROP index " + KEYSPACE + "." + indexName);
         }
     }
 
@@ -1631,15 +1615,42 @@ public class SecondaryIndexTest extends CQLTester
     }
     
     /**
+     * <code>StubIndex</code> that blocks during the initialization.
+     */
+    public static class BlockingStubIndex extends StubIndex
+    {
+        private final CountDownLatch latch = new CountDownLatch(1);
+
+        public BlockingStubIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
+        {
+            super(baseCfs, indexDef);
+        }
+
+        @Override
+        public Callable<?> getInitializationTask()
+        {
+            return () -> {
+                latch.await();
+                return null;
+            };
+        }
+
+        @Override
+        public Callable<?> getInvalidateTask()
+        {
+            latch.countDown();
+            return super.getInvalidateTask();
+        }
+    }
+
+    /**
      * <code>CassandraIndex</code> that only supports reads. Could be intentional or a result of a bad init
      */
-    public static class ReadOnlyIndex extends CustomCassandraIndex
+    public static class ReadOnlyIndex extends StubIndex
     {
-
         public ReadOnlyIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
         {
             super(baseCfs, indexDef);
-            supportedLoads = Index.Loads.READS;
         }
 
         @Override
@@ -1647,24 +1658,32 @@ public class SecondaryIndexTest extends CQLTester
         {
             return null;
         }
+
+        public boolean supportsLoad(Loads load)
+        {
+            return load.equals(Loads.READS);
+        }
     }
-    
+
     /**
      * <code>CassandraIndex</code> that only supports writes. Could be intentional or a result of a bad init
      */
-    public static class WriteOnlyIndex extends CustomCassandraIndex
+    public static class WriteOnlyIndex extends StubIndex
     {
-
         public WriteOnlyIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
         {
             super(baseCfs, indexDef);
-            supportedLoads = Index.Loads.WRITES;
         }
 
         @Override
         public Callable<?> getInitializationTask()
         {
             return null;
+        }
+
+        public boolean supportsLoad(Loads load)
+        {
+            return load.equals(Loads.WRITES);
         }
     }
 }

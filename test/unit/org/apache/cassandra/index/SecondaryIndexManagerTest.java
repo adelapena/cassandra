@@ -67,29 +67,21 @@ public class SecondaryIndexManagerTest extends CQLTester
     }
 
     @Test
-    public void rebuildingIndexMarksTheIndexAsBuilt() throws Throwable
+    public void rebuilOrRecoveringIndexMarksTheIndexAsBuilt() throws Throwable
     {
         String tableName = createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
         String indexName = createIndex("CREATE INDEX ON %s(c)");
+        String recoveryIndexName = createIndex("CREATE CUSTOM INDEX ON %s (b) USING '" + ReadOnlyIndex.class.getName() + "'");
 
         waitForIndex(KEYSPACE, tableName, indexName);
         assertMarkedAsBuilt(indexName);
-
+        waitForIndex(KEYSPACE, tableName, recoveryIndexName);
+        assertMarkedAsBuilt(recoveryIndexName);
+        
         assertTrue(tryRebuild(indexName, false));
         assertMarkedAsBuilt(indexName);
-    }
-    
-    @Test
-    public void recoveringIndexMarksTheIndexAsBuilt() throws Throwable
-    {
-        String tableName = createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
-        String indexName = createIndex("CREATE INDEX ON %s(c)");
-
-        waitForIndex(KEYSPACE, tableName, indexName);
-        assertMarkedAsBuilt(indexName);
-
-        assertTrue(tryRecover(indexName, false));
-        assertMarkedAsBuilt(indexName);
+        assertTrue(tryRebuild(recoveryIndexName, false));
+        assertMarkedAsBuilt(recoveryIndexName);
     }
 
     @Test
@@ -138,33 +130,41 @@ public class SecondaryIndexManagerTest extends CQLTester
         TestingIndex.blockCreate();
         String tableName = createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
         String indexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(c) USING '%s'", TestingIndex.class.getName()));
+        String recoveryIndexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(b) USING '%s'", ReadOnlyIndex.class.getName()));
 
         // try to rebuild/recover the index before the index creation task has finished
         assertFalse(tryRebuild(indexName, false));
         assertNotMarkedAsBuilt(indexName);
-        assertFalse(tryRecover(indexName, false));
+        assertFalse(tryRebuild(recoveryIndexName, false));
         assertNotMarkedAsBuilt(indexName);
 
         // check that the index is marked as built when the creation finishes
         TestingIndex.unblockCreate();
         waitForIndex(KEYSPACE, tableName, indexName);
+        waitForIndex(KEYSPACE, tableName, recoveryIndexName);
         assertMarkedAsBuilt(indexName);
+        assertMarkedAsBuilt(recoveryIndexName);
 
-        // now verify you can rebuild
+        // now verify you can rebuild/recover
         assertTrue(tryRebuild(indexName, false));
         assertMarkedAsBuilt(indexName);
+        assertTrue(tryRebuild(recoveryIndexName, false));
+        assertMarkedAsBuilt(recoveryIndexName);
     }
 
     @Test
-    public void cannotRebuildWhileAnotherRebuildIsInProgress() throws Throwable
+    public void cannotRebuildOrRecoverWhileAnotherRebuildIsInProgress() throws Throwable
     {
         final String tableName = createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
         final String indexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(c) USING '%s'", TestingIndex.class.getName()));
+        final String recoveryIndexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(b) USING '%s'", ReadOnlyIndex.class.getName()));
         final AtomicBoolean error = new AtomicBoolean();
 
         // wait for index initialization and verify it's built:
         waitForIndex(KEYSPACE, tableName, indexName);
         assertMarkedAsBuilt(indexName);
+        waitForIndex(KEYSPACE, tableName, recoveryIndexName);
+        assertMarkedAsBuilt(recoveryIndexName);
 
         // rebuild the index in another thread, but make it block:
         TestingIndex.blockBuild();
@@ -200,61 +200,13 @@ public class SecondaryIndexManagerTest extends CQLTester
         TestingIndex.unblockBuild();
         asyncBuild.join();
         assertMarkedAsBuilt(indexName);
+        assertMarkedAsBuilt(recoveryIndexName);
 
         // now verify you can rebuild
         assertTrue(tryRebuild(indexName, false));
         assertMarkedAsBuilt(indexName);
-    }
-    
-    @Test
-    public void cannotRebuildWhileRecoveryIsInProgress() throws Throwable
-    {
-        final String tableName = createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
-        final String indexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(c) USING '%s'", TestingIndex.class.getName()));
-        final AtomicBoolean error = new AtomicBoolean();
-
-        // wait for index initialization and verify it's built:
-        waitForIndex(KEYSPACE, tableName, indexName);
-        assertMarkedAsBuilt(indexName);
-
-        // rebuild the index in another thread, but make it block:
-        TestingIndex.blockBuild();
-        Thread asyncBuild = new Thread()
-        {
-
-            @Override
-            public void run()
-            {
-                try
-                {
-                    tryRecover(indexName, false);
-                }
-                catch (Throwable ex)
-                {
-                    error.set(true);
-                }
-            }
-        };
-        asyncBuild.start();
-
-        // wait for the rebuild to block, so that we can proceed unblocking all further operations:
-        TestingIndex.waitBlockedOnBuild();
-
-        // do not block further builds:
-        TestingIndex.shouldBlockBuild = false;
-
-        // verify rebuilding the index before the previous index build task has finished fails
-        assertFalse(tryRebuild(indexName, false));
-        assertNotMarkedAsBuilt(indexName);
-
-        // check that the index is marked as built when the build finishes
-        TestingIndex.unblockBuild();
-        asyncBuild.join();
-        assertMarkedAsBuilt(indexName);
-
-        // now verify you can rebuild
-        assertTrue(tryRebuild(indexName, false));
-        assertMarkedAsBuilt(indexName);
+        assertTrue(tryRebuild(recoveryIndexName, false));
+        assertMarkedAsBuilt(recoveryIndexName);
     }
 
     @Test
@@ -637,17 +589,7 @@ public class SecondaryIndexManagerTest extends CQLTester
         assertTrue(indexes.isEmpty());
     }
     
-    private boolean tryRecover(String indexName, boolean wait) throws Throwable
-    {
-        return tryRebuildOrRecover(indexName, true, wait);
-    }
-
     private boolean tryRebuild(String indexName, boolean wait) throws Throwable
-    {
-        return tryRebuildOrRecover(indexName, false, wait);
-    }
-    
-    private boolean tryRebuildOrRecover(String indexName, boolean isRecovery, boolean wait) throws Throwable
     {
         ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         boolean done = false;
@@ -655,10 +597,7 @@ public class SecondaryIndexManagerTest extends CQLTester
         {
             try
             {
-                if (isRecovery)
-                    cfs.indexManager.recoverIndexesBlocking(Collections.singleton(indexName));
-                else
-                    cfs.indexManager.rebuildIndexesBlocking(Collections.singleton(indexName));
+                cfs.indexManager.rebuildIndexesBlocking(Collections.singleton(indexName));
                 done = true;
             }
             catch (IllegalStateException e)
@@ -805,6 +744,22 @@ public class SecondaryIndexManagerTest extends CQLTester
         public boolean shouldBuildBlocking()
         {
             return true;
+        }
+    }
+
+    /**
+     * <code>CassandraIndex</code> that only supports reads. Could be intentional or a result of a bad init
+     */
+    public static class ReadOnlyIndex extends TestingIndex
+    {
+        public ReadOnlyIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
+        {
+            super(baseCfs, indexDef);
+        }
+
+        public boolean supportsLoad(Loads load)
+        {
+            return load.equals(Loads.READS);
         }
     }
 }
