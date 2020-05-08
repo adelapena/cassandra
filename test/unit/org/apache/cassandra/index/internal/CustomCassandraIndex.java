@@ -77,7 +77,7 @@ public class CustomCassandraIndex implements Index
     protected ColumnFamilyStore indexCfs;
     protected ColumnMetadata indexedColumn;
     protected CassandraIndexFunctions functions;
-    protected LoadType supportedLoads = LoadType.ALL;
+    protected LoadType supportedLoadType = LoadType.ALL;
 
     public CustomCassandraIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
     {

@@ -135,7 +135,7 @@ import org.apache.cassandra.schema.IndexMetadata;
  */
 public interface Index
 {
-    public static enum LoadType {READ, WRITE, ALL, NONE};
+    public enum LoadType {READ, WRITE, ALL, NONE}
 
     /*
      * Helpers for building indexes from SSTable data

@@ -124,7 +124,7 @@ public class SecondaryIndexManagerTest extends CQLTester
     }
 
     @Test
-    public void cannotRebuilRecoverdWhileInitializationIsInProgress() throws Throwable
+    public void cannotRebuildRecoverWhileInitializationIsInProgress() throws Throwable
     {
         // create an index which blocks on creation
         TestingIndex.blockCreate();
@@ -748,7 +748,7 @@ public class SecondaryIndexManagerTest extends CQLTester
     }
 
     /**
-     * <code>CassandraIndex</code> that only supports reads. Could be intentional or a result of a bad init
+     * <code>TestingIndex</code> that only supports reads. Could be intentional or a result of a bad init
      */
     public static class ReadOnlyIndex extends TestingIndex
     {
@@ -759,7 +759,7 @@ public class SecondaryIndexManagerTest extends CQLTester
 
         public boolean supportsLoad(LoadType load)
         {
-            return load.equals(LoadType.READ);
+            return load == LoadType.READ;
         }
     }
 }

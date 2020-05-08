@@ -1644,7 +1644,7 @@ public class SecondaryIndexTest extends CQLTester
     }
 
     /**
-     * <code>CassandraIndex</code> that only supports reads. Could be intentional or a result of a bad init
+     * {@code StubIndex} that only supports reads. Could be intentional or a result of a bad init.
      */
     public static class ReadOnlyIndex extends StubIndex
     {
@@ -1661,12 +1661,12 @@ public class SecondaryIndexTest extends CQLTester
 
         public boolean supportsLoad(LoadType load)
         {
-            return load.equals(LoadType.READ);
+            return load == LoadType.READ;
         }
     }
 
     /**
-     * <code>CassandraIndex</code> that only supports writes. Could be intentional or a result of a bad init
+     * {@code StubIndex} that only supports writes. Could be intentional or a result of a bad init.
      */
     public static class WriteOnlyIndex extends StubIndex
     {
@@ -1683,7 +1683,7 @@ public class SecondaryIndexTest extends CQLTester
 
         public boolean supportsLoad(LoadType load)
         {
-            return load.equals(LoadType.WRITE);
+            return load == LoadType.WRITE;
         }
     }
 }

@@ -78,7 +78,7 @@ public abstract class CassandraIndex implements Index
     protected ColumnFamilyStore indexCfs;
     protected ColumnMetadata indexedColumn;
     protected CassandraIndexFunctions functions;
-    protected LoadType supportedLoads = LoadType.ALL;
+    protected LoadType supportedLoadType = LoadType.ALL;
 
     protected CassandraIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
     {

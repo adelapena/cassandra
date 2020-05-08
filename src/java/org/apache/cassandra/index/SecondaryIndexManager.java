@@ -445,8 +445,8 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     /**
      * Performs a blocking (re)indexing/recovery of the specified SSTables for the specified indexes.
      *
-     * If the index doesn't support ALL {@link Index.LoadType} it performs a recovery {@link getRecoveryTaskSupport()}
-     * instead of a build {@link getBuildTaskSupport()}
+     * If the index doesn't support ALL {@link Index.LoadType} it performs a recovery {@link Index#getRecoveryTaskSupport()}
+     * instead of a build {@link Index#getBuildTaskSupport()}
      * 
      * @param sstables      the SSTables to be (re)indexed
      * @param indexes       the indexes to be (re)built for the specifed SSTables
@@ -649,8 +649,8 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         }
         if (isFullRebuild && index.supportsLoad(Index.LoadType.WRITE))
         {
-            writableIndexes.add(indexName);
-            logger.info("Index [" + indexName + "] became writable.");
+            if (writableIndexes.add(indexName))
+                logger.info("Index [" + indexName + "] became writable.");
         }
         
         AtomicInteger counter = inProgressBuilds.get(indexName);
