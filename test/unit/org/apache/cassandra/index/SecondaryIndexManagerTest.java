@@ -400,7 +400,7 @@ public class SecondaryIndexManagerTest extends CQLTester
     }
 
     @Test
-    public void initializingIndexNotQueryableOrWritable() throws Throwable
+    public void initializingIndexNotQueryableButWritable() throws Throwable
     {
         TestingIndex.blockCreate();
         String tableName = createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
@@ -410,7 +410,7 @@ public class SecondaryIndexManagerTest extends CQLTester
         ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         Index index = cfs.indexManager.getIndexByName(indexName);
         assertFalse(cfs.indexManager.isIndexQueryable(index));
-        assertFalse(cfs.indexManager.isIndexWritable(index));
+        assertTrue(cfs.indexManager.isIndexWritable(index));
 
         // the index should be queryable once the initialization has finished
         TestingIndex.unblockCreate();
@@ -420,7 +420,7 @@ public class SecondaryIndexManagerTest extends CQLTester
     }
 
     @Test
-    public void initializingIndexNotQueryableWritableAfterPartialRebuild() throws Throwable
+    public void initializingIndexNotQueryableButWritableAfterPartialRebuild() throws Throwable
     {
         TestingIndex.blockCreate();
         String tableName = createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
@@ -430,7 +430,7 @@ public class SecondaryIndexManagerTest extends CQLTester
         ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         Index index = cfs.indexManager.getIndexByName(indexName);
         assertFalse(cfs.indexManager.isIndexQueryable(index));
-        assertFalse(cfs.indexManager.isIndexWritable(index));
+        assertTrue(cfs.indexManager.isIndexWritable(index));
 
         // a failing partial build doesn't set the index as queryable
         TestingIndex.shouldFailBuild = true;
@@ -588,7 +588,7 @@ public class SecondaryIndexManagerTest extends CQLTester
         List<String> indexes = SystemKeyspace.getBuiltIndexes(KEYSPACE, Collections.singleton(indexName));
         assertTrue(indexes.isEmpty());
     }
-    
+
     private boolean tryRebuild(String indexName, boolean wait) throws Throwable
     {
         ColumnFamilyStore cfs = getCurrentColumnFamilyStore();

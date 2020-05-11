@@ -59,6 +59,7 @@ import org.apache.cassandra.db.lifecycle.View;
 import org.apache.cassandra.db.partitions.*;
 import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.index.Index.IndexBuildingSupport;
 import org.apache.cassandra.index.Index.LoadType;
 import org.apache.cassandra.index.internal.CassandraIndex;
 import org.apache.cassandra.index.transactions.*;
@@ -149,7 +150,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     /**
      * The indexes that are available for writing.
      */
-    private final Set<String> writableIndexes = Sets.newConcurrentHashSet();
+    private final Map<String, Index> writableIndexes = Maps.newConcurrentMap();
 
     /**
      * The count of pending index builds for each index.
@@ -213,6 +214,8 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     {
         final Index index = createInstance(indexDef);
         index.register(this);
+        if (writableIndexes.put(index.getIndexMetadata().name, index) == null)
+            logger.info("Index [" + index.getIndexMetadata().name + "] registered and became writable.");
 
         markIndexesBuilding(ImmutableSet.of(index), true, isNewCF);
 
@@ -294,7 +297,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
      */
     public boolean isIndexWritable(Index index)
     {
-        return writableIndexes.contains(index.getIndexMetadata().name);
+        return writableIndexes.containsKey(index.getIndexMetadata().name);
     }
 
     /**
@@ -355,20 +358,21 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     public void rebuildIndexesBlocking(Set<String> indexNames)
     {
         try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(View.selectFunction(SSTableSet.CANONICAL));
-                Refs<SSTableReader> allSSTables = viewFragment.refs)
-           {
-               Set<Index> toRebuild = indexes.values().stream()
-                                             .filter(index -> indexNames.contains(index.getIndexMetadata().name))
-                                             .filter(Index::shouldBuildBlocking)
-                                             .collect(Collectors.toSet());
-               if (toRebuild.isEmpty())
-               {
-                   logger.info("No defined indexes with the supplied names: {}", Joiner.on(',').join(indexNames));
-                   return;
-               }
+             Refs<SSTableReader> allSSTables = viewFragment.refs)
+        {
+            Set<Index> toRebuild = indexes.values()
+                                          .stream()
+                                          .filter(index -> indexNames.contains(index.getIndexMetadata().name))
+                                          .filter(Index::shouldBuildBlocking)
+                                          .collect(Collectors.toSet());
+            if (toRebuild.isEmpty())
+            {
+                logger.info("No defined indexes with the supplied names: {}", Joiner.on(',').join(indexNames));
+                return;
+            }
 
-               buildIndexesBlocking(allSSTables, toRebuild, true);
-           }
+            buildIndexesBlocking(allSSTables, toRebuild, true);
+        }
     }
 
     /**
@@ -441,7 +445,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         assert isIndexColumnFamily(cfName);
         return StringUtils.substringAfter(cfName, Directories.SECONDARY_INDEX_NAME_SEPARATOR);
     }
-    
+
     /**
      * Performs a blocking (re)indexing/recovery of the specified SSTables for the specified indexes.
      *
@@ -479,10 +483,22 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             Map<Index.IndexBuildingSupport, Set<Index>> byType = new HashMap<>();
             for (Index index : indexes)
             {
-                boolean isRecovery = !index.supportsLoad(LoadType.ALL);
-                Set<Index> stored = byType.computeIfAbsent(isRecovery ? index.getRecoveryTaskSupport()
-                                                                      : index.getBuildTaskSupport(),
-                                                           i -> new HashSet<>());
+                IndexBuildingSupport rebuildOrRecoveryTask;
+                // Is this a recovery or a build?
+                if (!index.supportsLoad(LoadType.ALL))
+                {
+                    rebuildOrRecoveryTask = (cfs, idxs, sstbls) ->
+                    {
+                        for (Index i : idxs)
+                            if (writableIndexes.put(i.getIndexMetadata().name, i) == null)
+                                logger.info("Index [" + i.getIndexMetadata().name + "] became writable starting recovery.");
+                        return index.getRecoveryTaskSupport().getIndexBuildTask(cfs, idxs, sstbls);
+                    };
+                }
+                else
+                    rebuildOrRecoveryTask = index.getBuildTaskSupport();
+
+                Set<Index> stored = byType.computeIfAbsent(rebuildOrRecoveryTask, i -> new HashSet<>());
                 stored.add(index);
             }
 
@@ -649,8 +665,13 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         }
         if (isFullRebuild && index.supportsLoad(Index.LoadType.WRITE))
         {
-            if (writableIndexes.add(indexName))
+            if (writableIndexes.put(indexName, index) == null)
                 logger.info("Index [" + indexName + "] became writable.");
+        }
+        if (isFullRebuild && !index.supportsLoad(Index.LoadType.WRITE))
+        {
+            writableIndexes.remove(indexName);
+            logger.info("Index [" + indexName + "] is non-writable.");
         }
         
         AtomicInteger counter = inProgressBuilds.get(indexName);
@@ -675,6 +696,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     private synchronized void markIndexFailed(Index index)
     {
         String indexName = index.getIndexMetadata().name;
+        writableIndexes.remove(indexName);
         AtomicInteger counter = inProgressBuilds.get(indexName);
         if (counter != null)
         {
@@ -1160,13 +1182,11 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             return UpdateTransaction.NO_OP;
         
         ArrayList<Index.Indexer> idxrs = new ArrayList<>();
-        for (Index i : indexes.values())
+        for (Index i : writableIndexes.values())
         {
             Index.Indexer idxr = i.indexerFor(update.partitionKey(), update.columns(), nowInSec, ctx, IndexTransaction.Type.UPDATE);
-            if (idxr != null && isIndexWritable(i))
-            {
+            if (idxr != null)
                 idxrs.add(idxr);
-            }
         }
         
         if (idxrs.size() == 0)
@@ -1184,7 +1204,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
                                                           int nowInSec)
     {
         // the check for whether there are any registered indexes is already done in CompactionIterator
-        return new IndexGCTransaction(key, regularAndStaticColumns, keyspace, this, versions, nowInSec, indexes.values());
+        return new IndexGCTransaction(key, regularAndStaticColumns, keyspace, versions, nowInSec, writableIndexes.values());
     }
 
     /**
@@ -1197,7 +1217,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         if (!hasIndexes())
             return CleanupTransaction.NO_OP;
 
-        return new CleanupGCTransaction(key, regularAndStaticColumns, keyspace, this, nowInSec, indexes.values());
+        return new CleanupGCTransaction(key, regularAndStaticColumns, keyspace, nowInSec, writableIndexes.values());
     }
 
     /**
@@ -1311,7 +1331,6 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         private final DecoratedKey key;
         private final RegularAndStaticColumns columns;
         private final Keyspace keyspace;
-        private final SecondaryIndexManager indexManager;
         private final int versions;
         private final int nowInSec;
         private final Collection<Index> indexes;
@@ -1321,7 +1340,6 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         private IndexGCTransaction(DecoratedKey key,
                                    RegularAndStaticColumns columns,
                                    Keyspace keyspace,
-                                   SecondaryIndexManager indexManager,
                                    int versions,
                                    int nowInSec,
                                    Collection<Index> indexes)
@@ -1329,7 +1347,6 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             this.key = key;
             this.columns = columns;
             this.keyspace = keyspace;
-            this.indexManager = indexManager;
             this.versions = versions;
             this.indexes = indexes;
             this.nowInSec = nowInSec;
@@ -1396,7 +1413,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
                 for (Index index : indexes)
                 {
                     Index.Indexer indexer = index.indexerFor(key, columns, nowInSec, ctx, Type.COMPACTION);
-                    if (indexer == null || !indexManager.isIndexWritable(index))
+                    if (indexer == null)
                         continue;
 
                     indexer.begin();
@@ -1420,7 +1437,6 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         private final DecoratedKey key;
         private final RegularAndStaticColumns columns;
         private final Keyspace keyspace;
-        private final SecondaryIndexManager indexManager;
         private final int nowInSec;
         private final Collection<Index> indexes;
 
@@ -1430,14 +1446,12 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         private CleanupGCTransaction(DecoratedKey key,
                                      RegularAndStaticColumns columns,
                                      Keyspace keyspace,
-                                     SecondaryIndexManager indexManager,
                                      int nowInSec,
                                      Collection<Index> indexes)
         {
             this.key = key;
             this.columns = columns;
             this.keyspace = keyspace;
-            this.indexManager = indexManager;
             this.indexes = indexes;
             this.nowInSec = nowInSec;
         }
@@ -1466,7 +1480,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
                 for (Index index : indexes)
                 {
                     Index.Indexer indexer = index.indexerFor(key, columns, nowInSec, ctx, Type.CLEANUP);
-                    if (indexer == null || !indexManager.isIndexWritable(index))
+                    if (indexer == null)
                         continue;
 
                     indexer.begin();

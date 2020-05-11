@@ -135,7 +135,28 @@ import org.apache.cassandra.schema.IndexMetadata;
  */
 public interface Index
 {
-    public enum LoadType {READ, WRITE, ALL, NONE}
+    /**
+     * Supported loads. An index could be badly initialized and support only reads i.e.
+     */
+    public enum LoadType
+    {
+        READ, WRITE, ALL, NONE;
+
+        public boolean accepts(LoadType load)
+        {
+            switch (this)
+            {
+                case ALL:
+                    return true;
+                case READ:
+                    return load == LoadType.READ;
+                case WRITE:
+                    return load == LoadType.WRITE;
+                default:
+                    return false;
+            }
+        }
+    }
 
     /*
      * Helpers for building indexes from SSTable data

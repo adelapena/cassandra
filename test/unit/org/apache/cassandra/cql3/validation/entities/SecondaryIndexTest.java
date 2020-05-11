@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
@@ -40,6 +42,7 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.rows.Cell;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.exceptions.SyntaxException;
+import org.apache.cassandra.index.Index.LoadType;
 import org.apache.cassandra.index.IndexNotAvailableException;
 import org.apache.cassandra.index.SecondaryIndexManager;
 import org.apache.cassandra.index.StubIndex;
@@ -1053,55 +1056,101 @@ public class SecondaryIndexTest extends CQLTester
         }
     }
     
-    @Test
-    public void testIndexWritesWithIndexNotReady() throws Throwable
-    {
-        createTable("CREATE TABLE %s (pk int, ck int, value int, PRIMARY KEY (pk, ck))");
-        String indexName = createIndex("CREATE CUSTOM INDEX ON %s (value) USING '" + BlockingStubIndex.class.getName() + "'");
-
-        execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
-        BlockingStubIndex index = (BlockingStubIndex) getCurrentColumnFamilyStore().indexManager.getIndexByName(indexName);
-        assertEquals(0, index.rowsInserted.size());
-        execute("DROP index " + KEYSPACE + "." + indexName);
-    }
-    
     @Test // A Bad init could leave an index only accepting reads
     public void testReadOnlyIndex() throws Throwable
     {
-        String tableName = createTable("CREATE TABLE %s (pk int, ck int, value int, PRIMARY KEY (pk, ck))");
-        String indexName = createIndex("CREATE CUSTOM INDEX ON %s (value) USING '" + ReadOnlyIndex.class.getName() + "'");
-        assertTrue(waitForIndex(keyspace(), tableName, indexName));
+        LoadTypeConstrainedIndex index = null;
+        try
+        {
+            // Inserts don't go through
+            LoadTypeConstrainedIndex.setSupportedLoad(LoadType.READ);
+            String tableName = createTable("CREATE TABLE %s (pk int, ck int, value int, PRIMARY KEY (pk, ck))");
+            String indexName = createIndex("CREATE CUSTOM INDEX ON %s (value) USING '" + LoadTypeConstrainedIndex.class.getName() + "'");
+            assertTrue(waitForIndex(keyspace(), tableName, indexName));
+            execute("SELECT value FROM %s WHERE value = 1");
+            execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
+            index = (LoadTypeConstrainedIndex) getCurrentColumnFamilyStore().indexManager.getIndexByName(indexName);
+            assertEquals(0, index.rowsInserted.size());
 
-        execute("SELECT value FROM %s WHERE value = 1");
-        execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
+            // Upon recovery, we can index data again
+            index.reset();
+            getCurrentColumnFamilyStore().indexManager.rebuildIndexesBlocking(ImmutableSet.of(indexName));
+            execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 2, 1, 1);
+            assertEquals(1, index.rowsInserted.size());
+            execute("DROP index " + KEYSPACE + "." + indexName);
 
-        ReadOnlyIndex index = (ReadOnlyIndex) getCurrentColumnFamilyStore().indexManager.getIndexByName(indexName);
-        assertEquals(0, index.rowsInserted.size());
-        execute("DROP index " + KEYSPACE + "." + indexName);
+            // On bad init writes are not forwarded to the index
+            index.reset();
+            LoadTypeConstrainedIndex.setSupportedLoad(LoadType.WRITE);
+            index.failInit = true;
+            indexName = createIndex("CREATE CUSTOM INDEX ON %s (value) USING '" + LoadTypeConstrainedIndex.class.getName() + "'");
+            assertTrue(waitForIndexBuilds(keyspace(), indexName));
+            execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
+            assertEquals(0, index.rowsInserted.size());
+            execute("DROP index " + KEYSPACE + "." + indexName);
+        }
+        finally
+        {
+            if (index != null)
+                index.reset();
+        }
     }
     
     @Test  // A Bad init could leave an index only accepting writes
     public void testWriteOnlyIndex() throws Throwable
     {
-        String tableName = createTable("CREATE TABLE %s (pk int, ck int, value int, PRIMARY KEY (pk, ck))");
-        String indexName = createIndex("CREATE CUSTOM INDEX ON %s (value) USING '" + WriteOnlyIndex.class.getName() + "'");
-        assertTrue(waitForIndex(keyspace(), tableName, indexName));
-
-        execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
-        WriteOnlyIndex index = (WriteOnlyIndex) getCurrentColumnFamilyStore().indexManager.getIndexByName(indexName);
-        assertEquals(1, index.rowsInserted.size());
+        LoadTypeConstrainedIndex index = null;
         try
         {
-            execute("SELECT value FROM %s WHERE value = 1");    
-            fail();
-        }
-        catch (IndexNotAvailableException e)
-        {
-            assertTrue(true);
+            // Writes go through but reads fail
+            LoadTypeConstrainedIndex.setSupportedLoad(LoadType.WRITE);
+            String tableName = createTable("CREATE TABLE %s (pk int, ck int, value int, PRIMARY KEY (pk, ck))");
+            String indexName = createIndex("CREATE CUSTOM INDEX ON %s (value) USING '" + LoadTypeConstrainedIndex.class.getName() + "'");
+            assertTrue(waitForIndex(keyspace(), tableName, indexName));
+            execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
+            index = (LoadTypeConstrainedIndex) getCurrentColumnFamilyStore().indexManager.getIndexByName(indexName);
+            assertEquals(1, index.rowsInserted.size());
+            try
+            {
+                execute("SELECT value FROM %s WHERE value = 1");
+                fail();
+            }
+            catch (IndexNotAvailableException e)
+            {
+                assertTrue(true);
+            }
+
+            // Upon recovery, we can read again
+            index.reset();
+            getCurrentColumnFamilyStore().indexManager.rebuildIndexesBlocking(ImmutableSet.of(indexName));
+            execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 2, 1, 1);
+            assertEquals(1, index.rowsInserted.size());
+            execute("SELECT value FROM %s WHERE value = 1");
+            execute("DROP index " + KEYSPACE + "." + indexName);
+
+            // On bad init writes are not forwarded to the index
+            index.reset();
+            LoadTypeConstrainedIndex.setSupportedLoad(LoadType.WRITE);
+            index.failInit = true;
+            indexName = createIndex("CREATE CUSTOM INDEX ON %s (value) USING '" + LoadTypeConstrainedIndex.class.getName() + "'");
+            assertTrue(waitForIndexBuilds(keyspace(), indexName));
+            execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
+            assertEquals(0, index.rowsInserted.size());
+            try
+            {
+                execute("SELECT value FROM %s WHERE value = 1");
+                fail();
+            }
+            catch (IndexNotAvailableException e)
+            {
+                assertTrue(true);
+            }
+            execute("DROP index " + KEYSPACE + "." + indexName);
         }
         finally
         {
-            execute("DROP index " + KEYSPACE + "." + indexName);
+            if (index != null)
+                index.reset();
         }
     }
 
@@ -1644,46 +1693,55 @@ public class SecondaryIndexTest extends CQLTester
     }
 
     /**
-     * {@code StubIndex} that only supports reads. Could be intentional or a result of a bad init.
+     * {@code StubIndex} that only supports some load. Could be intentional or a result of a bad init.
      */
-    public static class ReadOnlyIndex extends StubIndex
+    public static class LoadTypeConstrainedIndex extends StubIndex
     {
-        public ReadOnlyIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
+        public boolean failInit = false;
+        public static LoadType supportsLoad = LoadType.NONE;
+
+        public LoadTypeConstrainedIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
         {
             super(baseCfs, indexDef);
+        }
+
+        public static void setSupportedLoad(LoadType load)
+        {
+            supportsLoad = load;
+        }
+
+        @Override
+        public void reset()
+        {
+            super.reset();
+            failInit = false;
+            setSupportedLoad(LoadType.NONE);
         }
 
         @Override
         public Callable<?> getInitializationTask()
         {
+            if (failInit)
+                return () -> {throw new IllegalStateException("Index is configured to fail.");};
+
             return null;
-        }
-
-        public boolean supportsLoad(LoadType load)
-        {
-            return load == LoadType.READ;
-        }
-    }
-
-    /**
-     * {@code StubIndex} that only supports writes. Could be intentional or a result of a bad init.
-     */
-    public static class WriteOnlyIndex extends StubIndex
-    {
-        public WriteOnlyIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
-        {
-            super(baseCfs, indexDef);
         }
 
         @Override
-        public Callable<?> getInitializationTask()
+        public IndexBuildingSupport getRecoveryTaskSupport()
         {
-            return null;
+            setSupportedLoad(LoadType.ALL);
+            return super.getRecoveryTaskSupport();
+        }
+
+        public boolean shouldBuildBlocking()
+        {
+            return true;
         }
 
         public boolean supportsLoad(LoadType load)
         {
-            return load == LoadType.WRITE;
+            return supportsLoad.accepts(load);
         }
     }
 }
