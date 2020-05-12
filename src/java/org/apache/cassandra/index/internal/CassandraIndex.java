@@ -728,7 +728,7 @@ public abstract class CassandraIndex implements Index
         }
         catch(Throwable t)
         {
-            supportedLoadType = LoadType.NONE;
+            supportedLoadType = LoadType.NOOP;
             throw t;
         }     
     }

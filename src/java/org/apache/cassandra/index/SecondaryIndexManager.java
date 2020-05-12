@@ -364,6 +364,11 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
                                           .stream()
                                           .filter(index -> indexNames.contains(index.getIndexMetadata().name))
                                           .filter(Index::shouldBuildBlocking)
+                                          .peek(i ->
+                                          {
+                                              if (writableIndexes.put(i.getIndexMetadata().name, i) == null)
+                                                  logger.info("Index [" + i.getIndexMetadata().name + "] became writable starting recovery.");
+                                          })
                                           .collect(Collectors.toSet());
             if (toRebuild.isEmpty())
             {
@@ -483,21 +488,8 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             Map<Index.IndexBuildingSupport, Set<Index>> byType = new HashMap<>();
             for (Index index : indexes)
             {
-                IndexBuildingSupport rebuildOrRecoveryTask;
-                // Is this a recovery or a build?
-                if (!index.supportsLoad(LoadType.ALL))
-                {
-                    rebuildOrRecoveryTask = (cfs, idxs, sstbls) ->
-                    {
-                        for (Index i : idxs)
-                            if (writableIndexes.put(i.getIndexMetadata().name, i) == null)
-                                logger.info("Index [" + i.getIndexMetadata().name + "] became writable starting recovery.");
-                        return index.getRecoveryTaskSupport().getIndexBuildTask(cfs, idxs, sstbls);
-                    };
-                }
-                else
-                    rebuildOrRecoveryTask = index.getBuildTaskSupport();
-
+                IndexBuildingSupport rebuildOrRecoveryTask = index.supportsLoad(LoadType.ALL) ? index.getBuildTaskSupport()
+                                                                                              : index.getRecoveryTaskSupport();
                 Set<Index> stored = byType.computeIfAbsent(rebuildOrRecoveryTask, i -> new HashSet<>());
                 stored.add(index);
             }
@@ -660,8 +652,8 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         String indexName = index.getIndexMetadata().name;
         if (isFullRebuild && index.supportsLoad(Index.LoadType.READ))
         {
-            queryableIndexes.add(indexName);
-            logger.info("Index [" + indexName + "] became queryable.");
+            if (queryableIndexes.add(indexName))
+                logger.info("Index [" + indexName + "] became queryable.");
         }
         if (isFullRebuild && index.supportsLoad(Index.LoadType.WRITE))
         {

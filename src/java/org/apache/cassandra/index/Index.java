@@ -140,7 +140,7 @@ public interface Index
      */
     public enum LoadType
     {
-        READ, WRITE, ALL, NONE;
+        READ, WRITE, ALL, NOOP;
 
         public boolean accepts(LoadType load)
         {
@@ -149,9 +149,9 @@ public interface Index
                 case ALL:
                     return true;
                 case READ:
-                    return load == LoadType.READ;
+                    return load == LoadType.READ || load == LoadType.NOOP;
                 case WRITE:
-                    return load == LoadType.WRITE;
+                    return load == LoadType.WRITE || load == LoadType.NOOP;
                 default:
                     return false;
             }
@@ -224,7 +224,7 @@ public interface Index
      */
     default boolean supportsLoad(LoadType load)
     {
-        return load != LoadType.NONE;
+        return load != LoadType.NOOP;
     }
 
     /**

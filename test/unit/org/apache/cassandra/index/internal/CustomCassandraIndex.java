@@ -661,7 +661,7 @@ public class CustomCassandraIndex implements Index
         }
         catch(Throwable t)
         {
-            supportedLoadType = LoadType.NONE;
+            supportedLoadType = LoadType.NOOP;
             throw t;
         }
     }

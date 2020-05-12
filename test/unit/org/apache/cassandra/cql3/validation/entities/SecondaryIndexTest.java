@@ -1077,7 +1077,7 @@ public class SecondaryIndexTest extends CQLTester
             getCurrentColumnFamilyStore().indexManager.rebuildIndexesBlocking(ImmutableSet.of(indexName));
             execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 2, 1, 1);
             assertEquals(1, index.rowsInserted.size());
-            execute("DROP index " + KEYSPACE + "." + indexName);
+            dropIndex(format("DROP INDEX %s.%s", KEYSPACE, indexName));
 
             // On bad init writes are not forwarded to the index
             index.reset();
@@ -1087,7 +1087,7 @@ public class SecondaryIndexTest extends CQLTester
             assertTrue(waitForIndexBuilds(keyspace(), indexName));
             execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
             assertEquals(0, index.rowsInserted.size());
-            execute("DROP index " + KEYSPACE + "." + indexName);
+            dropIndex(format("DROP INDEX %s.%s", KEYSPACE, indexName));
         }
         finally
         {
@@ -1110,15 +1110,7 @@ public class SecondaryIndexTest extends CQLTester
             execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
             index = (LoadTypeConstrainedIndex) getCurrentColumnFamilyStore().indexManager.getIndexByName(indexName);
             assertEquals(1, index.rowsInserted.size());
-            try
-            {
-                execute("SELECT value FROM %s WHERE value = 1");
-                fail();
-            }
-            catch (IndexNotAvailableException e)
-            {
-                assertTrue(true);
-            }
+            assertInvalidThrow(IndexNotAvailableException.class, "SELECT value FROM %s WHERE value = 1");
 
             // Upon recovery, we can read again
             index.reset();
@@ -1126,7 +1118,7 @@ public class SecondaryIndexTest extends CQLTester
             execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 2, 1, 1);
             assertEquals(1, index.rowsInserted.size());
             execute("SELECT value FROM %s WHERE value = 1");
-            execute("DROP index " + KEYSPACE + "." + indexName);
+            dropIndex(format("DROP INDEX %s.%s", KEYSPACE, indexName));
 
             // On bad init writes are not forwarded to the index
             index.reset();
@@ -1136,16 +1128,8 @@ public class SecondaryIndexTest extends CQLTester
             assertTrue(waitForIndexBuilds(keyspace(), indexName));
             execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 1, 1, 1);
             assertEquals(0, index.rowsInserted.size());
-            try
-            {
-                execute("SELECT value FROM %s WHERE value = 1");
-                fail();
-            }
-            catch (IndexNotAvailableException e)
-            {
-                assertTrue(true);
-            }
-            execute("DROP index " + KEYSPACE + "." + indexName);
+            assertInvalidThrow(IndexNotAvailableException.class, "SELECT value FROM %s WHERE value = 1");
+            dropIndex(format("DROP INDEX %s.%s", KEYSPACE, indexName));
         }
         finally
         {
@@ -1476,10 +1460,10 @@ public class SecondaryIndexTest extends CQLTester
 
         execute("INSERT INTO %s (k, v) VALUES (?, ?)", 0, udt1);
         String indexName = createIndex("CREATE INDEX ON %s (v)");
-        assertTrue(waitForIndex(keyspace(), tableName, indexName));
-        
+
         execute("INSERT INTO %s (k, v) VALUES (?, ?)", 1, udt2);
         execute("INSERT INTO %s (k, v) VALUES (?, ?)", 1, udt1);
+        assertTrue(waitForIndex(keyspace(), tableName, indexName));
 
         assertRows(execute("SELECT * FROM %s WHERE v = ?", udt1), row(1, udt1), row(0, udt1));
         assertEmpty(execute("SELECT * FROM %s WHERE v = ?", udt2));
@@ -1507,9 +1491,9 @@ public class SecondaryIndexTest extends CQLTester
         assertInvalidMessage("Frozen collections only support full()", "CREATE INDEX idx ON %s (keys(v))");
         assertInvalidMessage("Frozen collections only support full()", "CREATE INDEX idx ON %s (values(v))");
         String indexName = createIndex("CREATE INDEX ON %s (full(v))");
-        assertTrue(waitForIndex(keyspace(), tableName, indexName));
-        
+
         execute("INSERT INTO %s (k, v) VALUES (?, ?)", 2, set(udt2));
+        assertTrue(waitForIndex(keyspace(), tableName, indexName));
 
         assertInvalidMessage(StatementRestrictions.REQUIRES_ALLOW_FILTERING_MESSAGE,
                              "SELECT * FROM %s WHERE v CONTAINS ?", udt1);
@@ -1542,10 +1526,10 @@ public class SecondaryIndexTest extends CQLTester
         assertInvalidMessage("full() indexes can only be created on frozen collections",
                              "CREATE INDEX ON %s (full(v))");
         String indexName = createIndex("CREATE INDEX ON %s (values(v))");
-        assertTrue(waitForIndex(keyspace(), tableName, indexName));
 
         execute("INSERT INTO %s (k, v) VALUES (?, ?)", 2, set(udt2));
         execute("UPDATE %s SET v = v + ? WHERE k = ?", set(udt2), 1);
+        assertTrue(waitForIndex(keyspace(), tableName, indexName));
 
         assertRows(execute("SELECT * FROM %s WHERE v CONTAINS ?", udt1), row(1, set(udt1, udt2)));
         assertRows(execute("SELECT * FROM %s WHERE v CONTAINS ?", udt2), row(1, set(udt1, udt2)), row(2, set(udt2)));
@@ -1698,7 +1682,7 @@ public class SecondaryIndexTest extends CQLTester
     public static class LoadTypeConstrainedIndex extends StubIndex
     {
         public boolean failInit = false;
-        public static LoadType supportsLoad = LoadType.NONE;
+        public static LoadType supportsLoad = LoadType.NOOP;
 
         public LoadTypeConstrainedIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
         {
@@ -1715,7 +1699,7 @@ public class SecondaryIndexTest extends CQLTester
         {
             super.reset();
             failInit = false;
-            setSupportedLoad(LoadType.NONE);
+            setSupportedLoad(LoadType.NOOP);
         }
 
         @Override
