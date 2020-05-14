@@ -60,7 +60,6 @@ import org.apache.cassandra.db.partitions.*;
 import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.Index.IndexBuildingSupport;
-import org.apache.cassandra.index.Index.LoadType;
 import org.apache.cassandra.index.internal.CassandraIndex;
 import org.apache.cassandra.index.transactions.*;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
@@ -215,7 +214,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         final Index index = createInstance(indexDef);
         index.register(this);
         if (writableIndexes.put(index.getIndexMetadata().name, index) == null)
-            logger.info("Index [" + index.getIndexMetadata().name + "] registered and became writable.");
+            logger.info("Index [" + index.getIndexMetadata().name + "] registered and writable.");
 
         markIndexesBuilding(ImmutableSet.of(index), true, isNewCF);
 
@@ -364,10 +363,11 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
                                           .stream()
                                           .filter(index -> indexNames.contains(index.getIndexMetadata().name))
                                           .filter(Index::shouldBuildBlocking)
-                                          .peek(i ->
+                                          .peek(index ->
                                           {
-                                              if (writableIndexes.put(i.getIndexMetadata().name, i) == null)
-                                                  logger.info("Index [" + i.getIndexMetadata().name + "] became writable starting recovery.");
+                                              String name = index.getIndexMetadata().name;
+                                              if (writableIndexes.put(name, index) == null)
+                                                  logger.info("Index [" + name + "] became writable starting recovery.");
                                           })
                                           .collect(Collectors.toSet());
             if (toRebuild.isEmpty())
@@ -488,8 +488,10 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             Map<Index.IndexBuildingSupport, Set<Index>> byType = new HashMap<>();
             for (Index index : indexes)
             {
-                IndexBuildingSupport rebuildOrRecoveryTask = index.supportsLoad(LoadType.ALL) ? index.getBuildTaskSupport()
-                                                                                              : index.getRecoveryTaskSupport();
+                String indexName = index.getIndexMetadata().name;
+                IndexBuildingSupport rebuildOrRecoveryTask = needsFullRebuild.contains(indexName)
+                                                             ? index.getBuildTaskSupport()
+                                                             : index.getRecoveryTaskSupport();
                 Set<Index> stored = byType.computeIfAbsent(rebuildOrRecoveryTask, i -> new HashSet<>());
                 stored.add(index);
             }
@@ -650,20 +652,13 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     private synchronized void markIndexBuilt(Index index, boolean isFullRebuild)
     {
         String indexName = index.getIndexMetadata().name;
-        if (isFullRebuild && index.supportsLoad(Index.LoadType.READ))
+        if (isFullRebuild)
         {
             if (queryableIndexes.add(indexName))
                 logger.info("Index [" + indexName + "] became queryable.");
-        }
-        if (isFullRebuild && index.supportsLoad(Index.LoadType.WRITE))
-        {
+
             if (writableIndexes.put(indexName, index) == null)
                 logger.info("Index [" + indexName + "] became writable.");
-        }
-        if (isFullRebuild && !index.supportsLoad(Index.LoadType.WRITE))
-        {
-            writableIndexes.remove(indexName);
-            logger.info("Index [" + indexName + "] is non-writable.");
         }
         
         AtomicInteger counter = inProgressBuilds.get(indexName);
@@ -688,7 +683,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     private synchronized void markIndexFailed(Index index)
     {
         String indexName = index.getIndexMetadata().name;
-        writableIndexes.remove(indexName);
+
         AtomicInteger counter = inProgressBuilds.get(indexName);
         if (counter != null)
         {
@@ -700,6 +695,9 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
                 SystemKeyspace.setIndexRemoved(baseCfs.keyspace.getName(), indexName);
 
             needsFullRebuild.add(indexName);
+
+            if (!index.getSupportedLoadTypeOnFailure().supportsWrites() && writableIndexes.remove(indexName) != null)
+                logger.info("Index [" + indexName + "] became not-writable.");
         }
     }
 

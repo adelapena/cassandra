@@ -71,7 +71,7 @@ public class SecondaryIndexManagerTest extends CQLTester
     {
         String tableName = createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
         String indexName = createIndex("CREATE INDEX ON %s(c)");
-        String recoveryIndexName = createIndex("CREATE CUSTOM INDEX ON %s (b) USING '" + ReadOnlyIndex.class.getName() + "'");
+        String recoveryIndexName = createIndex("CREATE CUSTOM INDEX ON %s (b) USING '" + ReadOnlyOnFailureIndex.class.getName() + "'");
 
         waitForIndex(KEYSPACE, tableName, indexName);
         assertMarkedAsBuilt(indexName);
@@ -130,7 +130,7 @@ public class SecondaryIndexManagerTest extends CQLTester
         TestingIndex.blockCreate();
         String tableName = createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
         String indexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(c) USING '%s'", TestingIndex.class.getName()));
-        String recoveryIndexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(b) USING '%s'", ReadOnlyIndex.class.getName()));
+        String recoveryIndexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(b) USING '%s'", ReadOnlyOnFailureIndex.class.getName()));
 
         // try to rebuild/recover the index before the index creation task has finished
         assertFalse(tryRebuild(indexName, false));
@@ -157,7 +157,7 @@ public class SecondaryIndexManagerTest extends CQLTester
     {
         final String tableName = createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
         final String indexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(c) USING '%s'", TestingIndex.class.getName()));
-        final String recoveryIndexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(b) USING '%s'", ReadOnlyIndex.class.getName()));
+        final String recoveryIndexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(b) USING '%s'", ReadOnlyOnFailureIndex.class.getName()));
         final AtomicBoolean error = new AtomicBoolean();
 
         // wait for index initialization and verify it's built:
@@ -750,16 +750,17 @@ public class SecondaryIndexManagerTest extends CQLTester
     /**
      * <code>TestingIndex</code> that only supports reads. Could be intentional or a result of a bad init
      */
-    public static class ReadOnlyIndex extends TestingIndex
+    public static class ReadOnlyOnFailureIndex extends TestingIndex
     {
-        public ReadOnlyIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
+        public ReadOnlyOnFailureIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
         {
             super(baseCfs, indexDef);
         }
 
-        public boolean supportsLoad(LoadType load)
+        @Override
+        public LoadType getSupportedLoadTypeOnFailure()
         {
-            return load == LoadType.READ;
+            return LoadType.READ;
         }
     }
 }

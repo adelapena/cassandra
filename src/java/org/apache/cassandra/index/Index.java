@@ -142,19 +142,14 @@ public interface Index
     {
         READ, WRITE, ALL, NOOP;
 
-        public boolean accepts(LoadType load)
+        public boolean supportsWrites()
         {
-            switch (this)
-            {
-                case ALL:
-                    return true;
-                case READ:
-                    return load == LoadType.READ || load == LoadType.NOOP;
-                case WRITE:
-                    return load == LoadType.WRITE || load == LoadType.NOOP;
-                default:
-                    return false;
-            }
+            return this == ALL || this == WRITE;
+        }
+
+        public boolean supportsReads()
+        {
+            return this == ALL || this == READ;
         }
     }
 
@@ -218,13 +213,11 @@ public interface Index
     }
     
     /**
-     * When an index is initialized in can fail for a number of reasons. I could be queryable but not writable, etc
-     * 
-     * @return True if it supports it
+     * Returns the type of operations supported by the index in case its building has failed and it's needing recovery.
      */
-    default boolean supportsLoad(LoadType load)
+    default LoadType getSupportedLoadTypeOnFailure()
     {
-        return load != LoadType.NOOP;
+        return LoadType.NOOP;
     }
 
     /**

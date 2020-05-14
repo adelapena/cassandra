@@ -77,7 +77,6 @@ public class CustomCassandraIndex implements Index
     protected ColumnFamilyStore indexCfs;
     protected ColumnMetadata indexedColumn;
     protected CassandraIndexFunctions functions;
-    protected LoadType supportedLoadType = LoadType.ALL;
 
     public CustomCassandraIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
     {
@@ -94,11 +93,6 @@ public class CustomCassandraIndex implements Index
     protected boolean supportsOperator(ColumnMetadata indexedColumn, Operator operator)
     {
         return operator.equals(Operator.EQ);
-    }
-    
-    public boolean supportsLoad(LoadType load)
-    {
-        return supportedLoadType.accepts(load);
     }
 
     public ColumnMetadata getIndexedColumn()
@@ -628,42 +622,33 @@ public class CustomCassandraIndex implements Index
 
     private void buildBlocking()
     {
-        try
-        {
-            supportedLoadType = LoadType.ALL;
-            baseCfs.forceBlockingFlush();
+        baseCfs.forceBlockingFlush();
 
-            try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(View.selectFunction(SSTableSet.CANONICAL));
-                 Refs<SSTableReader> sstables = viewFragment.refs)
+        try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(View.selectFunction(SSTableSet.CANONICAL));
+             Refs<SSTableReader> sstables = viewFragment.refs)
+        {
+            if (sstables.isEmpty())
             {
-                if (sstables.isEmpty())
-                {
-                    logger.info("No SSTable data for {}.{} to build index {} from, marking empty index as built",
-                                baseCfs.metadata.keyspace,
-                                baseCfs.metadata.name,
-                                metadata.name);
-                    return;
-                }
-
-                logger.info("Submitting index build of {} for data in {}",
-                            metadata.name,
-                            getSSTableNames(sstables));
-
-                SecondaryIndexBuilder builder = new CollatedViewIndexBuilder(baseCfs,
-                                                                             Collections.singleton(this),
-                                                                             new ReducingKeyIterator(sstables),
-                                                                             ImmutableSet.copyOf(sstables));
-                Future<?> future = CompactionManager.instance.submitIndexBuild(builder);
-                FBUtilities.waitOnFuture(future);
-                indexCfs.forceBlockingFlush();
+                logger.info("No SSTable data for {}.{} to build index {} from, marking empty index as built",
+                            baseCfs.metadata.keyspace,
+                            baseCfs.metadata.name,
+                            metadata.name);
+                return;
             }
-            logger.info("Index build of {} complete", metadata.name);
+
+            logger.info("Submitting index build of {} for data in {}",
+                        metadata.name,
+                        getSSTableNames(sstables));
+
+            SecondaryIndexBuilder builder = new CollatedViewIndexBuilder(baseCfs,
+                                                                         Collections.singleton(this),
+                                                                         new ReducingKeyIterator(sstables),
+                                                                         ImmutableSet.copyOf(sstables));
+            Future<?> future = CompactionManager.instance.submitIndexBuild(builder);
+            FBUtilities.waitOnFuture(future);
+            indexCfs.forceBlockingFlush();
         }
-        catch(Throwable t)
-        {
-            supportedLoadType = LoadType.NOOP;
-            throw t;
-        }
+        logger.info("Index build of {} complete", metadata.name);
     }
 
     private static String getSSTableNames(Collection<SSTableReader> sstables)
