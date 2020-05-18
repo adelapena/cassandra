@@ -1071,7 +1071,7 @@ public class SecondaryIndexTest extends CQLTester
         getCurrentColumnFamilyStore().indexManager.rebuildIndexesBlocking(ImmutableSet.of(indexName));
         execute("SELECT value FROM %s WHERE value = 1");
         execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 2, 1, 1);
-        assertEquals(2, index.rowsInserted.size());
+        assertEquals(3, index.rowsInserted.size()); // rows + flush
         dropIndex(format("DROP INDEX %s.%s", KEYSPACE, indexName));
 
         // On bad initial build writes are not forwarded to the index
@@ -1109,7 +1109,7 @@ public class SecondaryIndexTest extends CQLTester
         getCurrentColumnFamilyStore().indexManager.rebuildIndexesBlocking(ImmutableSet.of(indexName));
         execute("SELECT value FROM %s WHERE value = 1");
         execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 2, 1, 1);
-        assertEquals(2, index.rowsInserted.size());
+        assertEquals(3, index.rowsInserted.size()); // rows + flush
         dropIndex(format("DROP INDEX %s.%s", KEYSPACE, indexName));
 
         // On bad initial build writes are forwarded to the index
@@ -1684,7 +1684,7 @@ public class SecondaryIndexTest extends CQLTester
         }
 
         @Override
-        public LoadType getSupportedLoadTypeOnFailure()
+        public LoadType getSupportedLoadTypeOnFailure(boolean isInitialBuild)
         {
             return supportedLoadOnFailure;
         }

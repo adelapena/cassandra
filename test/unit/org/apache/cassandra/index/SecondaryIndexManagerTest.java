@@ -462,10 +462,10 @@ public class SecondaryIndexManagerTest extends CQLTester
     @Test
     public void indexWithFailedInitializationIsQueryableWritableAfterFullRebuild() throws Throwable
     {
-        createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
-
         TestingIndex.shouldFailCreate = true;
+        createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
         String indexName = createIndex(String.format("CREATE CUSTOM INDEX ON %%s(c) USING '%s'", TestingIndex.class.getName()));
+        assertTrue(waitForIndexBuilds(KEYSPACE, indexName));
 
         tryRebuild(indexName, true);
         TestingIndex.shouldFailCreate = false;
@@ -479,7 +479,7 @@ public class SecondaryIndexManagerTest extends CQLTester
     }
 
     @Test
-    public void indexWithFailedInitializationIsNotQueryableWritableAfterPartialRebuild() throws Throwable
+    public void indexWithFailedInitializationIsNotQueryableButWritableAfterPartialRebuild() throws Throwable
     {
         TestingIndex.shouldFailCreate = true;
         createTable("CREATE TABLE %s (a int, b int, c int, PRIMARY KEY (a, b))");
@@ -487,17 +487,17 @@ public class SecondaryIndexManagerTest extends CQLTester
         assertTrue(waitForIndexBuilds(KEYSPACE, indexName));
         TestingIndex.shouldFailCreate = false;
 
-        // the index shouldn't be queryable/writable after the failed initialization
+        // the index shouldn't be queryable, but writable after the failed initialization
         ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         Index index = cfs.indexManager.getIndexByName(indexName);
         assertFalse(cfs.indexManager.isIndexQueryable(index));
-        assertFalse(cfs.indexManager.isIndexWritable(index));
+        assertTrue(cfs.indexManager.isIndexWritable(index));
 
-        // a successful partial build doesn't set the index as queryable/writable
+        // a successful partial build doesn't set the index as queryable but writable
         cfs.indexManager.handleNotification(new SSTableAddedNotification(cfs.getLiveSSTables(), null), this);
         assertTrue(waitForIndexBuilds(KEYSPACE, indexName));
         assertFalse(cfs.indexManager.isIndexQueryable(index));
-        assertFalse(cfs.indexManager.isIndexWritable(index));
+        assertTrue(cfs.indexManager.isIndexWritable(index));
     }
 
     @Test
@@ -758,7 +758,7 @@ public class SecondaryIndexManagerTest extends CQLTester
         }
 
         @Override
-        public LoadType getSupportedLoadTypeOnFailure()
+        public LoadType getSupportedLoadTypeOnFailure(boolean isInitialBuild)
         {
             return LoadType.READ;
         }

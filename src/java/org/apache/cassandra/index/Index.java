@@ -214,10 +214,13 @@ public interface Index
     
     /**
      * Returns the type of operations supported by the index in case its building has failed and it's needing recovery.
+     *
+     * @param isInitialBuild {@code true} if the failure is for the initial build task on index creation, {@code false}
+     * if the failure is for a rebuild or recovery.
      */
-    default LoadType getSupportedLoadTypeOnFailure()
+    default LoadType getSupportedLoadTypeOnFailure(boolean isInitialBuild)
     {
-        return LoadType.NOOP;
+        return isInitialBuild ? LoadType.WRITE : LoadType.READ;
     }
 
     /**

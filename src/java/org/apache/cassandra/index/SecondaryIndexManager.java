@@ -228,7 +228,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             }
             catch (Throwable t)
             {
-                logAndMarkIndexesFailed(Collections.singleton(index), t);
+                logAndMarkIndexesFailed(Collections.singleton(index), t, true);
                 throw t;
             }
         }
@@ -247,7 +247,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             @Override
             public void onFailure(Throwable t)
             {
-                logAndMarkIndexesFailed(Collections.singleton(index), t);
+                logAndMarkIndexesFailed(Collections.singleton(index), t, true);
                 initialization.setException(t);
             }
 
@@ -356,6 +356,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
      */
     public void rebuildIndexesBlocking(Set<String> indexNames)
     {
+        baseCfs.forceBlockingFlush();
         try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(View.selectFunction(SSTableSet.CANONICAL));
              Refs<SSTableReader> allSSTables = viewFragment.refs)
         {
@@ -507,7 +508,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
                                    @Override
                                    public void onFailure(Throwable t)
                                    {
-                                       logAndMarkIndexesFailed(groupedIndexes, t);
+                                       logAndMarkIndexesFailed(groupedIndexes, t, false);
                                        unbuiltIndexes.addAll(groupedIndexes);
                                        build.setException(t);
                                    }
@@ -540,7 +541,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
                 Set<Index> failedIndexes = Sets.difference(indexes, Sets.union(builtIndexes, unbuiltIndexes));
                 if (!failedIndexes.isEmpty())
                 {
-                    logAndMarkIndexesFailed(failedIndexes, accumulatedFail);
+                    logAndMarkIndexesFailed(failedIndexes, accumulatedFail, false);
                 }
 
                 // Flush all built indexes with an aynchronous callback to log the success or failure of the flush
@@ -655,10 +656,10 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         if (isFullRebuild)
         {
             if (queryableIndexes.add(indexName))
-                logger.info("Index [" + indexName + "] became queryable.");
+                logger.info("Index [" + indexName + "] became queryable after successful build.");
 
             if (writableIndexes.put(indexName, index) == null)
-                logger.info("Index [" + indexName + "] became writable.");
+                logger.info("Index [" + indexName + "] became writable after successful build.");
         }
         
         AtomicInteger counter = inProgressBuilds.get(indexName);
@@ -679,8 +680,9 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
      * {@link #markIndexesBuilding(Set, boolean, boolean)} should always be invoked before this method.
      *
      * @param index the index to be marked as built
+     * @param isInitialBuild
      */
-    private synchronized void markIndexFailed(Index index)
+    private synchronized void markIndexFailed(Index index, boolean isInitialBuild)
     {
         String indexName = index.getIndexMetadata().name;
 
@@ -696,19 +698,21 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
 
             needsFullRebuild.add(indexName);
 
-            if (!index.getSupportedLoadTypeOnFailure().supportsWrites() && writableIndexes.remove(indexName) != null)
-                logger.info("Index [" + indexName + "] became not-writable.");
+            if (!index.getSupportedLoadTypeOnFailure(isInitialBuild).supportsWrites() && writableIndexes.remove(indexName) != null)
+                logger.info("Index [" + indexName + "] became not-writable because of failed build.");
+            if (!index.getSupportedLoadTypeOnFailure(isInitialBuild).supportsReads() && queryableIndexes.remove(indexName))
+                logger.info("Index [" + indexName + "] became not-queryable.");
         }
     }
 
-    private void logAndMarkIndexesFailed(Set<Index> indexes, Throwable indexBuildFailure)
+    private void logAndMarkIndexesFailed(Set<Index> indexes, Throwable indexBuildFailure, boolean isInitialBuild)
     {
         JVMStabilityInspector.inspectThrowable(indexBuildFailure);
         if (indexBuildFailure != null)
             logger.warn("Index build of {} failed. Please run full index rebuild to fix it.", getIndexNames(indexes), indexBuildFailure);
         else
             logger.warn("Index build of {} failed. Please run full index rebuild to fix it.", getIndexNames(indexes));
-        indexes.forEach(SecondaryIndexManager.this::markIndexFailed);
+        indexes.forEach(i -> this.markIndexFailed(i, isInitialBuild));
     }
 
     /**
