@@ -214,7 +214,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         final Index index = createInstance(indexDef);
         index.register(this);
         if (writableIndexes.put(index.getIndexMetadata().name, index) == null)
-            logger.info("Index [" + index.getIndexMetadata().name + "] registered and writable.");
+            logger.info("Index [{}] registered and writable.", index.getIndexMetadata().name);
 
         markIndexesBuilding(ImmutableSet.of(index), true, isNewCF);
 
@@ -356,27 +356,40 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
      */
     public void rebuildIndexesBlocking(Set<String> indexNames)
     {
-        baseCfs.forceBlockingFlush();
+        // Get the set of indexes that require blocking build
+        Set<Index> toRebuild = indexes.values()
+                                      .stream()
+                                      .filter(index -> indexNames.contains(index.getIndexMetadata().name))
+                                      .filter(Index::shouldBuildBlocking)
+                                      .collect(Collectors.toSet());
+
+        if (toRebuild.isEmpty())
+        {
+            logger.info("No defined indexes with the supplied names: {}", Joiner.on(',').join(indexNames));
+            return;
+        }
+
+        // Optimistically mark the indexes as writable, so we don't miss incoming writes
+        boolean needsFlush = false;
+        for (Index index : toRebuild)
+        {
+            String name = index.getIndexMetadata().name;
+            if (writableIndexes.put(name, index) == null)
+            {
+                logger.info("Index [{}] became writable starting recovery.", name);
+                needsFlush = true;
+            }
+        }
+
+        // Once we are tracking new writes, flush any memtable contents to not miss them from the sstable-based rebuild
+        if (needsFlush)
+            baseCfs.forceBlockingFlush();
+
+        // Now that we are tracking new writes and we haven't left untracked contents on the memtables, we are ready to
+        // index the sstables
         try (ColumnFamilyStore.RefViewFragment viewFragment = baseCfs.selectAndReference(View.selectFunction(SSTableSet.CANONICAL));
              Refs<SSTableReader> allSSTables = viewFragment.refs)
         {
-            Set<Index> toRebuild = indexes.values()
-                                          .stream()
-                                          .filter(index -> indexNames.contains(index.getIndexMetadata().name))
-                                          .filter(Index::shouldBuildBlocking)
-                                          .peek(index ->
-                                          {
-                                              String name = index.getIndexMetadata().name;
-                                              if (writableIndexes.put(name, index) == null)
-                                                  logger.info("Index [" + name + "] became writable starting recovery.");
-                                          })
-                                          .collect(Collectors.toSet());
-            if (toRebuild.isEmpty())
-            {
-                logger.info("No defined indexes with the supplied names: {}", Joiner.on(',').join(indexNames));
-                return;
-            }
-
             buildIndexesBlocking(allSSTables, toRebuild, true);
         }
     }
@@ -481,7 +494,8 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
 
         try
         {
-            logger.info("Submitting index recovery/build of {} for data in {}",
+            logger.info("Submitting index {} of {} for data in {}",
+                        isFullRebuild ? "recovery" : "build",
                         indexes.stream().map(i -> i.getIndexMetadata().name).collect(Collectors.joining(",")),
                         sstables.stream().map(SSTableReader::toString).collect(Collectors.joining(",")));
 
@@ -489,11 +503,10 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             Map<Index.IndexBuildingSupport, Set<Index>> byType = new HashMap<>();
             for (Index index : indexes)
             {
-                String indexName = index.getIndexMetadata().name;
-                IndexBuildingSupport rebuildOrRecoveryTask = needsFullRebuild.contains(indexName)
-                                                             ? index.getBuildTaskSupport()
-                                                             : index.getRecoveryTaskSupport();
-                Set<Index> stored = byType.computeIfAbsent(rebuildOrRecoveryTask, i -> new HashSet<>());
+                IndexBuildingSupport buildOrRecoveryTask = isFullRebuild
+                                                           ? index.getBuildTaskSupport()
+                                                           : index.getRecoveryTaskSupport();
+                Set<Index> stored = byType.computeIfAbsent(buildOrRecoveryTask, i -> new HashSet<>());
                 stored.add(index);
             }
 
@@ -605,8 +618,8 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
      * the SecondaryIndexManager instance, it means all invocations for all different indexes will go through the same
      * lock, but this is fine as the work done while holding such lock is trivial.
      * <p>
-     * {@link #markIndexBuilt(Index, boolean)} or {@link #markIndexFailed(Index)} should be always called after the
-     * rebuilding has finished, so that the index build state can be correctly managed and the index rebuilt.
+     * {@link #markIndexBuilt(Index, boolean)} or {@link #markIndexFailed(Index, boolean)} should be always called after
+     * the rebuilding has finished, so that the index build state can be correctly managed and the index rebuilt.
      *
      * @param indexes the index to be marked as building
      * @param isFullRebuild {@code true} if this method is invoked as a full index rebuild, {@code false} otherwise
@@ -656,10 +669,10 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         if (isFullRebuild)
         {
             if (queryableIndexes.add(indexName))
-                logger.info("Index [" + indexName + "] became queryable after successful build.");
+                logger.info("Index [{}] became queryable after successful build.", indexName);
 
             if (writableIndexes.put(indexName, index) == null)
-                logger.info("Index [" + indexName + "] became writable after successful build.");
+                logger.info("Index [{}] became writable after successful build.", indexName);
         }
         
         AtomicInteger counter = inProgressBuilds.get(indexName);
@@ -680,7 +693,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
      * {@link #markIndexesBuilding(Set, boolean, boolean)} should always be invoked before this method.
      *
      * @param index the index to be marked as built
-     * @param isInitialBuild
+     * @param isInitialBuild {@code true} if the index failed during its initial build, {@code false} otherwise
      */
     private synchronized void markIndexFailed(Index index, boolean isInitialBuild)
     {
@@ -699,9 +712,10 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             needsFullRebuild.add(indexName);
 
             if (!index.getSupportedLoadTypeOnFailure(isInitialBuild).supportsWrites() && writableIndexes.remove(indexName) != null)
-                logger.info("Index [" + indexName + "] became not-writable because of failed build.");
+                logger.info("Index [{}] became not-writable because of failed build.", indexName);
+
             if (!index.getSupportedLoadTypeOnFailure(isInitialBuild).supportsReads() && queryableIndexes.remove(indexName))
-                logger.info("Index [" + indexName + "] became not-queryable.");
+                logger.info("Index [{}] became not-queryable because of failed build.", indexName);
         }
     }
 
@@ -1129,9 +1143,10 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             index.validate(update);
     }
 
-    /**
+    /*
      * IndexRegistry methods
      */
+
     public void registerIndex(Index index)
     {
         String name = index.getIndexMetadata().name;
@@ -1161,7 +1176,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         return ImmutableSet.copyOf(indexes.values());
     }
 
-    /**
+    /*
      * Handling of index updates.
      * Implementations of the various IndexTransaction interfaces, for keeping indexes in sync with base data
      * during updates, compaction and cleanup. Plus factory methods for obtaining transaction instances.

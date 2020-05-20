@@ -1069,9 +1069,10 @@ public class SecondaryIndexTest extends CQLTester
 
         // Upon rebuild, both reads and writes still go through
         getCurrentColumnFamilyStore().indexManager.rebuildIndexesBlocking(ImmutableSet.of(indexName));
+        assertEquals(1, index.rowsInserted.size());
         execute("SELECT value FROM %s WHERE value = 1");
         execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 2, 1, 1);
-        assertEquals(3, index.rowsInserted.size()); // rows + flush
+        assertEquals(2, index.rowsInserted.size());
         dropIndex(format("DROP INDEX %s.%s", KEYSPACE, indexName));
 
         // On bad initial build writes are not forwarded to the index
@@ -1086,7 +1087,7 @@ public class SecondaryIndexTest extends CQLTester
         // Upon recovery, we can index data again
         index.reset();
         getCurrentColumnFamilyStore().indexManager.rebuildIndexesBlocking(ImmutableSet.of(indexName));
-        assertTrue(waitForIndexBuilds(keyspace(), indexName));
+        assertEquals(2, index.rowsInserted.size());
         execute("SELECT value FROM %s WHERE value = 1");
         execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 2, 1, 1);
         assertEquals(3, index.rowsInserted.size());
@@ -1107,9 +1108,10 @@ public class SecondaryIndexTest extends CQLTester
 
         // Upon rebuild, both reads and writes still go through
         getCurrentColumnFamilyStore().indexManager.rebuildIndexesBlocking(ImmutableSet.of(indexName));
+        assertEquals(1, index.rowsInserted.size());
         execute("SELECT value FROM %s WHERE value = 1");
         execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 2, 1, 1);
-        assertEquals(3, index.rowsInserted.size()); // rows + flush
+        assertEquals(2, index.rowsInserted.size());
         dropIndex(format("DROP INDEX %s.%s", KEYSPACE, indexName));
 
         // On bad initial build writes are forwarded to the index
@@ -1124,7 +1126,7 @@ public class SecondaryIndexTest extends CQLTester
         // Upon recovery, we can query data again
         index.reset();
         getCurrentColumnFamilyStore().indexManager.rebuildIndexesBlocking(ImmutableSet.of(indexName));
-        assertTrue(waitForIndexBuilds(keyspace(), indexName));
+        assertEquals(2, index.rowsInserted.size());
         execute("SELECT value FROM %s WHERE value = 1");
         execute("INSERT INTO %s (pk, ck, value) VALUES (?, ?, ?)", 2, 1, 1);
         assertEquals(3, index.rowsInserted.size());
@@ -1619,35 +1621,6 @@ public class SecondaryIndexTest extends CQLTester
         private final CountDownLatch latch = new CountDownLatch(1);
 
         public IndexBlockingOnInitialization(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
-        {
-            super(baseCfs, indexDef);
-        }
-
-        @Override
-        public Callable<?> getInitializationTask()
-        {
-            return () -> {
-                latch.await();
-                return null;
-            };
-        }
-
-        @Override
-        public Callable<?> getInvalidateTask()
-        {
-            latch.countDown();
-            return super.getInvalidateTask();
-        }
-    }
-
-    /**
-     * <code>StubIndex</code> that blocks during the initialization.
-     */
-    public static class BlockingStubIndex extends StubIndex
-    {
-        private final CountDownLatch latch = new CountDownLatch(1);
-
-        public BlockingStubIndex(ColumnFamilyStore baseCfs, IndexMetadata indexDef)
         {
             super(baseCfs, indexDef);
         }

@@ -196,7 +196,7 @@ public interface Index
      * single pass through the data. The singleton instance returned from the default method implementation builds
      * indexes using a {@code ReducingKeyIterator} to provide a collated view of the SSTable data.
      *
-     * @return an instance of the index build taski helper. Index implementations which return <b>the same instance</b>
+     * @return an instance of the index build task helper. Index implementations which return <b>the same instance</b>
      * will be built using a single task.
      */
     default IndexBuildingSupport getBuildTaskSupport()
@@ -216,11 +216,11 @@ public interface Index
      * Returns the type of operations supported by the index in case its building has failed and it's needing recovery.
      *
      * @param isInitialBuild {@code true} if the failure is for the initial build task on index creation, {@code false}
-     * if the failure is for a rebuild or recovery.
+     * if the failure is for a full rebuild or recovery.
      */
     default LoadType getSupportedLoadTypeOnFailure(boolean isInitialBuild)
     {
-        return isInitialBuild ? LoadType.WRITE : LoadType.READ;
+        return isInitialBuild ? LoadType.WRITE : LoadType.ALL;
     }
 
     /**
