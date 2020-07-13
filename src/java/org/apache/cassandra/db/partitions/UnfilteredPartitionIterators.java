@@ -78,22 +78,24 @@ public abstract class UnfilteredPartitionIterators
         return Transformation.apply(toReturn, new Close());
     }
 
-    public static UnfilteredPartitionIterator concat(final List<UnfilteredPartitionIterator> iterators)
+    public static UnfilteredPartitionIterator concat(final Iterator<UnfilteredPartitionIterator> iterators)
     {
-        if (iterators.size() == 1)
-            return iterators.get(0);
-
+        assert iterators.hasNext() : "cannot concatenate an empty iterator of parttion iterators";
+        
+        UnfilteredPartitionIterator first = iterators.next();
+        
+        if (!first.hasNext())
+            return first;
+        
         class Extend implements MorePartitions<UnfilteredPartitionIterator>
         {
-            int i = 1;
             public UnfilteredPartitionIterator moreContents()
             {
-                if (i >= iterators.size())
-                    return null;
-                return iterators.get(i++);
+                return iterators.hasNext() ? iterators.next() : null;
             }
         }
-        return MorePartitions.extend(iterators.get(0), new Extend());
+        
+        return MorePartitions.extend(first, new Extend());
     }
 
     public static PartitionIterator filter(final UnfilteredPartitionIterator iterator, final int nowInSec)

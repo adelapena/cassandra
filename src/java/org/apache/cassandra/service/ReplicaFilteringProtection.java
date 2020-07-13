@@ -28,7 +28,6 @@ import java.util.NavigableSet;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,10 +153,10 @@ class ReplicaFilteringProtection
             return original;
 
         // TODO: This would be more efficient if we had multi-key queries internally (see CASSANDRA-15910)
-        List<UnfilteredPartitionIterator> fetched = toFetch.keySet()
-                                                           .stream()
-                                                           .map(k -> querySourceOnKey(source, k, toFetch.get(k)))
-                                                           .collect(Collectors.toList());
+        Iterator<UnfilteredPartitionIterator> fetched = toFetch.keySet()
+                                                               .stream()
+                                                               .map(k -> querySourceOnKey(source, k, toFetch.get(k)))
+                                                               .iterator();
 
         return UnfilteredPartitionIterators.merge(Arrays.asList(original, UnfilteredPartitionIterators.concat(fetched)),
                                                   command.nowInSec(), null);
