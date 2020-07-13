@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import org.apache.cassandra.distributed.Cluster;
 import org.apache.cassandra.distributed.api.SimpleQueryResult;
-import org.apache.cassandra.exceptions.TooManyCachedRowsException;
+import org.apache.cassandra.exceptions.OverloadedException;
 import org.apache.cassandra.service.StorageService;
 
 import static org.apache.cassandra.config.ReplicaFilteringProtectionOptions.DEFAULT_FAIL_THRESHOLD;
@@ -109,7 +109,7 @@ public class ReplicaFilteringProtectionTest extends TestBaseImpl
         }
         catch (RuntimeException e)
         {
-            assertEquals(e.getCause().getClass().getName(), TooManyCachedRowsException.class.getName());
+            assertEquals(e.getCause().getClass().getName(), OverloadedException.class.getName());
         }
     }
 

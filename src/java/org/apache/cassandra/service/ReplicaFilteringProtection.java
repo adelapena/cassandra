@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.NavigableSet;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -58,12 +59,13 @@ import org.apache.cassandra.db.rows.Rows;
 import org.apache.cassandra.db.rows.Unfiltered;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 import org.apache.cassandra.db.rows.UnfilteredRowIterators;
+import org.apache.cassandra.exceptions.OverloadedException;
 import org.apache.cassandra.exceptions.ReadTimeoutException;
-import org.apache.cassandra.exceptions.TooManyCachedRowsException;
 import org.apache.cassandra.exceptions.UnavailableException;
 import org.apache.cassandra.metrics.TableMetrics;
 import org.apache.cassandra.net.MessagingService;
 import org.apache.cassandra.tracing.Tracing;
+import org.apache.cassandra.utils.NoSpamLogger;
 import org.apache.cassandra.utils.btree.BTreeSet;
 
 /**
@@ -80,6 +82,7 @@ import org.apache.cassandra.utils.btree.BTreeSet;
 class ReplicaFilteringProtection
 {
     private static final Logger logger = LoggerFactory.getLogger(ReplicaFilteringProtection.class);
+    private static final NoSpamLogger oneMinuteLogger = NoSpamLogger.getLogger(logger, 1, TimeUnit.MINUTES);
 
     private static final Function<UnfilteredRowIterator, EncodingStats> NULL_TO_NO_STATS =
         rowIterator -> rowIterator == null ? EncodingStats.NO_STATS : rowIterator.stats();
@@ -255,21 +258,7 @@ class ReplicaFilteringProtection
                     {
                         builders[i].addRow(versions[i]);
                         rowsCached++;
-
-                        if (rowsCached == cachedRowsFailThreshold + 1)
-                        {
-                            throw new TooManyCachedRowsException(cachedRowsFailThreshold, command);
-                        }
-                        else if (rowsCached == cachedRowsWarnThreshold + 1)
-                        {
-                            String message =
-                                String.format("Replica filtering protection has cached over %d rows during query %s. " +
-                                              "(See 'cached_replica_rows_warn_threshold' in cassandra.yaml.)",
-                                              cachedRowsWarnThreshold, command.toCQLString());
-
-                            ClientWarn.instance.warn(message);
-                            logger.warn(message);
-                        }
+                        checkCachedRowThresholds();
                     }
 
                     if (merged.isEmpty())
@@ -300,6 +289,30 @@ class ReplicaFilteringProtection
                     // This ensures that during this first phase (collecting additional row to fetch) we are guaranteed
                     // to look at enough data to ultimately fulfill the query limit.
                     return isPotentiallyOutdated ? null : merged;
+                }
+
+                private void checkCachedRowThresholds()
+                {
+                    if (rowsCached == cachedRowsFailThreshold + 1)
+                    {
+                        String message = String.format("Replica filtering protection has cached over %d rows during query %s. " +
+                                                       "(See 'cached_replica_rows_fail_threshold' in cassandra.yaml.)",
+                                                       cachedRowsFailThreshold, command.toCQLString());
+                        
+                        oneMinuteLogger.error(message);
+                        Tracing.trace(message);
+                        throw new OverloadedException(message);
+                    }
+                    else if (rowsCached == cachedRowsWarnThreshold + 1)
+                    {
+                        String message = String.format("Replica filtering protection has cached over %d rows during query %s. " +
+                                                       "(See 'cached_replica_rows_warn_threshold' in cassandra.yaml.)",
+                                                       cachedRowsWarnThreshold, command.toCQLString());
+
+                        ClientWarn.instance.warn(message);
+                        oneMinuteLogger.warn(message);
+                        Tracing.trace(message);
+                    }
                 }
 
                 @Override
