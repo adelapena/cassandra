@@ -19,31 +19,16 @@
 package org.apache.cassandra.distributed.test;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.apache.cassandra.cql3.CQLStatement;
-import org.apache.cassandra.cql3.QueryOptions;
-import org.apache.cassandra.cql3.QueryProcessor;
-import org.apache.cassandra.db.ConsistencyLevel;
 import org.apache.cassandra.distributed.Cluster;
-import org.apache.cassandra.distributed.impl.RowUtil;
+import org.apache.cassandra.distributed.api.SimpleQueryResult;
 import org.apache.cassandra.exceptions.TooManyCachedRowsException;
-import org.apache.cassandra.service.ClientState;
-import org.apache.cassandra.service.ClientWarn;
-import org.apache.cassandra.service.QueryState;
 import org.apache.cassandra.service.StorageService;
-import org.apache.cassandra.transport.Server;
-import org.apache.cassandra.transport.messages.ResultMessage;
-import org.apache.cassandra.utils.ByteBufferUtil;
-import org.apache.cassandra.utils.FBUtilities;
 
 import static org.apache.cassandra.config.ReplicaFilteringProtectionOptions.DEFAULT_FAIL_THRESHOLD;
 import static org.apache.cassandra.config.ReplicaFilteringProtectionOptions.DEFAULT_WARN_THRESHOLD;
@@ -151,45 +136,17 @@ public class ReplicaFilteringProtectionTest extends TestBaseImpl
             cluster.get(1).executeInternal("UPDATE " + fullTableName + " SET v = 'new' WHERE k = ?", i);
         }
 
-        // TODO: These should be able to use ICoordinator#executeWithResult() once CASSANDRA-15920 is resolved.
-        Object[] oldResponse = cluster.get(1).callOnInstance(() -> executeInternal(query, "old", ROWS));
-        Object[][] oldRows = (Object[][]) oldResponse[0];
-        assertRows(oldRows);
-        @SuppressWarnings("unchecked") List<String> oldWarnings = (List<String>) oldResponse[1];
+        SimpleQueryResult oldResult = cluster.coordinator(1).executeWithResult(query, ALL, "old", ROWS);
+        assertRows(oldResult.toObjectArrays());
+        List<String> oldWarnings = oldResult.warnings();
         assertEquals(shouldWarn, oldWarnings.stream().anyMatch(w -> w.contains("cached_replica_rows_warn_threshold")));
         assertEquals(shouldWarn ? 1 : 0, oldWarnings.size());
 
-        Object[] newResponse = cluster.get(1).callOnInstance(() -> executeInternal(query, "new", ROWS));
-        Object[][] newRows = (Object[][]) newResponse[0];
+        SimpleQueryResult newResult = cluster.coordinator(1).executeWithResult(query, ALL, "new", ROWS);
+        Object[][] newRows = newResult.toObjectArrays();
         assertRows(newRows, row(1, "new"), row(0, "new"), row(2, "new"));
-        @SuppressWarnings("unchecked") List<String> newWarnings = (List<String>) newResponse[1];
+        List<String> newWarnings = newResult.warnings();
         assertEquals(shouldWarn, newWarnings.stream().anyMatch(w -> w.contains("cached_replica_rows_warn_threshold")));
         assertEquals(shouldWarn ? 1 : 0, newWarnings.size());
-    }
-
-    // TODO: This should no longer be necessary once CASSANDRA-15920 is resolved.
-    private static Object[] executeInternal(String query, Object... boundValues)
-    {
-        ClientState clientState = ClientState.forExternalCalls(new InetSocketAddress(FBUtilities.getLocalAddress(), 9042));
-        ClientWarn.instance.captureWarnings();
-
-        CQLStatement prepared = QueryProcessor.getStatement(query, clientState).statement;
-        List<ByteBuffer> boundBBValues = new ArrayList<>();
-
-        for (Object boundValue : boundValues)
-            boundBBValues.add(ByteBufferUtil.objectToBytes(boundValue));
-
-        prepared.validate(QueryState.forInternalCalls().getClientState());
-        ResultMessage res = prepared.execute(QueryState.forInternalCalls(),
-                                             QueryOptions.create(ConsistencyLevel.ALL,
-                                                                 boundBBValues,
-                                                                 false,
-                                                                 Integer.MAX_VALUE,
-                                                                 null,
-                                                                 null,
-                                                                 Server.CURRENT_VERSION));
-
-        List<String> warnings = ClientWarn.instance.getWarnings();
-        return new Object[] { RowUtil.toQueryResult(res).toObjectArrays(), warnings == null ? Collections.emptyList() : warnings };
     }
 }
