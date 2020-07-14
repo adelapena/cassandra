@@ -179,24 +179,15 @@ public class DataResolver extends ResponseResolver
                                                                         DatabaseDescriptor.getCachedReplicaRowsWarnThreshold(),
                                                                         DatabaseDescriptor.getCachedReplicaRowsFailThreshold());
 
-        PartitionIterator firstPhasePartitions = resolveInternal(firstPhaseContext,
-                                                                 rfp.mergeController(),
-                                                                 i -> shortReadProtectedResponse(i, firstPhaseContext),
-                                                                 UnaryOperator.identity());
-
-        // Consume the first phase partitions to populate the replica filtering protection with both those materialized
-        // partitions and the primary keys to be fetched.
-        PartitionIterators.consume(firstPhasePartitions);
-        firstPhasePartitions.close();
-
-        // After reading the entire query results the protection helper should have cached all the partitions so we can
-        // clear the responses accumulator for the sake of memory usage, given that the second phase might take long if
-        // it needs to query replicas.
-        responses.clearUnsafe();
-
-        return resolveWithReadRepair(secondPhaseContext,
-                                     rfp::queryProtectedPartitions,
-                                     results -> command.rowFilter().filter(results, command.metadata(), command.nowInSec()));
+        try (PartitionIterator firstPhasePartitions = resolveInternal(firstPhaseContext,
+                                                                      rfp.mergeController(),
+                                                                      i -> shortReadProtectedResponse(i, firstPhaseContext),
+                                                                      UnaryOperator.identity()))
+        {
+            return resolveWithReadRepair(secondPhaseContext,
+                                         i -> rfp.queryProtectedPartitions(firstPhasePartitions, i),
+                                         results -> command.rowFilter().filter(results, command.metadata(), command.nowInSec()));
+        }
     }
 
     private PartitionIterator resolveInternal(ResolveContext context,

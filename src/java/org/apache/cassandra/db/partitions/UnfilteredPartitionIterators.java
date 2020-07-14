@@ -27,7 +27,6 @@ import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ColumnFilter;
 import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.db.transform.FilteredPartitions;
-import org.apache.cassandra.db.transform.MorePartitions;
 import org.apache.cassandra.db.transform.Transformation;
 import org.apache.cassandra.io.util.DataInputPlus;
 import org.apache.cassandra.io.util.DataOutputPlus;
@@ -76,26 +75,6 @@ public abstract class UnfilteredPartitionIterators
             }
         }
         return Transformation.apply(toReturn, new Close());
-    }
-
-    public static UnfilteredPartitionIterator concat(final Iterator<UnfilteredPartitionIterator> iterators)
-    {
-        assert iterators.hasNext() : "cannot concatenate an empty iterator of parttion iterators";
-        
-        UnfilteredPartitionIterator first = iterators.next();
-        
-        if (!first.hasNext())
-            return first;
-        
-        class Extend implements MorePartitions<UnfilteredPartitionIterator>
-        {
-            public UnfilteredPartitionIterator moreContents()
-            {
-                return iterators.hasNext() ? iterators.next() : null;
-            }
-        }
-        
-        return MorePartitions.extend(first, new Extend());
     }
 
     public static PartitionIterator filter(final UnfilteredPartitionIterator iterator, final int nowInSec)
