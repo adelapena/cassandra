@@ -50,12 +50,12 @@ import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
 import org.apache.cassandra.db.filter.DataLimits;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.partitions.PartitionIterator;
-import org.apache.cassandra.db.partitions.PartitionIterators;
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterators;
 import org.apache.cassandra.db.rows.EncodingStats;
 import org.apache.cassandra.db.rows.RangeTombstoneMarker;
 import org.apache.cassandra.db.rows.Row;
+import org.apache.cassandra.db.rows.RowIterator;
 import org.apache.cassandra.db.rows.Rows;
 import org.apache.cassandra.db.rows.Unfiltered;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
@@ -85,6 +85,9 @@ class ReplicaFilteringProtection
     private static final Logger logger = LoggerFactory.getLogger(ReplicaFilteringProtection.class);
     private static final NoSpamLogger oneMinuteLogger = NoSpamLogger.getLogger(logger, 1, TimeUnit.MINUTES);
 
+    /** The aimed max number of replica rows that are cached when we have detected that we have rows to fetch. */
+    private static final int AIMED_MAX_CACHED_ROWS_PER_PARTITION = 100;
+
     private static final Function<UnfilteredRowIterator, EncodingStats> NULL_TO_NO_STATS =
         rowIterator -> rowIterator == null ? EncodingStats.NO_STATS : rowIterator.stats();
 
@@ -98,6 +101,8 @@ class ReplicaFilteringProtection
     private final int cachedRowsFailThreshold;
 
     private int rowsCached = 0;
+
+    private RowIterator currentMergedRows;
 
     /**
      * Per-source list of the pending partitions seen by the merge listener, to be merged with the extra fetched rows.
@@ -117,7 +122,7 @@ class ReplicaFilteringProtection
         this.sources = sources;
         this.originalPartitions = new ArrayList<>(sources.length);
 
-        for (InetAddress ignored : sources)
+        for (int i = 0; i < sources.length; i++)
         {
             originalPartitions.add(new ArrayDeque<>());
         }
@@ -201,7 +206,10 @@ class ReplicaFilteringProtection
             PartitionBuilder[] builders = new PartitionBuilder[sources.length];
 
             for (int i = 0; i < sources.length; i++)
+            {
                 builders[i] = new PartitionBuilder(partitionKey, columns(versions), EncodingStats.merge(versions, NULL_TO_NO_STATS));
+                originalPartitions.get(i).add(builders[i]);
+            }
 
             return new UnfilteredRowIterators.MergeListener()
             {
@@ -259,8 +267,7 @@ class ReplicaFilteringProtection
                 @Override
                 public void close()
                 {
-                    for (int i = 0; i < sources.length; i++)
-                        originalPartitions.get(i).add(builders[i]);
+                    // nothing to do here;
                 }
             };
         };
@@ -351,7 +358,10 @@ class ReplicaFilteringProtection
                 // load more than one partition if any divergence between replicas is discovered by the merge listener.
                 if (partitions.isEmpty())
                 {
-                    PartitionIterators.consumeNext(merged);
+                    if (merged.hasNext())
+                    {
+                        currentMergedRows = merged.next();
+                    }
                 }
                 
                 return !partitions.isEmpty();
@@ -374,7 +384,7 @@ class ReplicaFilteringProtection
         private final EncodingStats stats;
         private DeletionTime deletionTime;
         private Row staticRow = Rows.EMPTY_STATIC_ROW;
-        private final Queue<Unfiltered> contents = new ArrayDeque<>();
+        private final List<Unfiltered> contents = new ArrayList<>();
         private BTreeSet.Builder<Clustering> toFetch;
         private int partitionRowsCached;
 
@@ -424,9 +434,100 @@ class ReplicaFilteringProtection
                 toFetch.add(row.clustering());
         }
 
-        private UnfilteredRowIterator originalPartition()
+        private CachedRowIterator protectedPartition(int source)
         {
-            return new UnfilteredRowIterator()
+            return new CachedRowIterator()
+            {
+                private UnfilteredRowIterator protectedRows = fetch();
+
+                @Override
+                public DeletionTime partitionLevelDeletion()
+                {
+                    return protectedRows.partitionLevelDeletion();
+                }
+
+                @Override
+                public EncodingStats stats()
+                {
+                    return protectedRows.stats();
+                }
+
+                @Override
+                public Row staticRow()
+                {
+                    return protectedRows.staticRow();
+                }
+
+                @Override
+                public boolean hasNext()
+                {
+                    if (!protectedRows.hasNext())
+                    {
+                        protectedRows.close();
+                        protectedRows = fetch();
+                    }
+
+                    return protectedRows.hasNext();
+                }
+
+                @Override
+                public Unfiltered next()
+                {
+                    return protectedRows.next();
+                }
+
+                @Override
+                public void close()
+                {
+                    protectedRows.close();
+                    if (currentMergedRows != null && !currentMergedRows.hasNext())
+                        currentMergedRows.close();
+                }
+
+                private UnfilteredRowIterator fetch()
+                {
+                    // Make the current fist iteration partition advance to load more results for this partititon.
+                    // We advance if we don't have cached contents nor rows to fetch. Additionally, if we have rows to
+                    // fetch we try to advance until we have a significant amount of cached rows, increasing the
+                    // likelyhood of detecting more rows to fetch.
+                    while (currentMergedRows != null && currentMergedRows.hasNext() &&
+                           (toFetch == null && contents.isEmpty()
+                            || toFetch != null && contents.size() < AIMED_MAX_CACHED_ROWS_PER_PARTITION))
+                    {
+                        currentMergedRows.next();
+                    }
+
+                    // Prepare a row iterator with the cached results, querying the replicas for any missed rows
+                    CachedRowIterator originalRows = originalRows();
+                    if (toFetch != null)
+                    {
+                        UnfilteredPartitionIterator fetchedPartitions = querySourceOnKey(source, partitionKey, toFetch);
+                        toFetch = null;
+
+                        if (fetchedPartitions.hasNext())
+                        {
+                            try (UnfilteredRowIterator fetchedRows = fetchedPartitions.next())
+                            {
+                                return UnfilteredRowIterators.merge(Arrays.asList(originalRows, fetchedRows), command.nowInSec());
+                            }
+                        }
+                    }
+                    return originalRows;
+                }
+            };
+        }
+
+        private CachedRowIterator originalRows()
+        {
+            // Copy and clear the cached contents
+            Queue<Unfiltered> bufferContents = new ArrayDeque<>(contents);
+            contents.clear();
+
+            // Copy and clear the number of cached rows
+            int bufferRowsCached = PartitionBuilder.this.partitionRowsCached;
+            partitionRowsCached = 0;
+
+            return new CachedRowIterator()
             {
                 @Override
                 public DeletionTime partitionLevelDeletion()
@@ -441,72 +542,59 @@ class ReplicaFilteringProtection
                 }
 
                 @Override
-                public CFMetaData metadata()
-                {
-                    return command.metadata();
-                }
-
-                @Override
-                public boolean isReverseOrder()
-                {
-                    return command.isReversed();
-                }
-
-                @Override
-                public PartitionColumns columns()
-                {
-                    return columns;
-                }
-
-                @Override
-                public DecoratedKey partitionKey()
-                {
-                    return partitionKey;
-                }
-
-                @Override
                 public Row staticRow()
                 {
                     return staticRow;
                 }
 
                 @Override
-                public void close()
-                {
-                    releaseCachedRows(partitionRowsCached);
-                }
-
-                @Override
                 public boolean hasNext()
                 {
-                    return !contents.isEmpty();
+                    return !bufferContents.isEmpty();
                 }
 
                 @Override
                 public Unfiltered next()
                 {
-                    return contents.poll();
+                    return bufferContents.poll();
+                }
+
+                @Override
+                public void close()
+                {
+                    releaseCachedRows(bufferRowsCached);
                 }
             };
         }
 
-        private UnfilteredRowIterator protectedPartition(int source)
+        /**
+         * Base class for the row iterators generated by this partition builder.
+         */
+        private abstract class CachedRowIterator implements UnfilteredRowIterator
         {
-            UnfilteredRowIterator original = originalPartition();
-
-            if (toFetch != null)
+            @Override
+            public CFMetaData metadata()
             {
-                UnfilteredPartitionIterator fetchedPartition = querySourceOnKey(source, partitionKey, toFetch);
-                if (fetchedPartition.hasNext())
-                {
-                    try (UnfilteredRowIterator fetchedRows = fetchedPartition.next())
-                    {
-                        return UnfilteredRowIterators.merge(Arrays.asList(original, fetchedRows), command.nowInSec());
-                    }
-                }
+                return command.metadata();
             }
 
-            return original;
+            @Override
+            public boolean isReverseOrder()
+            {
+                return command.isReversed();
+            }
+
+            @Override
+            public PartitionColumns columns()
+            {
+                return columns;
+            }
+
+            @Override
+            public DecoratedKey partitionKey()
+            {
+                return partitionKey;
+            }
         }
     }
 }
