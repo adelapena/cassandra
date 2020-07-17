@@ -179,15 +179,17 @@ public class DataResolver extends ResponseResolver
                                                                         DatabaseDescriptor.getCachedReplicaRowsWarnThreshold(),
                                                                         DatabaseDescriptor.getCachedReplicaRowsFailThreshold());
 
-        try (PartitionIterator firstPhasePartitions = resolveInternal(firstPhaseContext,
-                                                                      rfp.mergeController(),
-                                                                      i -> shortReadProtectedResponse(i, firstPhaseContext),
-                                                                      UnaryOperator.identity()))
-        {
-            return resolveWithReadRepair(secondPhaseContext,
-                                         i -> rfp.queryProtectedPartitions(firstPhasePartitions, i),
-                                         results -> command.rowFilter().filter(results, command.metadata(), command.nowInSec()));
-        }
+        PartitionIterator firstPhasePartitions = resolveInternal(firstPhaseContext,
+                                                                 rfp.mergeController(),
+                                                                 i -> shortReadProtectedResponse(i, firstPhaseContext),
+                                                                 UnaryOperator.identity());
+        
+        PartitionIterator completedPartitions = resolveWithReadRepair(secondPhaseContext,
+                                                                      i -> rfp.queryProtectedPartitions(firstPhasePartitions, i),
+                                                                      results -> command.rowFilter().filter(results, command.metadata(), command.nowInSec()));
+        
+        // Ensure that the RFP instance has a chance to record metrics when the iterator closes.
+        return PartitionIterators.doOnClose(completedPartitions, firstPhasePartitions::close);
     }
 
     private PartitionIterator resolveInternal(ResolveContext context,
@@ -651,7 +653,10 @@ public class DataResolver extends ResponseResolver
 
         private boolean partitionsFetched; // whether we've seen any new partitions since iteration start or last moreContents() call
 
-        private ShortReadPartitionsProtection(InetAddress source, Runnable preFetchCallback, DataLimits.Counter singleResultCounter, DataLimits.Counter mergedResultCounter)
+        private ShortReadPartitionsProtection(InetAddress source,
+                                              Runnable preFetchCallback,
+                                              DataLimits.Counter singleResultCounter,
+                                              DataLimits.Counter mergedResultCounter)
         {
             this.source = source;
             this.preFetchCallback = preFetchCallback;

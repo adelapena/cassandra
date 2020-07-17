@@ -124,6 +124,7 @@ public class AccumulatorTest
         assertEquals("1", iter.next());
         assertNull(iter.next());
         assertTrue(iter.hasNext());
+        assertEquals("3", iter.next());
     }
 
     private static void assertOutOfBonds(Accumulator<String> accumulator, int index)
