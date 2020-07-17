@@ -99,6 +99,8 @@ class ReplicaFilteringProtection
 
     private int rowsCached = 0;
 
+    private RowIterator unprotectedPartition;
+
     /**
      * Per-source list of the pending partitions seen by the merge listener, to be merged with the extra fetched rows.
      */
@@ -327,8 +329,6 @@ class ReplicaFilteringProtection
         {
             private final Queue<PartitionBuilder> partitions = originalPartitions.get(source);
 
-            private RowIterator unprotectedPartition;
-
             @Override
             public boolean isForThrift()
             {
@@ -527,6 +527,8 @@ class ReplicaFilteringProtection
 
             return new CachedRowIterator()
             {
+                int bufferSize = cachedRows.size();
+
                 @Override
                 public DeletionTime partitionLevelDeletion()
                 {
@@ -548,12 +550,13 @@ class ReplicaFilteringProtection
                 @Override
                 public boolean hasNext()
                 {
-                    return !cachedRows.isEmpty();
+                    return bufferSize > 0 && !cachedRows.isEmpty();
                 }
 
                 @Override
                 public Unfiltered next()
                 {
+                    bufferSize--;
                     return cachedRows.poll();
                 }
 
