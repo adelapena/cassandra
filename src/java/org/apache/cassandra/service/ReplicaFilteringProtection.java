@@ -132,45 +132,6 @@ class ReplicaFilteringProtection
         this.cachedRowsFailThreshold = cachedRowsFailThreshold;
     }
 
-    private UnfilteredPartitionIterator querySourceOnKey(int i, DecoratedKey key, BTreeSet.Builder<Clustering> builder)
-    {
-        assert builder != null; // We're calling this on the result of rowsToFetch.get(i).keySet()
-
-        InetAddress source = sources[i];
-        NavigableSet<Clustering> clusterings = builder.build();
-        tableMetrics.replicaFilteringProtectionRequests.mark();
-        if (logger.isTraceEnabled())
-            logger.trace("Requesting rows {} in partition {} from {} for replica filtering protection",
-                         clusterings, key, source);
-        Tracing.trace("Requesting {} rows in partition {} from {} for replica filtering protection",
-                      clusterings.size(), key, source);
-
-        // build the read command taking into account that we could be requesting only in the static row
-        DataLimits limits = clusterings.isEmpty() ? DataLimits.cqlLimits(1) : DataLimits.NONE;
-        ClusteringIndexFilter filter = new ClusteringIndexNamesFilter(clusterings, command.isReversed());
-        SinglePartitionReadCommand cmd = SinglePartitionReadCommand.create(command.metadata(),
-                                                                           command.nowInSec(),
-                                                                           command.columnFilter(),
-                                                                           RowFilter.NONE,
-                                                                           limits,
-                                                                           key,
-                                                                           filter);
-        try
-        {
-            return executeReadCommand(cmd, source);
-        }
-        catch (ReadTimeoutException e)
-        {
-            int blockFor = consistency.blockFor(keyspace);
-            throw new ReadTimeoutException(consistency, blockFor - 1, blockFor, true);
-        }
-        catch (UnavailableException e)
-        {
-            int blockFor = consistency.blockFor(keyspace);
-            throw new UnavailableException(consistency, blockFor, blockFor - 1);
-        }
-    }
-
     private UnfilteredPartitionIterator executeReadCommand(ReadCommand cmd, InetAddress source)
     {
         DataResolver resolver = new DataResolver(keyspace, cmd, ConsistencyLevel.ONE, 1);
@@ -214,7 +175,7 @@ class ReplicaFilteringProtection
                 PartitionBuilder[] builders = new PartitionBuilder[sources.length];
 
                 for (int i = 0; i < sources.length; i++)
-                    builders[i] = new PartitionBuilder(partitionKey, columns(versions), EncodingStats.merge(versions, NULL_TO_NO_STATS));
+                    builders[i] = new PartitionBuilder(partitionKey, sources[i], columns(versions), EncodingStats.merge(versions, NULL_TO_NO_STATS));
 
                 return new UnfilteredRowIterators.MergeListener()
                 {
@@ -375,14 +336,15 @@ class ReplicaFilteringProtection
             {
                 PartitionBuilder builder = partitions.poll();
                 assert builder != null;
-                return builder.protectedPartition(source);
+                return builder.protectedPartition();
             }
         };
     }
 
     private class PartitionBuilder
     {
-        private final DecoratedKey partitionKey;
+        private final DecoratedKey key;
+        private final InetAddress source;
         private final PartitionColumns columns;
         private final EncodingStats stats;
         private DeletionTime deletionTime;
@@ -391,9 +353,10 @@ class ReplicaFilteringProtection
         private BTreeSet.Builder<Clustering> toFetch;
         private int partitionRowsCached;
 
-        private PartitionBuilder(DecoratedKey partitionKey, PartitionColumns columns, EncodingStats stats)
+        private PartitionBuilder(DecoratedKey key, InetAddress source, PartitionColumns columns, EncodingStats stats)
         {
-            this.partitionKey = partitionKey;
+            this.key = key;
+            this.source = source;
             this.columns = columns;
             this.stats = stats;
         }
@@ -474,7 +437,7 @@ class ReplicaFilteringProtection
                 @Override
                 public DecoratedKey partitionKey()
                 {
-                    return partitionKey;
+                    return key;
                 }
 
                 @Override
@@ -504,16 +467,17 @@ class ReplicaFilteringProtection
             };
         }
 
-        private UnfilteredRowIterator protectedPartition(int source)
+        private UnfilteredRowIterator protectedPartition()
         {
             UnfilteredRowIterator original = originalPartition();
 
             if (toFetch != null)
             {
-                UnfilteredPartitionIterator fetchedPartition = querySourceOnKey(source, partitionKey, toFetch);
-                if (fetchedPartition.hasNext())
+                UnfilteredPartitionIterator partitions = fetchFromSource();
+                
+                if (partitions.hasNext())
                 {
-                    try (UnfilteredRowIterator fetchedRows = fetchedPartition.next())
+                    try (UnfilteredRowIterator fetchedRows = partitions.next())
                     {
                         return UnfilteredRowIterators.merge(Arrays.asList(original, fetchedRows), command.nowInSec());
                     }
@@ -521,6 +485,46 @@ class ReplicaFilteringProtection
             }
 
             return original;
+        }
+
+        private UnfilteredPartitionIterator fetchFromSource()
+        {
+            assert toFetch != null;
+
+            NavigableSet<Clustering> clusterings = toFetch.build();
+            tableMetrics.replicaFilteringProtectionRequests.mark();
+            
+            if (logger.isTraceEnabled())
+                logger.trace("Requesting rows {} in partition {} from {} for replica filtering protection",
+                             clusterings, key, source);
+            
+            Tracing.trace("Requesting {} rows in partition {} from {} for replica filtering protection",
+                          clusterings.size(), key, source);
+
+            // build the read command taking into account that we could be requesting only in the static row
+            DataLimits limits = clusterings.isEmpty() ? DataLimits.cqlLimits(1) : DataLimits.NONE;
+            ClusteringIndexFilter filter = new ClusteringIndexNamesFilter(clusterings, command.isReversed());
+            SinglePartitionReadCommand cmd = SinglePartitionReadCommand.create(command.metadata(),
+                                                                               command.nowInSec(),
+                                                                               command.columnFilter(),
+                                                                               RowFilter.NONE,
+                                                                               limits,
+                                                                               key,
+                                                                               filter);
+            try
+            {
+                return executeReadCommand(cmd, source);
+            }
+            catch (ReadTimeoutException e)
+            {
+                int blockFor = consistency.blockFor(keyspace);
+                throw new ReadTimeoutException(consistency, blockFor - 1, blockFor, true);
+            }
+            catch (UnavailableException e)
+            {
+                int blockFor = consistency.blockFor(keyspace);
+                throw new UnavailableException(consistency, blockFor, blockFor - 1);
+            }
         }
     }
 }
