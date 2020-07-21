@@ -604,6 +604,7 @@ public class DataResolver extends ResponseResolver
         DataLimits.Counter singleResultCounter =
             command.limits().newCounter(command.nowInSec(), false, command.selectsFullPartition(), enforceStrictLiveness).onlyCount();
 
+        // The pre-fetch callback used here makes the initial round of responses for this replica collectable.
         ShortReadPartitionsProtection protection = new ShortReadPartitionsProtection(context.sources[i],
                                                                                      () -> responses.clearUnsafe(i),
                                                                                      singleResultCounter,
@@ -730,8 +731,7 @@ public class DataResolver extends ResponseResolver
             ColumnFamilyStore.metricsFor(command.metadata().cfId).shortReadProtectionRequests.mark();
             Tracing.trace("Requesting {} extra rows from {} for short read protection", toQuery, source);
 
-            // If we've arrived here, all responses have been consumed, and we're about to request more. Before that
-            // happens, clear the accumulator and allow garbage collection to free the resources they used.
+            // If we've arrived here, all responses have been consumed, and we're about to request more.
             preFetchCallback.run();
             
             PartitionRangeReadCommand cmd = makeFetchAdditionalPartitionReadCommand(toQuery);
