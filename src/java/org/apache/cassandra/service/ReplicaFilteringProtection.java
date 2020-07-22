@@ -170,12 +170,15 @@ class ReplicaFilteringProtection
                 tableMetrics.rfpRowsCachedPerQuery.update(Math.max(currentRowsCached, maxRowsCached));
             }
 
+            @Override
             public UnfilteredRowIterators.MergeListener getRowMergeListener(DecoratedKey partitionKey, List<UnfilteredRowIterator> versions)
             {
                 PartitionBuilder[] builders = new PartitionBuilder[sources.length];
+                EncodingStats stats = EncodingStats.merge(versions, NULL_TO_NO_STATS);
+                PartitionColumns columns = columns(versions);
 
                 for (int i = 0; i < sources.length; i++)
-                    builders[i] = new PartitionBuilder(partitionKey, sources[i], columns(versions), EncodingStats.merge(versions, NULL_TO_NO_STATS));
+                    builders[i] = new PartitionBuilder(partitionKey, sources[i], columns, stats);
 
                 return new UnfilteredRowIterators.MergeListener()
                 {
@@ -192,11 +195,7 @@ class ReplicaFilteringProtection
                     {
                         // cache the row versions to be able to regenerate the original row iterator
                         for (int i = 0; i < versions.length; i++)
-                        {
                             builders[i].addRow(versions[i]);
-                            currentRowsCached++;
-                            checkCachedRowThresholds();
-                        }
 
                         if (merged.isEmpty())
                             return merged;
@@ -241,8 +240,10 @@ class ReplicaFilteringProtection
         };
     }
 
-    private void checkCachedRowThresholds()
+    private void increaseCachedRows()
     {
+        currentRowsCached++;
+
         if (currentRowsCached == cachedRowsFailThreshold + 1)
         {
             String message = String.format("Replica filtering protection has cached over %d rows during query %s. " +
@@ -269,6 +270,7 @@ class ReplicaFilteringProtection
 
     private void releaseCachedRows(int count)
     {
+        maxRowsCached = Math.max(maxRowsCached, currentRowsCached);
         currentRowsCached -= count;
     }
 
@@ -368,6 +370,7 @@ class ReplicaFilteringProtection
 
         private void addRow(Row row)
         {
+            increaseCachedRows();
             partitionRowsCached++;
 
             // Note that even null rows are counted against the row caching limit. The assumption is that
@@ -449,7 +452,6 @@ class ReplicaFilteringProtection
                 @Override
                 public void close()
                 {
-                    maxRowsCached = Math.max(maxRowsCached, currentRowsCached);
                     releaseCachedRows(partitionRowsCached);
                 }
 
