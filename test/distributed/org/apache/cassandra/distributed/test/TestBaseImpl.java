@@ -40,6 +40,9 @@ import org.apache.cassandra.distributed.shared.DistributedTestBase;
 
 public class TestBaseImpl extends DistributedTestBase
 {
+    public static final Object[][] EMPTY_ROWS = new Object[0][];
+    public static final boolean[] BOOLEANS = new boolean[]{ false, true };
+
     @After
     public void afterEach() {
         super.afterEach();
