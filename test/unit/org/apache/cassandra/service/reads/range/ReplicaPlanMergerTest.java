@@ -18,7 +18,6 @@
 
 package org.apache.cassandra.service.reads.range;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -255,7 +254,7 @@ public class ReplicaPlanMergerTest
      * Tests range merging with a multinode cluster when the token ranges overlap between replicas.
      */
     @Test
-    public void testMultiNodeWithDiscontinuousRanges() throws UnknownHostException
+    public void testMultiNodeWithDiscontinuousRanges()
     {
         new TokenUpdater().withTokens("127.0.0.1", 10, 40, 70)
                           .withTokens("127.0.0.2", 20, 50, 80)
