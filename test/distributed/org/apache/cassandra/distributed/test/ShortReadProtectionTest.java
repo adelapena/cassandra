@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -58,7 +59,7 @@ import static org.apache.cassandra.distributed.shared.AssertUtils.row;
 public class ShortReadProtectionTest extends TestBaseImpl
 {
     private static final int NUM_NODES = 3;
-    private static final int[] PAGE_SIZES = new int[]{ 1, 2, 3, 4, 1000 };
+    private static final int[] PAGE_SIZES = new int[]{ 1, 10 };
 
     private static Cluster cluster;
     private Tester tester;
@@ -82,21 +83,14 @@ public class ShortReadProtectionTest extends TestBaseImpl
     @Parameterized.Parameter(2)
     public boolean paging;
 
-    /**
-     * The node to be used as coordinator.
-     */
-    @Parameterized.Parameter(3)
-    public int coordinator;
-
-    @Parameterized.Parameters(name = "{index}: read_cl={0} flush={1} paging={2} coordinator={3}")
+    @Parameterized.Parameters(name = "{index}: read_cl={0} flush={1} paging={2}")
     public static Collection<Object[]> data()
     {
         List<Object[]> result = new ArrayList<>();
         for (ConsistencyLevel readConsistencyLevel : Arrays.asList(ALL, QUORUM))
             for (boolean flush : BOOLEANS)
                 for (boolean paging : BOOLEANS)
-                    for (int coordinator = 1; coordinator < NUM_NODES; coordinator++)
-                        result.add(new Object[]{ readConsistencyLevel, flush, paging, coordinator });
+                    result.add(new Object[]{ readConsistencyLevel, flush, paging });
         return result;
     }
 
@@ -119,7 +113,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
     @Before
     public void setupTester()
     {
-        tester = new Tester(readConsistencyLevel, flush, paging, coordinator);
+        tester = new Tester(readConsistencyLevel, flush, paging);
     }
 
     @After
@@ -426,17 +420,15 @@ public class ShortReadProtectionTest extends TestBaseImpl
 
         private final ConsistencyLevel readConsistencyLevel;
         private final boolean flush, paging;
-        private final ICoordinator coordinator;
         private final String qualifiedTableName;
 
         private boolean flushed = false;
 
-        private Tester(ConsistencyLevel readConsistencyLevel, boolean flush, boolean paging, int coordinator)
+        private Tester(ConsistencyLevel readConsistencyLevel, boolean flush, boolean paging)
         {
             this.readConsistencyLevel = readConsistencyLevel;
             this.flush = flush;
             this.paging = paging;
-            this.coordinator = cluster.coordinator(coordinator);
             qualifiedTableName = KEYSPACE + ".t_" + seqNumber.getAndIncrement();
 
             assert readConsistencyLevel == ALL || readConsistencyLevel == QUORUM
@@ -464,7 +456,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
 
         private Tester allNodes(String query)
         {
-            coordinator.execute(format(query), ALL);
+            cluster.coordinator(1).execute(format(query), ALL);
             return this;
         }
 
@@ -527,13 +519,21 @@ public class ShortReadProtectionTest extends TestBaseImpl
             }
 
             query = format(query);
-            for (int fetchSize : PAGE_SIZES)
+            for (ICoordinator coordinator : cluster.coordinators())
             {
-                Object[][] actualRows = paging
-                                        ? toArray(coordinator.executeWithPaging(query, readConsistencyLevel, fetchSize),
-                                                  Object[].class)
-                                        : coordinator.execute(query, readConsistencyLevel);
-                AssertUtils.assertRows(actualRows, expectedRows);
+                if (paging)
+                {
+                    for (int fetchSize : PAGE_SIZES)
+                    {
+                        Iterator<Object[]> actualRows = coordinator.executeWithPaging(query, readConsistencyLevel, fetchSize);
+                        AssertUtils.assertRows(toArray(actualRows, Object[].class),  expectedRows);
+                    }
+                }
+                else
+                {
+                    Object[][] actualRows = coordinator.execute(query, readConsistencyLevel);
+                    AssertUtils.assertRows(actualRows, expectedRows);
+                }
             }
 
             return this;
