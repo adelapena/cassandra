@@ -55,6 +55,7 @@ import static org.apache.cassandra.distributed.shared.AssertUtils.row;
 public class ShortReadProtectionTest extends TestBaseImpl
 {
     private static final int NUM_NODES = 3;
+    private static final int[] PAGE_SIZES = new int[]{ 1, 2, 3, 4, 1000 };
 
     private static Cluster cluster;
     private Tester tester;
@@ -499,10 +500,14 @@ public class ShortReadProtectionTest extends TestBaseImpl
             }
 
             query = format(query);
-            Object[][] actualRows = paging
-                                    ? toArray(coordinator.executeWithPaging(query, consistencyLevel, 1), Object[].class)
-                                    : coordinator.execute(query, consistencyLevel);
-            AssertUtils.assertRows(actualRows, expectedRows);
+            for (int fetchSize : PAGE_SIZES)
+            {
+                Object[][] actualRows = paging
+                                        ? toArray(coordinator.executeWithPaging(query, consistencyLevel, fetchSize),
+                                                  Object[].class)
+                                        : coordinator.execute(query, consistencyLevel);
+                AssertUtils.assertRows(actualRows, expectedRows);
+            }
 
             return this;
         }
