@@ -358,7 +358,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
      * Replaces Python dtest {@code consistency_test.py:TestConsistency.test_13911()}.
      */
     @Test
-    public void test13911()
+    public void testSkipEarlyTermination()
     {
         tester.createTable("CREATE TABLE %s (pk int, ck int, PRIMARY KEY (pk, ck))")
               .toNode1("INSERT INTO %s (pk, ck) VALUES (0, 0)")
@@ -375,7 +375,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
      * Replaces Python dtest {@code consistency_test.py:TestConsistency.test_13911_rows_srp()}.
      */
     @Test
-    public void test13911rows()
+    public void testSkipEarlyTerminationRows()
     {
         tester.createTable("CREATE TABLE %s (pk int, ck int, PRIMARY KEY (pk, ck))")
               .toNode1("INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 0",
@@ -399,7 +399,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
      * Replaces Python dtest {@code consistency_test.py:TestConsistency.test_13911_partitions_srp()}.
      */
     @Test
-    public void test13911partitions()
+    public void testSkipEarlyTerminationPartitions()
     {
         tester.createTable("CREATE TABLE %s (pk int, ck int, PRIMARY KEY (pk, ck))")
               .toNode1("INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 0",
