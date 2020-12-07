@@ -67,7 +67,7 @@ public class DefaultFSErrorHandler implements FSErrorHandler
                 break;
             case best_effort:
 
-                // There are a few scenarios where we know that the node will not be able to operate properly
+                // There are a few scenarios where we know that the node will not be able to operate properly.
                 // For those scenarios we want to stop the transports and let the administrators handle the problem.
                 // Those scenarios are:
                 // * All the disks are full

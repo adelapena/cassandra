@@ -230,10 +230,10 @@ public class CassandraDaemon
     {
         FileUtils.setFSErrorHandler(new DefaultFSErrorHandler());
 
-        // Since CASSANDRA-14793 the local system file data are not dispatched accross the data directories
+        // Since CASSANDRA-14793 the local system keyspaces data are not dispatched across the data directories
         // anymore to reduce the risks in case of disk failures. By consequence, the system need to ensure in case of
         // upgrade that the old data files have been migrated to the new directories before we start deleting
-        // snapshot and upgrading system tables.
+        // snapshots and upgrading system tables.
         try
         {
             migrateSystemDataIfNeeded();
@@ -500,7 +500,7 @@ public class CassandraDaemon
      */
     private void migrateSystemDataIfNeeded() throws IOException
     {
-        String importSystemDataFrom = System.getProperty("cassandra.importSystemDataFilesFrom");
+        String importSystemDataFrom = System.getProperty("cassandra.import_system_data_files_from");
 
         // If there is only one directory and no system keyspace directory has been specified we do not need to do
         // anything. If it is not the case we want to try to migrate the data.

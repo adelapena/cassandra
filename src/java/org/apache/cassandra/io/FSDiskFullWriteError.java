@@ -25,7 +25,7 @@ public class FSDiskFullWriteError extends FSWriteError
 {
     public FSDiskFullWriteError(String keyspace, long mutationSize)
     {
-        super(new IOException(String.format("Insufficient disk space to write %s bytes into the %s keyspace",
+        super(new IOException(String.format("Insufficient disk space to write %d bytes into the %s keyspace",
                                             mutationSize,
                                             keyspace)),
               new File(""));

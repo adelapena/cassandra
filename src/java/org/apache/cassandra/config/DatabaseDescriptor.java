@@ -1858,7 +1858,7 @@ public class DatabaseDescriptor
     }
 
     /**
-     * Checks if the local system data must be stored in a specific location which support redundancy.
+     * Checks if the local system data must be stored in a specific location which supports redundancy.
      *
      * @return {@code true} if the local system keyspaces data must be stored in a different location,
      * {@code false} otherwise.
@@ -1869,10 +1869,10 @@ public class DatabaseDescriptor
     }
 
     /**
-     * Returns the locations where should be stored the local system keyspaces data.
+     * Returns the locations where the local system keyspaces data should be stored.
      *
      * <p>If the {@code system_data_file_directory} was unspecified, the local system keyspaces data should be stored
-     * in the first data directory. This approach guaranty that the server can tolerate the lost of n - 1 disks.</p>
+     * in the first data directory. This approach guarantees that the server can tolerate the lost of n - 1 disks.</p>
      *
      * @return the locations where should be stored the local system keyspaces data
      */
@@ -1886,9 +1886,9 @@ public class DatabaseDescriptor
     }
 
     /**
-     * Returns the locations where should be stored the non local system keyspaces data.
+     * Returns the locations where the non local system keyspaces data should be stored.
      *
-     * @return the locations where should be stored the non local system keyspaces data
+     * @return the locations where the non local system keyspaces data should be stored.
      */
     public static String[] getNonSystemKeyspacesDataFileLocations()
     {

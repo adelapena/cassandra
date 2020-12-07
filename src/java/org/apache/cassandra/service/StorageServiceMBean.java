@@ -121,9 +121,9 @@ public interface StorageServiceMBean extends NotificationEmitter
     public String[] getAllDataFileLocations();
 
     /**
-     * Returns the locations where should be stored the system keyspaces data.
+     * Returns the locations where the local system keyspaces data should be stored.
      *
-     * @return the locations where should be stored the system keyspaces data
+     * @return the locations where the local system keyspaces data should be stored
      */
     public String[] getSystemKeyspacesDataFileLocations();
 

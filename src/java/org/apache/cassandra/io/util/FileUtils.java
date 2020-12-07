@@ -972,11 +972,10 @@ public final class FileUtils
         }
     }
 
-
     /**
-     * Moves the files from a directory to another directory.
+     * Moves the contents of a directory to another directory.
      * <p>Once a file has been copied to the target directory it will be deleted from the source directory.
-     * If a file already exist in the target directory a warning will be logged and the file will not
+     * If a file already exists in the target directory a warning will be logged and the file will not
      * be deleted.</p>
      *
      * @param source the directory containing the files to move

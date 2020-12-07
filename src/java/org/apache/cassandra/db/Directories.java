@@ -591,14 +591,14 @@ public class Directories
     }
 
     /**
-     * Checks if the specified table should be stored with locale system data.
+     * Checks if the specified table should be stored with local system data.
      *
      * <p> To minimize the risk of failures, SSTables for local system keyspaces must be stored in a single data
      * directory. The only exception to this is the system paxos table as it can be a high traffic table.</p>
      *
      * @param keyspace the keyspace name
      * @param table the table name
-     * @return {@code true} if the specified table should be stored with locale system data, {@code false} otherwise.
+     * @return {@code true} if the specified table should be stored with local system data, {@code false} otherwise.
      */
     public static boolean isStoredInSystemKeyspacesDataLocation(String keyspace, String table)
     {
@@ -656,12 +656,12 @@ public class Directories
     public static final class DataDirectories implements Iterable<DataDirectory>
     {
         /**
-         * The directories for storing the system keyspaces.
+         * The directories for storing the local system keyspaces.
          */
         private final DataDirectory[] systemKeyspaceDataDirectories;
 
         /**
-         * The directories where should be stored the data of the non system keyspaces.
+         * The directories where the data of the non local system keyspaces should be stored.
          */
         private final DataDirectory[] nonSystemKeyspacesDirectories;
 
@@ -701,10 +701,10 @@ public class Directories
         }
 
         /**
-         * Returns the data directories for the specified keyspace.
+         * Returns the data directories for the specified table.
          *
          * @param table the table metadata
-         * @return the data directories for the specified keyspace
+         * @return the data directories for the specified table
          */
         public DataDirectory[] getDataDirectoriesFor(TableMetadata table)
         {

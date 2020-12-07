@@ -2802,8 +2802,8 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
      *
      * <p>Each disk has its own set of thread pools to perform memtable flushes.</p>
      * <p>Based on the configuration. System keyspaces can have their own disk
-     * to allow for special redundency mechanism. If it is the case the executor services returned for
-     * system keyspace will be differents from the ones for the other keyspaces.</p>
+     * to allow for special redundancy mechanism. If it is the case the executor services returned for
+     * local system keyspaces will be different from the ones for the other keyspaces.</p>
      */
     private static final class PerDiskFlushExecutors
     {
@@ -2843,7 +2843,7 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
             return new JMXEnabledThreadPoolExecutor(size,
                                                     Stage.KEEP_ALIVE_SECONDS,
                                                     TimeUnit.SECONDS,
-                                                    new LinkedBlockingQueue<Runnable>(),
+                                                    new LinkedBlockingQueue<>(),
                                                     new NamedThreadFactory(poolName),
                                                     "internal");
         }

@@ -86,7 +86,7 @@ public class DirectoriesTest
         tempDataDir.delete(); // hack to create a temp dir
         tempDataDir.mkdir();
 
-       // Create two fake data dir for tests, one using CF directories, one that do not.
+        // Create two fake data dir for tests, one using CF directories, one that do not.
         createTestFiles();
     }
 
