@@ -427,6 +427,11 @@ public abstract class AbstractCluster<I extends IInstance> implements ICluster<I
         return instances.get(node - 1).coordinator();
     }
 
+    public List<ICoordinator> coordinators()
+    {
+        return stream().map(IInstance::coordinator).collect(Collectors.toList());
+    }
+
     /**
      * WARNING: we index from 1 here, for consistency with inet address!
      */
