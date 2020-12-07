@@ -48,10 +48,7 @@ public class ConsistencyTest extends UpgradeTestBase
     @Test
     public void testConsistencyWithNetworkAndGossip() throws Throwable
     {
-        testConsistency(new TestCase().nodes(3)
-                                      .nodesToUpgrade(1)
-                                      .withConfig(cfg -> cfg.with(Feature.NETWORK, Feature.GOSSIP))
-                                      .upgrade(Versions.Major.v3X, Versions.Major.v4));
+        testConsistency(allUpgrades(3, 1).withConfig(cfg -> cfg.with(Feature.NETWORK, Feature.GOSSIP)));
     }
 
     private void testConsistency(TestCase testCase) throws Throwable
