@@ -20,6 +20,7 @@ package org.apache.cassandra.distributed.test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,6 +40,7 @@ import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.distributed.Cluster;
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
 import org.apache.cassandra.distributed.api.ICoordinator;
+import org.apache.cassandra.distributed.api.IInvokableInstance;
 import org.apache.cassandra.distributed.shared.AssertUtils;
 import org.apache.cassandra.utils.ByteBufferUtil;
 
@@ -62,10 +64,11 @@ public class ShortReadProtectionTest extends TestBaseImpl
     private Tester tester;
 
     /**
-     * {@code true} for CL=QUORUM writes and CL=QUORUM reads, {@code false} for CL=ONE writes and CL=ALL reads.
+     * The consistency level to be used in reads. Internal writes will hit the minimum number of replicas to match this
+     * consisstency level. With RF=3, this means one witten replica for CL=ALL, and two for CL=QUORUM.
      */
     @Parameterized.Parameter
-    public boolean quorum;
+    public ConsistencyLevel readConsistencyLevel;
 
     /**
      * Whether to flush data after mutations.
@@ -85,15 +88,15 @@ public class ShortReadProtectionTest extends TestBaseImpl
     @Parameterized.Parameter(3)
     public int coordinator;
 
-    @Parameterized.Parameters(name = "{index}: quorum={0} flush={1} paging={2} coordinator={3}")
+    @Parameterized.Parameters(name = "{index}: read_cl={0} flush={1} paging={2} coordinator={3}")
     public static Collection<Object[]> data()
     {
         List<Object[]> result = new ArrayList<>();
-        for (boolean quorum : BOOLEANS)
+        for (ConsistencyLevel readConsistencyLevel : Arrays.asList(ALL, QUORUM))
             for (boolean flush : BOOLEANS)
                 for (boolean paging : BOOLEANS)
                     for (int coordinator = 1; coordinator < NUM_NODES; coordinator++)
-                        result.add(new Object[]{ quorum, flush, paging, coordinator });
+                        result.add(new Object[]{ readConsistencyLevel, flush, paging, coordinator });
         return result;
     }
 
@@ -116,7 +119,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
     @Before
     public void setupTester()
     {
-        tester = new Tester(quorum, flush, paging, coordinator);
+        tester = new Tester(readConsistencyLevel, flush, paging, coordinator);
     }
 
     @After
@@ -137,7 +140,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
     {
         tester.createTable("CREATE TABLE %s (id int PRIMARY KEY)")
               .allNodes("INSERT INTO %s (id) VALUES (0) USING TIMESTAMP 0")
-              .onlyNode1("DELETE FROM %s WHERE id = 0")
+              .toNode1("DELETE FROM %s WHERE id = 0")
               .assertRows("SELECT DISTINCT id FROM %s WHERE id = 0")
               .assertRows("SELECT id FROM %s WHERE id = 0 LIMIT 1");
     }
@@ -154,7 +157,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
     {
         tester.createTable("CREATE TABLE %s (id int PRIMARY KEY)")
               .allNodes(0, 10, i -> format("INSERT INTO %%s (id) VALUES (%d) USING TIMESTAMP 0", i)) // order is 5,1,8,0,2,4,7,6,9,3
-              .onlyNode1("DELETE FROM %s WHERE id IN (1, 0, 4, 6, 3)") // delete every other row
+              .toNode1("DELETE FROM %s WHERE id IN (1, 0, 4, 6, 3)") // delete every other row
               .assertRows("SELECT DISTINCT token(id), id FROM %s",
                           row(token(5), 5), row(token(8), 8), row(token(2), 2), row(token(7), 7), row(token(9), 9));
     }
@@ -171,8 +174,8 @@ public class ShortReadProtectionTest extends TestBaseImpl
     {
         tester.createTable("CREATE TABLE %s (id int PRIMARY KEY)")
               .allNodes(0, 10, i -> format("INSERT INTO %%s (id) VALUES (%d) USING TIMESTAMP 0", i)) // order is 5,1,8,0,2,4,7,6,9,3
-              .onlyNode1("DELETE FROM %s WHERE id IN (5, 8, 2, 7, 9)") // delete every other row
-              .onlyNode2("DELETE FROM %s WHERE id IN (1, 0, 4, 6)") // delete every other row but the last one
+              .toNode1("DELETE FROM %s WHERE id IN (5, 8, 2, 7, 9)") // delete every other row
+              .toNode2("DELETE FROM %s WHERE id IN (1, 0, 4, 6)") // delete every other row but the last one
               .assertRows("SELECT id FROM %s LIMIT 1", row(3))
               .assertRows("SELECT DISTINCT id FROM %s LIMIT 1", row(3));
     }
@@ -189,9 +192,9 @@ public class ShortReadProtectionTest extends TestBaseImpl
     {
         tester.createTable("CREATE TABLE %s (pk int, ck int, PRIMARY KEY (pk, ck))")
               .allNodes(0, 4, i -> format("INSERT INTO %%s (pk, ck) VALUES (0, %d) USING TIMESTAMP 0", i))
-              .onlyNode1("DELETE FROM %s WHERE pk = 0 AND ck IN (1, 2, 3)",
-                         "INSERT INTO %s (pk, ck) VALUES (0, 5)")
-              .onlyNode2("INSERT INTO %s (pk, ck) VALUES (0, 4)")
+              .toNode1("DELETE FROM %s WHERE pk = 0 AND ck IN (1, 2, 3)",
+                       "INSERT INTO %s (pk, ck) VALUES (0, 5)")
+              .toNode2("INSERT INTO %s (pk, ck) VALUES (0, 4)")
               .assertRows("SELECT ck FROM %s WHERE pk = 0 LIMIT 2", row(0), row(4));
     }
 
@@ -208,9 +211,9 @@ public class ShortReadProtectionTest extends TestBaseImpl
     {
         tester.createTable("CREATE TABLE %s (k int, c int, v int, PRIMARY KEY(k, c))")
               .allNodes(1, 10, i -> format("INSERT INTO %%s (k, c, v) VALUES (0, %d, %d) USING TIMESTAMP 0", i, i * 10))
-              .onlyNode1("DELETE FROM %s WHERE k=0 AND c=1")
-              .onlyNode2("DELETE FROM %s WHERE k=0 AND c=2")
-              .onlyNode3("DELETE FROM %s WHERE k=0 AND c=3")
+              .toNode1("DELETE FROM %s WHERE k=0 AND c=1")
+              .toNode2("DELETE FROM %s WHERE k=0 AND c=2")
+              .toNode3("DELETE FROM %s WHERE k=0 AND c=3")
               .assertRows("SELECT c, v FROM %s WHERE k=0 ORDER BY c ASC LIMIT 1", row(4, 40))
               .assertRows("SELECT c, v FROM %s WHERE k=0 ORDER BY c ASC LIMIT 2", row(4, 40), row(5, 50))
               .assertRows("SELECT c, v FROM %s WHERE k=0 ORDER BY c ASC LIMIT 3", row(4, 40), row(5, 50), row(6, 60))
@@ -230,9 +233,9 @@ public class ShortReadProtectionTest extends TestBaseImpl
     {
         tester.createTable("CREATE TABLE %s (k int, c int, v int, PRIMARY KEY(k, c))")
               .allNodes(1, 10, i -> format("INSERT INTO %%s (k, c, v) VALUES (0, %d, %d) USING TIMESTAMP 0", i, i * 10))
-              .onlyNode1("DELETE FROM %s WHERE k=0 AND c=7")
-              .onlyNode2("DELETE FROM %s WHERE k=0 AND c=8")
-              .onlyNode3("DELETE FROM %s WHERE k=0 AND c=9")
+              .toNode1("DELETE FROM %s WHERE k=0 AND c=7")
+              .toNode2("DELETE FROM %s WHERE k=0 AND c=8")
+              .toNode3("DELETE FROM %s WHERE k=0 AND c=9")
               .assertRows("SELECT c, v FROM %s WHERE k=0 ORDER BY c DESC LIMIT 1", row(6, 60))
               .assertRows("SELECT c, v FROM %s WHERE k=0 ORDER BY c DESC LIMIT 2", row(6, 60), row(5, 50))
               .assertRows("SELECT c, v FROM %s WHERE k=0 ORDER BY c DESC LIMIT 3", row(6, 60), row(5, 50), row(4, 40))
@@ -245,8 +248,8 @@ public class ShortReadProtectionTest extends TestBaseImpl
      * See CASSANDRA-4000 and CASSANDRA-8933.
      * <p>
      * Replaces Python dtest {@code consistency_test.py:TestConsistency.test_short_read_delete()} and
-     * {@code consistency_test.py:TestConsistency.test_short_read_quorum_delete()}. Note that the {@link #quorum} test
-     * parameter ensures that both tests are covered.
+     * {@code consistency_test.py:TestConsistency.test_short_read_quorum_delete()}. Note that the
+     * {@link #readConsistencyLevel} test parameter ensures that both tests are covered.
      */
     @Test
     public void testDeletePartition()
@@ -254,7 +257,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
         tester.createTable("CREATE TABLE %s (k int, c int, v int, PRIMARY KEY(k, c))")
               .allNodes("INSERT INTO %s (k, c, v) VALUES (0, 1, 10) USING TIMESTAMP 0",
                         "INSERT INTO %s (k, c, v) VALUES (0, 2, 20) USING TIMESTAMP 0")
-              .onlyNode2("DELETE FROM %s WHERE k=0")
+              .toNode2("DELETE FROM %s WHERE k=0")
               .assertRows("SELECT c, v FROM %s WHERE k=0 LIMIT 1");
     }
 
@@ -267,7 +270,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
         tester.createTable("CREATE TABLE %s (k int, c int, v int, s int STATIC, PRIMARY KEY(k, c))")
               .allNodes("INSERT INTO %s (k, c, v, s) VALUES (0, 1, 10, 100) USING TIMESTAMP 0",
                         "INSERT INTO %s (k, c, v) VALUES (0, 2, 20) USING TIMESTAMP 0")
-              .onlyNode2("DELETE FROM %s WHERE k=0")
+              .toNode2("DELETE FROM %s WHERE k=0")
               .assertRows("SELECT c, v FROM %s WHERE k=0 LIMIT 1");
     }
 
@@ -280,9 +283,9 @@ public class ShortReadProtectionTest extends TestBaseImpl
         tester.createTable("CREATE TABLE %s (k int, c int, v int, PRIMARY KEY(k, c))")
               .allNodes("INSERT INTO %s (k, c, v) VALUES (0, 1, 10) USING TIMESTAMP 0",
                         "INSERT INTO %s (k, c, v) VALUES (0, 2, 20) USING TIMESTAMP 0")
-              .onlyNode2("DELETE FROM %s WHERE k=0 AND c=1")
+              .toNode2("DELETE FROM %s WHERE k=0 AND c=1")
               .assertRows("SELECT * FROM %s WHERE k=0 LIMIT 1", row(0, 2, 20))
-              .onlyNode2("DELETE FROM %s WHERE k=0 AND c=2")
+              .toNode2("DELETE FROM %s WHERE k=0 AND c=2")
               .assertRows("SELECT * FROM %s WHERE k=0 LIMIT 1");
     }
 
@@ -295,9 +298,9 @@ public class ShortReadProtectionTest extends TestBaseImpl
         tester.createTable("CREATE TABLE %s (k int, c int, v int, s int STATIC, PRIMARY KEY(k, c))")
               .allNodes("INSERT INTO %s (k, c, v, s) VALUES (0, 1, 10, 100) USING TIMESTAMP 0",
                         "INSERT INTO %s (k, c, v) VALUES (0, 2, 20) USING TIMESTAMP 0")
-              .onlyNode2("DELETE FROM %s WHERE k=0 AND c=1")
+              .toNode2("DELETE FROM %s WHERE k=0 AND c=1")
               .assertRows("SELECT k, c, v, s FROM %s WHERE k=0 LIMIT 1", row(0, 2, 20, 100))
-              .onlyNode2("DELETE FROM %s WHERE k=0 AND c=2")
+              .toNode2("DELETE FROM %s WHERE k=0 AND c=2")
               .assertRows("SELECT k, c, v, s FROM %s WHERE k=0 LIMIT 1", row(0, null, null, 100));
     }
 
@@ -311,12 +314,12 @@ public class ShortReadProtectionTest extends TestBaseImpl
     {
         Assume.assumeFalse(paging); // paging fails due to CASSANDRA-16307
         tester.createTable("CREATE TABLE %s (pk int, ck int, PRIMARY KEY (pk, ck))")
-              .onlyNode1("INSERT INTO %s (pk, ck) VALUES (1, 1) USING TIMESTAMP 0",
-                         "DELETE FROM %s WHERE pk=0 AND ck=0",
-                         "INSERT INTO %s (pk, ck) VALUES (2, 2) USING TIMESTAMP 0")
-              .onlyNode2("DELETE FROM %s WHERE pk=1 AND ck=1",
-                         "INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 0",
-                         "DELETE FROM %s WHERE pk=2 AND ck=2")
+              .toNode1("INSERT INTO %s (pk, ck) VALUES (1, 1) USING TIMESTAMP 0",
+                       "DELETE FROM %s WHERE pk=0 AND ck=0",
+                       "INSERT INTO %s (pk, ck) VALUES (2, 2) USING TIMESTAMP 0")
+              .toNode2("DELETE FROM %s WHERE pk=1 AND ck=1",
+                       "INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 0",
+                       "DELETE FROM %s WHERE pk=2 AND ck=2")
               .assertRows("SELECT * FROM %s LIMIT 1")
               .assertRows("SELECT * FROM %s LIMIT 10")
               .assertRows("SELECT * FROM %s GROUP BY pk LIMIT 1")
@@ -335,12 +338,12 @@ public class ShortReadProtectionTest extends TestBaseImpl
     {
         Assume.assumeFalse(paging); // paging fails due to CASSANDRA-16307
         tester.createTable("CREATE TABLE %s (pk int, ck int, s int static, PRIMARY KEY (pk, ck))")
-              .onlyNode1("INSERT INTO %s (pk, s) VALUES (1, 1) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, s) VALUES (0, null)",
-                         "INSERT INTO %s (pk, s) VALUES (2, 2) USING TIMESTAMP 0")
-              .onlyNode2("INSERT INTO %s (pk, s) VALUES (1, null)",
-                         "INSERT INTO %s (pk, s) VALUES (0, 0) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, s) VALUES (2, null)")
+              .toNode1("INSERT INTO %s (pk, s) VALUES (1, 1) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, s) VALUES (0, null)",
+                       "INSERT INTO %s (pk, s) VALUES (2, 2) USING TIMESTAMP 0")
+              .toNode2("INSERT INTO %s (pk, s) VALUES (1, null)",
+                       "INSERT INTO %s (pk, s) VALUES (0, 0) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, s) VALUES (2, null)")
               .assertRows("SELECT * FROM %s LIMIT 1")
               .assertRows("SELECT * FROM %s LIMIT 10")
               .assertRows("SELECT * FROM %s GROUP BY pk LIMIT 1")
@@ -358,8 +361,8 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void test13911()
     {
         tester.createTable("CREATE TABLE %s (pk int, ck int, PRIMARY KEY (pk, ck))")
-              .onlyNode1("INSERT INTO %s (pk, ck) VALUES (0, 0)")
-              .onlyNode2("DELETE FROM %s WHERE pk = 0 AND ck IN (1, 2)")
+              .toNode1("INSERT INTO %s (pk, ck) VALUES (0, 0)")
+              .toNode2("DELETE FROM %s WHERE pk = 0 AND ck IN (1, 2)")
               .assertRows("SELECT DISTINCT pk FROM %s", row(0));
     }
 
@@ -375,15 +378,15 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void test13911rows()
     {
         tester.createTable("CREATE TABLE %s (pk int, ck int, PRIMARY KEY (pk, ck))")
-              .onlyNode1("INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, ck) VALUES (0, 1) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, ck) VALUES (2, 0) USING TIMESTAMP 0",
-                         "DELETE FROM %s USING TIMESTAMP 42 WHERE pk = 2 AND ck = 1")
-              .onlyNode2("INSERT INTO %s (pk, ck) VALUES (0, 2) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, ck) VALUES (0, 3) USING TIMESTAMP 0",
-                         "DELETE FROM %s USING TIMESTAMP 42 WHERE pk = 2 AND ck = 0",
-                         "INSERT INTO %s (pk, ck) VALUES (2, 1) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, ck) VALUES (2, 2) USING TIMESTAMP 0")
+              .toNode1("INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, ck) VALUES (0, 1) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, ck) VALUES (2, 0) USING TIMESTAMP 0",
+                       "DELETE FROM %s USING TIMESTAMP 42 WHERE pk = 2 AND ck = 1")
+              .toNode2("INSERT INTO %s (pk, ck) VALUES (0, 2) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, ck) VALUES (0, 3) USING TIMESTAMP 0",
+                       "DELETE FROM %s USING TIMESTAMP 42 WHERE pk = 2 AND ck = 0",
+                       "INSERT INTO %s (pk, ck) VALUES (2, 1) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, ck) VALUES (2, 2) USING TIMESTAMP 0")
               .assertRows("SELECT pk, ck FROM %s PER PARTITION LIMIT 2 LIMIT 3", row(0, 0), row(0, 1), row(2, 2));
     }
 
@@ -399,15 +402,15 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void test13911partitions()
     {
         tester.createTable("CREATE TABLE %s (pk int, ck int, PRIMARY KEY (pk, ck))")
-              .onlyNode1("INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, ck) VALUES (0, 1) USING TIMESTAMP 0",
-                         "DELETE FROM %s USING TIMESTAMP 42 WHERE pk = 2 AND ck IN  (0, 1)")
-              .onlyNode2("INSERT INTO %s (pk, ck) VALUES (0, 2) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, ck) VALUES (0, 3) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, ck) VALUES (2, 0) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, ck) VALUES (2, 1) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, ck) VALUES (4, 0) USING TIMESTAMP 0",
-                         "INSERT INTO %s (pk, ck) VALUES (4, 1) USING TIMESTAMP 0")
+              .toNode1("INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, ck) VALUES (0, 1) USING TIMESTAMP 0",
+                       "DELETE FROM %s USING TIMESTAMP 42 WHERE pk = 2 AND ck IN  (0, 1)")
+              .toNode2("INSERT INTO %s (pk, ck) VALUES (0, 2) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, ck) VALUES (0, 3) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, ck) VALUES (2, 0) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, ck) VALUES (2, 1) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, ck) VALUES (4, 0) USING TIMESTAMP 0",
+                       "INSERT INTO %s (pk, ck) VALUES (4, 1) USING TIMESTAMP 0")
               .assertRows("SELECT pk, ck FROM %s PER PARTITION LIMIT 2 LIMIT 4",
                           row(0, 0), row(0, 1), row(4, 0), row(4, 1));
     }
@@ -421,21 +424,23 @@ public class ShortReadProtectionTest extends TestBaseImpl
     {
         private static final AtomicInteger seqNumber = new AtomicInteger();
 
+        private final ConsistencyLevel readConsistencyLevel;
+        private final boolean flush, paging;
         private final ICoordinator coordinator;
-        private final boolean quorum, flush, paging;
         private final String qualifiedTableName;
-        private final ConsistencyLevel consistencyLevel;
 
         private boolean flushed = false;
 
-        private Tester(boolean quorum, boolean flush, boolean paging, int coordinator)
+        private Tester(ConsistencyLevel readConsistencyLevel, boolean flush, boolean paging, int coordinator)
         {
-            this.coordinator = cluster.coordinator(coordinator);
-            this.quorum = quorum;
+            this.readConsistencyLevel = readConsistencyLevel;
             this.flush = flush;
             this.paging = paging;
+            this.coordinator = cluster.coordinator(coordinator);
             qualifiedTableName = KEYSPACE + ".t_" + seqNumber.getAndIncrement();
-            consistencyLevel = quorum ? QUORUM : ALL;
+
+            assert readConsistencyLevel == ALL || readConsistencyLevel == QUORUM
+            : "Only ALL and QUORUM consistency levels are supported";
         }
 
         private Tester createTable(String query)
@@ -463,33 +468,54 @@ public class ShortReadProtectionTest extends TestBaseImpl
             return this;
         }
 
-        private Tester onlyNode1(String... queries)
+        /**
+         * Internally runs the specified write queries in the first node. If the {@link #readConsistencyLevel} is
+         * QUORUM, then the write will also be internally done in the second replica, to simulate a QUORUM write.
+         */
+        private Tester toNode1(String... queries)
         {
-            onlyNodeN(1, queries);
-            return this;
+            return toNode(1, queries);
         }
 
-        private Tester onlyNode2(String... queries)
+        /**
+         * Internally runs the specified write queries in the second node. If the {@link #readConsistencyLevel} is
+         * QUORUM, then the write will also be internally done in the third replica, to simulate a QUORUM write.
+         */
+        private Tester toNode2(String... queries)
         {
-            onlyNodeN(2, queries);
-            return this;
+            return toNode(2, queries);
         }
 
-        private Tester onlyNode3(String... queries)
+        /**
+         * Internally runs the specified write queries in the third node. If the {@link #readConsistencyLevel} is
+         * QUORUM, then the write will also be internally done in the first replica, to simulate a QUORUM write.
+         */
+        private Tester toNode3(String... queries)
         {
-            onlyNodeN(3, queries);
-            return this;
+            return toNode(3, queries);
         }
 
-        private void onlyNodeN(int node, String... queries)
+        /**
+         * Internally runs the specified write queries in the specified node. If the {@link #readConsistencyLevel} is
+         * QUORUM the write will also be internally done in the next replica in the ring, to simulate a QUORUM write.
+         */
+        private Tester toNode(int node, String... queries)
         {
+            IInvokableInstance replica = cluster.get(node);
+            IInvokableInstance nextReplica = readConsistencyLevel == QUORUM
+                                             ? cluster.get(node == NUM_NODES ? 1 : node + 1)
+                                             : null;
+
             for (String query : queries)
             {
                 String formattedQuery = format(query);
-                cluster.get(node).executeInternal(formattedQuery);
-                if (quorum)
-                    cluster.get(node == NUM_NODES ? 1 : node + 1).executeInternal(formattedQuery);
+                replica.executeInternal(formattedQuery);
+
+                if (nextReplica != null)
+                    nextReplica.executeInternal(formattedQuery);
             }
+
+            return this;
         }
 
         private Tester assertRows(String query, Object[]... expectedRows)
@@ -504,9 +530,9 @@ public class ShortReadProtectionTest extends TestBaseImpl
             for (int fetchSize : PAGE_SIZES)
             {
                 Object[][] actualRows = paging
-                                        ? toArray(coordinator.executeWithPaging(query, consistencyLevel, fetchSize),
+                                        ? toArray(coordinator.executeWithPaging(query, readConsistencyLevel, fetchSize),
                                                   Object[].class)
-                                        : coordinator.execute(query, consistencyLevel);
+                                        : coordinator.execute(query, readConsistencyLevel);
                 AssertUtils.assertRows(actualRows, expectedRows);
             }
 
