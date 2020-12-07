@@ -103,15 +103,10 @@ public class ReplicaPlanMergerTest
                        range(max(40), min()));
             testRanges(cl,
                        range(min(), max(25)),
-                       range(min(), max(10)),
-                       range(max(10), max(20)),
-                       range(max(20), max(25)));
+                       range(min(), max(10)), range(max(10), max(20)), range(max(20), max(25)));
             testRanges(cl,
                        range(min(), max(40)),
-                       range(min(), max(10)),
-                       range(max(10), max(20)),
-                       range(max(20), max(30)),
-                       range(max(30), max(40)));
+                       range(min(), max(10)), range(max(10), max(20)), range(max(20), max(30)), range(max(30), max(40)));
             testRanges(cl,
                        range(min(), max(50)),
                        range(min(), max(10)),
@@ -123,23 +118,19 @@ public class ReplicaPlanMergerTest
                        range(max(20), max(30)));
             testRanges(cl,
                        range(max(25), min()),
-                       range(max(25), max(30)),
-                       range(max(30), max(40)),
-                       range(max(40), min()));
+                       range(max(25), max(30)), range(max(30), max(40)), range(max(40), min()));
             testRanges(cl,
                        range(max(50), min()));
             testRanges(cl,
-                       range(max(30), max(10)),
-                       range(max(30), max(40)),
-                       range(max(40), min()),
-                       range(min(), max(10))); // wrapped
+                       range(max(30), max(10)), // wrapped
+                       range(max(30), max(40)), range(max(40), min()), range(min(), max(10)));
             testRanges(cl,
-                       range(max(25), max(15)),
+                       range(max(25), max(15)), // wrapped
                        range(max(25), max(30)),
                        range(max(30), max(40)),
                        range(max(40), min()),
                        range(min(), max(10)),
-                       range(max(10), max(15))); // wrapped
+                       range(max(10), max(15)));
         }
     }
 
@@ -165,8 +156,7 @@ public class ReplicaPlanMergerTest
         {
             testRanges(cl,
                        range(min(), min()),
-                       range(min(), max(60)),
-                       range(max(60), min()));
+                       range(min(), max(60)), range(max(60), min()));
             testRanges(cl,
                        range(min(), max(25)));
             testRanges(cl,
@@ -177,25 +167,19 @@ public class ReplicaPlanMergerTest
                        range(max(20), max(30)));
             testRanges(cl,
                        range(max(25), min()),
-                       range(max(25), max(60)),
-                       range(max(60), min()));
+                       range(max(25), max(60)), range(max(60), min()));
             testRanges(cl,
                        range(max(25), max(35)),
                        range(max(25), max(35)));
             testRanges(cl,
                        range(max(50), min()),
-                       range(max(50), max(90)),
-                       range(max(90), min()));
+                       range(max(50), max(90)), range(max(90), min()));
             testRanges(cl,
-                       range(max(50), max(10)),
-                       range(max(50), max(90)),
-                       range(max(90), min()),
-                       range(min(), max(10))); // wrapping range
+                       range(max(50), max(10)), // wrapping range
+                       range(max(50), max(90)), range(max(90), min()), range(min(), max(10)));
             testRanges(cl,
-                       range(max(25), max(15)),
-                       range(max(25), max(60)),
-                       range(max(60), min()),
-                       range(min(), max(15))); // wrapping range
+                       range(max(25), max(15)), // wrapping range
+                       range(max(25), max(60)), range(max(60), min()), range(min(), max(15)));
         }
 
         // with other CLs the ranges are merged in a similar per-node basis
@@ -203,50 +187,36 @@ public class ReplicaPlanMergerTest
         {
             testRanges(cl,
                        range(min(), min()),
-                       range(min(), max(30)),
-                       range(max(30), max(60)),
-                       range(max(60), max(90)),
-                       range(max(90), min()));
+                       range(min(), max(30)), range(max(30), max(60)), range(max(60), max(90)), range(max(90), min()));
             testRanges(cl,
                        range(min(), max(25)));
             testRanges(cl,
                        range(min(), max(40)),
-                       range(min(), max(30)),
-                       range(max(30), max(40)));
+                       range(min(), max(30)), range(max(30), max(40)));
             testRanges(cl,
                        range(min(), max(50)),
-                       range(min(), max(30)),
-                       range(max(30), max(50)));
+                       range(min(), max(30)), range(max(30), max(50)));
             testRanges(cl,
                        range(max(20), max(30)));
             testRanges(cl,
                        range(max(25), min()),
-                       range(max(25), max(30)),
-                       range(max(30), max(60)),
-                       range(max(60), max(90)),
-                       range(max(90), min()));
+                       range(max(25), max(30)), range(max(30), max(60)), range(max(60), max(90)), range(max(90), min()));
             testRanges(cl,
                        range(max(25), max(35)),
-                       range(max(25), max(30)),
-                       range(max(30), max(35)));
+                       range(max(25), max(30)), range(max(30), max(35)));
             testRanges(cl,
                        range(max(50), min()),
-                       range(max(50), max(60)),
-                       range(max(60), max(90)),
-                       range(max(90), min()));
+                       range(max(50), max(60)), range(max(60), max(90)), range(max(90), min()));
             testRanges(cl,
-                       range(max(50), max(10)),
-                       range(max(50), max(60)),
-                       range(max(60), max(90)),
-                       range(max(90), min()),
-                       range(min(), max(10))); // wrapping range
+                       range(max(50), max(10)), // wrapping range
+                       range(max(50), max(60)), range(max(60), max(90)), range(max(90), min()), range(min(), max(10)));
             testRanges(cl,
-                       range(max(25), max(15)),
+                       range(max(25), max(15)), // wrapping range
                        range(max(25), max(30)),
                        range(max(30), max(60)),
                        range(max(60), max(90)),
                        range(max(90), min()),
-                       range(min(), max(15))); // wrapping range
+                       range(min(), max(15)));
         }
     }
 
@@ -268,7 +238,7 @@ public class ReplicaPlanMergerTest
         for (ConsistencyLevel cl : Arrays.asList(ONE, LOCAL_ONE))
         {
             testRanges(cl,
-                       range(min(), min()),
+                       range(min(), min()), // full range
                        range(min(), max(20)),
                        range(max(20), max(40)),
                        range(max(40), max(60)),
@@ -276,45 +246,33 @@ public class ReplicaPlanMergerTest
                        range(max(80), min()));
             testRanges(cl,
                        range(min(), max(25)),
-                       range(min(), max(20)),
-                       range(max(20), max(25)));
+                       range(min(), max(20)), range(max(20), max(25)));
             testRanges(cl,
                        range(min(), max(40)),
-                       range(min(), max(20)),
-                       range(max(20), max(40)));
+                       range(min(), max(20)), range(max(20), max(40)));
             testRanges(cl,
                        range(min(), max(50)),
-                       range(min(), max(20)),
-                       range(max(20), max(40)),
-                       range(max(40), max(50)));
+                       range(min(), max(20)), range(max(20), max(40)), range(max(40), max(50)));
             testRanges(cl,
                        range(max(20), max(30)));
             testRanges(cl,
                        range(max(25), min()),
-                       range(max(25), max(40)),
-                       range(max(40), max(60)),
-                       range(max(60), max(80)),
-                       range(max(80), min()));
+                       range(max(25), max(40)), range(max(40), max(60)), range(max(60), max(80)), range(max(80), min()));
             testRanges(cl,
                        range(max(25), max(35)));
             testRanges(cl,
                        range(max(50), min()),
-                       range(max(50), max(70)),
-                       range(max(70), max(90)),
-                       range(max(90), min()));
+                       range(max(50), max(70)), range(max(70), max(90)), range(max(90), min()));
             testRanges(cl,
-                       range(max(50), max(10)),
-                       range(max(50), max(70)),
-                       range(max(70), max(90)),
-                       range(max(90), min()),
-                       range(min(), max(10))); // wrapping range
+                       range(max(50), max(10)), // wrapping range
+                       range(max(50), max(70)), range(max(70), max(90)), range(max(90), min()), range(min(), max(10)));
             testRanges(cl,
-                       range(max(25), max(15)),
+                       range(max(25), max(15)), // wrapping range
                        range(max(25), max(40)),
                        range(max(40), max(60)),
                        range(max(60), max(80)),
                        range(max(80), min()),
-                       range(min(), max(15))); // wrapping range
+                       range(min(), max(15)));
         }
 
         // with other CLs the ranges are not merged at all
@@ -354,15 +312,10 @@ public class ReplicaPlanMergerTest
                    range(max(90), min()));
         testRanges(cl,
                    range(min(), max(25)),
-                   range(min(), max(10)),
-                   range(max(10), max(20)),
-                   range(max(20), max(25)));
+                   range(min(), max(10)), range(max(10), max(20)), range(max(20), max(25)));
         testRanges(cl,
                    range(min(), max(40)),
-                   range(min(), max(10)),
-                   range(max(10), max(20)),
-                   range(max(20), max(30)),
-                   range(max(30), max(40)));
+                   range(min(), max(10)), range(max(10), max(20)), range(max(20), max(30)), range(max(30), max(40)));
         testRanges(cl,
                    range(min(), max(50)),
                    range(min(), max(10)),
@@ -384,8 +337,7 @@ public class ReplicaPlanMergerTest
                    range(max(90), min()));
         testRanges(cl,
                    range(max(25), max(35)),
-                   range(max(25), max(30)),
-                   range(max(30), max(35)));
+                   range(max(25), max(30)), range(max(30), max(35)));
         testRanges(cl,
                    range(max(50), min()),
                    range(max(50), max(60)),
@@ -394,15 +346,15 @@ public class ReplicaPlanMergerTest
                    range(max(80), max(90)),
                    range(max(90), min()));
         testRanges(cl,
-                   range(max(50), max(10)),
+                   range(max(50), max(10)), // wrapping range
                    range(max(50), max(60)),
                    range(max(60), max(70)),
                    range(max(70), max(80)),
                    range(max(80), max(90)),
                    range(max(90), min()),
-                   range(min(), max(10))); // wrapping range
+                   range(min(), max(10)));
         testRanges(cl,
-                   range(max(25), max(15)),
+                   range(max(25), max(15)), // wrapping range
                    range(max(25), max(30)),
                    range(max(30), max(40)),
                    range(max(40), max(50)),
@@ -412,7 +364,7 @@ public class ReplicaPlanMergerTest
                    range(max(80), max(90)),
                    range(max(90), min()),
                    range(min(), max(10)),
-                   range(max(10), max(15))); // wrapping range
+                   range(max(10), max(15)));
     }
 
     private static PartitionPosition min()
