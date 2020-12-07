@@ -2801,7 +2801,7 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
      * The thread pools used to flush memtables.
      *
      * <p>Each disk has its own set of thread pools to perform memtable flushes.</p>
-     * <p>Based on the configuration. System keyspaces can have their own disk
+     * <p>Based on the configuration. Local system keyspaces can have their own disk
      * to allow for special redundancy mechanism. If it is the case the executor services returned for
      * local system keyspaces will be different from the ones for the other keyspaces.</p>
      */
@@ -2813,9 +2813,15 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
         private final ExecutorService[] nonSystemflushExecutors;
 
         /**
-         * The flush executors for system keyspaces.
+         * The flush executors for the local system keyspaces.
          */
         private final ExecutorService[] systemDiskFlushExecutors;
+
+        /**
+         * {@code true} if local system keyspaces are stored in their own directory and use an extra flush executor,
+         * {@code false} otherwise.
+         */
+        private boolean useSpecificExecutorForSystemKeyspaces;
 
         public PerDiskFlushExecutors(int flushWriters,
                                      String[] locationsForNonSystemKeyspaces,
@@ -2823,6 +2829,7 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
         {
             ExecutorService[] flushExecutors = createPerDiskFlushWriters(locationsForNonSystemKeyspaces.length, flushWriters);
             nonSystemflushExecutors = flushExecutors;
+            useSpecificExecutorForSystemKeyspaces = useSpecificLocationForSystemKeyspaces;
             systemDiskFlushExecutors = useSpecificLocationForSystemKeyspaces ? new ExecutorService[] {newThreadPool("SystemKeyspacesDiskMemtableFlushWriter", flushWriters)}
                                                                              : new ExecutorService[] {flushExecutors[0]};
         }
@@ -2869,7 +2876,7 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
         public void appendAllExecutors(Collection<ExecutorService> collection)
         {
             Collections.addAll(collection, nonSystemflushExecutors);
-            if (nonSystemflushExecutors != systemDiskFlushExecutors)
+            if (useSpecificExecutorForSystemKeyspaces)
                 Collections.addAll(collection, systemDiskFlushExecutors);
         }
     }
