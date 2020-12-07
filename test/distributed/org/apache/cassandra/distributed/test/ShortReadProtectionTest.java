@@ -43,6 +43,7 @@ import org.apache.cassandra.distributed.shared.AssertUtils;
 import org.apache.cassandra.utils.ByteBufferUtil;
 
 import static com.google.common.collect.Iterators.toArray;
+import static java.lang.String.format;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ALL;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.QUORUM;
 import static org.apache.cassandra.distributed.shared.AssertUtils.row;
@@ -135,7 +136,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void testSkinnyTableWithoutLiveRows()
     {
         tester.createTable("CREATE TABLE %s (id int PRIMARY KEY)")
-              .allNodes("INSERT INTO %s (id) VALUES (0)")
+              .allNodes("INSERT INTO %s (id) VALUES (0) USING TIMESTAMP 0")
               .onlyNode1("DELETE FROM %s WHERE id = 0")
               .assertRows("SELECT DISTINCT id FROM %s WHERE id = 0")
               .assertRows("SELECT id FROM %s WHERE id = 0 LIMIT 1");
@@ -152,7 +153,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void testSkinnyTableWithLiveRows()
     {
         tester.createTable("CREATE TABLE %s (id int PRIMARY KEY)")
-              .allNodes(0, 10, i -> String.format("INSERT INTO %%s (id) VALUES (%d)", i)) // order is 5,1,8,0,2,4,7,6,9,3
+              .allNodes(0, 10, i -> format("INSERT INTO %%s (id) VALUES (%d) USING TIMESTAMP 0", i)) // order is 5,1,8,0,2,4,7,6,9,3
               .onlyNode1("DELETE FROM %s WHERE id IN (1, 0, 4, 6, 3)") // delete every other row
               .assertRows("SELECT DISTINCT token(id), id FROM %s",
                           row(token(5), 5), row(token(8), 8), row(token(2), 2), row(token(7), 7), row(token(9), 9));
@@ -169,7 +170,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void testSkinnyTableWithComplementaryDeletions()
     {
         tester.createTable("CREATE TABLE %s (id int PRIMARY KEY)")
-              .allNodes(0, 10, i -> String.format("INSERT INTO %%s (id) VALUES (%d)", i)) // order is 5,1,8,0,2,4,7,6,9,3
+              .allNodes(0, 10, i -> format("INSERT INTO %%s (id) VALUES (%d) USING TIMESTAMP 0", i)) // order is 5,1,8,0,2,4,7,6,9,3
               .onlyNode1("DELETE FROM %s WHERE id IN (5, 8, 2, 7, 9)") // delete every other row
               .onlyNode2("DELETE FROM %s WHERE id IN (1, 0, 4, 6)") // delete every other row but the last one
               .assertRows("SELECT id FROM %s LIMIT 1", row(3))
@@ -187,7 +188,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void testMultipleMissedRows()
     {
         tester.createTable("CREATE TABLE %s (pk int, ck int, PRIMARY KEY (pk, ck))")
-              .allNodes(0, 4, i -> String.format("INSERT INTO %%s (pk, ck) VALUES (0, %d)", i))
+              .allNodes(0, 4, i -> format("INSERT INTO %%s (pk, ck) VALUES (0, %d) USING TIMESTAMP 0", i))
               .onlyNode1("DELETE FROM %s WHERE pk = 0 AND ck IN (1, 2, 3)",
                          "INSERT INTO %s (pk, ck) VALUES (0, 5)")
               .onlyNode2("INSERT INTO %s (pk, ck) VALUES (0, 4)")
@@ -206,7 +207,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void testAscendingOrder()
     {
         tester.createTable("CREATE TABLE %s (k int, c int, v int, PRIMARY KEY(k, c))")
-              .allNodes(1, 10, i -> String.format("INSERT INTO %%s (k, c, v) VALUES (0, %d, %d)", i, i * 10))
+              .allNodes(1, 10, i -> format("INSERT INTO %%s (k, c, v) VALUES (0, %d, %d) USING TIMESTAMP 0", i, i * 10))
               .onlyNode1("DELETE FROM %s WHERE k=0 AND c=1")
               .onlyNode2("DELETE FROM %s WHERE k=0 AND c=2")
               .onlyNode3("DELETE FROM %s WHERE k=0 AND c=3")
@@ -228,7 +229,7 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void testDescendingOrder()
     {
         tester.createTable("CREATE TABLE %s (k int, c int, v int, PRIMARY KEY(k, c))")
-              .allNodes(1, 10, i -> String.format("INSERT INTO %%s (k, c, v) VALUES (0, %d, %d)", i, i * 10))
+              .allNodes(1, 10, i -> format("INSERT INTO %%s (k, c, v) VALUES (0, %d, %d) USING TIMESTAMP 0", i, i * 10))
               .onlyNode1("DELETE FROM %s WHERE k=0 AND c=7")
               .onlyNode2("DELETE FROM %s WHERE k=0 AND c=8")
               .onlyNode3("DELETE FROM %s WHERE k=0 AND c=9")
@@ -251,8 +252,8 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void testDeletePartition()
     {
         tester.createTable("CREATE TABLE %s (k int, c int, v int, PRIMARY KEY(k, c))")
-              .allNodes("INSERT INTO %s (k, c, v) VALUES (0, 1, 10)",
-                        "INSERT INTO %s (k, c, v) VALUES (0, 2, 20)")
+              .allNodes("INSERT INTO %s (k, c, v) VALUES (0, 1, 10) USING TIMESTAMP 0",
+                        "INSERT INTO %s (k, c, v) VALUES (0, 2, 20) USING TIMESTAMP 0")
               .onlyNode2("DELETE FROM %s WHERE k=0")
               .assertRows("SELECT c, v FROM %s WHERE k=0 LIMIT 1");
     }
@@ -264,8 +265,8 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void testDeletePartitionWithStatic()
     {
         tester.createTable("CREATE TABLE %s (k int, c int, v int, s int STATIC, PRIMARY KEY(k, c))")
-              .allNodes("INSERT INTO %s (k, c, v, s) VALUES (0, 1, 10, 100)",
-                        "INSERT INTO %s (k, c, v) VALUES (0, 2, 20)")
+              .allNodes("INSERT INTO %s (k, c, v, s) VALUES (0, 1, 10, 100) USING TIMESTAMP 0",
+                        "INSERT INTO %s (k, c, v) VALUES (0, 2, 20) USING TIMESTAMP 0")
               .onlyNode2("DELETE FROM %s WHERE k=0")
               .assertRows("SELECT c, v FROM %s WHERE k=0 LIMIT 1");
     }
@@ -277,8 +278,8 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void testDeleteClustering()
     {
         tester.createTable("CREATE TABLE %s (k int, c int, v int, PRIMARY KEY(k, c))")
-              .allNodes("INSERT INTO %s (k, c, v) VALUES (0, 1, 10)",
-                        "INSERT INTO %s (k, c, v) VALUES (0, 2, 20)")
+              .allNodes("INSERT INTO %s (k, c, v) VALUES (0, 1, 10) USING TIMESTAMP 0",
+                        "INSERT INTO %s (k, c, v) VALUES (0, 2, 20) USING TIMESTAMP 0")
               .onlyNode2("DELETE FROM %s WHERE k=0 AND c=1")
               .assertRows("SELECT * FROM %s WHERE k=0 LIMIT 1", row(0, 2, 20))
               .onlyNode2("DELETE FROM %s WHERE k=0 AND c=2")
@@ -292,8 +293,8 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void testDeleteClusteringWithStatic()
     {
         tester.createTable("CREATE TABLE %s (k int, c int, v int, s int STATIC, PRIMARY KEY(k, c))")
-              .allNodes("INSERT INTO %s (k, c, v, s) VALUES (0, 1, 10, 100)",
-                        "INSERT INTO %s (k, c, v) VALUES (0, 2, 20)")
+              .allNodes("INSERT INTO %s (k, c, v, s) VALUES (0, 1, 10, 100) USING TIMESTAMP 0",
+                        "INSERT INTO %s (k, c, v) VALUES (0, 2, 20) USING TIMESTAMP 0")
               .onlyNode2("DELETE FROM %s WHERE k=0 AND c=1")
               .assertRows("SELECT k, c, v, s FROM %s WHERE k=0 LIMIT 1", row(0, 2, 20, 100))
               .onlyNode2("DELETE FROM %s WHERE k=0 AND c=2")
@@ -374,15 +375,15 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void test13911rows()
     {
         tester.createTable("CREATE TABLE %s (pk int, ck int, PRIMARY KEY (pk, ck))")
-              .onlyNode1("INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 42",
-                         "INSERT INTO %s (pk, ck) VALUES (0, 1) USING TIMESTAMP 42",
-                         "INSERT INTO %s (pk, ck) VALUES (2, 0) USING TIMESTAMP 42",
+              .onlyNode1("INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 0",
+                         "INSERT INTO %s (pk, ck) VALUES (0, 1) USING TIMESTAMP 0",
+                         "INSERT INTO %s (pk, ck) VALUES (2, 0) USING TIMESTAMP 0",
                          "DELETE FROM %s USING TIMESTAMP 42 WHERE pk = 2 AND ck = 1")
-              .onlyNode2("INSERT INTO %s (pk, ck) VALUES (0, 2) USING TIMESTAMP 42",
-                         "INSERT INTO %s (pk, ck) VALUES (0, 3) USING TIMESTAMP 42",
+              .onlyNode2("INSERT INTO %s (pk, ck) VALUES (0, 2) USING TIMESTAMP 0",
+                         "INSERT INTO %s (pk, ck) VALUES (0, 3) USING TIMESTAMP 0",
                          "DELETE FROM %s USING TIMESTAMP 42 WHERE pk = 2 AND ck = 0",
-                         "INSERT INTO %s (pk, ck) VALUES (2, 1) USING TIMESTAMP 42",
-                         "INSERT INTO %s (pk, ck) VALUES (2, 2) USING TIMESTAMP 42")
+                         "INSERT INTO %s (pk, ck) VALUES (2, 1) USING TIMESTAMP 0",
+                         "INSERT INTO %s (pk, ck) VALUES (2, 2) USING TIMESTAMP 0")
               .assertRows("SELECT pk, ck FROM %s PER PARTITION LIMIT 2 LIMIT 3", row(0, 0), row(0, 1), row(2, 2));
     }
 
@@ -398,15 +399,15 @@ public class ShortReadProtectionTest extends TestBaseImpl
     public void test13911partitions()
     {
         tester.createTable("CREATE TABLE %s (pk int, ck int, PRIMARY KEY (pk, ck))")
-              .onlyNode1("INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 42",
-                         "INSERT INTO %s (pk, ck) VALUES (0, 1) USING TIMESTAMP 42",
+              .onlyNode1("INSERT INTO %s (pk, ck) VALUES (0, 0) USING TIMESTAMP 0",
+                         "INSERT INTO %s (pk, ck) VALUES (0, 1) USING TIMESTAMP 0",
                          "DELETE FROM %s USING TIMESTAMP 42 WHERE pk = 2 AND ck IN  (0, 1)")
-              .onlyNode2("INSERT INTO %s (pk, ck) VALUES (0, 2) USING TIMESTAMP 42",
-                         "INSERT INTO %s (pk, ck) VALUES (0, 3) USING TIMESTAMP 42",
-                         "INSERT INTO %s (pk, ck) VALUES (2, 0) USING TIMESTAMP 42",
-                         "INSERT INTO %s (pk, ck) VALUES (2, 1) USING TIMESTAMP 42",
-                         "INSERT INTO %s (pk, ck) VALUES (4, 0) USING TIMESTAMP 42",
-                         "INSERT INTO %s (pk, ck) VALUES (4, 1) USING TIMESTAMP 42")
+              .onlyNode2("INSERT INTO %s (pk, ck) VALUES (0, 2) USING TIMESTAMP 0",
+                         "INSERT INTO %s (pk, ck) VALUES (0, 3) USING TIMESTAMP 0",
+                         "INSERT INTO %s (pk, ck) VALUES (2, 0) USING TIMESTAMP 0",
+                         "INSERT INTO %s (pk, ck) VALUES (2, 1) USING TIMESTAMP 0",
+                         "INSERT INTO %s (pk, ck) VALUES (4, 0) USING TIMESTAMP 0",
+                         "INSERT INTO %s (pk, ck) VALUES (4, 1) USING TIMESTAMP 0")
               .assertRows("SELECT pk, ck FROM %s PER PARTITION LIMIT 2 LIMIT 4",
                           row(0, 0), row(0, 1), row(4, 0), row(4, 1));
     }
