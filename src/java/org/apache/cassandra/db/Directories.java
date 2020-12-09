@@ -1111,14 +1111,11 @@ public class Directories
         return visitor.getAllocatedSize();
     }
 
+    // Recursively finds all the sub directories in the KS directory.
     public static List<File> getKSChildDirectories(String ksName)
     {
-        return getKSChildDirectories(ksName, dataDirectories.getDataDirectoriesUsedBy(ksName));
-    }
+        DataDirectory[] directories = dataDirectories.getDataDirectoriesUsedBy(ksName);
 
-    // Recursively finds all the sub directories in the KS directory.
-    public static List<File> getKSChildDirectories(String ksName, DataDirectory[] directories)
-    {
         List<File> result = new ArrayList<>();
         for (DataDirectory dataDirectory : directories)
         {
