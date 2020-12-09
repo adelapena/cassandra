@@ -24,7 +24,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiPredicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.RateLimiter;
 
@@ -681,13 +680,10 @@ public class Directories
          */
         public DataDirectory[] getDataDirectoriesUsedBy(String keyspace)
         {
-            if (SchemaConstants.SYSTEM_KEYSPACE_NAME.equals(keyspace)
-                    && !ArrayUtils.isEmpty(systemKeyspaceDataDirectories)
-                    && !ArrayUtils.contains(nonSystemKeyspacesDirectories, systemKeyspaceDataDirectories[0]))
+            if (SchemaConstants.SYSTEM_KEYSPACE_NAME.equals(keyspace))
             {
-                DataDirectory[] directories = Arrays.copyOf(nonSystemKeyspacesDirectories, nonSystemKeyspacesDirectories.length + 1);
-                directories[directories.length - 1] = systemKeyspaceDataDirectories[0];
-                return directories;
+                Set<DataDirectory> all = getAllDirectories();
+                return all.toArray(new DataDirectory[all.size()]);
             }
             return SchemaConstants.isLocalSystemKeyspace(keyspace) ? systemKeyspaceDataDirectories
                                                                    : nonSystemKeyspacesDirectories;
@@ -708,12 +704,15 @@ public class Directories
         @Override
         public Iterator<DataDirectory> iterator()
         {
-            Iterator<DataDirectory> iter = Iterators.forArray(nonSystemKeyspacesDirectories);
+            return getAllDirectories().iterator();
+        }
 
-            if (nonSystemKeyspacesDirectories == systemKeyspaceDataDirectories)
-                return iter;
-
-            return Iterators.concat(iter, Iterators.forArray(systemKeyspaceDataDirectories));
+        private Set<DataDirectory> getAllDirectories()
+        {
+            Set<DataDirectory> directories = new LinkedHashSet<>(nonSystemKeyspacesDirectories.length + systemKeyspaceDataDirectories.length);
+            Collections.addAll(directories, nonSystemKeyspacesDirectories);
+            Collections.addAll(directories, systemKeyspaceDataDirectories);
+            return directories;
         }
 
         @Override
