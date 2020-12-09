@@ -18,7 +18,6 @@
 
 package org.apache.cassandra.io;
 
-import java.io.File;
 import java.io.IOException;
 
 public class FSDiskFullWriteError extends FSWriteError
@@ -27,8 +26,7 @@ public class FSDiskFullWriteError extends FSWriteError
     {
         super(new IOException(String.format("Insufficient disk space to write %d bytes into the %s keyspace",
                                             mutationSize,
-                                            keyspace)),
-              new File(""));
+                                            keyspace)));
     }
 
     @Override

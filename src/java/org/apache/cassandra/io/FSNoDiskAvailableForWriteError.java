@@ -18,7 +18,6 @@
 
 package org.apache.cassandra.io;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -29,8 +28,7 @@ public class FSNoDiskAvailableForWriteError extends FSWriteError
     public FSNoDiskAvailableForWriteError(String keyspace)
     {
         super(new IOException(String.format("The data directories for the %s keyspace have been marked as unwritable",
-                                            keyspace)),
-                              new File(""));
+                                            keyspace)));
     }
 
     @Override
