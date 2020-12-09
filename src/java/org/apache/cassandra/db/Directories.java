@@ -511,14 +511,7 @@ public class Directories
         if (allowedDirs.isEmpty())
             throw new FSNoDiskAvailableForWriteError(metadata.keyspace);
 
-        Collections.sort(allowedDirs, new Comparator<DataDirectory>()
-        {
-            @Override
-            public int compare(DataDirectory o1, DataDirectory o2)
-            {
-                return o1.location.compareTo(o2.location);
-            }
-        });
+        allowedDirs.sort(Comparator.comparing(o -> o.location));
         return allowedDirs.toArray(new DataDirectory[allowedDirs.size()]);
     }
 
