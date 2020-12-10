@@ -122,7 +122,7 @@ import org.apache.cassandra.service.paxos.PrepareCallback;
 import org.apache.cassandra.service.paxos.ProposeCallback;
 import org.apache.cassandra.service.reads.AbstractReadExecutor;
 import org.apache.cassandra.service.reads.ReadCallback;
-import org.apache.cassandra.service.reads.range.RangeCommandExecutor;
+import org.apache.cassandra.service.reads.range.RangeCommands;
 import org.apache.cassandra.service.reads.repair.ReadRepair;
 import org.apache.cassandra.tracing.Tracing;
 import org.apache.cassandra.triggers.TriggerExecutor;
@@ -2017,7 +2017,7 @@ public class StorageProxy implements StorageProxyMBean
                                                   ConsistencyLevel consistencyLevel,
                                                   long queryStartNanoTime)
     {
-        return RangeCommandExecutor.create(command, consistencyLevel, queryStartNanoTime).partitions();
+        return RangeCommands.partitions(command, consistencyLevel, queryStartNanoTime);
     }
 
     public Map<String, List<String>> getSchemaVersions()

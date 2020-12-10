@@ -32,7 +32,7 @@ import org.apache.cassandra.tracing.Tracing;
 import org.apache.cassandra.utils.FBUtilities;
 import org.assertj.core.util.VisibleForTesting;
 
-public class RangeCommandExecutor
+public class RangeCommands
 {
     private static final Logger logger = LoggerFactory.getLogger(RangeCommandIterator.class);
 
@@ -45,22 +45,26 @@ public class RangeCommandExecutor
      * don't want a burst of range requests that will back up, hurting all other queries. At the same time,
      * we want to give range queries a chance to run if resources are available.
      */
-    private static final int MAX_CONCURRENT_RANGE_REQUESTS = Math.max(1,  Integer.getInteger("cassandra.max_concurrent_range_requests",
-                                                                                             FBUtilities.getAvailableProcessors() * 10));
+    private static final int MAX_CONCURRENT_RANGE_REQUESTS = Math.max(1, Integer.getInteger("cassandra.max_concurrent_range_requests",
+                                                                                            FBUtilities.getAvailableProcessors() * 10));
 
-    private final PartitionRangeReadCommand command;
-    private final RangeCommandIterator rangeCommandIterator;
-
-    private RangeCommandExecutor(PartitionRangeReadCommand command, RangeCommandIterator rangeCommandIterator)
+    public static PartitionIterator partitions(PartitionRangeReadCommand command,
+                                               ConsistencyLevel consistencyLevel,
+                                               long queryStartNanoTime)
     {
-        this.command = command;
-        this.rangeCommandIterator = rangeCommandIterator;
+        // Note that in general, a RangeCommandIterator will honor the command limit for each range, but will not enforce it globally.
+        RangeCommandIterator rangeCommands = rangeCommandIterator(command, consistencyLevel, queryStartNanoTime);
+        return command.limits().filter(command.postReconciliationProcessing(rangeCommands),
+                                       command.nowInSec(),
+                                       command.selectsFullPartition(),
+                                       command.metadata().enforceStrictLiveness());
     }
 
+    @VisibleForTesting
     @SuppressWarnings("resource") // created iterators will be closed in CQL layer through the chain of transformations
-    public static RangeCommandExecutor create(PartitionRangeReadCommand command,
-                                              ConsistencyLevel consistencyLevel,
-                                              long queryStartNanoTime)
+    static RangeCommandIterator rangeCommandIterator(PartitionRangeReadCommand command,
+                                                     ConsistencyLevel consistencyLevel,
+                                                     long queryStartNanoTime)
     {
         Tracing.trace("Computing ranges to query");
 
@@ -82,22 +86,12 @@ public class RangeCommandExecutor
                       replicaPlans.size(), concurrencyFactor, resultsPerRange);
 
         ReplicaPlanMerger mergedReplicaPlans = new ReplicaPlanMerger(replicaPlans, keyspace, consistencyLevel);
-        RangeCommandIterator rangeCommandIterator =  new RangeCommandIterator(mergedReplicaPlans,
-                                                                              command,
-                                                                              concurrencyFactor,
-                                                                              maxConcurrencyFactor,
-                                                                              replicaPlans.size(),
-                                                                              queryStartNanoTime);
-        return new RangeCommandExecutor(command, rangeCommandIterator);
-    }
-
-    public PartitionIterator partitions()
-    {
-        // Note that in general, a RangeCommandIterator will honor the command limit for each range, but will not enforce it globally.
-        return command.limits().filter(command.postReconciliationProcessing(rangeCommandIterator),
-                                       command.nowInSec(),
-                                       command.selectsFullPartition(),
-                                       command.metadata().enforceStrictLiveness());
+        return new RangeCommandIterator(mergedReplicaPlans,
+                                        command,
+                                        concurrencyFactor,
+                                        maxConcurrencyFactor,
+                                        replicaPlans.size(),
+                                        queryStartNanoTime);
     }
 
     /**
@@ -118,11 +112,5 @@ public class RangeCommandExecutor
         // adjust maxExpectedResults by the number of tokens this node has and the replication factor for this ks
         return (maxExpectedResults / DatabaseDescriptor.getNumTokens())
                / keyspace.getReplicationStrategy().getReplicationFactor().allReplicas;
-    }
-
-    @VisibleForTesting
-    RangeCommandIterator rangeCommandIterator()
-    {
-        return rangeCommandIterator;
     }
 }

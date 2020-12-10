@@ -42,9 +42,9 @@ import static org.apache.cassandra.db.ConsistencyLevel.ONE;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link RangeCommandExecutor}.
+ * Tests for {@link RangeCommands}.
  */
-public class RangeCommandExecutorTest extends CQLTester
+public class RangeCommandsTest extends CQLTester
 {
     private static final int MAX_CONCURRENCY_FACTOR = 4;
 
@@ -73,8 +73,7 @@ public class RangeCommandExecutorTest extends CQLTester
 
         // verify that a low concurrency factor is not capped by the max concurrency factor
         PartitionRangeReadCommand command = command(cfs, 50, 50);
-        RangeCommandExecutor executor = RangeCommandExecutor.create(command, ONE, System.nanoTime());
-        try (RangeCommandIterator partitions = executor.rangeCommandIterator();
+        try (RangeCommandIterator partitions = RangeCommands.rangeCommandIterator(command, ONE, System.nanoTime());
              ReplicaPlanIterator ranges = new ReplicaPlanIterator(command.dataRange().keyRange(), keyspace, ONE))
         {
             assertEquals(2, partitions.concurrencyFactor());
@@ -84,8 +83,7 @@ public class RangeCommandExecutorTest extends CQLTester
 
         // verify that a high concurrency factor is capped by the max concurrency factor
         command = command(cfs, 1000, 50);
-        executor = RangeCommandExecutor.create(command, ONE, System.nanoTime());
-        try (RangeCommandIterator partitions = executor.rangeCommandIterator();
+        try (RangeCommandIterator partitions = RangeCommands.rangeCommandIterator(command, ONE, System.nanoTime());
              ReplicaPlanIterator ranges = new ReplicaPlanIterator(command.dataRange().keyRange(), keyspace, ONE))
         {
             assertEquals(MAX_CONCURRENCY_FACTOR, partitions.concurrencyFactor());
@@ -95,8 +93,7 @@ public class RangeCommandExecutorTest extends CQLTester
 
         // with 0 estimated results per range the concurrency factor should be 1
         command = command(cfs, 1000, 0);
-        executor = RangeCommandExecutor.create(command, ONE, System.nanoTime());
-        try (RangeCommandIterator partitions = executor.rangeCommandIterator();
+        try (RangeCommandIterator partitions = RangeCommands.rangeCommandIterator(command, ONE, System.nanoTime());
              ReplicaPlanIterator ranges = new ReplicaPlanIterator(command.dataRange().keyRange(), keyspace, ONE))
         {
             assertEquals(1, partitions.concurrencyFactor());
@@ -157,7 +154,7 @@ public class RangeCommandExecutorTest extends CQLTester
                                                     float expectedEstimate)
     {
         PartitionRangeReadCommand command = command(cfs, Integer.MAX_VALUE, commandEstimate, indexEstimate);
-        assertEquals(expectedEstimate / rf, RangeCommandExecutor.estimateResultsPerRange(command, keyspace), 0);
+        assertEquals(expectedEstimate / rf, RangeCommands.estimateResultsPerRange(command, keyspace), 0);
     }
 
     private static PartitionRangeReadCommand command(ColumnFamilyStore cfs, int limit, int commandEstimate)
