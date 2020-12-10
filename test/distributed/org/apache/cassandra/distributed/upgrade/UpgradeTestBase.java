@@ -142,13 +142,6 @@ public class UpgradeTestBase extends DistributedTestBase
             return this;
         }
 
-        public TestCase runAfterNodeAndClusterUpgrade(RunOnCluster runAfterClusterUpgrade)
-        {
-            runAfterNodeUpgrade((cluster, node) -> runAfterClusterUpgrade.run(cluster));
-            runAfterClusterUpgrade(runAfterClusterUpgrade);
-            return this;
-        }
-
         public TestCase withConfig(Consumer<IInstanceConfig> config)
         {
             this.configConsumer = config;

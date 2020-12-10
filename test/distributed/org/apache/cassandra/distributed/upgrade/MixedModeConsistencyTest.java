@@ -28,48 +28,38 @@ import org.junit.Test;
 
 import org.apache.cassandra.distributed.UpgradeableCluster;
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
-import org.apache.cassandra.distributed.api.Feature;
 import org.apache.cassandra.distributed.api.ICoordinator;
 import org.apache.cassandra.distributed.api.IUpgradeableInstance;
 import org.apache.cassandra.distributed.shared.Versions;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.*;
 import static org.apache.cassandra.distributed.shared.AssertUtils.assertRows;
 import static org.apache.cassandra.distributed.shared.AssertUtils.row;
 
-public class ConsistencyTest extends UpgradeTestBase
+public class MixedModeConsistencyTest extends UpgradeTestBase
 {
     @Test
     public void testConsistency() throws Throwable
     {
-        testConsistency(allUpgrades(3, 1));
-    }
-
-    @Test
-    public void testConsistencyWithNetworkAndGossip() throws Throwable
-    {
-        testConsistency(new TestCase().nodes(3)
-                                      .nodesToUpgrade(1)
-                                      // .upgrade(Versions.Major.v22, Versions.Major.v30)
-                                      // .upgrade(Versions.Major.v22, Versions.Major.v3X)
-                                      // .upgrade(Versions.Major.v30, Versions.Major.v3X)
-                                      .upgrade(Versions.Major.v30, Versions.Major.v4)
-                                      .upgrade(Versions.Major.v3X, Versions.Major.v4)
-                                      .withConfig(cfg -> cfg.with(Feature.NETWORK, Feature.GOSSIP)));
-    }
-
-    private void testConsistency(TestCase testCase) throws Throwable
-    {
         List<ConsistencyTester> testers = new ArrayList<>();
-        testers.addAll(ConsistencyTester.create(1, ALL, THREE));
-        testers.addAll(ConsistencyTester.create(2, ALL, THREE, QUORUM, LOCAL_QUORUM, TWO));
-        testers.addAll(ConsistencyTester.create(3, ALL, THREE, QUORUM, LOCAL_QUORUM, TWO, ONE, LOCAL_ONE));
+        testers.addAll(ConsistencyTester.create(1, ALL));
+        testers.addAll(ConsistencyTester.create(2, ALL, QUORUM));
+        testers.addAll(ConsistencyTester.create(3, ALL, QUORUM, ONE));
 
-        testCase.setup(cluster -> {
+        new TestCase()
+        .nodes(3)
+        .nodesToUpgrade(1)
+        .upgrade(Versions.Major.v22, Versions.Major.v30)
+        .upgrade(Versions.Major.v3X, Versions.Major.v4)
+        .upgrade(Versions.Major.v30, Versions.Major.v4)
+        .withConfig(config -> config.set("read_request_timeout_in_ms", SECONDS.toMillis(30))
+                                    .set("write_request_timeout_in_ms", SECONDS.toMillis(30)))
+        .setup(cluster -> {
             ConsistencyTester.createTable(cluster);
             for (ConsistencyTester tester : testers)
                 tester.writeRows(cluster);
-        }).runAfterNodeAndClusterUpgrade(cluster -> {
+        }).runAfterNodeUpgrade((cluster, node) -> {
             for (ConsistencyTester tester : testers)
                 tester.readRows(cluster);
         }).run();
