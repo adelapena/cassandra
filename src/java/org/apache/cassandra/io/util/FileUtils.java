@@ -45,6 +45,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.google.common.base.Preconditions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1020,6 +1022,8 @@ public final class FileUtils
      */
     public static void deleteDirectoryIfEmpty(Path path) throws IOException
     {
+        Preconditions.checkArgument(Files.isDirectory(path), String.format("%s is not a directory", path));
+
         try
         {
             logger.info("Deleting directory {}", path);

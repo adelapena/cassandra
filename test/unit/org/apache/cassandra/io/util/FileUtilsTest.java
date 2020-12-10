@@ -31,7 +31,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.apache.cassandra.config.DatabaseDescriptor;
+import org.assertj.core.api.Assertions;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -149,17 +151,17 @@ public class FileUtilsTest
 
         FileUtils.moveRecursively(sourceDir, targetDir);
 
-        assertFalse(Files.exists(sourceDir));
-        assertTrue(Files.exists(targetDir.resolve("a/file_1.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/file_2.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ab/file_1.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ab/file_2.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ab/file_3.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ab/file_1.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ab/file_2.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ac/")));
-        assertTrue(Files.exists(targetDir.resolve("b/file_1.txt")));
-        assertTrue(Files.exists(targetDir.resolve("b/file_2.txt")));
+        assertThat(sourceDir).doesNotExist();
+        assertThat(targetDir.resolve("a/file_1.txt")).exists();
+        assertThat(targetDir.resolve("a/file_2.txt")).exists();
+        assertThat(targetDir.resolve("a/ab/file_1.txt")).exists();
+        assertThat(targetDir.resolve("a/ab/file_2.txt")).exists();
+        assertThat(targetDir.resolve("a/ab/file_3.txt")).exists();
+        assertThat(targetDir.resolve("a/ab/file_1.txt")).exists();
+        assertThat(targetDir.resolve("a/ab/file_2.txt")).exists();
+        assertThat(targetDir.resolve("a/ac/")).exists();
+        assertThat(targetDir.resolve("b/file_1.txt")).exists();
+        assertThat(targetDir.resolve("b/file_2.txt")).exists();
 
         // Tests that files can be moved into existing directories
 
@@ -171,19 +173,19 @@ public class FileUtilsTest
 
         FileUtils.moveRecursively(sourceDir, targetDir);
 
-        assertFalse(Files.exists(sourceDir));
-        assertTrue(Files.exists(targetDir.resolve("a/file_1.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/file_2.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/file_3.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ab/file_1.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ab/file_2.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ab/file_3.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ab/file_4.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ab/file_1.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ab/file_2.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/ac/")));
-        assertTrue(Files.exists(targetDir.resolve("b/file_1.txt")));
-        assertTrue(Files.exists(targetDir.resolve("b/file_2.txt")));
+        assertThat(sourceDir).doesNotExist();
+        assertThat(targetDir.resolve("a/file_1.txt")).exists();
+        assertThat(targetDir.resolve("a/file_2.txt")).exists();
+        assertThat(targetDir.resolve("a/file_3.txt")).exists();
+        assertThat(targetDir.resolve("a/ab/file_1.txt")).exists();
+        assertThat(targetDir.resolve("a/ab/file_2.txt")).exists();
+        assertThat(targetDir.resolve("a/ab/file_3.txt")).exists();
+        assertThat(targetDir.resolve("a/ab/file_4.txt")).exists();
+        assertThat(targetDir.resolve("a/ab/file_1.txt")).exists();
+        assertThat(targetDir.resolve("a/ab/file_2.txt")).exists();
+        assertThat(targetDir.resolve("a/ac/")).exists();
+        assertThat(targetDir.resolve("b/file_1.txt")).exists();
+        assertThat(targetDir.resolve("b/file_2.txt")).exists();
 
         // Tests that existing files are not replaced but trigger an error.
 
@@ -192,10 +194,31 @@ public class FileUtilsTest
         subDir_1.resolve("file_3.txt").toFile().createNewFile();
         FileUtils.moveRecursively(sourceDir, targetDir);
 
-        assertTrue(Files.exists(sourceDir));
-        assertTrue(Files.exists(sourceDir.resolve("a/file_3.txt")));
-        assertTrue(Files.exists(targetDir.resolve("a/file_3.txt")));
+        assertThat(sourceDir).exists();
+        assertThat(sourceDir.resolve("a/file_3.txt")).exists();
+        assertThat(targetDir.resolve("a/file_3.txt")).exists();
     }
+
+    @Test
+    public void testDeleteDirectoryIfEmpty() throws IOException
+    {
+        Path tmpDir = Files.createTempDirectory(this.getClass().getSimpleName());
+        Path subDir_1 = Files.createDirectory(tmpDir.resolve("a"));
+        Path subDir_2 = Files.createDirectory(tmpDir.resolve("b"));
+        Path file_1 = subDir_2.resolve("file_1.txt");
+        file_1.toFile().createNewFile();
+
+        FileUtils.deleteDirectoryIfEmpty(subDir_1);
+        assertThat(subDir_1).doesNotExist();
+
+        FileUtils.deleteDirectoryIfEmpty(subDir_2);
+        assertThat(subDir_2).exists();
+
+        Assertions.assertThatThrownBy(() -> FileUtils.deleteDirectoryIfEmpty(file_1))
+                  .isInstanceOf(IllegalArgumentException.class)
+                  .hasMessageContaining("is not a directory");
+    }
+
 
     private File createFolder(Path path)
     {
