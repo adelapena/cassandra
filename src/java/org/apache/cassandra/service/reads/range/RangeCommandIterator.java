@@ -186,12 +186,12 @@ class RangeCommandIterator extends AbstractIterator<RowIterator> implements Part
         }
 
         ReplicaPlan.SharedForRangeRead sharedReplicaPlan = ReplicaPlan.shared(replicaPlan);
-        ReadRepair<EndpointsForRange, ReplicaPlan.ForRangeRead> readRepair
-                = ReadRepair.create(command, sharedReplicaPlan, queryStartNanoTime);
-        DataResolver<EndpointsForRange, ReplicaPlan.ForRangeRead> resolver
-                = new DataResolver<>(rangeCommand, sharedReplicaPlan, readRepair, queryStartNanoTime);
-        ReadCallback<EndpointsForRange, ReplicaPlan.ForRangeRead> handler
-                = new ReadCallback<>(resolver, rangeCommand, sharedReplicaPlan, queryStartNanoTime);
+        ReadRepair<EndpointsForRange, ReplicaPlan.ForRangeRead> readRepair =
+                ReadRepair.create(command, sharedReplicaPlan, queryStartNanoTime);
+        DataResolver<EndpointsForRange, ReplicaPlan.ForRangeRead> resolver =
+                new DataResolver<>(rangeCommand, sharedReplicaPlan, readRepair, queryStartNanoTime);
+        ReadCallback<EndpointsForRange, ReplicaPlan.ForRangeRead> handler =
+                new ReadCallback<>(resolver, rangeCommand, sharedReplicaPlan, queryStartNanoTime);
 
         if (replicaPlan.contacts().size() == 1 && replicaPlan.contacts().get(0).isSelf())
         {
