@@ -25,6 +25,8 @@ import java.util.UUID;
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
 import org.apache.cassandra.distributed.api.ICoordinator;
 import org.apache.cassandra.distributed.shared.Versions;
+import org.apache.cassandra.exceptions.ReadTimeoutException;
+import org.apache.cassandra.exceptions.WriteTimeoutException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ALL;
@@ -32,64 +34,62 @@ import static org.apache.cassandra.distributed.api.ConsistencyLevel.ONE;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.QUORUM;
 import static org.apache.cassandra.distributed.shared.AssertUtils.assertRows;
 import static org.apache.cassandra.distributed.shared.AssertUtils.row;
-import static org.apache.cassandra.net.Verb.MUTATION_REQ;
-import static org.apache.cassandra.net.Verb.READ_REQ;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class MixedModeAvailabilityTest extends UpgradeTestBase
 {
+    private static final int NUM_NODES = 3;
+    private static final int COORDINATOR = 1;
+    private static final List<Tester> TESTERS = Arrays.asList(new Tester(ONE, ALL),
+                                                              new Tester(QUORUM, QUORUM),
+                                                              new Tester(ALL, ONE));
+
+
     protected static void testAvailability(Versions.Major initial, Versions.Major... upgrade) throws Throwable
     {
-        List<Tester> testers = Arrays.asList(new Tester(ONE, ALL),
-                                             new Tester(QUORUM, QUORUM),
-                                             new Tester(ALL, ONE));
+        testAvailability(true, initial, upgrade);
+        testAvailability(false, initial, upgrade);
+    }
 
+    private static void testAvailability(boolean upgradedCoordinator,
+                                         Versions.Major initial,
+                                         Versions.Major... upgrade) throws Throwable
+    {
         new TestCase()
-        .nodes(3)
-        .nodesToUpgrade(1)
+        .nodes(NUM_NODES)
+        .nodesToUpgrade(upgradedCoordinator ? 1 : 2)
         .upgrade(initial, upgrade)
-        .withConfig(config -> config.set("read_request_timeout_in_ms", SECONDS.toMillis(30))
-                                    .set("write_request_timeout_in_ms", SECONDS.toMillis(30)))
-        .setup(c -> c.schemaChange(withKeyspace("CREATE TABLE %s.tbl (k uuid, c int, v int, PRIMARY KEY (k, c))")))
+        .withConfig(config -> config.set("read_request_timeout_in_ms", SECONDS.toMillis(1))
+                                    .set("write_request_timeout_in_ms", SECONDS.toMillis(1)))
+        .setup(c -> c.schemaChange(withKeyspace("CREATE TABLE %s.t (k uuid, c int, v int, PRIMARY KEY (k, c))")))
         .runAfterNodeUpgrade((cluster, n) -> {
 
-            // using an upgraded and a not upgraded coordinator...
-            for (int node = 1; node < cluster.size(); node++)
+            // using 0 to 2 down nodes...
+            for (int numNodesDown = 0; numNodesDown < NUM_NODES; numNodesDown++)
             {
-                ICoordinator coordinator = cluster.coordinator(node);
-                int nodeDown = node;
+                // disable communications to the down nodes
+                if (numNodesDown > 0)
+                    cluster.get(replica(COORDINATOR, numNodesDown)).shutdown();
 
-                // using 0 to 2 down nodes...
-                for (int numNodesDown = 0; numNodesDown < cluster.size(); numNodesDown++)
-                {
-                    // disable communications to the down nodes
-                    if (numNodesDown > 0)
-                    {
-                        nodeDown = nextNode(nodeDown, cluster.size());
-                        cluster.filters().verbs(READ_REQ.id, MUTATION_REQ.id).to(nodeDown).drop();
-                    }
-
-                    // run the test cases that are compatible with the number of down nodes
-                    for (Tester tester : testers)
-                    {
-                        tester.test(coordinator, numNodesDown);
-                    }
-                }
-
-                // restore communication to all nodes
-                cluster.filters().reset();
+                // run the test cases that are compatible with the number of down nodes
+                ICoordinator coordinator = cluster.coordinator(COORDINATOR);
+                for (Tester tester : TESTERS)
+                    tester.test(coordinator, numNodesDown);
             }
         }).run();
     }
 
-    private static int nextNode(int node, int numNodes)
+    private static int replica(int node, int depth)
     {
-        return node == numNodes ? 1 : node + 1;
+        assert depth >= 0;
+        return depth == 0 ? node : replica(node == NUM_NODES ? 1 : node + 1, depth - 1);
     }
 
     private static class Tester
     {
-        private static final String INSERT = withKeyspace("INSERT INTO %s.tbl (k, c, v) VALUES (?, ?, ?)");
-        private static final String SELECT = withKeyspace("SELECT * FROM %s.tbl WHERE k = ?");
+        private static final String INSERT = withKeyspace("INSERT INTO %s.t (k, c, v) VALUES (?, ?, ?)");
+        private static final String SELECT = withKeyspace("SELECT * FROM %s.t WHERE k = ?");
 
         private final ConsistencyLevel writeConsistencyLevel;
         private final ConsistencyLevel readConsistencyLevel;
@@ -102,16 +102,43 @@ public class MixedModeAvailabilityTest extends UpgradeTestBase
 
         public void test(ICoordinator coordinator, int numNodesDown)
         {
-            if (numNodesDown > maxNodesDown(writeConsistencyLevel) ||
-                numNodesDown > maxNodesDown(readConsistencyLevel))
-                return;
+            UUID key = UUID.randomUUID();
+            Object[] row1 = row(key, 1, 10);
+            Object[] row2 = row(key, 2, 20);
 
-            UUID partitionKey = UUID.randomUUID();
-            coordinator.execute(INSERT, writeConsistencyLevel, partitionKey, 1, 10);
-            coordinator.execute(INSERT, writeConsistencyLevel, partitionKey, 2, 20);
-            assertRows(coordinator.execute(SELECT, readConsistencyLevel, partitionKey),
-                       row(partitionKey, 1, 10),
-                       row(partitionKey, 2, 20));
+            // test write
+            maybeFail(WriteTimeoutException.class, numNodesDown > maxNodesDown(writeConsistencyLevel), () -> {
+                coordinator.execute(INSERT, writeConsistencyLevel, row1);
+                coordinator.execute(INSERT, writeConsistencyLevel, row2);
+            });
+
+            // test read
+            maybeFail(ReadTimeoutException.class, numNodesDown > maxNodesDown(readConsistencyLevel), () -> {
+                Object[][] rows = coordinator.execute(SELECT, readConsistencyLevel, key);
+                if (numNodesDown <= maxNodesDown(writeConsistencyLevel))
+                    assertRows(rows, row1, row2);
+            });
+        }
+
+        private static <E extends Exception> void maybeFail(Class<E> exceptionClass, boolean shouldFail, Runnable test)
+        {
+            try
+            {
+                test.run();
+                assertFalse(shouldFail);
+            }
+            catch (Exception e)
+            {
+                // we should use exception class names due to the different classpaths
+                String className = e.getClass().getCanonicalName();
+                if (e instanceof RuntimeException && e.getCause() != null)
+                    className = e.getCause().getClass().getCanonicalName();
+
+                if (shouldFail)
+                    assertEquals(exceptionClass.getCanonicalName(), className);
+                else
+                    throw e;
+            }
         }
 
         private static int maxNodesDown(ConsistencyLevel cl)
