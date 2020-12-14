@@ -18,9 +18,9 @@
 
 package org.apache.cassandra.distributed.upgrade;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
-
-import org.junit.Test;
 
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
 import org.apache.cassandra.distributed.api.ICoordinator;
@@ -37,22 +37,16 @@ import static org.apache.cassandra.net.Verb.READ_REQ;
 
 public class MixedModeAvailabilityTest extends UpgradeTestBase
 {
-    @Test
-    public void testAvailability() throws Throwable
+    protected static void testAvailability(Versions.Major initial, Versions.Major... upgrade) throws Throwable
     {
-        testAvailability(new AvailabiltyTester(ONE, ALL),
-                         new AvailabiltyTester(QUORUM, QUORUM),
-                         new AvailabiltyTester(ALL, ONE));
-    }
+        List<Tester> testers = Arrays.asList(new Tester(ONE, ALL),
+                                             new Tester(QUORUM, QUORUM),
+                                             new Tester(ALL, ONE));
 
-    public void testAvailability(AvailabiltyTester... testers) throws Throwable
-    {
         new TestCase()
         .nodes(3)
         .nodesToUpgrade(1)
-        .upgrade(Versions.Major.v22, Versions.Major.v30)
-        .upgrade(Versions.Major.v3X, Versions.Major.v4)
-        .upgrade(Versions.Major.v30, Versions.Major.v4)
+        .upgrade(initial, upgrade)
         .withConfig(config -> config.set("read_request_timeout_in_ms", SECONDS.toMillis(30))
                                     .set("write_request_timeout_in_ms", SECONDS.toMillis(30)))
         .setup(c -> c.schemaChange(withKeyspace("CREATE TABLE %s.tbl (k uuid, c int, v int, PRIMARY KEY (k, c))")))
@@ -75,7 +69,7 @@ public class MixedModeAvailabilityTest extends UpgradeTestBase
                     }
 
                     // run the test cases that are compatible with the number of down nodes
-                    for (AvailabiltyTester tester : testers)
+                    for (Tester tester : testers)
                     {
                         tester.test(coordinator, numNodesDown);
                     }
@@ -92,7 +86,7 @@ public class MixedModeAvailabilityTest extends UpgradeTestBase
         return node == numNodes ? 1 : node + 1;
     }
 
-    private static class AvailabiltyTester
+    private static class Tester
     {
         private static final String INSERT = withKeyspace("INSERT INTO %s.tbl (k, c, v) VALUES (?, ?, ?)");
         private static final String SELECT = withKeyspace("SELECT * FROM %s.tbl WHERE k = ?");
@@ -100,7 +94,7 @@ public class MixedModeAvailabilityTest extends UpgradeTestBase
         private final ConsistencyLevel writeConsistencyLevel;
         private final ConsistencyLevel readConsistencyLevel;
 
-        private AvailabiltyTester(ConsistencyLevel writeConsistencyLevel, ConsistencyLevel readConsistencyLevel)
+        private Tester(ConsistencyLevel writeConsistencyLevel, ConsistencyLevel readConsistencyLevel)
         {
             this.writeConsistencyLevel = writeConsistencyLevel;
             this.readConsistencyLevel = readConsistencyLevel;

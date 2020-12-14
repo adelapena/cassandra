@@ -24,8 +24,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.Test;
-
 import org.apache.cassandra.distributed.UpgradeableCluster;
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
 import org.apache.cassandra.distributed.api.ICoordinator;
@@ -39,49 +37,46 @@ import static org.apache.cassandra.distributed.shared.AssertUtils.row;
 
 public class MixedModeConsistencyTest extends UpgradeTestBase
 {
-    @Test
-    public void testConsistency() throws Throwable
+    protected static void testConsistency(Versions.Major initial, Versions.Major... upgrade) throws Throwable
     {
-        List<ConsistencyTester> testers = new ArrayList<>();
-        testers.addAll(ConsistencyTester.create(1, ALL));
-        testers.addAll(ConsistencyTester.create(2, ALL, QUORUM));
-        testers.addAll(ConsistencyTester.create(3, ALL, QUORUM, ONE));
+        List<Tester> testers = new ArrayList<>();
+        testers.addAll(Tester.create(1, ALL));
+        testers.addAll(Tester.create(2, ALL, QUORUM));
+        testers.addAll(Tester.create(3, ALL, QUORUM, ONE));
 
         new TestCase()
         .nodes(3)
         .nodesToUpgrade(1)
-        .upgrade(Versions.Major.v22, Versions.Major.v30)
-        .upgrade(Versions.Major.v3X, Versions.Major.v4)
-        .upgrade(Versions.Major.v30, Versions.Major.v4)
+        .upgrade(initial, upgrade)
         .withConfig(config -> config.set("read_request_timeout_in_ms", SECONDS.toMillis(30))
                                     .set("write_request_timeout_in_ms", SECONDS.toMillis(30)))
         .setup(cluster -> {
-            ConsistencyTester.createTable(cluster);
-            for (ConsistencyTester tester : testers)
+            Tester.createTable(cluster);
+            for (Tester tester : testers)
                 tester.writeRows(cluster);
         }).runAfterNodeUpgrade((cluster, node) -> {
-            for (ConsistencyTester tester : testers)
+            for (Tester tester : testers)
                 tester.readRows(cluster);
         }).run();
     }
 
-    private static class ConsistencyTester
+    private static class Tester
     {
         private final int numWrittenReplicas;
         private final ConsistencyLevel readConsistencyLevel;
         private final UUID partitionKey;
 
-        private ConsistencyTester(int numWrittenReplicas, ConsistencyLevel readConsistencyLevel)
+        private Tester(int numWrittenReplicas, ConsistencyLevel readConsistencyLevel)
         {
             this.numWrittenReplicas = numWrittenReplicas;
             this.readConsistencyLevel = readConsistencyLevel;
             partitionKey = UUID.randomUUID();
         }
 
-        private static List<ConsistencyTester> create(int numWrittenReplicas, ConsistencyLevel... readConsistencyLevels)
+        private static List<Tester> create(int numWrittenReplicas, ConsistencyLevel... readConsistencyLevels)
         {
             return Stream.of(readConsistencyLevels)
-                         .map(readConsistencyLevel -> new ConsistencyTester(numWrittenReplicas, readConsistencyLevel))
+                         .map(readConsistencyLevel -> new Tester(numWrittenReplicas, readConsistencyLevel))
                          .collect(Collectors.toList());
         }
 
