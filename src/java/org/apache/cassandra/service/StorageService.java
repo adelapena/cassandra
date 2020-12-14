@@ -3468,9 +3468,10 @@ public class StorageService extends NotificationBroadcasterSupport implements IE
 
     private String[] getCanonicalPaths(String[] paths)
     {
+        String[] locations = new String[paths.length];
         for (int i = 0; i < paths.length; i++)
-            paths[i] = FileUtils.getCanonicalPath(paths[i]);
-        return paths;
+            locations[i] = FileUtils.getCanonicalPath(paths[i]);
+        return locations;
     }
 
     @Override
