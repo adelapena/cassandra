@@ -23,9 +23,9 @@ import org.junit.Test;
 import org.apache.cassandra.distributed.shared.Versions;
 
 /**
- * {@link MixedModeConsistencyTest} for upgrades from v3X.
+ * {@link MixedModeConsistencyTestBase} for upgrades from v3X.
  */
-public class MixedModeConsistencyV3XTest extends MixedModeConsistencyTest
+public class MixedModeConsistencyV3XTest extends MixedModeConsistencyTestBase
 {
     @Test
     public void testConsistencyV3XToV4() throws Throwable

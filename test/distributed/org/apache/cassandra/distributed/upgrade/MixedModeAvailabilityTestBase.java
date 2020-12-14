@@ -38,7 +38,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static java.lang.String.format;
 
-public class MixedModeAvailabilityTest extends UpgradeTestBase
+public class MixedModeAvailabilityTestBase extends UpgradeTestBase
 {
     private static final int NUM_NODES = 3;
     private static final int COORDINATOR = 1;

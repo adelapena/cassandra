@@ -23,9 +23,9 @@ import org.junit.Test;
 import org.apache.cassandra.distributed.shared.Versions;
 
 /**
- * {@link MixedModeAvailabilityTest} for upgrades from v3X.
+ * {@link MixedModeAvailabilityTestBase} for upgrades from v3X.
  */
-public class MixedModeAvailabilityV3XTest extends MixedModeAvailabilityTest
+public class MixedModeAvailabilityV3XTest extends MixedModeAvailabilityTestBase
 {
     @Test
     public void testAvailabilityV3XToV4() throws Throwable

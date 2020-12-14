@@ -23,9 +23,9 @@ import org.junit.Test;
 import org.apache.cassandra.distributed.shared.Versions;
 
 /**
- * {@link MixedModeConsistencyTest} for upgrades from v22.
+ * {@link MixedModeConsistencyTestBase} for upgrades from v22.
  */
-public class MixedModeConsistencyV22Test extends MixedModeConsistencyTest
+public class MixedModeConsistencyV22Test extends MixedModeConsistencyTestBase
 {
     @Test
     public void testConsistencyV22ToV30() throws Throwable

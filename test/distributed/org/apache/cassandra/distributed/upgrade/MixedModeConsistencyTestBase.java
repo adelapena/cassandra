@@ -37,7 +37,7 @@ import static org.apache.cassandra.distributed.api.ConsistencyLevel.QUORUM;
 import static org.apache.cassandra.distributed.shared.AssertUtils.assertRows;
 import static org.apache.cassandra.distributed.shared.AssertUtils.row;
 
-public class MixedModeConsistencyTest extends UpgradeTestBase
+public class MixedModeConsistencyTestBase extends UpgradeTestBase
 {
     protected static void testConsistency(Versions.Major initial, Versions.Major... upgrade) throws Throwable
     {
