@@ -207,7 +207,7 @@ partitioner: org.apache.cassandra.dht.Murmur3Partitioner
 #     - /var/lib/cassandra/data
 
 # Directory were Cassandra should store the data of the local system keyspaces.
-By default Cassandra will store the data of the local system keyspaces in the first of the data directories specified
+# By default Cassandra will store the data of the local system keyspaces in the first of the data directories specified
 # by data_file_directories.
 # This approach ensures that if one of the other disks is lost Cassandra can continue to operate. For extra security
 # this setting allows to store those data on a different directory that provides redundancy.
