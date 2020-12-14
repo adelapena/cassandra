@@ -26,12 +26,14 @@ import java.util.stream.Stream;
 
 import org.apache.cassandra.distributed.UpgradeableCluster;
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
-import org.apache.cassandra.distributed.api.ICoordinator;
 import org.apache.cassandra.distributed.api.IUpgradeableInstance;
 import org.apache.cassandra.distributed.shared.Versions;
 
+import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.cassandra.distributed.api.ConsistencyLevel.*;
+import static org.apache.cassandra.distributed.api.ConsistencyLevel.ALL;
+import static org.apache.cassandra.distributed.api.ConsistencyLevel.ONE;
+import static org.apache.cassandra.distributed.api.ConsistencyLevel.QUORUM;
 import static org.apache.cassandra.distributed.shared.AssertUtils.assertRows;
 import static org.apache.cassandra.distributed.shared.AssertUtils.row;
 
@@ -82,12 +84,12 @@ public class MixedModeConsistencyTest extends UpgradeTestBase
 
         private static void createTable(UpgradeableCluster cluster)
         {
-            cluster.schemaChange(withKeyspace("CREATE TABLE %s.tbl (k uuid, c int, v int, PRIMARY KEY (k, c))"));
+            cluster.schemaChange(withKeyspace("CREATE TABLE %s.t (k uuid, c int, v int, PRIMARY KEY (k, c))"));
         }
 
         private void writeRows(UpgradeableCluster cluster)
         {
-            String query = withKeyspace("INSERT INTO %s.tbl (k, c, v) VALUES (?, ?, ?)");
+            String query = withKeyspace("INSERT INTO %s.t (k, c, v) VALUES (?, ?, ?)");
             for (int i = 1; i <= numWrittenReplicas; i++)
             {
                 IUpgradeableInstance node = cluster.get(i);
@@ -99,13 +101,22 @@ public class MixedModeConsistencyTest extends UpgradeTestBase
 
         private void readRows(UpgradeableCluster cluster)
         {
-            String query = withKeyspace("SELECT * FROM %s.tbl WHERE k = ?");
-            for (ICoordinator coordinator : cluster.coordinators())
+            String query = withKeyspace("SELECT * FROM %s.t WHERE k = ?");
+            int coordinator = 1;
+            try
             {
-                assertRows(coordinator.execute(query, readConsistencyLevel, partitionKey),
-                           row(partitionKey, 1, 10),
-                           row(partitionKey, 2, 20),
-                           row(partitionKey, 3, 30));
+                for (coordinator = 1; coordinator <= cluster.size(); coordinator++)
+                {
+                    assertRows(cluster.coordinator(coordinator).execute(query, readConsistencyLevel, partitionKey),
+                               row(partitionKey, 1, 10),
+                               row(partitionKey, 2, 20),
+                               row(partitionKey, 3, 30));
+                }
+            }
+            catch (Throwable t)
+            {
+                String format = "Unexpected error reading rows with %d written replicas, CL=%s and coordinator=%s";
+                throw new AssertionError(format(format, numWrittenReplicas, readConsistencyLevel, coordinator), t);
             }
         }
     }

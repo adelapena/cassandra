@@ -36,6 +36,7 @@ import static org.apache.cassandra.distributed.shared.AssertUtils.assertRows;
 import static org.apache.cassandra.distributed.shared.AssertUtils.row;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static java.lang.String.format;
 
 public class MixedModeAvailabilityTest extends UpgradeTestBase
 {
@@ -75,7 +76,7 @@ public class MixedModeAvailabilityTest extends UpgradeTestBase
                 // run the test cases that are compatible with the number of down nodes
                 ICoordinator coordinator = cluster.coordinator(COORDINATOR);
                 for (Tester tester : TESTERS)
-                    tester.test(coordinator, numNodesDown);
+                    tester.test(coordinator, numNodesDown, upgradedCoordinator);
             }
         }).run();
     }
@@ -100,24 +101,35 @@ public class MixedModeAvailabilityTest extends UpgradeTestBase
             this.readConsistencyLevel = readConsistencyLevel;
         }
 
-        public void test(ICoordinator coordinator, int numNodesDown)
+        public void test(ICoordinator coordinator, int numNodesDown, boolean upgradedCoordinator)
         {
             UUID key = UUID.randomUUID();
             Object[] row1 = row(key, 1, 10);
             Object[] row2 = row(key, 2, 20);
 
-            // test write
-            maybeFail(WriteTimeoutException.class, numNodesDown > maxNodesDown(writeConsistencyLevel), () -> {
-                coordinator.execute(INSERT, writeConsistencyLevel, row1);
-                coordinator.execute(INSERT, writeConsistencyLevel, row2);
-            });
+            try
+            {
+                // test write
+                maybeFail(WriteTimeoutException.class, numNodesDown > maxNodesDown(writeConsistencyLevel), () -> {
+                    coordinator.execute(INSERT, writeConsistencyLevel, row1);
+                    coordinator.execute(INSERT, writeConsistencyLevel, row2);
+                });
 
-            // test read
-            maybeFail(ReadTimeoutException.class, numNodesDown > maxNodesDown(readConsistencyLevel), () -> {
-                Object[][] rows = coordinator.execute(SELECT, readConsistencyLevel, key);
-                if (numNodesDown <= maxNodesDown(writeConsistencyLevel))
-                    assertRows(rows, row1, row2);
-            });
+                // test read
+                maybeFail(ReadTimeoutException.class, numNodesDown > maxNodesDown(readConsistencyLevel), () -> {
+                    Object[][] rows = coordinator.execute(SELECT, readConsistencyLevel, key);
+                    if (numNodesDown <= maxNodesDown(writeConsistencyLevel))
+                        assertRows(rows, row1, row2);
+                });
+            }
+            catch (Throwable t)
+            {
+                throw new AssertionError(format("Unexpected error in case %s-%s with %s coordinator and %d nodes down",
+                                                writeConsistencyLevel,
+                                                readConsistencyLevel,
+                                                upgradedCoordinator ? "upgraded" : "not upgraded",
+                                                numNodesDown), t);
+            }
         }
 
         private static <E extends Exception> void maybeFail(Class<E> exceptionClass, boolean shouldFail, Runnable test)
