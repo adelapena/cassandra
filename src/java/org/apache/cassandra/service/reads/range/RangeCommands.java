@@ -48,6 +48,7 @@ public class RangeCommands
     private static final int MAX_CONCURRENT_RANGE_REQUESTS = Math.max(1, Integer.getInteger("cassandra.max_concurrent_range_requests",
                                                                                             FBUtilities.getAvailableProcessors() * 10));
 
+    @SuppressWarnings("resource") // created iterators will be closed in CQL layer through the chain of transformations
     public static PartitionIterator partitions(PartitionRangeReadCommand command,
                                                ConsistencyLevel consistencyLevel,
                                                long queryStartNanoTime)
