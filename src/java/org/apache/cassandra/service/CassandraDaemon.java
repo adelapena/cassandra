@@ -498,7 +498,7 @@ public class CassandraDaemon
      *
      * @throws IOException
      */
-    private void migrateSystemDataIfNeeded() throws IOException
+    public void migrateSystemDataIfNeeded() throws IOException
     {
         String importSystemDataFrom = System.getProperty("cassandra.import_system_data_files_from");
 
