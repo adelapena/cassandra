@@ -28,10 +28,6 @@ Setting this property to true causes the dynamic snitch to ignore the severity i
 
 **Default:** false
 
-``cassandra.import_system_data_files_from``
--------------------------------------------
-The directory location of the ``local system keyspaces`` data to import. This property can be used to move back to the first data directory the ``local system keyspaces`` data that were stored in a specific directory using the ``system_data_file_directory`` cassandra.yaml property.
-
 ``cassandra.initial_token=<token>``
 -----------------------------------
 Use when virtual nodes (vnodes) are not used. Sets the initial partitioner token for a node the first time the node is started. 
