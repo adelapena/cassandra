@@ -27,7 +27,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.RateLimiter;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -673,23 +672,6 @@ public class Directories
         }
 
         /**
-         * Returns the data directories used to store the data of the specified keyspace.
-         *
-         * @param keyspace the keyspace name
-         * @return the data directories used to store the data of the specified keyspace
-         */
-        public DataDirectory[] getDataDirectoriesUsedBy(String keyspace)
-        {
-            if (SchemaConstants.SYSTEM_KEYSPACE_NAME.equals(keyspace))
-            {
-                Set<DataDirectory> all = getAllDirectories();
-                return all.toArray(new DataDirectory[all.size()]);
-            }
-            return SchemaConstants.isLocalSystemKeyspace(keyspace) ? systemKeyspaceDataDirectories
-                                                                   : nonSystemKeyspacesDirectories;
-        }
-
-        /**
          * Returns the data directories for the specified table.
          *
          * @param table the table metadata
@@ -707,7 +689,7 @@ public class Directories
             return getAllDirectories().iterator();
         }
 
-        private Set<DataDirectory> getAllDirectories()
+        public Set<DataDirectory> getAllDirectories()
         {
             Set<DataDirectory> directories = new LinkedHashSet<>(nonSystemKeyspacesDirectories.length + systemKeyspaceDataDirectories.length);
             Collections.addAll(directories, nonSystemKeyspacesDirectories);
@@ -1114,10 +1096,8 @@ public class Directories
     // Recursively finds all the sub directories in the KS directory.
     public static List<File> getKSChildDirectories(String ksName)
     {
-        DataDirectory[] directories = dataDirectories.getDataDirectoriesUsedBy(ksName);
-
         List<File> result = new ArrayList<>();
-        for (DataDirectory dataDirectory : directories)
+        for (DataDirectory dataDirectory : dataDirectories.getAllDirectories())
         {
             File ksDir = new File(dataDirectory.location, ksName);
             File[] cfDirs = ksDir.listFiles();

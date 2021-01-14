@@ -1878,7 +1878,7 @@ public class DatabaseDescriptor
      */
     public static String[] getSystemKeyspacesDataFileLocations()
     {
-        if (conf.system_data_file_directory != null)
+        if (useSpecificLocationForSystemData())
             return new String[] {conf.system_data_file_directory};
 
         return conf.data_file_directories.length == 0  ? conf.data_file_directories

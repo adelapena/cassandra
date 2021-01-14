@@ -55,7 +55,6 @@ import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.service.DefaultFSErrorHandler;
 import org.apache.cassandra.utils.JVMStabilityInspector;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
@@ -339,17 +338,18 @@ public class DirectoriesTest
         {
             DatabaseDescriptor.setDiskFailurePolicy(DiskFailurePolicy.best_effort);
 
-            DataDirectory[] directories = Directories.dataDirectories.getDataDirectoriesUsedBy(KS);
+            Set<DataDirectory> directories = Directories.dataDirectories.getAllDirectories();
 
             // Fake a Directory creation failure
-            if (directories.length > 0)
+            if (!directories.isEmpty())
             {
                 String[] path = new String[] {KS, "bad"};
-                File dir = new File(directories[0].location, StringUtils.join(path, File.separator));
+                DataDirectory first = directories.iterator().next();
+                File dir = new File(first.location, StringUtils.join(path, File.separator));
                 JVMStabilityInspector.inspectThrowable(new FSWriteError(new IOException("Unable to create directory " + dir), dir));
             }
 
-            for (DataDirectory dd : Directories.dataDirectories.getDataDirectoriesUsedBy(KS))
+            for (DataDirectory dd : directories)
             {
                 File file = new File(dd.location, new File(KS, "bad").getPath());
                 assertTrue(DisallowedDirectories.isUnwritable(file));
@@ -664,60 +664,6 @@ public class DirectoriesTest
         assertTrue(iter.hasNext());
         assertEquals(new DataDirectory(subDir_2.toFile()), iter.next());
         assertFalse(iter.hasNext());
-    }
-
-    @Test
-    public void testGetDataDirectoriesUsedBy() throws IOException
-    {
-        Path tmpDir = Files.createTempDirectory(this.getClass().getSimpleName());
-        Path subDir_1 = Files.createDirectory(tmpDir.resolve("a"));
-        Path subDir_2 = Files.createDirectory(tmpDir.resolve("b"));
-        Path subDir_3 = Files.createDirectory(tmpDir.resolve("c"));
-
-        DataDirectories directories = new DataDirectories(new String[]{subDir_1.toString(), subDir_2.toString()},
-                                                          new String[]{subDir_3.toString()});
-
-        DataDirectory[] keyspaceDirectories = directories.getDataDirectoriesUsedBy(SchemaConstants.SYSTEM_KEYSPACE_NAME);
-
-        assertThat(keyspaceDirectories).contains(new DataDirectory(subDir_1.toFile()),
-                                                 new DataDirectory(subDir_2.toFile()),
-                                                 new DataDirectory(subDir_3.toFile()));
-
-        keyspaceDirectories = directories.getDataDirectoriesUsedBy(SchemaConstants.SCHEMA_KEYSPACE_NAME);
-
-        assertThat(keyspaceDirectories).contains(new DataDirectory(subDir_3.toFile()));
-
-        keyspaceDirectories = directories.getDataDirectoriesUsedBy(SchemaConstants.AUTH_KEYSPACE_NAME);
-
-        assertThat(keyspaceDirectories).contains(new DataDirectory(subDir_1.toFile()),
-                                                 new DataDirectory(subDir_2.toFile()));
-
-        keyspaceDirectories = directories.getDataDirectoriesUsedBy(KS);
-
-        assertThat(keyspaceDirectories).contains(new DataDirectory(subDir_1.toFile()),
-                                                 new DataDirectory(subDir_2.toFile()));
-
-        directories = new DataDirectories(new String[]{subDir_1.toString(), subDir_2.toString()},
-                                          new String[]{subDir_1.toString()});
-
-        keyspaceDirectories = directories.getDataDirectoriesUsedBy(SchemaConstants.SYSTEM_KEYSPACE_NAME);
-
-        assertThat(keyspaceDirectories).contains(new DataDirectory(subDir_1.toFile()),
-                                                 new DataDirectory(subDir_2.toFile()));
-
-        keyspaceDirectories = directories.getDataDirectoriesUsedBy(SchemaConstants.SCHEMA_KEYSPACE_NAME);
-
-        assertThat(keyspaceDirectories).contains(new DataDirectory(subDir_1.toFile()));
-
-        keyspaceDirectories = directories.getDataDirectoriesUsedBy(SchemaConstants.AUTH_KEYSPACE_NAME);
-
-        assertThat(keyspaceDirectories).contains(new DataDirectory(subDir_1.toFile()),
-                                                 new DataDirectory(subDir_2.toFile()));
-
-        keyspaceDirectories = directories.getDataDirectoriesUsedBy(KS);
-
-        assertThat(keyspaceDirectories).contains(new DataDirectory(subDir_1.toFile()),
-                                                 new DataDirectory(subDir_2.toFile()));
     }
 
     private String getNewFilename(TableMetadata tm, boolean oldStyle)
