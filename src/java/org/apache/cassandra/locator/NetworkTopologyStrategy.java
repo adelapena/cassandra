@@ -29,6 +29,8 @@ import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.locator.TokenMetadata.Topology;
+import org.apache.cassandra.service.ClientWarn;
+import org.apache.cassandra.service.StorageService;
 import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.Pair;
 
@@ -45,7 +47,7 @@ import com.google.common.collect.Multimap;
  * <p>
  * So for example, if the keyspace replication factor is 6, the
  * datacenter replication factors could be 3, 2, and 1 - so 3 replicas in
- * one datacenter, 2 in another, and 1 in another - totalling 6.
+ * one datacenter, 2 in another, and 1 in another - totaling 6.
  * </p>
  * This class also caches the Endpoints and invalidates the cache if there is a
  * change in the number of tokens.
@@ -104,7 +106,11 @@ public class NetworkTopologyStrategy extends AbstractReplicationStrategy
         int acceptableRackRepeats;
         int transients;
 
-        DatacenterEndpoints(ReplicationFactor rf, int rackCount, int nodeCount, EndpointsForRange.Builder replicas, Set<Pair<String, String>> racks)
+        DatacenterEndpoints(ReplicationFactor rf,
+                            int rackCount,
+                            int nodeCount,
+                            EndpointsForRange.Builder replicas,
+                            Set<Pair<String, String>> racks)
         {
             this.replicas = replicas;
             this.racks = racks;
@@ -293,12 +299,29 @@ public class NetworkTopologyStrategy extends AbstractReplicationStrategy
 
     public void validateOptions() throws ConfigurationException
     {
+        ImmutableMultimap<String, InetAddressAndPort> dcsNodes = StorageService.instance.getTokenMetadata().getDC2AllEndpoints(snitch);
         for (Entry<String, String> e : this.configOptions.entrySet())
         {
             // prepareOptions should have transformed any "replication_factor" by now
             if (e.getKey().equalsIgnoreCase(REPLICATION_FACTOR))
                 throw new ConfigurationException(REPLICATION_FACTOR + " should not appear as an option to NetworkTopologyStrategy");
             validateReplicationFactor(e.getValue());
+
+            String dc = e.getKey();
+            ReplicationFactor rf = getReplicationFactor(dc);
+            int nodeCount = dcsNodes.get(dc).size();
+            // nodeCount==0 on many tests
+            if (rf.fullReplicas > nodeCount && nodeCount != 0)
+            {
+                String msg = "Your replication factor " + rf.fullReplicas
+                             + " for keyspace " + keyspaceName
+                             + " is higher than the number of nodes "
+                             + nodeCount
+                             + " for datacenter "
+                             + dc;
+                ClientWarn.instance.warn(msg);
+                logger.warn(msg);
+            }
         }
     }
 

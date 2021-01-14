@@ -1332,6 +1332,23 @@ public class TokenMetadata
     }
 
     /**
+     * @return a (stable copy, won't be modified) datacenter to Endpoint map for all the nodes in the cluster.
+     */
+    public ImmutableMultimap<String, InetAddressAndPort> getDC2AllEndpoints(IEndpointSnitch snitch)
+    {
+        ImmutableMultimap.Builder<String, InetAddressAndPort> dc2Nodesbuilder = ImmutableMultimap.builder();
+        HashSet<InetAddressAndPort> nodes = new HashSet<InetAddressAndPort>(getAllEndpoints());
+
+        for (InetAddressAndPort node : nodes)
+        {
+            String dc = snitch.getDatacenter(node);
+            dc2Nodesbuilder = dc2Nodesbuilder.put(dc, node);
+        }
+
+        return dc2Nodesbuilder.build();
+    }
+
+    /**
      * @return the Topology map of nodes to DCs + Racks
      *
      * This is only allowed when a copy has been made of TokenMetadata, to avoid concurrent modifications

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -35,21 +36,27 @@ import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.exceptions.SyntaxException;
 import org.apache.cassandra.io.util.DataOutputBuffer;
 import org.apache.cassandra.locator.AbstractEndpointSnitch;
-import org.apache.cassandra.locator.InetAddressAndPort;
 import org.apache.cassandra.locator.IEndpointSnitch;
+import org.apache.cassandra.locator.InetAddressAndPort;
 import org.apache.cassandra.locator.Replica;
+import org.apache.cassandra.schema.Schema;
+import org.apache.cassandra.schema.SchemaConstants;
 import org.apache.cassandra.schema.SchemaKeyspace;
+import org.apache.cassandra.schema.TableMetadata;
+import org.apache.cassandra.service.ClientWarn;
 import org.apache.cassandra.service.StorageService;
-import org.apache.cassandra.schema.*;
 import org.apache.cassandra.triggers.ITrigger;
 import org.apache.cassandra.utils.ByteBufferUtil;
 
 import static java.lang.String.format;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-import static org.apache.cassandra.cql3.Duration.*;
+import static org.apache.cassandra.cql3.Duration.NANOS_PER_HOUR;
+import static org.apache.cassandra.cql3.Duration.NANOS_PER_MICRO;
+import static org.apache.cassandra.cql3.Duration.NANOS_PER_MILLI;
+import static org.apache.cassandra.cql3.Duration.NANOS_PER_MINUTE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CreateTest extends CQLTester
 {
@@ -363,6 +370,31 @@ public class CreateTest extends CQLTester
 
         // clean-up
         execute("DROP KEYSPACE testXYZ");
+    }
+
+    /**
+     *  Test a warning is thrown on create keyspace with a RF > number of nodes.
+     */
+    @Test
+    public void testCreateKeyspaceRFgtNodesWarns() throws Throwable
+    {
+        // NTS
+        ClientWarn.instance.captureWarnings();
+        execute("CREATE KEYSPACE testABC WITH replication = {'class' : 'NetworkTopologyStrategy', '" + DATA_CENTER + "' : 2 }");
+        List<String> warnings = ClientWarn.instance.getWarnings();
+        warnings.removeIf(s -> !s.equals("Your replication factor 2 for keyspace testabc is higher than the number of nodes 1 for datacenter datacenter1"));
+        assertEquals(1, warnings.size());
+
+        // SimpleStrategy
+        ClientWarn.instance.captureWarnings();
+        execute("CREATE KEYSPACE testXYZ WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 2 }");
+        warnings = ClientWarn.instance.getWarnings();
+        warnings.removeIf(s -> !s.equals("Your replication factor 2 for keyspace testxyz is higher than the number of nodes 1"));
+        assertEquals(1, warnings.size());
+
+        // clean-up
+        execute("DROP KEYSPACE IF EXISTS testABC");
+        execute("DROP KEYSPACE IF EXISTS testXYZ");
     }
 
     /**
