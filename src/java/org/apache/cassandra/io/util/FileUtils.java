@@ -991,12 +991,10 @@ public final class FileUtils
         {
             Files.createDirectories(target);
 
-            try (Stream<Path> paths = Files.list(source))
+            for (File f : source.toFile().listFiles())
             {
-                Path[] children = paths.toArray(Path[]::new);
-
-                for (Path child : children)
-                    moveRecursively(child, target.resolve(source.relativize(child)));
+                String fileName = f.getName();
+                moveRecursively(source.resolve(fileName), target.resolve(fileName));
             }
 
             deleteDirectoryIfEmpty(source);
