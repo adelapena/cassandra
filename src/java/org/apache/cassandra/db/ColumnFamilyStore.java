@@ -2865,7 +2865,7 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
         public ExecutorService[] getExecutorsFor(String keyspaceName, String tableName)
         {
             return Directories.isStoredInSystemKeyspacesDataLocation(keyspaceName, tableName) ? systemDiskFlushExecutors
-                                                                  : nonSystemflushExecutors;
+                                                                                              : nonSystemflushExecutors;
         }
 
         /**

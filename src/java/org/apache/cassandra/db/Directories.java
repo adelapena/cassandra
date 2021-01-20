@@ -593,7 +593,11 @@ public class Directories
      */
     public static boolean isStoredInSystemKeyspacesDataLocation(String keyspace, String table)
     {
-        return SchemaConstants.isLocalSystemKeyspace(keyspace) && !SystemKeyspace.isPaxosTable(keyspace, table);
+        String keyspaceName = keyspace.toLowerCase();
+
+        return SchemaConstants.LOCAL_SYSTEM_KEYSPACE_NAMES.contains(keyspaceName)
+                && !(SchemaConstants.SYSTEM_KEYSPACE_NAME.equals(keyspaceName)
+                        && SystemKeyspace.TABLES_SPLIT_ACROSS_MULTIPLE_DISKS.contains(table.toLowerCase()));
     }
 
     public static class DataDirectory

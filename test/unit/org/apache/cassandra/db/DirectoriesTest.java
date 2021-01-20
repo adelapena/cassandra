@@ -626,9 +626,12 @@ public class DirectoriesTest
     @Test
     public void isStoredInSystemKeyspacesDataLocation() throws IOException
     {
-        assertTrue(Directories.isStoredInSystemKeyspacesDataLocation(SchemaConstants.SYSTEM_KEYSPACE_NAME, SystemKeyspace.BATCHES));
-        assertTrue(Directories.isStoredInSystemKeyspacesDataLocation(SchemaConstants.SYSTEM_KEYSPACE_NAME, SystemKeyspace.COMPACTION_HISTORY));
-        assertFalse(Directories.isStoredInSystemKeyspacesDataLocation(SchemaConstants.SYSTEM_KEYSPACE_NAME, SystemKeyspace.PAXOS));
+        for (String table : SystemKeyspace.TABLES_SPLIT_ACROSS_MULTIPLE_DISKS)
+        {
+            assertFalse(Directories.isStoredInSystemKeyspacesDataLocation(SchemaConstants.SYSTEM_KEYSPACE_NAME, table));
+        }
+        assertTrue(Directories.isStoredInSystemKeyspacesDataLocation(SchemaConstants.SYSTEM_KEYSPACE_NAME, SystemKeyspace.PEERS_V2));
+        assertTrue(Directories.isStoredInSystemKeyspacesDataLocation(SchemaConstants.SYSTEM_KEYSPACE_NAME, SystemKeyspace.TRANSFERRED_RANGES_V2));
         assertTrue(Directories.isStoredInSystemKeyspacesDataLocation(SchemaConstants.SCHEMA_KEYSPACE_NAME, SchemaKeyspace.KEYSPACES));
         assertTrue(Directories.isStoredInSystemKeyspacesDataLocation(SchemaConstants.SCHEMA_KEYSPACE_NAME, SchemaKeyspace.TABLES));
         assertFalse(Directories.isStoredInSystemKeyspacesDataLocation(SchemaConstants.AUTH_KEYSPACE_NAME, AuthKeyspace.ROLES));

@@ -538,9 +538,9 @@ public class CassandraDaemon
                     try (Stream<Path> keyspaceChildren = Files.list(keyspaceDirectory))
                     {
                         Path[] tableDirectories = keyspaceChildren.filter(Files::isDirectory)
-                                                                  .filter(p -> !p.getFileName()
-                                                                                 .toString()
-                                                                                 .startsWith(SystemKeyspace.PAXOS))
+                                                                  .filter(p -> !SystemKeyspace.TABLES_SPLIT_ACROSS_MULTIPLE_DISKS
+                                                                                              .contains(p.getFileName()
+                                                                                                         .toString()))
                                                                   .toArray(Path[]::new);
 
                         for (Path tableDirectory : tableDirectories)
