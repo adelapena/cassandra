@@ -116,8 +116,8 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
                                                                                              "internal");
 
     private static final PerDiskFlushExecutors perDiskflushExecutors = new PerDiskFlushExecutors(DatabaseDescriptor.getFlushWriters(),
-                                                                                                 DatabaseDescriptor.getNonSystemKeyspacesDataFileLocations(),
-                                                                                                 DatabaseDescriptor.useSpecificLocationForSystemData());
+                                                                                                 DatabaseDescriptor.getNonLocalSystemKeyspacesDataFileLocations(),
+                                                                                                 DatabaseDescriptor.useSpecificLocationForLocalSystemData());
 
     // post-flush executor is single threaded to provide guarantee that any flush Future on a CF will never return until prior flushes have completed
     private static final ThreadPoolExecutor postFlushExecutor = new JMXEnabledThreadPoolExecutor(1,
@@ -2808,14 +2808,14 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
     private static final class PerDiskFlushExecutors
     {
         /**
-         * The flush executors for non system keyspaces.
+         * The flush executors for non local system keyspaces.
          */
-        private final ExecutorService[] nonSystemflushExecutors;
+        private final ExecutorService[] nonLocalSystemflushExecutors;
 
         /**
          * The flush executors for the local system keyspaces.
          */
-        private final ExecutorService[] systemDiskFlushExecutors;
+        private final ExecutorService[] localSystemDiskFlushExecutors;
 
         /**
          * {@code true} if local system keyspaces are stored in their own directory and use an extra flush executor,
@@ -2828,9 +2828,9 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
                                      boolean useSpecificLocationForSystemKeyspaces)
         {
             ExecutorService[] flushExecutors = createPerDiskFlushWriters(locationsForNonSystemKeyspaces.length, flushWriters);
-            nonSystemflushExecutors = flushExecutors;
+            nonLocalSystemflushExecutors = flushExecutors;
             useSpecificExecutorForSystemKeyspaces = useSpecificLocationForSystemKeyspaces;
-            systemDiskFlushExecutors = useSpecificLocationForSystemKeyspaces ? new ExecutorService[] {newThreadPool("SystemKeyspacesDiskMemtableFlushWriter", flushWriters)}
+            localSystemDiskFlushExecutors = useSpecificLocationForSystemKeyspaces ? new ExecutorService[] {newThreadPool("LocalSystemKeyspacesDiskMemtableFlushWriter", flushWriters)}
                                                                              : new ExecutorService[] {flushExecutors[0]};
         }
 
@@ -2864,20 +2864,20 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
          */
         public ExecutorService[] getExecutorsFor(String keyspaceName, String tableName)
         {
-            return Directories.isStoredInSystemKeyspacesDataLocation(keyspaceName, tableName) ? systemDiskFlushExecutors
-                                                                                              : nonSystemflushExecutors;
+            return Directories.isStoredInLocalSystemKeyspacesDataLocation(keyspaceName, tableName) ? localSystemDiskFlushExecutors
+                                                                                              : nonLocalSystemflushExecutors;
         }
 
         /**
-         * Appends all the {@code ExecutorService} used for flushes to the colection.
+         * Appends all the {@code ExecutorService} used for flushes to the collection.
          *
-         * @param collection the colection to append to.
+         * @param collection the collection to append to.
          */
         public void appendAllExecutors(Collection<ExecutorService> collection)
         {
-            Collections.addAll(collection, nonSystemflushExecutors);
+            Collections.addAll(collection, nonLocalSystemflushExecutors);
             if (useSpecificExecutorForSystemKeyspaces)
-                Collections.addAll(collection, systemDiskFlushExecutors);
+                Collections.addAll(collection, localSystemDiskFlushExecutors);
         }
     }
 }

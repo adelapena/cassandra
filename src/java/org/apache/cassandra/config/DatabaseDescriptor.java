@@ -613,8 +613,8 @@ public class DatabaseDescriptor
         {
             if (datadir == null)
                 throw new ConfigurationException("data_file_directories must not contain empty entry", false);
-            if (datadir.equals(conf.system_data_file_directory))
-                throw new ConfigurationException("system_data_file_directory must not be the same as any data_file_directories", false);
+            if (datadir.equals(conf.local_system_data_file_directory))
+                throw new ConfigurationException("local_system_data_file_directory must not be the same as any data_file_directories", false);
             if (datadir.equals(conf.commitlog_directory))
                 throw new ConfigurationException("commitlog_directory must not be the same as any data_file_directories", false);
             if (datadir.equals(conf.hints_directory))
@@ -628,16 +628,16 @@ public class DatabaseDescriptor
             logger.warn("Only {} free across all data volumes. Consider adding more capacity to your cluster or removing obsolete snapshots",
                         FBUtilities.prettyPrintMemory(dataFreeBytes));
 
-        if (conf.system_data_file_directory != null)
+        if (conf.local_system_data_file_directory != null)
         {
-            if (conf.system_data_file_directory.equals(conf.commitlog_directory))
-                throw new ConfigurationException("system_data_file_directory must not be the same as the commitlog_directory", false);
-            if (conf.system_data_file_directory.equals(conf.saved_caches_directory))
-                throw new ConfigurationException("system_data_file_directory must not be the same as the saved_caches_directory", false);
-            if (conf.system_data_file_directory.equals(conf.hints_directory))
-                throw new ConfigurationException("system_data_file_directory must not be the same as the hints_directory", false);
+            if (conf.local_system_data_file_directory.equals(conf.commitlog_directory))
+                throw new ConfigurationException("local_system_data_file_directory must not be the same as the commitlog_directory", false);
+            if (conf.local_system_data_file_directory.equals(conf.saved_caches_directory))
+                throw new ConfigurationException("local_system_data_file_directory must not be the same as the saved_caches_directory", false);
+            if (conf.local_system_data_file_directory.equals(conf.hints_directory))
+                throw new ConfigurationException("local_system_data_file_directory must not be the same as the hints_directory", false);
 
-            long freeBytes = getUnallocatedSpace(conf.system_data_file_directory);
+            long freeBytes = getUnallocatedSpace(conf.local_system_data_file_directory);
 
             if (freeBytes < ONE_GB)
                 logger.warn("Only {} free in the system data volume. Consider adding more capacity or removing obsolete snapshots",
@@ -1391,8 +1391,8 @@ public class DatabaseDescriptor
             for (String dataFileDirectory : conf.data_file_directories)
                 FileUtils.createDirectory(dataFileDirectory);
 
-            if (conf.system_data_file_directory != null)
-                FileUtils.createDirectory(conf.system_data_file_directory);
+            if (conf.local_system_data_file_directory != null)
+                FileUtils.createDirectory(conf.local_system_data_file_directory);
 
             if (conf.commitlog_directory == null)
                 throw new ConfigurationException("commitlog_directory must be specified", false);
@@ -1863,23 +1863,23 @@ public class DatabaseDescriptor
      * @return {@code true} if the local system keyspaces data must be stored in a different location,
      * {@code false} otherwise.
      */
-    public static boolean useSpecificLocationForSystemData()
+    public static boolean useSpecificLocationForLocalSystemData()
     {
-        return conf.system_data_file_directory != null;
+        return conf.local_system_data_file_directory != null;
     }
 
     /**
      * Returns the locations where the local system keyspaces data should be stored.
      *
-     * <p>If the {@code system_data_file_directory} was unspecified, the local system keyspaces data should be stored
+     * <p>If the {@code local_system_data_file_directory} was unspecified, the local system keyspaces data should be stored
      * in the first data directory. This approach guarantees that the server can tolerate the lost of n - 1 disks.</p>
      *
      * @return the locations where should be stored the local system keyspaces data
      */
-    public static String[] getSystemKeyspacesDataFileLocations()
+    public static String[] getLocalSystemKeyspacesDataFileLocations()
     {
-        if (useSpecificLocationForSystemData())
-            return new String[] {conf.system_data_file_directory};
+        if (useSpecificLocationForLocalSystemData())
+            return new String[] {conf.local_system_data_file_directory};
 
         return conf.data_file_directories.length == 0  ? conf.data_file_directories
                                                        : new String[] {conf.data_file_directories[0]};
@@ -1890,22 +1890,22 @@ public class DatabaseDescriptor
      *
      * @return the locations where the non local system keyspaces data should be stored.
      */
-    public static String[] getNonSystemKeyspacesDataFileLocations()
+    public static String[] getNonLocalSystemKeyspacesDataFileLocations()
     {
         return conf.data_file_directories;
     }
 
     /**
-     * Returns the list of all the directories where the data files can be stored (for system and non-system keyspaces).
+     * Returns the list of all the directories where the data files can be stored (for local system and non local system keyspaces).
      *
      * @return the list of all the directories where the data files can be stored.
      */
     public static String[] getAllDataFileLocations()
     {
-        if (conf.system_data_file_directory == null)
+        if (conf.local_system_data_file_directory == null)
             return conf.data_file_directories;
 
-        return ArrayUtils.addFirst(conf.data_file_directories, conf.system_data_file_directory);
+        return ArrayUtils.addFirst(conf.data_file_directories, conf.local_system_data_file_directory);
     }
 
     public static String getCommitLogLocation()

@@ -125,14 +125,14 @@ public interface StorageServiceMBean extends NotificationEmitter
      *
      * @return the locations where the local system keyspaces data should be stored
      */
-    public String[] getSystemKeyspacesDataFileLocations();
+    public String[] getLocalSystemKeyspacesDataFileLocations();
 
     /**
      * Returns the locations where should be stored the non system keyspaces data.
      *
      * @return the locations where should be stored the non system keyspaces data
      */
-    public String[] getNonSystemKeyspacesDataFileLocations();
+    public String[] getNonLocalSystemKeyspacesDataFileLocations();
 
     /**
      * Get location of the commit log

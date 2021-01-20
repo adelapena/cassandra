@@ -91,8 +91,8 @@ public class Directories
     /**
      * The directories used to store keyspaces data.
      */
-    public static final DataDirectories dataDirectories = new DataDirectories(DatabaseDescriptor.getNonSystemKeyspacesDataFileLocations(),
-                                                                              DatabaseDescriptor.getSystemKeyspacesDataFileLocations());
+    public static final DataDirectories dataDirectories = new DataDirectories(DatabaseDescriptor.getNonLocalSystemKeyspacesDataFileLocations(),
+                                                                              DatabaseDescriptor.getLocalSystemKeyspacesDataFileLocations());
 
     /**
      * Checks whether Cassandra has RWX permissions to the specified directory.  Logs an error with
@@ -591,7 +591,7 @@ public class Directories
      * @param table the table name
      * @return {@code true} if the specified table should be stored with local system data, {@code false} otherwise.
      */
-    public static boolean isStoredInSystemKeyspacesDataLocation(String keyspace, String table)
+    public static boolean isStoredInLocalSystemKeyspacesDataLocation(String keyspace, String table)
     {
         String keyspaceName = keyspace.toLowerCase();
 
@@ -653,18 +653,18 @@ public class Directories
         /**
          * The directories for storing the local system keyspaces.
          */
-        private final DataDirectory[] systemKeyspaceDataDirectories;
+        private final DataDirectory[] localSystemKeyspaceDataDirectories;
 
         /**
          * The directories where the data of the non local system keyspaces should be stored.
          */
-        private final DataDirectory[] nonSystemKeyspacesDirectories;
+        private final DataDirectory[] nonLocalSystemKeyspacesDirectories;
 
 
         public DataDirectories(String[] locationsForNonSystemKeyspaces, String[] locationsForSystemKeyspace)
         {
-            nonSystemKeyspacesDirectories = toDataDirectories(locationsForNonSystemKeyspaces);
-            systemKeyspaceDataDirectories = toDataDirectories(locationsForSystemKeyspace);
+            nonLocalSystemKeyspacesDirectories = toDataDirectories(locationsForNonSystemKeyspaces);
+            localSystemKeyspaceDataDirectories = toDataDirectories(locationsForSystemKeyspace);
         }
 
         private static DataDirectory[] toDataDirectories(String... locations)
@@ -683,8 +683,8 @@ public class Directories
          */
         public DataDirectory[] getDataDirectoriesFor(TableMetadata table)
         {
-            return isStoredInSystemKeyspacesDataLocation(table.keyspace, table.name) ? systemKeyspaceDataDirectories
-                                                                                     : nonSystemKeyspacesDirectories;
+            return isStoredInLocalSystemKeyspacesDataLocation(table.keyspace, table.name) ? localSystemKeyspaceDataDirectories
+                                                                                          : nonLocalSystemKeyspacesDirectories;
         }
 
         @Override
@@ -695,9 +695,9 @@ public class Directories
 
         public Set<DataDirectory> getAllDirectories()
         {
-            Set<DataDirectory> directories = new LinkedHashSet<>(nonSystemKeyspacesDirectories.length + systemKeyspaceDataDirectories.length);
-            Collections.addAll(directories, nonSystemKeyspacesDirectories);
-            Collections.addAll(directories, systemKeyspaceDataDirectories);
+            Set<DataDirectory> directories = new LinkedHashSet<>(nonLocalSystemKeyspacesDirectories.length + localSystemKeyspaceDataDirectories.length);
+            Collections.addAll(directories, nonLocalSystemKeyspacesDirectories);
+            Collections.addAll(directories, localSystemKeyspaceDataDirectories);
             return directories;
         }
 
@@ -709,21 +709,21 @@ public class Directories
 
             DataDirectories that = (DataDirectories) o;
 
-            return Arrays.equals(this.systemKeyspaceDataDirectories, that.systemKeyspaceDataDirectories)
-                && Arrays.equals(this.nonSystemKeyspacesDirectories, that.nonSystemKeyspacesDirectories);
+            return Arrays.equals(this.localSystemKeyspaceDataDirectories, that.localSystemKeyspaceDataDirectories)
+                && Arrays.equals(this.nonLocalSystemKeyspacesDirectories, that.nonLocalSystemKeyspacesDirectories);
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(systemKeyspaceDataDirectories, nonSystemKeyspacesDirectories);
+            return Objects.hash(localSystemKeyspaceDataDirectories, nonLocalSystemKeyspacesDirectories);
         }
 
         public String toString()
         {
             return "DataDirectories {" +
-                   "systemKeyspaceDataDirectories=" + systemKeyspaceDataDirectories +
-                   ", nonSystemKeyspacesDirectories=" + nonSystemKeyspacesDirectories +
+                   "systemKeyspaceDataDirectories=" + localSystemKeyspaceDataDirectories +
+                   ", nonSystemKeyspacesDirectories=" + nonLocalSystemKeyspacesDirectories +
                    '}';
         }
     }

@@ -3475,15 +3475,15 @@ public class StorageService extends NotificationBroadcasterSupport implements IE
     }
 
     @Override
-    public String[] getSystemKeyspacesDataFileLocations()
+    public String[] getLocalSystemKeyspacesDataFileLocations()
     {
-        return getCanonicalPaths(DatabaseDescriptor.getSystemKeyspacesDataFileLocations());
+        return getCanonicalPaths(DatabaseDescriptor.getLocalSystemKeyspacesDataFileLocations());
     }
 
     @Override
-    public String[] getNonSystemKeyspacesDataFileLocations()
+    public String[] getNonLocalSystemKeyspacesDataFileLocations()
     {
-        return getCanonicalPaths(DatabaseDescriptor.getNonSystemKeyspacesDataFileLocations());
+        return getCanonicalPaths(DatabaseDescriptor.getNonLocalSystemKeyspacesDataFileLocations());
     }
 
     public String getCommitLogLocation()

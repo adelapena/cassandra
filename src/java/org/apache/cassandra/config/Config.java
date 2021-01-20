@@ -238,7 +238,7 @@ public class Config
      * The directory to use for storing the system keyspaces data.
      * If unspecified the data will be stored in the first of the data_file_directories.
      */
-    public String system_data_file_directory;
+    public String local_system_data_file_directory;
 
     public String saved_caches_directory;
 

@@ -502,8 +502,8 @@ public class CassandraDaemon
     {
         // If there is only one directory and no system keyspace directory has been specified we do not need to do
         // anything. If it is not the case we want to try to migrate the data.
-        if (!DatabaseDescriptor.useSpecificLocationForSystemData()
-                && DatabaseDescriptor.getNonSystemKeyspacesDataFileLocations().length <= 1)
+        if (!DatabaseDescriptor.useSpecificLocationForLocalSystemData()
+                && DatabaseDescriptor.getNonLocalSystemKeyspacesDataFileLocations().length <= 1)
             return;
 
         // We can face several cases:
@@ -513,13 +513,13 @@ public class CassandraDaemon
         //     the system keyspace location configured by the user (upgrade to 4.0)
         //  3) The system data are stored in the first data location and need to be moved to
         //     the system keyspace location configured by the user (system_data_file_directory has been configured)
-        Path target = Paths.get(DatabaseDescriptor.getSystemKeyspacesDataFileLocations()[0]);
+        Path target = Paths.get(DatabaseDescriptor.getLocalSystemKeyspacesDataFileLocations()[0]);
 
-        String[] nonSystemKeyspacesFileLocations = DatabaseDescriptor.getNonSystemKeyspacesDataFileLocations();
-        String[] sources = DatabaseDescriptor.useSpecificLocationForSystemData() ? nonSystemKeyspacesFileLocations
-                                                                                 : Arrays.copyOfRange(nonSystemKeyspacesFileLocations,
-                                                                                                      1,
-                                                                                                      nonSystemKeyspacesFileLocations.length);
+        String[] nonLocalSystemKeyspacesFileLocations = DatabaseDescriptor.getNonLocalSystemKeyspacesDataFileLocations();
+        String[] sources = DatabaseDescriptor.useSpecificLocationForLocalSystemData() ? nonLocalSystemKeyspacesFileLocations
+                                                                                      : Arrays.copyOfRange(nonLocalSystemKeyspacesFileLocations,
+                                                                                                           1,
+                                                                                                           nonLocalSystemKeyspacesFileLocations.length);
 
         for (String source : sources)
         {
@@ -531,7 +531,7 @@ public class CassandraDaemon
             try (Stream<Path> locationChildren = Files.list(dataFileLocation))
             {
                 Path[] keyspaceDirectories = locationChildren.filter(p -> SchemaConstants.isLocalSystemKeyspace(p.getFileName().toString()))
-                        .toArray(Path[]::new);
+                                                             .toArray(Path[]::new);
 
                 for (Path keyspaceDirectory : keyspaceDirectories)
                 {

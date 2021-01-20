@@ -1,1 +1,1 @@
-system_data_file_directory: build/test/cassandra/system_data
+local_system_data_file_directory: build/test/cassandra/system_data
