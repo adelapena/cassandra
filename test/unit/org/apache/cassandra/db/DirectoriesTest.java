@@ -339,21 +339,19 @@ public class DirectoriesTest
             DatabaseDescriptor.setDiskFailurePolicy(DiskFailurePolicy.best_effort);
 
             Set<DataDirectory> directories = Directories.dataDirectories.getAllDirectories();
+            DataDirectory first = directories.iterator().next();
 
             // Fake a Directory creation failure
             if (!directories.isEmpty())
             {
                 String[] path = new String[] {KS, "bad"};
-                DataDirectory first = directories.iterator().next();
                 File dir = new File(first.location, StringUtils.join(path, File.separator));
                 JVMStabilityInspector.inspectThrowable(new FSWriteError(new IOException("Unable to create directory " + dir), dir));
             }
 
-            for (DataDirectory dd : directories)
-            {
-                File file = new File(dd.location, new File(KS, "bad").getPath());
-                assertTrue(DisallowedDirectories.isUnwritable(file));
-            }
+            File file = new File(first.location, new File(KS, "bad").getPath());
+            assertTrue(DisallowedDirectories.isUnwritable(file));
+
         } 
         finally 
         {
