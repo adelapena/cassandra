@@ -1872,7 +1872,7 @@ public class DatabaseDescriptor
      * Returns the locations where the local system keyspaces data should be stored.
      *
      * <p>If the {@code local_system_data_file_directory} was unspecified, the local system keyspaces data should be stored
-     * in the first data directory. This approach guarantees that the server can tolerate the lost of n - 1 disks.</p>
+     * in the first data directory. This approach guarantees that the server can tolerate the lost of all the disks but the first one.</p>
      *
      * @return the locations where should be stored the local system keyspaces data
      */

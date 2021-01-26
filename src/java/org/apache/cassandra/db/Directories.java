@@ -585,7 +585,8 @@ public class Directories
      * Checks if the specified table should be stored with local system data.
      *
      * <p> To minimize the risk of failures, SSTables for local system keyspaces must be stored in a single data
-     * directory. The only exception to this is the system paxos table as it can be a high traffic table.</p>
+     * directory. The only exception to this are some of the system table as the server can continue operating even
+     *  if those tables loose some data.</p>
      *
      * @param keyspace the keyspace name
      * @param table the table name
@@ -719,11 +720,12 @@ public class Directories
             return Objects.hash(localSystemKeyspaceDataDirectories, nonLocalSystemKeyspacesDirectories);
         }
 
+        @Override
         public String toString()
         {
             return "DataDirectories {" +
-                   "systemKeyspaceDataDirectories=" + localSystemKeyspaceDataDirectories +
-                   ", nonSystemKeyspacesDirectories=" + nonLocalSystemKeyspacesDirectories +
+                   "systemKeyspaceDataDirectories=" + Arrays.toString(localSystemKeyspaceDataDirectories) +
+                   ", nonSystemKeyspacesDirectories=" + Arrays.toString(nonLocalSystemKeyspacesDirectories) +
                    '}';
         }
     }

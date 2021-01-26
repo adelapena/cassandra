@@ -2821,7 +2821,7 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
          * {@code true} if local system keyspaces are stored in their own directory and use an extra flush executor,
          * {@code false} otherwise.
          */
-        private boolean useSpecificExecutorForSystemKeyspaces;
+        private final boolean useSpecificExecutorForSystemKeyspaces;
 
         public PerDiskFlushExecutors(int flushWriters,
                                      String[] locationsForNonSystemKeyspaces,
@@ -2831,10 +2831,10 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
             nonLocalSystemflushExecutors = flushExecutors;
             useSpecificExecutorForSystemKeyspaces = useSpecificLocationForSystemKeyspaces;
             localSystemDiskFlushExecutors = useSpecificLocationForSystemKeyspaces ? new ExecutorService[] {newThreadPool("LocalSystemKeyspacesDiskMemtableFlushWriter", flushWriters)}
-                                                                             : new ExecutorService[] {flushExecutors[0]};
+                                                                                  : new ExecutorService[] {flushExecutors[0]};
         }
 
-        private ExecutorService[] createPerDiskFlushWriters(int numberOfExecutors, int flushWriters)
+        private static ExecutorService[] createPerDiskFlushWriters(int numberOfExecutors, int flushWriters)
         {
             ExecutorService[] flushExecutors = new ExecutorService[numberOfExecutors];
 
@@ -2865,7 +2865,7 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
         public ExecutorService[] getExecutorsFor(String keyspaceName, String tableName)
         {
             return Directories.isStoredInLocalSystemKeyspacesDataLocation(keyspaceName, tableName) ? localSystemDiskFlushExecutors
-                                                                                              : nonLocalSystemflushExecutors;
+                                                                                                   : nonLocalSystemflushExecutors;
         }
 
         /**
