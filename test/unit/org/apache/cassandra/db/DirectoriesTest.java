@@ -645,7 +645,7 @@ public class DirectoriesTest
         Path subDir_3 = Files.createDirectory(tmpDir.resolve("c"));
 
         DataDirectories directories = new DataDirectories(new String[]{subDir_1.toString(), subDir_2.toString()},
-                                                          new String[]{subDir_3.toString()});
+                                                          subDir_3.toString());
 
         Iterator<DataDirectory> iter = directories.iterator();
         assertTrue(iter.hasNext());
@@ -657,7 +657,7 @@ public class DirectoriesTest
         assertFalse(iter.hasNext());
 
         directories = new DataDirectories(new String[]{subDir_1.toString(), subDir_2.toString()},
-                                                          new String[]{subDir_1.toString()});
+                                                       subDir_1.toString());
 
         iter = directories.iterator();
         assertTrue(iter.hasNext());

@@ -513,7 +513,7 @@ public class CassandraDaemon
         //     the system keyspace location configured by the user (upgrade to 4.0)
         //  3) The system data are stored in the first data location and need to be moved to
         //     the system keyspace location configured by the user (system_data_file_directory has been configured)
-        Path target = Paths.get(DatabaseDescriptor.getLocalSystemKeyspacesDataFileLocations()[0]);
+        Path target = Paths.get(DatabaseDescriptor.getLocalSystemKeyspacesDataFileLocation());
 
         String[] nonLocalSystemKeyspacesFileLocations = DatabaseDescriptor.getNonLocalSystemKeyspacesDataFileLocations();
         String[] sources = DatabaseDescriptor.useSpecificLocationForLocalSystemData() ? nonLocalSystemKeyspacesFileLocations

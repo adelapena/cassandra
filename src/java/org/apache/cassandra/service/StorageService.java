@@ -3475,9 +3475,9 @@ public class StorageService extends NotificationBroadcasterSupport implements IE
     }
 
     @Override
-    public String[] getLocalSystemKeyspacesDataFileLocations()
+    public String getLocalSystemKeyspacesDataFileLocation()
     {
-        return getCanonicalPaths(DatabaseDescriptor.getLocalSystemKeyspacesDataFileLocations());
+        return FileUtils.getCanonicalPath(DatabaseDescriptor.getLocalSystemKeyspacesDataFileLocation());
     }
 
     @Override

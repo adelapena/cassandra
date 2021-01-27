@@ -81,6 +81,7 @@ import org.apache.cassandra.utils.Pair;
  */
 public class Directories
 {
+    public static final DataDirectory[] DATA_DIRECTORIES = new DataDirectory[0];
     private static final Logger logger = LoggerFactory.getLogger(Directories.class);
 
     public static final String BACKUPS_SUBDIR = "backups";
@@ -92,7 +93,7 @@ public class Directories
      * The directories used to store keyspaces data.
      */
     public static final DataDirectories dataDirectories = new DataDirectories(DatabaseDescriptor.getNonLocalSystemKeyspacesDataFileLocations(),
-                                                                              DatabaseDescriptor.getLocalSystemKeyspacesDataFileLocations());
+                                                                              DatabaseDescriptor.getLocalSystemKeyspacesDataFileLocation());
 
     /**
      * Checks whether Cassandra has RWX permissions to the specified directory.  Logs an error with
@@ -651,6 +652,8 @@ public class Directories
      */
     public static final class DataDirectories implements Iterable<DataDirectory>
     {
+        private static final DataDirectory[] EMPTY_DATA_DIRECTORIES = new DataDirectory[0];
+
         /**
          * The directories for storing the local system keyspaces.
          */
@@ -662,10 +665,12 @@ public class Directories
         private final DataDirectory[] nonLocalSystemKeyspacesDirectories;
 
 
-        public DataDirectories(String[] locationsForNonSystemKeyspaces, String[] locationsForSystemKeyspace)
+        public DataDirectories(String[] locationsForNonSystemKeyspaces, String locationsForSystemKeyspace)
         {
             nonLocalSystemKeyspacesDirectories = toDataDirectories(locationsForNonSystemKeyspaces);
-            localSystemKeyspaceDataDirectories = toDataDirectories(locationsForSystemKeyspace);
+            localSystemKeyspaceDataDirectories = locationsForSystemKeyspace == null
+                                                 ? EMPTY_DATA_DIRECTORIES
+                                                 : toDataDirectories(locationsForSystemKeyspace);
         }
 
         private static DataDirectory[] toDataDirectories(String... locations)

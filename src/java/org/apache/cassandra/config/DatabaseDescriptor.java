@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import javax.annotation.Nullable;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -1869,20 +1871,23 @@ public class DatabaseDescriptor
     }
 
     /**
-     * Returns the locations where the local system keyspaces data should be stored.
+     * Returns the location where the local system keyspaces data should be stored.
      *
-     * <p>If the {@code local_system_data_file_directory} was unspecified, the local system keyspaces data should be stored
-     * in the first data directory. This approach guarantees that the server can tolerate the lost of all the disks but the first one.</p>
+     * <p>If the {@code local_system_data_file_directory} config property was unspecified, the local system keyspaces
+     * data should be stored in the first data directory. This approach guarantees that the server can tolerate the lost
+     * of all the disks but the first one.</p>
      *
-     * @return the locations where should be stored the local system keyspaces data
+     * @return the location where should be stored the local system keyspaces data
      */
-    public static String[] getLocalSystemKeyspacesDataFileLocations()
+    @Nullable
+    public static String getLocalSystemKeyspacesDataFileLocation()
     {
         if (useSpecificLocationForLocalSystemData())
-            return new String[] {conf.local_system_data_file_directory};
-
-        return conf.data_file_directories.length == 0  ? conf.data_file_directories
-                                                       : new String[] {conf.data_file_directories[0]};
+            return conf.local_system_data_file_directory;
+        else if (conf.data_file_directories.length != 0)
+            return conf.data_file_directories[0];
+        else
+            return null;
     }
 
     /**
