@@ -48,7 +48,7 @@ public final class CreateKeyspaceStatement extends AlterSchemaStatement
 
     private final KeyspaceAttributes attrs;
     private final boolean ifNotExists;
-    private HashSet<String> clientWarnings = new HashSet<>();
+    private final HashSet<String> clientWarnings = new HashSet<>();
 
     public CreateKeyspaceStatement(String keyspaceName, KeyspaceAttributes attrs, boolean ifNotExists)
     {
