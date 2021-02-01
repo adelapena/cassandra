@@ -29,6 +29,7 @@ import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.locator.TokenMetadata.Topology;
+import org.apache.cassandra.schema.SchemaConstants;
 import org.apache.cassandra.service.ClientWarn;
 import org.apache.cassandra.service.StorageService;
 import org.apache.cassandra.utils.FBUtilities;
@@ -307,20 +308,24 @@ public class NetworkTopologyStrategy extends AbstractReplicationStrategy
                 throw new ConfigurationException(REPLICATION_FACTOR + " should not appear as an option to NetworkTopologyStrategy");
             validateReplicationFactor(e.getValue());
 
-            String dc = e.getKey();
-            ReplicationFactor rf = getReplicationFactor(dc);
-            int nodeCount = dcsNodes.get(dc).size();
-            // nodeCount==0 on many tests
-            if (rf.fullReplicas > nodeCount && nodeCount != 0)
+            if (!SchemaConstants.isSystemKeyspace(keyspaceName))
             {
-                String msg = "Your replication factor " + rf.fullReplicas
-                             + " for keyspace " + keyspaceName
-                             + " is higher than the number of nodes "
-                             + nodeCount
-                             + " for datacenter "
-                             + dc;
-                ClientWarn.instance.warn(msg);
-                logger.warn(msg);
+                String dc = e.getKey();
+                ReplicationFactor rf = getReplicationFactor(dc);
+                int nodeCount = dcsNodes.get(dc).size();
+                // nodeCount==0 on many tests
+                if (rf.fullReplicas > nodeCount && nodeCount != 0)
+                {
+                    String msg = "Your replication factor " + rf.fullReplicas
+                                 + " for keyspace "
+                                 + keyspaceName
+                                 + " is higher than the number of nodes "
+                                 + nodeCount
+                                 + " for datacenter "
+                                 + dc;
+                    ClientWarn.instance.warn(msg);
+                    logger.warn(msg);
+                }
             }
         }
     }

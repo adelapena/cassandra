@@ -51,8 +51,8 @@ public abstract class AbstractReplicationStrategy
 {
     private static final Logger logger = LoggerFactory.getLogger(AbstractReplicationStrategy.class);
 
-    final String keyspaceName;
     public final Map<String, String> configOptions;
+    protected final String keyspaceName;
     private final TokenMetadata tokenMetadata;
 
     // track when the token range changes, signaling we need to invalidate our endpoint cache

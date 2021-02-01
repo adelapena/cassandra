@@ -1336,16 +1336,7 @@ public class TokenMetadata
      */
     public ImmutableMultimap<String, InetAddressAndPort> getDC2AllEndpoints(IEndpointSnitch snitch)
     {
-        ImmutableMultimap.Builder<String, InetAddressAndPort> dc2Nodesbuilder = ImmutableMultimap.builder();
-        HashSet<InetAddressAndPort> nodes = new HashSet<InetAddressAndPort>(getAllEndpoints());
-
-        for (InetAddressAndPort node : nodes)
-        {
-            String dc = snitch.getDatacenter(node);
-            dc2Nodesbuilder = dc2Nodesbuilder.put(dc, node);
-        }
-
-        return dc2Nodesbuilder.build();
+        return Multimaps.index(getAllEndpoints(), snitch::getDatacenter);
     }
 
     /**

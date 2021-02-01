@@ -37,8 +37,6 @@ import static org.junit.Assert.fail;
 
 public class CreateTableValidationTest extends CQLTester
 {
-    private static final String KEYSPACE1 = "CreateTableValidationTest";
-
     @Test
     public void testInvalidBloomFilterFPRatio() throws Throwable
     {
@@ -81,8 +79,6 @@ public class CreateTableValidationTest extends CQLTester
             query = new QueryMessage(String.format(createKeyspace, 2), QueryOptions.DEFAULT);
             resp = client.execute(query);
             List<String> warns = resp.getWarnings();
-            if (warns != null)
-                warns.removeIf(s -> s.contains("is higher than the number of nodes"));
             assertTrue(warns == null || warns.isEmpty());
 
             query = new QueryMessage(String.format("CREATE TABLE %s.%s (id int primary key, x int)", KEYSPACE, "test1"), QueryOptions.DEFAULT);

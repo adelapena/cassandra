@@ -361,20 +361,27 @@ public class RangeStreamer
      */
     private boolean useStrictSourcesForRanges(AbstractReplicationStrategy strat)
     {
-        int nodes = 0;
-
-        if (strat instanceof NetworkTopologyStrategy)
+        boolean res = useStrictConsistency && tokens != null;
+        
+        if (res)
         {
-            ImmutableMultimap<String, InetAddressAndPort> dc2Nodes = metadata.getDC2AllEndpoints(snitch);
+            int nodes = 0;
 
-            NetworkTopologyStrategy ntps = (NetworkTopologyStrategy) strat;
-            for (String dc : dc2Nodes.keySet())
-                nodes += ntps.getReplicationFactor(dc).allReplicas > 0 ? dc2Nodes.get(dc).size() : 0;
+            if (strat instanceof NetworkTopologyStrategy)
+            {
+                ImmutableMultimap<String, InetAddressAndPort> dc2Nodes = metadata.getDC2AllEndpoints(snitch);
+
+                NetworkTopologyStrategy ntps = (NetworkTopologyStrategy) strat;
+                for (String dc : dc2Nodes.keySet())
+                    nodes += ntps.getReplicationFactor(dc).allReplicas > 0 ? dc2Nodes.get(dc).size() : 0;
+            }
+            else
+                nodes = metadata.getSizeOfAllEndpoints();
+    
+            res = res && nodes > strat.getReplicationFactor().allReplicas;
         }
-        else
-            nodes = metadata.getSizeOfAllEndpoints();
-
-        return useStrictConsistency && tokens != null && nodes > strat.getReplicationFactor().allReplicas;
+        
+        return res;
     }
 
     /**

@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.exceptions.ConfigurationException;
+import org.apache.cassandra.schema.SchemaConstants;
 import org.apache.cassandra.service.ClientWarn;
 import org.apache.cassandra.service.StorageService;
 
@@ -93,16 +94,20 @@ public class SimpleStrategy extends AbstractReplicationStrategy
         validateOptionsInternal(configOptions);
         validateReplicationFactor(configOptions.get(REPLICATION_FACTOR));
 
-        int nodeCount = StorageService.instance.getHostIdToEndpoint().size();
-        // nodeCount==0 on many tests
-        if (rf.fullReplicas > nodeCount && nodeCount != 0)
+        if (!SchemaConstants.isSystemKeyspace(keyspaceName))
         {
-            String msg = "Your replication factor " + rf.fullReplicas
-                         + " for keyspace " + keyspaceName
-                         + " is higher than the number of nodes "
-                         + nodeCount;
-            ClientWarn.instance.warn(msg);
-            logger.warn(msg);
+            int nodeCount = StorageService.instance.getHostIdToEndpoint().size();
+            // nodeCount==0 on many tests
+            if (rf.fullReplicas > nodeCount && nodeCount != 0)
+            {
+                String msg = "Your replication factor " + rf.fullReplicas
+                             + " for keyspace "
+                             + keyspaceName
+                             + " is higher than the number of nodes "
+                             + nodeCount;
+                ClientWarn.instance.warn(msg);
+                logger.warn(msg);
+            }
         }
     }
 
