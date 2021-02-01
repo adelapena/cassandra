@@ -382,7 +382,7 @@ public class CreateTest extends CQLTester
         ClientWarn.instance.captureWarnings();
         execute("CREATE KEYSPACE testABC WITH replication = {'class' : 'NetworkTopologyStrategy', '" + DATA_CENTER + "' : 2 }");
         List<String> warnings = ClientWarn.instance.getWarnings();
-        warnings.removeIf(s -> !s.equals("Your replication factor 2 for keyspace testabc is higher than the number of nodes 1 for datacenter datacenter1"));
+        warnings.removeIf(s -> !s.equals("Your replication factor 2 for keyspace testabc is higher than the number of nodes 1 for datacenter " + DATA_CENTER));
         assertEquals(1, warnings.size());
 
         // SimpleStrategy
