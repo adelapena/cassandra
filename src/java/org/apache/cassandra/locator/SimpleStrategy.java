@@ -95,7 +95,7 @@ public class SimpleStrategy extends AbstractReplicationStrategy
 
         int nodeCount = StorageService.instance.getHostIdToEndpoint().size();
         // nodeCount==0 on many tests
-        if (rf.fullReplicas > nodeCount && nodeCount!=0)
+        if (rf.fullReplicas > nodeCount && nodeCount != 0)
         {
             String msg = "Your replication factor " + rf.fullReplicas
                          + " for keyspace " + keyspaceName
