@@ -59,8 +59,8 @@ public final class CreateKeyspaceStatement extends AlterSchemaStatement
 
     public Keyspaces apply(Keyspaces schema)
     {
-      if (ClientWarn.instance.get() == null)
-          ClientWarn.instance.captureWarnings();
+        if (ClientWarn.instance.get() == null)
+            ClientWarn.instance.captureWarnings();
 
         attrs.validate();
 
