@@ -378,6 +378,8 @@ public class CreateTest extends CQLTester
     @Test
     public void testCreateKeyspaceRFgtNodesWarns() throws Throwable
     {
+        requireNetwork();
+
         // NTS
         ClientWarn.instance.captureWarnings();
         execute("CREATE KEYSPACE testABC WITH replication = {'class' : 'NetworkTopologyStrategy', '" + DATA_CENTER + "' : 2 }");

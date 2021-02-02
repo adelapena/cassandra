@@ -378,7 +378,7 @@ public class RangeStreamer
             else
                 nodes = metadata.getSizeOfAllEndpoints();
     
-            res = res && nodes > strat.getReplicationFactor().allReplicas;
+            res = nodes > strat.getReplicationFactor().allReplicas;
         }
         
         return res;
