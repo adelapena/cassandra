@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -43,7 +42,6 @@ import org.apache.cassandra.schema.Schema;
 import org.apache.cassandra.schema.SchemaConstants;
 import org.apache.cassandra.schema.SchemaKeyspace;
 import org.apache.cassandra.schema.TableMetadata;
-import org.apache.cassandra.service.ClientWarn;
 import org.apache.cassandra.service.StorageService;
 import org.apache.cassandra.triggers.ITrigger;
 import org.apache.cassandra.utils.ByteBufferUtil;
@@ -370,33 +368,6 @@ public class CreateTest extends CQLTester
 
         // clean-up
         execute("DROP KEYSPACE testXYZ");
-    }
-
-    /**
-     *  Test a warning is thrown on create keyspace with a RF > number of nodes.
-     */
-    @Test
-    public void testCreateKeyspaceRFgtNodesWarns() throws Throwable
-    {
-        requireNetwork();
-
-        // NTS
-        ClientWarn.instance.captureWarnings();
-        execute("CREATE KEYSPACE testABC WITH replication = {'class' : 'NetworkTopologyStrategy', '" + DATA_CENTER + "' : 2 }");
-        List<String> warnings = ClientWarn.instance.getWarnings();
-        warnings.removeIf(s -> !s.equals("Your replication factor 2 for keyspace testabc is higher than the number of nodes 1 for datacenter " + DATA_CENTER));
-        assertEquals(1, warnings.size());
-
-        // SimpleStrategy
-        ClientWarn.instance.captureWarnings();
-        execute("CREATE KEYSPACE testXYZ WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 2 }");
-        warnings = ClientWarn.instance.getWarnings();
-        warnings.removeIf(s -> !s.equals("Your replication factor 2 for keyspace testxyz is higher than the number of nodes 1"));
-        assertEquals(1, warnings.size());
-
-        // clean-up
-        execute("DROP KEYSPACE IF EXISTS testABC");
-        execute("DROP KEYSPACE IF EXISTS testXYZ");
     }
 
     /**

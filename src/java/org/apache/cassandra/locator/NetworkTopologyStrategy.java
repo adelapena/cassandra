@@ -298,16 +298,24 @@ public class NetworkTopologyStrategy extends AbstractReplicationStrategy
         super.validateExpectedOptions();
     }
 
+    @Override
     public void validateOptions() throws ConfigurationException
     {
-        ImmutableMultimap<String, InetAddressAndPort> dcsNodes = StorageService.instance.getTokenMetadata().getDC2AllEndpoints(snitch);
         for (Entry<String, String> e : this.configOptions.entrySet())
         {
             // prepareOptions should have transformed any "replication_factor" by now
             if (e.getKey().equalsIgnoreCase(REPLICATION_FACTOR))
                 throw new ConfigurationException(REPLICATION_FACTOR + " should not appear as an option to NetworkTopologyStrategy");
             validateReplicationFactor(e.getValue());
+        }
+    }
 
+    @Override
+    public void maybeWarnOnOptions() throws ConfigurationException
+    {
+        ImmutableMultimap<String, InetAddressAndPort> dcsNodes = StorageService.instance.getTokenMetadata().getDC2AllEndpoints(snitch);
+        for (Entry<String, String> e : this.configOptions.entrySet())
+        {
             if (!SchemaConstants.isSystemKeyspace(keyspaceName))
             {
                 String dc = e.getKey();

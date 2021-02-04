@@ -89,10 +89,16 @@ public class SimpleStrategy extends AbstractReplicationStrategy
             throw new ConfigurationException("SimpleStrategy requires a replication_factor strategy option.");
     }
 
+    @Override
     public void validateOptions() throws ConfigurationException
     {
         validateOptionsInternal(configOptions);
         validateReplicationFactor(configOptions.get(REPLICATION_FACTOR));
+    }
+
+    @Override
+    public void maybeWarnOnOptions() throws ConfigurationException
+    {
 
         if (!SchemaConstants.isSystemKeyspace(keyspaceName))
         {

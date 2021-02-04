@@ -27,7 +27,10 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.audit.AuditLogContext;
 import org.apache.cassandra.audit.AuditLogEntryType;
-import org.apache.cassandra.auth.*;
+import org.apache.cassandra.auth.DataResource;
+import org.apache.cassandra.auth.FunctionResource;
+import org.apache.cassandra.auth.IResource;
+import org.apache.cassandra.auth.Permission;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.CQLStatement;
 import org.apache.cassandra.exceptions.AlreadyExistsException;
@@ -61,6 +64,7 @@ public final class CreateKeyspaceStatement extends AlterSchemaStatement
     {
         if (ClientWarn.instance.get() == null)
             ClientWarn.instance.captureWarnings();
+        int previousSize = ClientWarn.instance.getWarnings() == null ? 0 : ClientWarn.instance.getWarnings().size();
 
         attrs.validate();
 
@@ -84,7 +88,11 @@ public final class CreateKeyspaceStatement extends AlterSchemaStatement
         Keyspaces ksps = schema.withAddedOrUpdated(keyspace);
 
         if (ClientWarn.instance.getWarnings() != null)
-            clientWarnings.addAll(ClientWarn.instance.getWarnings());
+        {
+            int newSize = ClientWarn.instance.getWarnings().size();
+            if (newSize > previousSize)
+                clientWarnings.addAll(ClientWarn.instance.getWarnings().subList(previousSize, newSize));
+        }
 
         return ksps;
     }
