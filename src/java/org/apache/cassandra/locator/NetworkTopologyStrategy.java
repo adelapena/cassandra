@@ -311,7 +311,7 @@ public class NetworkTopologyStrategy extends AbstractReplicationStrategy
     }
 
     @Override
-    public void maybeWarnOnOptions() throws ConfigurationException
+    public void maybeWarnOnOptions()
     {
         ImmutableMultimap<String, InetAddressAndPort> dcsNodes = StorageService.instance.getTokenMetadata().getDC2AllEndpoints(snitch);
         for (Entry<String, String> e : this.configOptions.entrySet())

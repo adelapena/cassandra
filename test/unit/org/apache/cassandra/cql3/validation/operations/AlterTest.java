@@ -284,53 +284,49 @@ public class AlterTest extends CQLTester
 
         // NTS
         ClientWarn.instance.captureWarnings();
-        execute("CREATE KEYSPACE testABC WITH replication = {'class' : 'NetworkTopologyStrategy', '" + DATA_CENTER + "' : 3 }");
+        String ks = createKeyspace("CREATE KEYSPACE %s WITH replication = {'class' : 'NetworkTopologyStrategy', '" + DATA_CENTER + "' : 3 }");
         List<String> warnings = ClientWarn.instance.getWarnings();
         assertEquals(1, warnings.size());
-        Assertions.assertThat(warnings.get(0)).contains("Your replication factor 3 for keyspace testabc is higher than the number of nodes 1 for datacenter " + DATA_CENTER);
+        Assertions.assertThat(warnings.get(0)).contains("Your replication factor 3 for keyspace " + ks + " is higher than the number of nodes 1 for datacenter " + DATA_CENTER);
 
         ClientWarn.instance.captureWarnings();
-        execute("CREATE TABLE testABC.t (k int PRIMARY KEY, v int)");
+        execute("CREATE TABLE " + ks + ".t (k int PRIMARY KEY, v int)");
         warnings = ClientWarn.instance.getWarnings();
         assertNull(warnings);
 
         ClientWarn.instance.captureWarnings();
-        execute("ALTER KEYSPACE testABC WITH replication = {'class' : 'NetworkTopologyStrategy', '" + DATA_CENTER + "' : 2 }");
+        execute("ALTER KEYSPACE " + ks + " WITH replication = {'class' : 'NetworkTopologyStrategy', '" + DATA_CENTER + "' : 2 }");
         warnings = ClientWarn.instance.getWarnings();
         assertEquals(1, warnings.size());
-        Assertions.assertThat(warnings.get(0)).contains("Your replication factor 2 for keyspace testabc is higher than the number of nodes 1 for datacenter " + DATA_CENTER);
+        Assertions.assertThat(warnings.get(0)).contains("Your replication factor 2 for keyspace " + ks + " is higher than the number of nodes 1 for datacenter " + DATA_CENTER);
 
         ClientWarn.instance.captureWarnings();
-        execute("ALTER KEYSPACE testABC WITH replication = {'class' : 'NetworkTopologyStrategy', '" + DATA_CENTER + "' : 1 }");
+        execute("ALTER KEYSPACE " + ks + " WITH replication = {'class' : 'NetworkTopologyStrategy', '" + DATA_CENTER + "' : 1 }");
         warnings = ClientWarn.instance.getWarnings();
         assertNull(warnings);
 
         // SimpleStrategy
         ClientWarn.instance.captureWarnings();
-        execute("CREATE KEYSPACE testXYZ WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 }");
+        ks = createKeyspace("CREATE KEYSPACE %s WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 }");
         warnings = ClientWarn.instance.getWarnings();
         assertEquals(1, warnings.size());
-        Assertions.assertThat(warnings.get(0)).contains("Your replication factor 3 for keyspace testxyz is higher than the number of nodes 1");
+        Assertions.assertThat(warnings.get(0)).contains("Your replication factor 3 for keyspace " + ks + " is higher than the number of nodes 1");
 
         ClientWarn.instance.captureWarnings();
-        execute("CREATE TABLE testXYZ.t (k int PRIMARY KEY, v int)");
+        execute("CREATE TABLE " + ks + ".t (k int PRIMARY KEY, v int)");
         warnings = ClientWarn.instance.getWarnings();
         assertNull(warnings);
 
         ClientWarn.instance.captureWarnings();
-        execute("ALTER KEYSPACE testXYZ WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 2 }");
+        execute("ALTER KEYSPACE " + ks + " WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 2 }");
         warnings = ClientWarn.instance.getWarnings();
         assertEquals(1, warnings.size());
-        Assertions.assertThat(warnings.get(0)).contains("Your replication factor 2 for keyspace testxyz is higher than the number of nodes 1");
+        Assertions.assertThat(warnings.get(0)).contains("Your replication factor 2 for keyspace " + ks + " is higher than the number of nodes 1");
 
         ClientWarn.instance.captureWarnings();
-        execute("ALTER KEYSPACE testXYZ WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }");
+        execute("ALTER KEYSPACE " + ks + " WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }");
         warnings = ClientWarn.instance.getWarnings();
         assertNull(warnings);
-
-        // clean-up
-        execute("DROP KEYSPACE IF EXISTS testABC");
-        execute("DROP KEYSPACE IF EXISTS testXYZ");
     }
 
     @Test

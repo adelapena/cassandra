@@ -64,7 +64,7 @@ public final class CreateKeyspaceStatement extends AlterSchemaStatement
     {
         if (ClientWarn.instance.get() == null)
             ClientWarn.instance.captureWarnings();
-        int previousSize = ClientWarn.instance.getWarnings() == null ? 0 : ClientWarn.instance.getWarnings().size();
+        int previousWarningsSize = ClientWarn.instance.getWarnings() == null ? 0 : ClientWarn.instance.getWarnings().size();
 
         attrs.validate();
 
@@ -90,8 +90,8 @@ public final class CreateKeyspaceStatement extends AlterSchemaStatement
         if (ClientWarn.instance.getWarnings() != null)
         {
             int newSize = ClientWarn.instance.getWarnings().size();
-            if (newSize > previousSize)
-                clientWarnings.addAll(ClientWarn.instance.getWarnings().subList(previousSize, newSize));
+            if (newSize > previousWarningsSize)
+                clientWarnings.addAll(ClientWarn.instance.getWarnings().subList(previousWarningsSize, newSize));
         }
 
         return ksps;

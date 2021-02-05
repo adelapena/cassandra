@@ -97,7 +97,7 @@ public class SimpleStrategy extends AbstractReplicationStrategy
     }
 
     @Override
-    public void maybeWarnOnOptions() throws ConfigurationException
+    public void maybeWarnOnOptions()
     {
 
         if (!SchemaConstants.isSystemKeyspace(keyspaceName))

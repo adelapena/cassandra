@@ -298,7 +298,7 @@ public abstract class AbstractReplicationStrategy
 
     public abstract void validateOptions() throws ConfigurationException;
 
-    public abstract void maybeWarnOnOptions() throws ConfigurationException;
+    public abstract void maybeWarnOnOptions();
 
     /*
      * The options recognized by the strategy.

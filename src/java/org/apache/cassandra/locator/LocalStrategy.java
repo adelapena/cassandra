@@ -70,7 +70,7 @@ public class LocalStrategy extends AbstractReplicationStrategy
     }
 
     @Override
-    public void maybeWarnOnOptions() throws ConfigurationException
+    public void maybeWarnOnOptions()
     {
     }
 
