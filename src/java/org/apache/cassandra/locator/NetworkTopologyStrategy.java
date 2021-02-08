@@ -313,11 +313,13 @@ public class NetworkTopologyStrategy extends AbstractReplicationStrategy
     @Override
     public void maybeWarnOnOptions()
     {
-        ImmutableMultimap<String, InetAddressAndPort> dcsNodes = StorageService.instance.getTokenMetadata().getDC2AllEndpoints(snitch);
-        for (Entry<String, String> e : this.configOptions.entrySet())
+        if (!SchemaConstants.isSystemKeyspace(keyspaceName))
         {
-            if (!SchemaConstants.isSystemKeyspace(keyspaceName))
+            ImmutableMultimap<String, InetAddressAndPort> dcsNodes = StorageService.instance.getTokenMetadata()
+                                                                                            .getDC2AllEndpoints(snitch);
+            for (Entry<String, String> e : this.configOptions.entrySet())
             {
+
                 String dc = e.getKey();
                 ReplicationFactor rf = getReplicationFactor(dc);
                 int nodeCount = dcsNodes.get(dc).size();

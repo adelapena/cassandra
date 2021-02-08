@@ -99,7 +99,6 @@ public class SimpleStrategy extends AbstractReplicationStrategy
     @Override
     public void maybeWarnOnOptions()
     {
-
         if (!SchemaConstants.isSystemKeyspace(keyspaceName))
         {
             int nodeCount = StorageService.instance.getHostIdToEndpoint().size();
