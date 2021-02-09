@@ -280,7 +280,7 @@ public class AlterTest extends CQLTester
     public void testCreateAlterKeyspacesRFWarnings() throws Throwable
     {
         requireNetwork();
-        Thread.sleep(1000); // Hack: requireNetwork() will clear warnings async so give some time to complete
+//        Thread.sleep(1000); // Hack: requireNetwork() will clear warnings async so give some time to complete
 
         // NTS
         ClientWarn.instance.captureWarnings();
