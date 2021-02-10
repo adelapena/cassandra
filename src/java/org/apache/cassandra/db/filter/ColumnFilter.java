@@ -200,6 +200,25 @@ public class ColumnFilter
         return false;
     }
 
+    public boolean fetchedCellIsQueriedOld(ColumnDefinition column, CellPath path)
+    {
+        assert path != null;
+
+        if (!isFetchAll || subSelections == null)
+            return true;
+
+        SortedSet<ColumnSubselection> s = subSelections.get(column.name);
+        // No subsection for this column means everything is queried
+        if (s.isEmpty())
+            return true;
+
+        for (ColumnSubselection subSel : s)
+            if (subSel.compareInclusionOf(path) == 0)
+                return true;
+
+        return false;
+    }
+
     /**
      * Creates a new {@code Tester} to efficiently test the inclusion of cells of complex column
      * {@code column}.
