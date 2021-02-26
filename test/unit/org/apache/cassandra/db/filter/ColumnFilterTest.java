@@ -53,7 +53,7 @@ public class ColumnFilterTest
 {
     private static final ColumnFilter.Serializer serializer = new ColumnFilter.Serializer();
 
-    @Parameterized.Parameter(0)
+    @Parameterized.Parameter
     public String clusterMinVersion;
 
     private final TableMetadata metadata = TableMetadata.builder("ks", "table")
@@ -98,7 +98,7 @@ public class ColumnFilterTest
     // Select all
 
     @Test
-    public void testSelectAll() throws Exception
+    public void testSelectAll()
     {
         Consumer<ColumnFilter> check = filter -> {
             testRoundTrips(filter);
@@ -194,7 +194,7 @@ public class ColumnFilterTest
     }
 
     @Test
-    public void testSelectColumns() throws Exception
+    public void testSelectColumns()
     {
         Consumer<ColumnFilter> check = filter -> {
             testRoundTrips(filter);
@@ -209,7 +209,7 @@ public class ColumnFilterTest
     }
 
     @Test
-    public void testSelectIndividualCells() throws Exception
+    public void testSelectIndividualCells()
     {
         ColumnFilter filter = ColumnFilter.selectionBuilder().select(v2, path1).select(v2, path3).build();
         testRoundTrips(filter);
@@ -222,7 +222,7 @@ public class ColumnFilterTest
     }
 
     @Test
-    public void testSelectIndividualCellsFromStatic() throws Exception
+    public void testSelectIndividualCellsFromStatic()
     {
         ColumnFilter filter = ColumnFilter.selectionBuilder().select(s2, path1).select(s2, path3).build();
         testRoundTrips(filter);
