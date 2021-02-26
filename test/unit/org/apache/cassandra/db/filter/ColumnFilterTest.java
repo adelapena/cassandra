@@ -73,7 +73,7 @@ public class ColumnFilterTest
     private final CellPath path3 = CellPath.create(ByteBufferUtil.bytes(3));
     private final CellPath path4 = CellPath.create(ByteBufferUtil.bytes(4));
 
-    @Parameterized.Parameter(0)
+    @Parameterized.Parameter
     public boolean anyNodeOn30;
 
     @Parameterized.Parameters(name = "{index}: anyNodeOn30={0}")
@@ -97,7 +97,7 @@ public class ColumnFilterTest
     // Select all
 
     @Test
-    public void testSelectAll() throws Exception
+    public void testSelectAll()
     {
         Consumer<ColumnFilter> check = filter -> {
             testRoundTrips(filter);
@@ -208,7 +208,7 @@ public class ColumnFilterTest
     }
 
     @Test
-    public void testSelectIndividualCells() throws Exception
+    public void testSelectIndividualCells()
     {
         ColumnFilter filter = ColumnFilter.selectionBuilder().select(v2, path1).select(v2, path3).build();
         testRoundTrips(filter);
@@ -221,7 +221,7 @@ public class ColumnFilterTest
     }
 
     @Test
-    public void testSelectIndividualCellsFromStatic() throws Exception
+    public void testSelectIndividualCellsFromStatic()
     {
         ColumnFilter filter = ColumnFilter.selectionBuilder().select(s2, path1).select(s2, path3).build();
         testRoundTrips(filter);
