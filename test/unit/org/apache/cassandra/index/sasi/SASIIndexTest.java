@@ -32,6 +32,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.cassandra.SchemaLoader;
 import org.apache.cassandra.config.CFMetaData;
@@ -109,6 +111,8 @@ public class SASIIndexTest
     private static final String STATIC_CF_NAME = "static_sasi_test_cf";
     private static final String FTS_CF_NAME = "full_text_search_sasi_test_cf";
 
+    private static long timestamp = 0;
+
     @BeforeClass
     public static void loadSchema() throws ConfigurationException
     {
@@ -120,12 +124,13 @@ public class SASIIndexTest
                                                                                SchemaLoader.clusteringSASICFMD(KS_NAME, CLUSTERING_CF_NAME_2, "location"),
                                                                                SchemaLoader.staticSASICFMD(KS_NAME, STATIC_CF_NAME),
                                                                                SchemaLoader.fullTextSearchSASICFMD(KS_NAME, FTS_CF_NAME))));
+        stores().forEach(ColumnFamilyStore::disableAutoCompaction);
     }
 
     @Before
     public void cleanUp()
     {
-        Keyspace.open(KS_NAME).getColumnFamilyStore(CF_NAME).truncateBlocking();
+        cleanupData();
     }
 
     @Test
@@ -146,7 +151,7 @@ public class SASIIndexTest
             put("key4", Pair.create("Jason", 27));
         }};
 
-        ColumnFamilyStore store = loadData(data, 1000, forceFlush);
+        ColumnFamilyStore store = loadData(data, forceFlush);
 
         final ByteBuffer firstName = UTF8Type.instance.decompose("first_name");
         final ByteBuffer age = UTF8Type.instance.decompose("age");
@@ -196,7 +201,7 @@ public class SASIIndexTest
                 put("key1", Pair.create("  ", 14));
         }};
 
-        ColumnFamilyStore store = loadData(data, 1000, forceFlush);
+        ColumnFamilyStore store = loadData(data, forceFlush);
 
         Set<String> rows= getIndexed(store, 10, buildExpression(UTF8Type.instance.decompose("first_name"), Operator.LIKE_MATCHES, UTF8Type.instance.decompose("doesntmatter")));
         assertRows(rows);
@@ -220,7 +225,7 @@ public class SASIIndexTest
                 put("key4", Pair.create("Jason", 27));
         }};
 
-        ColumnFamilyStore store = loadData(data, 1000, forceFlush);
+        ColumnFamilyStore store = loadData(data, forceFlush);
 
         final ByteBuffer firstName = UTF8Type.instance.decompose("first_name");
         final ByteBuffer age = UTF8Type.instance.decompose("age");
@@ -303,7 +308,7 @@ public class SASIIndexTest
                 put("key4", Pair.create("Amiya", 36));
             }};
 
-        loadData(part1, 1000, forceFlush); // first sstable
+        loadData(part1, forceFlush); // first sstable
 
         Map<String, Pair<String, Integer>> part2 = new HashMap<String, Pair<String, Integer>>()
         {{
@@ -314,7 +319,7 @@ public class SASIIndexTest
                 put("key9", Pair.create("Amely", 40));
             }};
 
-        loadData(part2, 2000, forceFlush);
+        loadData(part2, forceFlush);
 
         Map<String, Pair<String, Integer>> part3 = new HashMap<String, Pair<String, Integer>>()
         {{
@@ -325,7 +330,7 @@ public class SASIIndexTest
                 put("key14", Pair.create("Demario", 28));
             }};
 
-        ColumnFamilyStore store = loadData(part3, 3000, forceFlush);
+        ColumnFamilyStore store = loadData(part3, forceFlush);
 
         final ByteBuffer firstName = UTF8Type.instance.decompose("first_name");
         final ByteBuffer age = UTF8Type.instance.decompose("age");
@@ -417,7 +422,7 @@ public class SASIIndexTest
                         "help someone.", 27));
             }};
 
-        ColumnFamilyStore store = loadData(part1, 1000, forceFlush);
+        ColumnFamilyStore store = loadData(part1, forceFlush);
 
         final ByteBuffer firstName = UTF8Type.instance.decompose("first_name");
         final ByteBuffer age = UTF8Type.instance.decompose("age");
@@ -480,7 +485,7 @@ public class SASIIndexTest
                 put("key4", Pair.create("Amiya", 36));
         }};
 
-        loadData(part1, 1000, forceFlush); // first sstable
+        loadData(part1, forceFlush); // first sstable
 
         Map<String, Pair<String, Integer>> part2 = new HashMap<String, Pair<String, Integer>>()
         {{
@@ -492,7 +497,7 @@ public class SASIIndexTest
                 put("key14", Pair.create(null, 28));
         }};
 
-        loadData(part2, 2000, forceFlush);
+        loadData(part2, forceFlush);
 
         Map<String, Pair<String, Integer>> part3 = new HashMap<String, Pair<String, Integer>>()
         {{
@@ -505,7 +510,7 @@ public class SASIIndexTest
                 put("key2", Pair.create("Josephine", -1));
         }};
 
-        ColumnFamilyStore store = loadData(part3, 3000, forceFlush);
+        ColumnFamilyStore store = loadData(part3, forceFlush);
 
         final ByteBuffer firstName = UTF8Type.instance.decompose("first_name");
         final ByteBuffer age = UTF8Type.instance.decompose("age");
@@ -552,7 +557,7 @@ public class SASIIndexTest
                 put("key2", Pair.create("Frank", -1));
         }};
 
-        store = loadData(part4, 4000, forceFlush);
+        store = loadData(part4, forceFlush);
 
         rows = getIndexed(store, 10,
                           buildExpression(firstName, Operator.LIKE_MATCHES, UTF8Type.instance.decompose("Susana")),
@@ -638,10 +643,10 @@ public class SASIIndexTest
                 put("key26", Pair.create("Dennis", 32));
         }};
 
-        ColumnFamilyStore store = loadData(part1, 1000, forceFlush);
+        ColumnFamilyStore store = loadData(part1, forceFlush);
 
-        loadData(part2, 2000, forceFlush);
-        loadData(part3, 3000, forceFlush);
+        loadData(part2, forceFlush);
+        loadData(part3, forceFlush);
 
         final ByteBuffer firstName = UTF8Type.instance.decompose("first_name");
         final ByteBuffer age = UTF8Type.instance.decompose("age");
@@ -864,7 +869,7 @@ public class SASIIndexTest
                 put("key4", Pair.create("Amiya", 36));
         }};
 
-        ColumnFamilyStore store = loadData(part1, 1000, forceFlush);
+        ColumnFamilyStore store = loadData(part1, forceFlush);
 
         final ByteBuffer firstName = UTF8Type.instance.decompose("first_name");
         final ByteBuffer age = UTF8Type.instance.decompose("age");
@@ -894,7 +899,7 @@ public class SASIIndexTest
                 put("key14", Pair.create("Dino", 28));
         }};
 
-        loadData(part2, 2000, forceFlush);
+        loadData(part2, forceFlush);
 
         rows = getIndexed(store, 10, buildExpression(firstName, Operator.LIKE_CONTAINS, UTF8Type.instance.decompose("a")));
         assertRows(rows, "key6", "key7");
@@ -936,20 +941,20 @@ public class SASIIndexTest
             put("key10", Pair.create("a", 35));
         }};
 
-        ColumnFamilyStore store = loadData(part1, 1000, true);
-        loadData(part2, 2000, true);
-        loadData(part3, 3000, true);
+        ColumnFamilyStore store = loadData(part1, true);
+        loadData(part2, true);
+        loadData(part3, true);
 
         final ByteBuffer firstName = UTF8Type.instance.decompose("first_name");
 
         Set<String> rows = getIndexed(store, 100, buildExpression(firstName, Operator.LIKE_CONTAINS, UTF8Type.instance.decompose("a")));
         Assert.assertEquals(rows.toString(), 6, rows.size());
 
-        loadData(part4, 4000, true);
+        loadData(part4, true);
         rows = getIndexed(store, 100, buildExpression(firstName, Operator.LIKE_CONTAINS, UTF8Type.instance.decompose("a")));
         Assert.assertEquals(rows.toString(), 8, rows.size());
 
-        loadData(part5, 5000, true);
+        loadData(part5, true);
 
         int minIndexInterval = store.metadata.params.minIndexInterval;
         try
@@ -1015,10 +1020,10 @@ public class SASIIndexTest
                 put("key26", Pair.create("Dennis", 32));
         }};
 
-        ColumnFamilyStore store = loadData(part1, 1000, true);
+        ColumnFamilyStore store = loadData(part1, true, 1000);
 
-        loadData(part2, 2000, true);
-        loadData(part3, 3000, true);
+        loadData(part2, true, 2000);
+        loadData(part3, true, 3000);
 
         final ByteBuffer firstName = UTF8Type.instance.decompose("first_name");
 
@@ -1053,7 +1058,7 @@ public class SASIIndexTest
                 put("key41", Pair.create("Dennis", 32));
         }};
 
-        loadData(part4, 4000, true);
+        loadData(part4, true);
 
         rows = getIndexed(store, 100, buildExpression(firstName, Operator.LIKE_CONTAINS, UTF8Type.instance.decompose("a")));
         Assert.assertEquals(rows.toString(), 1, rows.size());
@@ -1130,7 +1135,7 @@ public class SASIIndexTest
                 put("key4", Pair.create("Jason", 27));
         }};
 
-        ColumnFamilyStore store = loadData(data1, 1000, true);
+        ColumnFamilyStore store = loadData(data1, true);
 
         Map<String, Pair<String, Integer>> data2 = new HashMap<String, Pair<String, Integer>>()
         {{
@@ -1139,7 +1144,7 @@ public class SASIIndexTest
                 put("key4", Pair.create("Jason", 28));
         }};
 
-        loadData(data2, 2000, true);
+        loadData(data2, true);
 
         Map<String, Pair<String, Integer>> data3 = new HashMap<String, Pair<String, Integer>>()
         {{
@@ -1147,7 +1152,7 @@ public class SASIIndexTest
                 put("key4", Pair.create("Jason", 29));
         }};
 
-        loadData(data3, 3000, false);
+        loadData(data3, false);
 
         Set<String> rows = getIndexed(store, 100, buildExpression(firstName, Operator.LIKE_CONTAINS, UTF8Type.instance.decompose("a")));
         assertRows(rows, "key1", "key2", "key3", "key4");
@@ -1186,12 +1191,17 @@ public class SASIIndexTest
         rm.apply();
 
         List<Memtable> liveMemtables = store.getTracker().getView().liveMemtables;
-        try {
+        try
+        {
             store.forceBlockingFlush();
             Assert.fail("It was possible to insert data of wrong type into a column!");
-        } catch (final Throwable ex) {
+        }
+        catch (final Throwable ex)
+        {
             Assert.assertTrue(ex.getMessage().endsWith("Expected exactly 4 bytes, but was 8"));
-        } finally {
+        }
+        finally
+        {
             // don't leave the store in an inconsistent state
             store.clearUnsafe();
             liveMemtables.forEach(memtable -> store.getTracker().notifyDiscarded(memtable));
@@ -1387,7 +1397,7 @@ public class SASIIndexTest
                 put("key4", Pair.create("Jason", 27));
         }};
 
-        ColumnFamilyStore store = loadData(data1, 1000, true);
+        ColumnFamilyStore store = loadData(data1, true);
 
         RowFilter filter = RowFilter.create();
         filter.add(store.metadata.getColumnDefinition(firstName), Operator.LIKE_CONTAINS, AsciiType.instance.fromString("a"));
@@ -2353,7 +2363,7 @@ public class SASIIndexTest
         ColumnFamilyStore store = loadData(new HashMap<String, Pair<String, Integer>>()
         {{
             put("key1", Pair.create("Pavel", 14));
-        }}, 1000, false);
+        }}, false);
 
         ColumnIndex index = ((SASIIndex) store.indexManager.getIndexByName("first_name")).getIndex();
         IndexMemtable beforeFlushMemtable = index.getCurrentMemtable();
@@ -2385,7 +2395,7 @@ public class SASIIndexTest
         loadData(new HashMap<String, Pair<String, Integer>>()
         {{
             put("key2", Pair.create("Sam", 15));
-        }}, 2000, false);
+        }}, false);
 
         expression = new org.apache.cassandra.index.sasi.plan.Expression(controller, index)
                         .add(Operator.LIKE_MATCHES, UTF8Type.instance.fromString("Sam"));
@@ -2411,7 +2421,7 @@ public class SASIIndexTest
         loadData(new HashMap<String, Pair<String, Integer>>()
         {{
             put("key3", Pair.create("Jonathan", 16));
-        }}, 3000, false);
+        }}, false);
 
         expression = new org.apache.cassandra.index.sasi.plan.Expression(controller, index)
                 .add(Operator.LIKE_MATCHES, UTF8Type.instance.fromString("Jonathan"));
@@ -2508,7 +2518,12 @@ public class SASIIndexTest
         });
     }
 
-    private static ColumnFamilyStore loadData(Map<String, Pair<String, Integer>> data, long timestamp, boolean forceFlush)
+    private static ColumnFamilyStore loadData(Map<String, Pair<String, Integer>> data, boolean forceFlush)
+    {
+        return loadData(data, forceFlush, ++timestamp);
+    }
+
+    private static ColumnFamilyStore loadData(Map<String, Pair<String, Integer>> data, boolean forceFlush, long timestamp)
     {
         for (Map.Entry<String, Pair<String, Integer>> e : data.entrySet())
             newMutation(e.getKey(), e.getValue().left, null, e.getValue().right, timestamp).apply();
@@ -2521,11 +2536,15 @@ public class SASIIndexTest
         return store;
     }
 
-    private void cleanupData()
+    private static void cleanupData()
+    {
+        stores().forEach(ColumnFamilyStore::truncateBlocking);
+    }
+
+    private static Stream<ColumnFamilyStore> stores()
     {
         Keyspace ks = Keyspace.open(KS_NAME);
-        ks.getColumnFamilyStore(CF_NAME).truncateBlocking();
-        ks.getColumnFamilyStore(CLUSTERING_CF_NAME_1).truncateBlocking();
+        return StreamSupport.stream(ks.getMetadata().tables.spliterator(), false).map(t -> ks.getColumnFamilyStore(t.cfName));
     }
 
     private static Set<String> getIndexed(ColumnFamilyStore store, int maxResults, Expression... expressions)
