@@ -21,6 +21,8 @@ package org.apache.cassandra.metrics;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,37 +64,39 @@ public class ClientRequestSizeMetricsTest extends CQLTester
         requireNetwork();
     }
 
-    @Test
-    public void testReadAndWriteMetricsAreRecordedDuringNativeRequests() throws Throwable
+    @Before
+    public void before()
     {
         // It may happen that the schema refreshment is done in the middle of the test which can pollute the results
         // We will retry if we collect more then expected messages hoping that it was due that
-        try
-        {
-            reinitializeNetwork(builder -> builder.withQueryOptions(new QueryOptions().setMetadataEnabled(false)));
-            // We want to ignore all the messages sent by the driver upon connection as well as
-            // the event sent upon schema updates
-            clearMetrics();
+        reinitializeNetwork(builder -> builder.withQueryOptions(new QueryOptions().setMetadataEnabled(false)));
+    }
 
-            executeNet(version, "SELECT * from system.peers");
+    @After
+    public void after()
+    {
+        reinitializeNetwork();
+    }
 
-            long requestLength = ClientMessageSizeMetrics.bytesReceived.getCount();
-            long responseLength = ClientMessageSizeMetrics.bytesSent.getCount();
+    @Test
+    public void testReadAndWriteMetricsAreRecordedDuringNativeRequests() throws Throwable
+    {
+        clearMetrics();
 
-            assertThat(requestLength).isGreaterThan(0);
-            assertThat(responseLength).isGreaterThan(0);
+        executeNet(version, "SELECT * from system.peers");
 
-            checkMetrics(1, requestLength, responseLength);
+        long requestLength = ClientMessageSizeMetrics.bytesReceived.getCount();
+        long responseLength = ClientMessageSizeMetrics.bytesSent.getCount();
 
-            // Let's fire the same request again and test that the changes are the same that previously
-            executeNet(version, "SELECT * from system.peers");
+        assertThat(requestLength).isGreaterThan(0);
+        assertThat(responseLength).isGreaterThan(0);
 
-            checkMetrics(2, requestLength, responseLength);
-        }
-        finally
-        {
-            reinitializeNetwork();
-        }
+        checkMetrics(1, requestLength, responseLength);
+
+        // Let's fire the same request again and test that the changes are the same that previously
+        executeNet(version, "SELECT * from system.peers");
+
+        checkMetrics(2, requestLength, responseLength);
     }
 
     private void checkMetrics(int numberOfRequests, long requestLength, long responseLength)
