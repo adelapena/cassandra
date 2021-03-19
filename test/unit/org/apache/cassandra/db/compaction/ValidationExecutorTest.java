@@ -35,6 +35,7 @@ import org.apache.cassandra.utils.concurrent.SimpleCondition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ValidationExecutorTest
 {
@@ -79,7 +80,16 @@ public class ValidationExecutorTest
         while (threadsAvailable.get() > 0)
             TimeUnit.MILLISECONDS.sleep(10);
 
-        assertEquals(2, validationExecutor.getActiveTaskCount());
+        // getActiveTaskCount() relies on getActiveCount() which gives an approx number so we poll it
+        boolean activeTasksOk = false;
+        for (int i = 0; i < 100 && !activeTasksOk; i++)
+        {
+            TimeUnit.MILLISECONDS.sleep(10);
+            activeTasksOk = validationExecutor.getActiveTaskCount() == 2;
+        }
+        if (!activeTasksOk)
+            fail();
+
         assertEquals(3, validationExecutor.getPendingTaskCount());
 
         taskBlocked.signalAll();
