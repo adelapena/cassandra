@@ -30,6 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.cassandra.Util;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.utils.concurrent.SimpleCondition;
 
@@ -81,15 +82,7 @@ public class ValidationExecutorTest
             TimeUnit.MILLISECONDS.sleep(10);
 
         // getActiveTaskCount() relies on getActiveCount() which gives an approx number so we poll it
-        boolean activeTasksOk = false;
-        for (int i = 0; i < 100 && !activeTasksOk; i++)
-        {
-            TimeUnit.MILLISECONDS.sleep(10);
-            activeTasksOk = validationExecutor.getActiveTaskCount() == 2;
-        }
-        if (!activeTasksOk)
-            fail();
-
+        Util.spinAssertEquals(2, () -> validationExecutor.getActiveTaskCount(), 1);
         assertEquals(3, validationExecutor.getPendingTaskCount());
 
         taskBlocked.signalAll();
