@@ -106,7 +106,6 @@ public class ScrubTest
     public static final String INVALID_LEGACY_SSTABLE_ROOT_PROP = "invalid-legacy-sstable-root";
 
     public static final String KEYSPACE = "Keyspace1";
-    public static final String KEYSPACE2 = "Keyspace2";
     public static final String CF = "Standard1";
     public static final String CF2 = "Standard2";
     public static final String CF3 = "Standard3";
@@ -749,24 +748,13 @@ public class ScrubTest
     }
 
     @Test
-    public void testToolTestingEnvSetup()
-    {
-        createKeyspace(KEYSPACE2,
-                       KeyspaceParams.simple(1),
-                       standardCFMD(KEYSPACE2, CF),
-                       standardCFMD(KEYSPACE2, CF2),
-                       standardCFMD(KEYSPACE2, CF3),
-                       standardCFMD(KEYSPACE2, CF4),
-                       counterCFMD(KEYSPACE2, COUNTER_CF));
-
-        System.setProperty(org.apache.cassandra.tools.Util.ALLOW_TOOL_REINIT_FOR_TEST, "true"); // Necessary for testing
-    }
-
-    @Test
     public void testScrubOneRowWithTool()
     {
+        String ksName = "KeyspaceTestScrubOneRowWithTool";
+        toolTestingSetup(ksName);
+
         CompactionManager.instance.disableAutoCompaction();
-        Keyspace keyspace = Keyspace.open(KEYSPACE2);
+        Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
         cfs.clearUnsafe();
 
@@ -774,7 +762,7 @@ public class ScrubTest
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
 
-        ToolResult tool = ToolRunner.invokeClass(StandaloneScrubber.class, KEYSPACE2, CF);
+        ToolResult tool = ToolRunner.invokeClass(StandaloneScrubber.class, ksName, CF);
         Assertions.assertThat(tool.getStdout()).contains("Pre-scrub sstables snapshotted into");
         Assertions.assertThat(tool.getStdout()).contains("1 rows in new sstable and 0 empty");
         tool.assertOnCleanExit();
@@ -786,10 +774,13 @@ public class ScrubTest
     @Test
     public void testSkipScrubCorruptedCounterRowWithTool() throws IOException, WriteTimeoutException
     {
+        String ksName = "KeyspaceTestSkipScrubCorruptedCounterRowWithTool";
+        toolTestingSetup(ksName);
+
         int numPartitions = 1000;
 
         CompactionManager.instance.disableAutoCompaction();
-        Keyspace keyspace = Keyspace.open(KEYSPACE2);
+        Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(COUNTER_CF);
         cfs.clearUnsafe();
 
@@ -803,13 +794,13 @@ public class ScrubTest
         // with skipCorrupted == false, the scrub is expected to fail
         try
         {
-            ToolRunner.invokeClass(StandaloneScrubber.class, KEYSPACE2, COUNTER_CF);
+            ToolRunner.invokeClass(StandaloneScrubber.class, ksName, COUNTER_CF);
             fail("Expected a CorruptSSTableException to be thrown");
         }
         catch (IOError err) {}
 
         // with skipCorrupted == true, the corrupt rows will be skipped
-        ToolResult tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-s", KEYSPACE2, COUNTER_CF);
+        ToolResult tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-s", ksName, COUNTER_CF);
         Assertions.assertThat(tool.getStdout()).contains("0 empty");
         Assertions.assertThat(tool.getStdout()).contains("rows that were skipped");
         tool.assertOnCleanExit();
@@ -820,8 +811,11 @@ public class ScrubTest
     @Test
     public void testNoCheckScrubMultiRowWithTool()
     {
+        String ksName = "KeyspaceTestNoCheckScrubMultiRowWithTool";
+        toolTestingSetup(ksName);
+
         CompactionManager.instance.disableAutoCompaction();
-        Keyspace keyspace = Keyspace.open(KEYSPACE2);
+        Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF2);
         cfs.clearUnsafe();
 
@@ -829,7 +823,7 @@ public class ScrubTest
         fillCF(cfs, 10);
         assertOrderedAll(cfs, 10);
 
-        ToolResult tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-n", KEYSPACE2, CF2);
+        ToolResult tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-n", ksName, CF2);
         Assertions.assertThat(tool.getStdout()).contains("Pre-scrub sstables snapshotted into");
         Assertions.assertThat(tool.getStdout()).contains("10 rows in new sstable and 0 empty");
         tool.assertOnCleanExit();
@@ -841,40 +835,55 @@ public class ScrubTest
     @Test
     public void testHeaderFixWithTool()
     {
+        String ksName = "KeyspaceTestHeaderFixWithTool";
+        toolTestingSetup(ksName);
+
         CompactionManager.instance.disableAutoCompaction();
-        Keyspace keyspace = Keyspace.open(KEYSPACE2);
+        Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
         cfs.clearUnsafe();
 
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
 
-        ToolResult tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-e", "validate_only", KEYSPACE2, CF3);
+        ToolResult tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-e", "validate_only", ksName, CF3);
         Assertions.assertThat(tool.getStdout()).contains("Not continuing with scrub, since '--header-fix validate-only' was specified.");
         tool.assertOnCleanExit();
         assertOrderedAll(cfs, 1);
 
-        tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-e", "validate", KEYSPACE2, CF3);
+        tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-e", "validate", ksName, CF3);
         Assertions.assertThat(tool.getStdout()).contains("Pre-scrub sstables snapshotted into");
         Assertions.assertThat(tool.getStdout()).contains("1 rows in new sstable and 0 empty");
         tool.assertOnCleanExit();
         assertOrderedAll(cfs, 1);
 
-        tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-e", "fix-only", KEYSPACE2, CF3);
+        tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-e", "fix-only", ksName, CF3);
         Assertions.assertThat(tool.getStdout()).contains("Not continuing with scrub, since '--header-fix fix-only' was specified.");
         tool.assertOnCleanExit();
         assertOrderedAll(cfs, 1);
 
-        tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-e", "fix", KEYSPACE2, CF3);
+        tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-e", "fix", ksName, CF3);
         Assertions.assertThat(tool.getStdout()).contains("Pre-scrub sstables snapshotted into");
         Assertions.assertThat(tool.getStdout()).contains("1 rows in new sstable and 0 empty");
         tool.assertOnCleanExit();
         assertOrderedAll(cfs, 1);
 
-        tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-e", "off", KEYSPACE2, CF3);
+        tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-e", "off", ksName, CF3);
         Assertions.assertThat(tool.getStdout()).contains("Pre-scrub sstables snapshotted into");
         Assertions.assertThat(tool.getStdout()).contains("1 rows in new sstable and 0 empty");
         tool.assertOnCleanExit();
         assertOrderedAll(cfs, 1);
+    }
+
+    private void toolTestingSetup(String ksName)
+    {
+        System.setProperty(org.apache.cassandra.tools.Util.ALLOW_TOOL_REINIT_FOR_TEST, "true"); // Necessary for testing
+        createKeyspace(ksName,
+                       KeyspaceParams.simple(1),
+                       standardCFMD(ksName, CF),
+                       standardCFMD(ksName, CF2),
+                       standardCFMD(ksName, CF3),
+                       standardCFMD(ksName, CF4),
+                       counterCFMD(ksName, COUNTER_CF));
     }
 }
