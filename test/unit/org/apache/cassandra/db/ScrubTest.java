@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -135,6 +136,7 @@ public class ScrubTest
                        SchemaLoader.compositeIndexCFMD(KEYSPACE, CF_INDEX2, true),
                        SchemaLoader.keysIndexCFMD(KEYSPACE, CF_INDEX1_BYTEORDERED, true).partitioner(ByteOrderedPartitioner.instance),
                        SchemaLoader.compositeIndexCFMD(KEYSPACE, CF_INDEX2_BYTEORDERED, true).partitioner(ByteOrderedPartitioner.instance));
+        CompactionManager.instance.disableAutoCompaction();
     }
 
     @AfterClass
@@ -143,13 +145,17 @@ public class ScrubTest
         System.clearProperty(org.apache.cassandra.tools.Util.ALLOW_TOOL_REINIT_FOR_TEST);
     }
 
+    @After
+    public void clearColumnFamilyStores()
+    {
+        Keyspace.open(KEYSPACE).getColumnFamilyStores().forEach(ColumnFamilyStore::clearUnsafe);
+    }
+
     @Test
     public void testScrubOneRow() throws ExecutionException, InterruptedException
     {
-        CompactionManager.instance.disableAutoCompaction();
         Keyspace keyspace = Keyspace.open(KEYSPACE);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
-        cfs.clearUnsafe();
 
         // insert data and verify we get it back w/ range query
         fillCF(cfs, 1);
@@ -168,10 +174,8 @@ public class ScrubTest
         // at least 3 chunks of size COMPRESSION_CHUNK_LENGTH
         int numPartitions = 1000;
 
-        CompactionManager.instance.disableAutoCompaction();
         Keyspace keyspace = Keyspace.open(KEYSPACE);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(COUNTER_CF);
-        cfs.clearUnsafe();
 
         fillCounterCF(cfs, numPartitions);
 
@@ -191,7 +195,10 @@ public class ScrubTest
             scrubber.scrub();
             fail("Expected a CorruptSSTableException to be thrown");
         }
-        catch (IOError err) {}
+        catch (IOError err) {
+            assertTrue("Expected CorruptSSTableException but found " + err,
+                       err.getCause() != null && err.getCause() instanceof CorruptSSTableException);
+        }
 
         // with skipCorrupted == true, the corrupt rows will be skipped
         Scrubber.ScrubResult scrubResult;
@@ -228,10 +235,8 @@ public class ScrubTest
         // cannot test this with compression
         assumeTrue(!Boolean.parseBoolean(System.getProperty("cassandra.test.compression", "false")));
 
-        CompactionManager.instance.disableAutoCompaction();
         Keyspace keyspace = Keyspace.open(KEYSPACE);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(COUNTER_CF);
-        cfs.clearUnsafe();
 
         fillCounterCF(cfs, 2);
 
@@ -250,7 +255,10 @@ public class ScrubTest
             scrubber.scrub();
             fail("Expected a CorruptSSTableException to be thrown");
         }
-        catch (IOError err) {}
+        catch (IOError err) {
+            assertTrue("Expected CorruptSSTableException but found " + err,
+                       err.getCause() != null && err.getCause() instanceof CorruptSSTableException);
+        }
 
         try (LifecycleTransaction txn = cfs.getTracker().tryModify(Arrays.asList(sstable), OperationType.SCRUB);
              Scrubber scrubber = new Scrubber(cfs, txn, true, true))
@@ -271,10 +279,8 @@ public class ScrubTest
         // cannot test this with compression
         assumeTrue(!Boolean.parseBoolean(System.getProperty("cassandra.test.compression", "false")));
 
-        CompactionManager.instance.disableAutoCompaction();
         Keyspace keyspace = Keyspace.open(KEYSPACE);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
-        cfs.clearUnsafe();
 
         // insert data and verify we get it back w/ range query
         fillCF(cfs, 4);
@@ -307,10 +313,8 @@ public class ScrubTest
     @Test
     public void testScrubMultiRow() throws ExecutionException, InterruptedException
     {
-        CompactionManager.instance.disableAutoCompaction();
         Keyspace keyspace = Keyspace.open(KEYSPACE);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
-        cfs.clearUnsafe();
 
         // insert data and verify we get it back w/ range query
         fillCF(cfs, 10);
@@ -325,10 +329,8 @@ public class ScrubTest
     @Test
     public void testScrubNoIndex() throws IOException, ExecutionException, InterruptedException, ConfigurationException
     {
-        CompactionManager.instance.disableAutoCompaction();
         Keyspace keyspace = Keyspace.open(KEYSPACE);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
-        cfs.clearUnsafe();
 
         // insert data and verify we get it back w/ range query
         fillCF(cfs, 10);
@@ -357,11 +359,9 @@ public class ScrubTest
         tempDataDir.mkdirs();
         try
         {
-            CompactionManager.instance.disableAutoCompaction();
             Keyspace keyspace = Keyspace.open(KEYSPACE);
             String columnFamily = CF3;
             ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(columnFamily);
-            cfs.clearUnsafe();
 
             List<String> keys = Arrays.asList("t", "a", "b", "z", "c", "y", "d");
             Descriptor desc = cfs.newSSTableDescriptor(tempDataDir);
@@ -628,10 +628,8 @@ public class ScrubTest
     private void testScrubIndex(String cfName, String colName, boolean composite, boolean ... scrubs)
             throws IOException, ExecutionException, InterruptedException
     {
-        CompactionManager.instance.disableAutoCompaction();
         Keyspace keyspace = Keyspace.open(KEYSPACE);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(cfName);
-        cfs.clearUnsafe();
 
         int numRows = 1000;
         long[] colValues = new long [numRows * 2]; // each row has two columns
@@ -752,7 +750,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
-        cfs.clearUnsafe();
 
         // insert data and verify we get it back w/ range query
         fillCF(cfs, 1);
@@ -774,7 +771,6 @@ public class ScrubTest
         int numPartitions = 1000;
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(COUNTER_CF);
-        cfs.clearUnsafe();
 
         fillCounterCF(cfs, numPartitions);
         assertOrderedAll(cfs, numPartitions);
@@ -799,7 +795,6 @@ public class ScrubTest
         int numPartitions = 1000;
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(COUNTER_CF);
-        cfs.clearUnsafe();
 
         fillCounterCF(cfs, numPartitions);
         assertOrderedAll(cfs, numPartitions);
@@ -814,7 +809,10 @@ public class ScrubTest
             ToolRunner.invokeClass(StandaloneScrubber.class, ksName, COUNTER_CF);
             fail("Expected a CorruptSSTableException to be thrown");
         }
-        catch (IOError err) {}
+        catch (IOError err) {
+            assertTrue("Expected CorruptSSTableException but found " + err,
+                       err.getCause() != null && err.getCause() instanceof CorruptSSTableException);
+        }
     }
 
     @Test
@@ -823,7 +821,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF2);
-        cfs.clearUnsafe();
 
         // insert data and verify we get it back w/ range query
         fillCF(cfs, 10);
@@ -844,7 +841,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
-        cfs.clearUnsafe();
 
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
@@ -861,7 +857,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
-        cfs.clearUnsafe();
 
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
@@ -879,7 +874,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
-        cfs.clearUnsafe();
 
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
@@ -896,7 +890,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
-        cfs.clearUnsafe();
 
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
@@ -914,7 +907,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
-        cfs.clearUnsafe();
 
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
@@ -929,7 +921,6 @@ public class ScrubTest
     private String toolTestingSetup()
     {
         System.setProperty(org.apache.cassandra.tools.Util.ALLOW_TOOL_REINIT_FOR_TEST, "true"); // Necessary for testing
-        CompactionManager.instance.disableAutoCompaction();
 
         String ksName = Thread.currentThread().getStackTrace()[2].getMethodName();
         createKeyspace(ksName,
