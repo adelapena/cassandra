@@ -1668,6 +1668,8 @@
       <jvmarg value="-Dcassandra.ring_delay_ms=1000"/>
       <jvmarg value="-Dcassandra.tolerate_sstable_size=true"/>
       <jvmarg value="-Dcassandra.skip_sync=true" />
+      <jvmarg value="-Dcassandra.test.compression=true"/>
+      <jvmarg value="-Dcassandra.config=file:///${test.conf}/cassandra.compressed.yaml"/>
     </testmacro>
   </target>
 
