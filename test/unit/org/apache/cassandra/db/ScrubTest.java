@@ -750,10 +750,7 @@ public class ScrubTest
     @Test
     public void testScrubOneRowWithTool()
     {
-        String ksName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        toolTestingSetup(ksName);
-
-        CompactionManager.instance.disableAutoCompaction();
+        String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
         cfs.clearUnsafe();
@@ -774,12 +771,8 @@ public class ScrubTest
     @Test
     public void testSkipScrubCorruptedCounterRowWithTool() throws IOException, WriteTimeoutException
     {
-        String ksName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        toolTestingSetup(ksName);
-
+        String ksName = toolTestingSetup();
         int numPartitions = 1000;
-
-        CompactionManager.instance.disableAutoCompaction();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(COUNTER_CF);
         cfs.clearUnsafe();
@@ -799,16 +792,12 @@ public class ScrubTest
 
         assertEquals(1, cfs.getLiveSSTables().size());
     }
-    
+
     @Test
     public void testNoSkipScrubCorruptedCounterRowWithTool() throws IOException, WriteTimeoutException
     {
-        String ksName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        toolTestingSetup(ksName);
-
+        String ksName = toolTestingSetup();
         int numPartitions = 1000;
-
-        CompactionManager.instance.disableAutoCompaction();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(COUNTER_CF);
         cfs.clearUnsafe();
@@ -832,10 +821,7 @@ public class ScrubTest
     @Test
     public void testNoCheckScrubMultiRowWithTool()
     {
-        String ksName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        toolTestingSetup(ksName);
-
-        CompactionManager.instance.disableAutoCompaction();
+        String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF2);
         cfs.clearUnsafe();
@@ -856,10 +842,7 @@ public class ScrubTest
     @Test
     public void testHeaderFixValidateOnlyWithTool()
     {
-        String ksName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        toolTestingSetup(ksName);
-
-        CompactionManager.instance.disableAutoCompaction();
+        String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
         cfs.clearUnsafe();
@@ -876,10 +859,7 @@ public class ScrubTest
     @Test
     public void testHeaderFixValidateWithTool()
     {
-        String ksName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        toolTestingSetup(ksName);
-
-        CompactionManager.instance.disableAutoCompaction();
+        String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
         cfs.clearUnsafe();
@@ -897,10 +877,7 @@ public class ScrubTest
     @Test
     public void testHeaderFixFixOnlyWithTool()
     {
-        String ksName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        toolTestingSetup(ksName);
-
-        CompactionManager.instance.disableAutoCompaction();
+        String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
         cfs.clearUnsafe();
@@ -917,10 +894,7 @@ public class ScrubTest
     @Test
     public void testHeaderFixWithTool()
     {
-        String ksName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        toolTestingSetup(ksName);
-
-        CompactionManager.instance.disableAutoCompaction();
+        String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
         cfs.clearUnsafe();
@@ -938,10 +912,7 @@ public class ScrubTest
     @Test
     public void testHeaderFixNoChecksWithTool()
     {
-        String ksName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        toolTestingSetup(ksName);
-
-        CompactionManager.instance.disableAutoCompaction();
+        String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
         cfs.clearUnsafe();
@@ -956,9 +927,12 @@ public class ScrubTest
         assertOrderedAll(cfs, 1);
     }
 
-    private void toolTestingSetup(String ksName)
+    private String toolTestingSetup()
     {
         System.setProperty(org.apache.cassandra.tools.Util.ALLOW_TOOL_REINIT_FOR_TEST, "true"); // Necessary for testing
+        CompactionManager.instance.disableAutoCompaction();
+
+        String ksName = Thread.currentThread().getStackTrace()[2].getMethodName();
         createKeyspace(ksName,
                        KeyspaceParams.simple(1),
                        standardCFMD(ksName, CF),
@@ -966,5 +940,6 @@ public class ScrubTest
                        standardCFMD(ksName, CF3),
                        standardCFMD(ksName, CF4),
                        counterCFMD(ksName, COUNTER_CF));
+        return ksName;
     }
 }
