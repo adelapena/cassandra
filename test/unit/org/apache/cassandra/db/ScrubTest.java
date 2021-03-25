@@ -753,7 +753,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
-        cfs.clearUnsafe();
 
         // insert data and verify we get it back w/ range query
         fillCF(cfs, 1);
@@ -775,7 +774,6 @@ public class ScrubTest
         int numPartitions = 1000;
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(COUNTER_CF);
-        cfs.clearUnsafe();
 
         fillCounterCF(cfs, numPartitions);
         assertOrderedAll(cfs, numPartitions);
@@ -800,7 +798,6 @@ public class ScrubTest
         int numPartitions = 1000;
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(COUNTER_CF);
-        cfs.clearUnsafe();
 
         fillCounterCF(cfs, numPartitions);
         assertOrderedAll(cfs, numPartitions);
@@ -824,7 +821,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF2);
-        cfs.clearUnsafe();
 
         // insert data and verify we get it back w/ range query
         fillCF(cfs, 10);
@@ -845,7 +841,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
-        cfs.clearUnsafe();
 
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
@@ -862,7 +857,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
-        cfs.clearUnsafe();
 
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
@@ -880,7 +874,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
-        cfs.clearUnsafe();
 
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
@@ -897,7 +890,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
-        cfs.clearUnsafe();
 
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
@@ -915,7 +907,6 @@ public class ScrubTest
         String ksName = toolTestingSetup();
         Keyspace keyspace = Keyspace.open(ksName);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF3);
-        cfs.clearUnsafe();
 
         fillCF(cfs, 1);
         assertOrderedAll(cfs, 1);
