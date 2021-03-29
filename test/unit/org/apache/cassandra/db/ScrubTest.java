@@ -37,7 +37,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -128,6 +127,8 @@ public class ScrubTest
     public static void defineSchema() throws ConfigurationException
     {
         loadSchema();
+        CompactionManager.instance.disableAutoCompaction();
+        System.setProperty(org.apache.cassandra.tools.Util.ALLOW_TOOL_REINIT_FOR_TEST, "true"); // Necessary for testing
     }
 
     @Before
@@ -144,9 +145,6 @@ public class ScrubTest
                        SchemaLoader.keysIndexCFMD(ksName, CF_INDEX1_BYTEORDERED, true).partitioner(ByteOrderedPartitioner.instance),
                        SchemaLoader.compositeIndexCFMD(ksName, CF_INDEX2_BYTEORDERED, true).partitioner(ByteOrderedPartitioner.instance));
         keyspace = Keyspace.open(ksName);
-
-        CompactionManager.instance.disableAutoCompaction();
-        System.setProperty(org.apache.cassandra.tools.Util.ALLOW_TOOL_REINIT_FOR_TEST, "true"); // Necessary for testing
     }
 
     @AfterClass
@@ -158,7 +156,6 @@ public class ScrubTest
     @Test
     public void testScrubOneRow() throws ExecutionException, InterruptedException
     {
-        CompactionManager.instance.disableAutoCompaction();
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
 
         // insert data and verify we get it back w/ range query
@@ -178,7 +175,6 @@ public class ScrubTest
         // at least 3 chunks of size COMPRESSION_CHUNK_LENGTH
         int numPartitions = 1000;
 
-        CompactionManager.instance.disableAutoCompaction();
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(COUNTER_CF);
 
         fillCounterCF(cfs, numPartitions);
@@ -237,7 +233,6 @@ public class ScrubTest
         // cannot test this with compression
         assumeTrue(!Boolean.parseBoolean(System.getProperty("cassandra.test.compression", "false")));
 
-        CompactionManager.instance.disableAutoCompaction();
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(COUNTER_CF);
 
         fillCounterCF(cfs, 2);
@@ -279,7 +274,6 @@ public class ScrubTest
         // cannot test this with compression
         assumeTrue(!Boolean.parseBoolean(System.getProperty("cassandra.test.compression", "false")));
 
-        CompactionManager.instance.disableAutoCompaction();
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
 
         // insert data and verify we get it back w/ range query
@@ -313,7 +307,6 @@ public class ScrubTest
     @Test
     public void testScrubMultiRow() throws ExecutionException, InterruptedException
     {
-        CompactionManager.instance.disableAutoCompaction();
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
 
         // insert data and verify we get it back w/ range query
@@ -329,7 +322,6 @@ public class ScrubTest
     @Test
     public void testScrubNoIndex() throws ExecutionException, InterruptedException, ConfigurationException
     {
-        CompactionManager.instance.disableAutoCompaction();
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
 
         // insert data and verify we get it back w/ range query
@@ -359,7 +351,6 @@ public class ScrubTest
         assertTrue(tempDataDir.mkdirs());
         try
         {
-            CompactionManager.instance.disableAutoCompaction();
             ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(CF);
 
             List<String> keys = Arrays.asList("t", "a", "b", "z", "c", "y", "d");
@@ -419,7 +410,7 @@ public class ScrubTest
         }
     }
 
-    private void overrideWithGarbage(SSTableReader sstable, ByteBuffer key1, ByteBuffer key2) throws IOException
+    private static void overrideWithGarbage(SSTableReader sstable, ByteBuffer key1, ByteBuffer key2) throws IOException
     {
         boolean compression = Boolean.parseBoolean(System.getProperty("cassandra.test.compression", "false"));
         long startPosition, endPosition;
@@ -449,7 +440,7 @@ public class ScrubTest
         overrideWithGarbage(sstable, startPosition, endPosition);
     }
 
-    private void overrideWithGarbage(SSTableReader sstable, long startPosition, long endPosition) throws IOException
+    private static void overrideWithGarbage(SSTableReader sstable, long startPosition, long endPosition) throws IOException
     {
         try (RandomAccessFile file = new RandomAccessFile(sstable.getFilename(), "rw"))
         {
@@ -479,7 +470,7 @@ public class ScrubTest
         assertEquals(expectedSize, size);
     }
 
-    protected void fillCF(ColumnFamilyStore cfs, int partitionsPerSSTable)
+    private static void fillCF(ColumnFamilyStore cfs, int partitionsPerSSTable)
     {
         for (int i = 0; i < partitionsPerSSTable; i++)
         {
@@ -518,7 +509,7 @@ public class ScrubTest
         cfs.forceBlockingFlush();
     }
 
-    protected void fillCounterCF(ColumnFamilyStore cfs, int partitionsPerSSTable) throws WriteTimeoutException
+    private static void fillCounterCF(ColumnFamilyStore cfs, int partitionsPerSSTable) throws WriteTimeoutException
     {
         for (int i = 0; i < partitionsPerSSTable; i++)
         {
@@ -627,7 +618,6 @@ public class ScrubTest
     private void testScrubIndex(String cfName, String colName, boolean composite, boolean ... scrubs)
             throws IOException, ExecutionException, InterruptedException
     {
-        CompactionManager.instance.disableAutoCompaction();
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(cfName);
 
         int numRows = 1000;
