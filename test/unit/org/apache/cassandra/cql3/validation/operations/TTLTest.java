@@ -377,6 +377,7 @@ public class TTLTest extends CQLTester
         }
 
         createTable(simple, clustering);
+        disableCompaction();
 
         Keyspace keyspace = Keyspace.open(KEYSPACE);
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(currentTable());
