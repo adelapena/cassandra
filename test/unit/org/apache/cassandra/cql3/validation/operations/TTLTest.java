@@ -376,6 +376,7 @@ public class TTLTest extends CQLTester
         String keyspace = createKeyspace("CREATE KEYSPACE %s WITH replication={ 'class' : 'SimpleStrategy', 'replication_factor' : 1 }");
         String table = createTable(keyspace, simple, clustering);
         ColumnFamilyStore cfs = Keyspace.open(keyspace).getColumnFamilyStore(currentTable());
+        disableCompaction(keyspace);
 
         assertEquals(0, cfs.getLiveSSTables().size());
 
@@ -387,7 +388,8 @@ public class TTLTest extends CQLTester
         {
             cfs.scrub(true, false, true, reinsertOverflowedTTL, 1);
 
-            UntypedResultSet rs = execute(formatQuery(keyspace, "SELECT * from %s"));
+            String query = formatQuery(keyspace, "SELECT * from %s");
+            UntypedResultSet rs = execute(query);
             if (reinsertOverflowedTTL)
             {
                 if (simple)
@@ -396,8 +398,8 @@ public class TTLTest extends CQLTester
                     assertRows(rs, row(1, 1, set("v11", "v12", "v13", "v14")), row(2, 2, set("v21", "v22", "v23", "v24")));
 
                 cfs.forceMajorCompaction();
+                rs = execute(query);
 
-                rs = execute(formatQuery(keyspace, "SELECT * from %s"));
                 if (simple)
                     assertRows(rs, row(1, 1, 1), row(2, 2, null));
                 else
