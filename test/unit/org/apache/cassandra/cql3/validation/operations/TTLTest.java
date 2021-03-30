@@ -256,7 +256,7 @@ public class TTLTest extends CQLTester
     public void testCapExpirationDateOverflowPolicy(boolean simple, boolean clustering, boolean flush) throws Throwable
     {
         // Create Table
-        createTable(simple, clustering);
+        createTable(keyspace(), simple, clustering);
 
         // Insert data with INSERT and UPDATE
         if (simple)
@@ -307,21 +307,21 @@ public class TTLTest extends CQLTester
         testRecoverOverflowedExpirationWithScrub(false, false, runScrub, runSStableScrub, reinsertOverflowedTTL);
     }
 
-    private void createTable(boolean simple, boolean clustering)
+    private String createTable(String keyspace, boolean simple, boolean clustering)
     {
         if (simple)
         {
             if (clustering)
-                createTable("create table %s (k int, a int, b int, primary key(k, a))");
+                return createTable(keyspace, "create table %s (k int, a int, b int, primary key(k, a))");
             else
-                createTable("create table %s (k int primary key, a int, b int)");
+                return createTable(keyspace, "create table %s (k int primary key, a int, b int)");
         }
         else
         {
             if (clustering)
-                createTable("create table %s (k int, a int, b set<text>, primary key(k, a))");
+                return createTable(keyspace, "create table %s (k int, a int, b set<text>, primary key(k, a))");
             else
-                createTable("create table %s (k int primary key, a int, b set<text>)");
+                return createTable(keyspace, "create table %s (k int primary key, a int, b set<text>)");
         }
     }
 
@@ -371,19 +371,15 @@ public class TTLTest extends CQLTester
 
     public void testRecoverOverflowedExpirationWithScrub(boolean simple, boolean clustering, boolean runScrub, boolean runSStableScrub,  boolean reinsertOverflowedTTL) throws Throwable
     {
-        if (reinsertOverflowedTTL)
-        {
-            assert runScrub || runSStableScrub;
-        }
+        assert !reinsertOverflowedTTL || runScrub || runSStableScrub;
 
-        createTable(simple, clustering);
-
-        Keyspace keyspace = Keyspace.open(KEYSPACE);
-        ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(currentTable());
+        String keyspace = createKeyspace("CREATE KEYSPACE %s WITH replication={ 'class' : 'SimpleStrategy', 'replication_factor' : 1 }");
+        String table = createTable(keyspace, simple, clustering);
+        ColumnFamilyStore cfs = Keyspace.open(keyspace).getColumnFamilyStore(currentTable());
 
         assertEquals(0, cfs.getLiveSSTables().size());
 
-        copySSTablesToTableDir(currentTable(), simple, clustering);
+        copySSTablesToTableDir(cfs, simple, clustering);
 
         cfs.loadNewSSTables();
 
@@ -391,23 +387,25 @@ public class TTLTest extends CQLTester
         {
             cfs.scrub(true, false, true, reinsertOverflowedTTL, 1);
 
+            UntypedResultSet rs = execute(formatQuery(keyspace, "SELECT * from %s"));
             if (reinsertOverflowedTTL)
             {
                 if (simple)
-                    assertRows(execute("SELECT * from %s"), row(1, 1, 1), row(2, 2, null));
+                    assertRows(rs, row(1, 1, 1), row(2, 2, null));
                 else
-                    assertRows(execute("SELECT * from %s"), row(1, 1, set("v11", "v12", "v13", "v14")), row(2, 2, set("v21", "v22", "v23", "v24")));
+                    assertRows(rs, row(1, 1, set("v11", "v12", "v13", "v14")), row(2, 2, set("v21", "v22", "v23", "v24")));
 
                 cfs.forceMajorCompaction();
 
+                rs = execute(formatQuery(keyspace, "SELECT * from %s"));
                 if (simple)
-                    assertRows(execute("SELECT * from %s"), row(1, 1, 1), row(2, 2, null));
+                    assertRows(rs, row(1, 1, 1), row(2, 2, null));
                 else
-                    assertRows(execute("SELECT * from %s"), row(1, 1, set("v11", "v12", "v13", "v14")), row(2, 2, set("v21", "v22", "v23", "v24")));
+                    assertRows(rs, row(1, 1, set("v11", "v12", "v13", "v14")), row(2, 2, set("v21", "v22", "v23", "v24")));
             }
             else
             {
-                assertEmpty(execute("SELECT * from %s"));
+                assertEmpty(rs);
             }
         }
         if (runSStableScrub)
@@ -418,9 +416,9 @@ public class TTLTest extends CQLTester
             {
                 ToolResult tool;
                 if (reinsertOverflowedTTL)
-                    tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-r", KEYSPACE, cfs.name);
+                    tool = ToolRunner.invokeClass(StandaloneScrubber.class, "-r", keyspace, table);
                 else
-                    tool = ToolRunner.invokeClass(StandaloneScrubber.class, KEYSPACE, cfs.name);
+                    tool = ToolRunner.invokeClass(StandaloneScrubber.class, keyspace, table);
 
                 Assertions.assertThat(tool.getStdout()).contains("Pre-scrub sstables snapshotted into");
                 if (reinsertOverflowedTTL)
@@ -436,17 +434,17 @@ public class TTLTest extends CQLTester
         }
     }
 
-    private void copySSTablesToTableDir(String table, boolean simple, boolean clustering) throws IOException
+    private void copySSTablesToTableDir(ColumnFamilyStore cfs, boolean simple, boolean clustering) throws IOException
     {
-        File destDir = Keyspace.open(keyspace()).getColumnFamilyStore(table).getDirectories().getCFDirectories().iterator().next();
-        File sourceDir = getTableDir(table, simple, clustering);
+        File destDir = cfs.getDirectories().getCFDirectories().iterator().next();
+        File sourceDir = getTableDir(simple, clustering);
         for (File file : sourceDir.listFiles())
         {
             copyFile(file, destDir);
         }
     }
 
-    private static File getTableDir(String table, boolean simple, boolean clustering)
+    private static File getTableDir(boolean simple, boolean clustering)
     {
         return new File(String.format(NEGATIVE_LOCAL_EXPIRATION_TEST_DIR, getTableName(simple, clustering)));
     }
