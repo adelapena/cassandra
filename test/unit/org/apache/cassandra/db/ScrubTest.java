@@ -128,7 +128,6 @@ public class ScrubTest
     {
         loadSchema();
         CompactionManager.instance.disableAutoCompaction();
-        System.setProperty(org.apache.cassandra.tools.Util.ALLOW_TOOL_REINIT_FOR_TEST, "true"); // Necessary for testing
     }
 
     @Before
@@ -733,6 +732,12 @@ public class ScrubTest
         rs = QueryProcessor.executeInternal(String.format("SELECT * FROM \"%s\".cf_with_duplicates_3_0", ksName));
         assertNotNull(rs);
         assertEquals(0, rs.size());
+    }
+
+    @Test
+    public void testToolTestingEnvSetup()
+    {
+        System.setProperty(org.apache.cassandra.tools.Util.ALLOW_TOOL_REINIT_FOR_TEST, "true"); // Necessary for testing
     }
 
     @Test
