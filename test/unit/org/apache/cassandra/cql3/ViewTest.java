@@ -72,7 +72,7 @@ public class ViewTest extends CQLTester
     public void end() throws Throwable
     {
         for (String viewName : views)
-            executeNet(protocolVersion, "DROP MATERIALIZED VIEW " + viewName);
+            executeNet(protocolVersion, "DROP MATERIALIZED VIEW IF EXISTS " + viewName);
     }
 
     private void createView(String name, String query) throws Throwable
@@ -696,6 +696,18 @@ public class ViewTest extends CQLTester
 
         Assert.assertEquals(0, execute("select * from %s").size());
         Assert.assertEquals(0, execute("select * from mv").size());
+    }
+
+    @Test
+    public void testRepeatCompoundPartitionKey() throws Throwable
+    {
+        for (int i = 1; i <= 100; i++)
+        {
+            begin();
+            testCompoundPartitionKey();
+            end();
+            executeNet("DROP TABLE %s");
+        }
     }
 
     @Test
