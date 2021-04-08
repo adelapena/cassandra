@@ -70,7 +70,11 @@ public abstract class ReplicaPlan<E extends Endpoints<E>>
         // we will consult this collection to find uncontacted nodes we might contact if we doubt we will meet consistency level
         private final E candidates;
 
-        ForRead(Keyspace keyspace, AbstractReplicationStrategy replicationStrategy, ConsistencyLevel consistencyLevel, E candidates, E contacts)
+        ForRead(Keyspace keyspace,
+                AbstractReplicationStrategy replicationStrategy,
+                ConsistencyLevel consistencyLevel,
+                E candidates,
+                E contacts)
         {
             super(keyspace, replicationStrategy, consistencyLevel, contacts);
             this.candidates = candidates;
@@ -98,7 +102,11 @@ public abstract class ReplicaPlan<E extends Endpoints<E>>
 
     public static class ForTokenRead extends ForRead<EndpointsForToken>
     {
-        public ForTokenRead(Keyspace keyspace, AbstractReplicationStrategy replicationStrategy, ConsistencyLevel consistencyLevel, EndpointsForToken candidates, EndpointsForToken contacts)
+        public ForTokenRead(Keyspace keyspace,
+                            AbstractReplicationStrategy replicationStrategy,
+                            ConsistencyLevel consistencyLevel,
+                            EndpointsForToken candidates,
+                            EndpointsForToken contacts)
         {
             super(keyspace, replicationStrategy, consistencyLevel, candidates, contacts);
         }
@@ -147,7 +155,13 @@ public abstract class ReplicaPlan<E extends Endpoints<E>>
         final E liveAndDown;
         final E live;
 
-        ForWrite(Keyspace keyspace, AbstractReplicationStrategy replicationStrategy, ConsistencyLevel consistencyLevel, E pending, E liveAndDown, E live, E contact)
+        ForWrite(Keyspace keyspace,
+                 AbstractReplicationStrategy replicationStrategy,
+                 ConsistencyLevel consistencyLevel,
+                 E pending,
+                 E liveAndDown,
+                 E live,
+                 E contact)
         {
             super(keyspace, replicationStrategy, consistencyLevel, contact);
             this.pending = pending;
@@ -180,7 +194,13 @@ public abstract class ReplicaPlan<E extends Endpoints<E>>
 
     public static class ForTokenWrite extends ForWrite<EndpointsForToken>
     {
-        public ForTokenWrite(Keyspace keyspace, AbstractReplicationStrategy replicationStrategy, ConsistencyLevel consistencyLevel, EndpointsForToken pending, EndpointsForToken liveAndDown, EndpointsForToken live, EndpointsForToken contact)
+        public ForTokenWrite(Keyspace keyspace,
+                             AbstractReplicationStrategy replicationStrategy,
+                             ConsistencyLevel consistencyLevel,
+                             EndpointsForToken pending,
+                             EndpointsForToken liveAndDown,
+                             EndpointsForToken live,
+                             EndpointsForToken contact)
         {
             super(keyspace, replicationStrategy, consistencyLevel, pending, liveAndDown, live, contact);
         }
@@ -198,7 +218,13 @@ public abstract class ReplicaPlan<E extends Endpoints<E>>
     {
         final int requiredParticipants;
 
-        ForPaxosWrite(Keyspace keyspace, ConsistencyLevel consistencyLevel, EndpointsForToken pending, EndpointsForToken liveAndDown, EndpointsForToken live, EndpointsForToken contact, int requiredParticipants)
+        ForPaxosWrite(Keyspace keyspace,
+                      ConsistencyLevel consistencyLevel,
+                      EndpointsForToken pending,
+                      EndpointsForToken liveAndDown,
+                      EndpointsForToken live,
+                      EndpointsForToken contact,
+                      int requiredParticipants)
         {
             super(keyspace, keyspace.getReplicationStrategy(), consistencyLevel, pending, liveAndDown, live, contact);
             this.requiredParticipants = requiredParticipants;

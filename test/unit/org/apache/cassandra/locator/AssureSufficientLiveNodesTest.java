@@ -135,9 +135,7 @@ public class AssureSufficientLiveNodesTest
             // alter to
             KeyspaceParams.nts(DC1, 3, DC2, 3),
             // test
-            keyspace -> {
-                ReplicaPlans.forWrite(keyspace, EACH_QUORUM, tk, ReplicaPlans.writeNormal);
-            }
+            keyspace -> ReplicaPlans.forWrite(keyspace, EACH_QUORUM, tk, ReplicaPlans.writeNormal)
         );
         // read
         raceOfReplicationStrategyTest(
@@ -146,12 +144,9 @@ public class AssureSufficientLiveNodesTest
             // alter to
             KeyspaceParams.nts(DC1, 3, DC2, 3),
             // test
-            keyspace -> {
-                ReplicaPlans.forRead(keyspace, tk, EACH_QUORUM, NeverSpeculativeRetryPolicy.INSTANCE);
-            }
+            keyspace -> ReplicaPlans.forRead(keyspace, tk, EACH_QUORUM, NeverSpeculativeRetryPolicy.INSTANCE)
         );
     }
-
 
     @Test
     public void addDatacenterShouldNotCausesUnavailableWithQuorumTest() throws Throwable
@@ -163,9 +158,7 @@ public class AssureSufficientLiveNodesTest
             // alter to. (3 + 3) / 2 + 1 > 3
             KeyspaceParams.nts(DC1, 3, DC2, 3),
             // test
-            keyspace -> {
-                ReplicaPlans.forWrite(keyspace, QUORUM, tk, ReplicaPlans.writeNormal);
-            }
+            keyspace -> ReplicaPlans.forWrite(keyspace, QUORUM, tk, ReplicaPlans.writeNormal)
         );
         raceOfReplicationStrategyTest(
             // init. The # of live endpoints is 3 = 2 + 1
@@ -173,9 +166,7 @@ public class AssureSufficientLiveNodesTest
             // alter to. (3 + 3) / 2 + 1 > 3
             KeyspaceParams.nts(DC1, 2, DC2, 1, DC3, 3),
             // test
-            keyspace -> {
-                ReplicaPlans.forWrite(keyspace, QUORUM, tk, ReplicaPlans.writeNormal);
-            }
+            keyspace -> ReplicaPlans.forWrite(keyspace, QUORUM, tk, ReplicaPlans.writeNormal)
         );
 
         // read
@@ -185,9 +176,7 @@ public class AssureSufficientLiveNodesTest
             // alter to
             KeyspaceParams.nts(DC1, 3, DC2, 3),
             // test
-            keyspace -> {
-                ReplicaPlans.forRead(keyspace, tk, QUORUM, NeverSpeculativeRetryPolicy.INSTANCE);
-            }
+            keyspace -> ReplicaPlans.forRead(keyspace, tk, QUORUM, NeverSpeculativeRetryPolicy.INSTANCE)
         );
         raceOfReplicationStrategyTest(
             // init. The # of live endpoints is 3 = 2 + 1
@@ -195,9 +184,7 @@ public class AssureSufficientLiveNodesTest
             // alter to. (3 + 3) / 2 + 1 > 3
             KeyspaceParams.nts(DC1, 2, DC2, 1, DC3, 3),
             // test
-            keyspace -> {
-                ReplicaPlans.forRead(keyspace, tk, QUORUM, NeverSpeculativeRetryPolicy.INSTANCE);
-            }
+            keyspace -> ReplicaPlans.forRead(keyspace, tk, QUORUM, NeverSpeculativeRetryPolicy.INSTANCE)
         );
     }
 
@@ -211,9 +198,7 @@ public class AssureSufficientLiveNodesTest
             // alter to
             KeyspaceParams.nts(DC1, 3),
             // test
-            keyspace -> {
-                ReplicaPlans.forWrite(keyspace, EACH_QUORUM, tk, ReplicaPlans.writeNormal);
-            }
+            keyspace -> ReplicaPlans.forWrite(keyspace, EACH_QUORUM, tk, ReplicaPlans.writeNormal)
         );
 
         // read
@@ -223,9 +208,7 @@ public class AssureSufficientLiveNodesTest
             // alter to
             KeyspaceParams.nts(DC1, 3),
             // test
-            keyspace -> {
-                ReplicaPlans.forRead(keyspace, tk, EACH_QUORUM, NeverSpeculativeRetryPolicy.INSTANCE);
-            }
+            keyspace ->ReplicaPlans.forRead(keyspace, tk, EACH_QUORUM, NeverSpeculativeRetryPolicy.INSTANCE)
         );
     }
 
@@ -239,9 +222,7 @@ public class AssureSufficientLiveNodesTest
             // alter to
             KeyspaceParams.nts(DC1, 3),
             // test
-            keyspace -> {
-                ReplicaPlans.forWrite(keyspace, LOCAL_QUORUM, tk, ReplicaPlans.writeNormal);
-            }
+            keyspace -> ReplicaPlans.forWrite(keyspace, LOCAL_QUORUM, tk, ReplicaPlans.writeNormal)
         );
 
         // read
@@ -251,9 +232,7 @@ public class AssureSufficientLiveNodesTest
             // alter to
             KeyspaceParams.nts(DC1, 3),
             // test
-            keyspace -> {
-                ReplicaPlans.forRead(keyspace, tk, LOCAL_QUORUM, NeverSpeculativeRetryPolicy.INSTANCE);
-            }
+            keyspace -> ReplicaPlans.forRead(keyspace, tk, LOCAL_QUORUM, NeverSpeculativeRetryPolicy.INSTANCE)
         );
     }
 
@@ -261,10 +240,10 @@ public class AssureSufficientLiveNodesTest
      * A test runner that runs the `test` while changing the ReplicationStrategy of the raced keyspace.
      * It loops at most for RACE_TEST_LOOPS time if unable to produce the race or any exception.
      */
-    private void raceOfReplicationStrategyTest(KeyspaceParams init,
-                                               KeyspaceParams alterTo,
-                                               int loopCount,
-                                               Consumer<Keyspace> test) throws Throwable
+    private static void raceOfReplicationStrategyTest(KeyspaceParams init,
+                                                      KeyspaceParams alterTo,
+                                                      int loopCount,
+                                                      Consumer<Keyspace> test) throws Throwable
     {
         String keyspaceName = keyspaceNameGen.get();
         KeyspaceMetadata initKsMeta = KeyspaceMetadata.create(keyspaceName, init, Tables.of(SchemaLoader.standardCFMD("Foo", "Bar").build()));
@@ -308,9 +287,9 @@ public class AssureSufficientLiveNodesTest
         }
     }
 
-    private void raceOfReplicationStrategyTest(KeyspaceParams init,
-                                               KeyspaceParams alterTo,
-                                               Consumer<Keyspace> test) throws Throwable
+    private static void raceOfReplicationStrategyTest(KeyspaceParams init,
+                                                      KeyspaceParams alterTo,
+                                                      Consumer<Keyspace> test) throws Throwable
     {
         raceOfReplicationStrategyTest(init, alterTo, RACE_TEST_LOOPS, test);
     }
