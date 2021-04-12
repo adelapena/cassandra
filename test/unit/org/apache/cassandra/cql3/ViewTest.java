@@ -48,13 +48,11 @@ import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.SystemKeyspace;
 import org.apache.cassandra.db.compaction.CompactionManager;
 import org.apache.cassandra.service.ClientWarn;
-import org.apache.cassandra.transport.ProtocolVersion;
 import org.apache.cassandra.utils.FBUtilities;
 
 
 public class ViewTest extends CQLTester
 {
-    ProtocolVersion protocolVersion = ProtocolVersion.V4;
     private final List<String> views = new ArrayList<>();
 
     @BeforeClass
@@ -72,14 +70,14 @@ public class ViewTest extends CQLTester
     public void end() throws Throwable
     {
         for (String viewName : views)
-            executeNet(protocolVersion, "DROP MATERIALIZED VIEW IF EXISTS " + viewName);
+            executeNet("DROP MATERIALIZED VIEW IF EXISTS " + viewName);
     }
 
     private void createView(String name, String query) throws Throwable
     {
         try
         {
-            executeNet(protocolVersion, String.format(query, name));
+            executeNet(String.format(query, name));
             // If exception is thrown, the view will not be added to the list; since it shouldn't have been created, this is
             // the desired behavior
             views.add(name);
@@ -94,7 +92,7 @@ public class ViewTest extends CQLTester
 
     private void updateView(String query, Object... params) throws Throwable
     {
-        executeNet(protocolVersion, query, params);
+        executeNet(query, params);
         while (!(((SEPExecutor) Stage.VIEW_MUTATION.executor()).getPendingTaskCount() == 0
                 && ((SEPExecutor) Stage.VIEW_MUTATION.executor()).getActiveTaskCount() == 0))
         {
@@ -129,7 +127,7 @@ public class ViewTest extends CQLTester
         createTable("CREATE TABLE %s (k1 int, c1 int, c2 int, v1 int, v2 int, PRIMARY KEY (k1, c1, c2))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("view1",
                    "CREATE MATERIALIZED VIEW view1 AS SELECT * FROM %%s WHERE k1 IS NOT NULL AND c1 IS NOT NULL AND c2 IS NOT NULL PRIMARY KEY (k1, c2, c1)");
@@ -166,7 +164,7 @@ public class ViewTest extends CQLTester
         createTable("CREATE TABLE %s (k1 int, c1 int , val int, PRIMARY KEY (k1, c1))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("view1", "CREATE MATERIALIZED VIEW view1 AS SELECT k1, c1, val FROM %%s WHERE k1 IS NOT NULL AND c1 IS NOT NULL AND val IS NOT NULL PRIMARY KEY (val, k1, c1)");
 
@@ -188,7 +186,7 @@ public class ViewTest extends CQLTester
         createTable("CREATE TABLE %s (k1 int, c1 int , val int, PRIMARY KEY (k1, c1))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("view1", "CREATE MATERIALIZED VIEW view1 AS SELECT val, k1, c1 FROM %%s WHERE k1 IS NOT NULL AND c1 IS NOT NULL AND val IS NOT NULL PRIMARY KEY (val, k1, c1)");
 
@@ -200,7 +198,7 @@ public class ViewTest extends CQLTester
         createTable("CREATE TABLE %s (k1 int, c1 int , val int, PRIMARY KEY (k1, c1))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("view1", "CREATE MATERIALIZED VIEW view1 AS SELECT k1, c1, val FROM %%s WHERE k1 IS NOT NULL AND c1 IS NOT NULL AND val IS NOT NULL PRIMARY KEY (val, k1, c1)");
 
@@ -226,7 +224,7 @@ public class ViewTest extends CQLTester
                     "PRIMARY KEY((k, asciival)))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         // Must include "IS NOT NULL" for primary keys
         try
@@ -286,7 +284,7 @@ public class ViewTest extends CQLTester
                     "PRIMARY KEY(k,c))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         try
         {
@@ -340,7 +338,7 @@ public class ViewTest extends CQLTester
                     "PRIMARY KEY(k,c))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv_tstest", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE val IS NOT NULL AND k IS NOT NULL AND c IS NOT NULL PRIMARY KEY (val,k,c)");
 
@@ -379,7 +377,7 @@ public class ViewTest extends CQLTester
                     "val int)");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv_rctstest", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE k IS NOT NULL AND c IS NOT NULL PRIMARY KEY (k,c)");
 
@@ -408,7 +406,7 @@ public class ViewTest extends CQLTester
                     "count counter)");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         try
         {
@@ -428,7 +426,7 @@ public class ViewTest extends CQLTester
                     "result duration)");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         try
         {
@@ -458,25 +456,25 @@ public class ViewTest extends CQLTester
         createTable("CREATE TABLE %s (a int, b int, c int, d int, e int, PRIMARY KEY (a, b))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
         Keyspace ks = Keyspace.open(keyspace());
 
         createView("mv", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE a IS NOT NULL AND b IS NOT NULL AND c IS NOT NULL PRIMARY KEY (c, a, b)");
         ks.getColumnFamilyStore("mv").disableAutoCompaction();
 
         //Set initial values TS=0, leaving e null and verify view
-        executeNet(protocolVersion, "INSERT INTO %s (a, b, c, d) VALUES (0, 0, 1, 0) USING TIMESTAMP 0");
+        executeNet("INSERT INTO %s (a, b, c, d) VALUES (0, 0, 1, 0) USING TIMESTAMP 0");
         assertRows(execute("SELECT d from mv WHERE c = ? and a = ? and b = ?", 1, 0, 0), row(0));
 
         //update c's timestamp TS=2
-        executeNet(protocolVersion, "UPDATE %s USING TIMESTAMP 2 SET c = ? WHERE a = ? and b = ? ", 1, 0, 0);
+        executeNet("UPDATE %s USING TIMESTAMP 2 SET c = ? WHERE a = ? and b = ? ", 1, 0, 0);
         assertRows(execute("SELECT d from mv WHERE c = ? and a = ? and b = ?", 1, 0, 0), row(0));
 
         if (flush)
             FBUtilities.waitOnFutures(ks.flush());
 
         // change c's value and TS=3, tombstones c=1 and adds c=0 record
-        executeNet(protocolVersion, "UPDATE %s USING TIMESTAMP 3 SET c = ? WHERE a = ? and b = ? ", 0, 0, 0);
+        executeNet("UPDATE %s USING TIMESTAMP 3 SET c = ? WHERE a = ? and b = ? ", 0, 0, 0);
         if (flush)
             FBUtilities.waitOnFutures(ks.flush());
         assertRows(execute("SELECT d from mv WHERE c = ? and a = ? and b = ?", 1, 0, 0));
@@ -489,7 +487,7 @@ public class ViewTest extends CQLTester
 
 
         //change c's value back to 1 with TS=4, check we can see d
-        executeNet(protocolVersion, "UPDATE %s USING TIMESTAMP 4 SET c = ? WHERE a = ? and b = ? ", 1, 0, 0);
+        executeNet("UPDATE %s USING TIMESTAMP 4 SET c = ? WHERE a = ? and b = ? ", 1, 0, 0);
         if (flush)
         {
             ks.getColumnFamilyStore("mv").forceMajorCompaction();
@@ -500,7 +498,7 @@ public class ViewTest extends CQLTester
 
 
         //Add e value @ TS=1
-        executeNet(protocolVersion, "UPDATE %s USING TIMESTAMP 1 SET e = ? WHERE a = ? and b = ? ", 1, 0, 0);
+        executeNet("UPDATE %s USING TIMESTAMP 1 SET e = ? WHERE a = ? and b = ? ", 1, 0, 0);
         assertRows(execute("SELECT d,e from mv WHERE c = ? and a = ? and b = ?", 1, 0, 0), row(0, 1));
 
         if (flush)
@@ -508,7 +506,7 @@ public class ViewTest extends CQLTester
 
 
         //Change d value @ TS=2
-        executeNet(protocolVersion, "UPDATE %s USING TIMESTAMP 2 SET d = ? WHERE a = ? and b = ? ", 2, 0, 0);
+        executeNet("UPDATE %s USING TIMESTAMP 2 SET d = ? WHERE a = ? and b = ? ", 2, 0, 0);
         assertRows(execute("SELECT d from mv WHERE c = ? and a = ? and b = ?", 1, 0, 0), row(2));
 
         if (flush)
@@ -516,16 +514,16 @@ public class ViewTest extends CQLTester
 
 
         //Change d value @ TS=3
-        executeNet(protocolVersion, "UPDATE %s USING TIMESTAMP 3 SET d = ? WHERE a = ? and b = ? ", 1, 0, 0);
+        executeNet("UPDATE %s USING TIMESTAMP 3 SET d = ? WHERE a = ? and b = ? ", 1, 0, 0);
         assertRows(execute("SELECT d from mv WHERE c = ? and a = ? and b = ?", 1, 0, 0), row(1));
 
 
         //Tombstone c
-        executeNet(protocolVersion, "DELETE FROM %s WHERE a = ? and b = ?", 0, 0);
+        executeNet("DELETE FROM %s WHERE a = ? and b = ?", 0, 0);
         assertRows(execute("SELECT d from mv"));
 
         //Add back without D
-        executeNet(protocolVersion, "INSERT INTO %s (a, b, c) VALUES (0, 0, 1)");
+        executeNet("INSERT INTO %s (a, b, c) VALUES (0, 0, 1)");
 
         //Make sure D doesn't pop back in.
         assertRows(execute("SELECT d from mv WHERE c = ? and a = ? and b = ?", 1, 0, 0), row((Object) null));
@@ -533,24 +531,24 @@ public class ViewTest extends CQLTester
 
         //New partition
         // insert a row with timestamp 0
-        executeNet(protocolVersion, "INSERT INTO %s (a, b, c, d, e) VALUES (?, ?, ?, ?, ?) USING TIMESTAMP 0", 1, 0, 0, 0, 0);
+        executeNet("INSERT INTO %s (a, b, c, d, e) VALUES (?, ?, ?, ?, ?) USING TIMESTAMP 0", 1, 0, 0, 0, 0);
 
         // overwrite pk and e with timestamp 1, but don't overwrite d
-        executeNet(protocolVersion, "INSERT INTO %s (a, b, c, e) VALUES (?, ?, ?, ?) USING TIMESTAMP 1", 1, 0, 0, 0);
+        executeNet("INSERT INTO %s (a, b, c, e) VALUES (?, ?, ?, ?) USING TIMESTAMP 1", 1, 0, 0, 0);
 
         // delete with timestamp 0 (which should only delete d)
-        executeNet(protocolVersion, "DELETE FROM %s USING TIMESTAMP 0 WHERE a = ? AND b = ?", 1, 0);
+        executeNet("DELETE FROM %s USING TIMESTAMP 0 WHERE a = ? AND b = ?", 1, 0);
         assertRows(execute("SELECT a, b, c, d, e from mv WHERE c = ? and a = ? and b = ?", 0, 1, 0),
                    row(1, 0, 0, null, 0)
         );
 
-        executeNet(protocolVersion, "UPDATE %s USING TIMESTAMP 2 SET c = ? WHERE a = ? AND b = ?", 1, 1, 0);
-        executeNet(protocolVersion, "UPDATE %s USING TIMESTAMP 3 SET c = ? WHERE a = ? AND b = ?", 0, 1, 0);
+        executeNet("UPDATE %s USING TIMESTAMP 2 SET c = ? WHERE a = ? AND b = ?", 1, 1, 0);
+        executeNet("UPDATE %s USING TIMESTAMP 3 SET c = ? WHERE a = ? AND b = ?", 0, 1, 0);
         assertRows(execute("SELECT a, b, c, d, e from mv WHERE c = ? and a = ? and b = ?", 0, 1, 0),
                    row(1, 0, 0, null, 0)
         );
 
-        executeNet(protocolVersion, "UPDATE %s USING TIMESTAMP 3 SET d = ? WHERE a = ? AND b = ?", 0, 1, 0);
+        executeNet("UPDATE %s USING TIMESTAMP 3 SET d = ? WHERE a = ? AND b = ?", 0, 1, 0);
         assertRows(execute("SELECT a, b, c, d, e from mv WHERE c = ? and a = ? and b = ?", 0, 1, 0),
                    row(1, 0, 0, 0, 0)
         );
@@ -568,7 +566,7 @@ public class ViewTest extends CQLTester
                     "PRIMARY KEY (k, c))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
 
         for(int i = 0; i < 1024; i++)
@@ -597,7 +595,7 @@ public class ViewTest extends CQLTester
                     ")");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv_test1", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE textval2 IS NOT NULL AND k IS NOT NULL AND asciival IS NOT NULL AND bigintval IS NOT NULL AND textval1 IS NOT NULL PRIMARY KEY ((textval2, k), asciival, bigintval, textval1)");
 
@@ -644,7 +642,7 @@ public class ViewTest extends CQLTester
                     ")");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE textval1 IS NOT NULL AND k IS NOT NULL AND asciival IS NOT NULL AND bigintval IS NOT NULL PRIMARY KEY ((textval1, k), asciival, bigintval)");
 
@@ -677,7 +675,7 @@ public class ViewTest extends CQLTester
                     ")");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE textval1 IS NOT NULL AND k IS NOT NULL AND asciival IS NOT NULL AND bigintval IS NOT NULL PRIMARY KEY ((textval1, k), asciival, bigintval)");
 
@@ -722,7 +720,7 @@ public class ViewTest extends CQLTester
         TableMetadata metadata = currentTableMetadata();
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         for (ColumnMetadata def : new HashSet<>(metadata.columns()))
         {
@@ -841,7 +839,7 @@ public class ViewTest extends CQLTester
                     "PRIMARY KEY (k))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE k IS NOT NULL AND intval IS NOT NULL PRIMARY KEY (intval, k)");
 
@@ -861,7 +859,7 @@ public class ViewTest extends CQLTester
         createTable("CREATE TABLE %s (k int, intval int,  listval frozen<list<tuple<text,text>>>, PRIMARY KEY (k))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv",
                    "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE k IS NOT NULL AND listval IS NOT NULL PRIMARY KEY (k, listval)");
@@ -897,7 +895,7 @@ public class ViewTest extends CQLTester
                     "PRIMARY KEY (k))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE k IS NOT NULL AND intval IS NOT NULL PRIMARY KEY (intval, k)");
 
@@ -923,7 +921,7 @@ public class ViewTest extends CQLTester
                     "PRIMARY KEY (a, b))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv", "CREATE MATERIALIZED VIEW %s AS SELECT a, b, c FROM %%s WHERE a IS NOT NULL AND b IS NOT NULL PRIMARY KEY (b, a)");
 
@@ -961,7 +959,7 @@ public class ViewTest extends CQLTester
                     "d int," +
                     "PRIMARY KEY (a, b))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE c IS NOT NULL AND a IS NOT NULL AND b IS NOT NULL PRIMARY KEY (c, a, b)");
 
@@ -971,7 +969,7 @@ public class ViewTest extends CQLTester
         updateView("INSERT INTO %s (a, b, c) VALUES (?, ?, ?)", 1, 1, 2);
 
         Thread.sleep(TimeUnit.SECONDS.toMillis(5));
-        List<Row> results = executeNet(protocolVersion, "SELECT d FROM mv WHERE c = 2 AND a = 1 AND b = 1").all();
+        List<Row> results = executeNet("SELECT d FROM mv WHERE c = 2 AND a = 1 AND b = 1").all();
         Assert.assertEquals(1, results.size());
         Assert.assertTrue("There should be a null result given back due to ttl expiry", results.get(0).isNull(0));
     }
@@ -986,14 +984,14 @@ public class ViewTest extends CQLTester
                     "d int," +
                     "PRIMARY KEY (a, b))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE c IS NOT NULL AND a IS NOT NULL AND b IS NOT NULL PRIMARY KEY (c, a, b)");
 
         updateView("INSERT INTO %s (a, b, c, d) VALUES (?, ?, ?, ?) USING TTL 3", 1, 1, 1, 1);
 
         Thread.sleep(TimeUnit.SECONDS.toMillis(4));
-        Assert.assertEquals(0, executeNet(protocolVersion, "SELECT * FROM mv WHERE c = 1 AND a = 1 AND b = 1").all().size());
+        Assert.assertEquals(0, executeNet("SELECT * FROM mv WHERE c = 1 AND a = 1 AND b = 1").all().size());
     }
 
     @Test
@@ -1006,14 +1004,14 @@ public class ViewTest extends CQLTester
                     "d int," +
                     "PRIMARY KEY (a, b))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE c IS NOT NULL AND a IS NOT NULL AND b IS NOT NULL PRIMARY KEY (c, a, b)");
 
         String table = keyspace() + "." + currentTable();
         updateView("DELETE FROM " + table + " USING TIMESTAMP 6 WHERE a = 1 AND b = 1;");
         updateView("INSERT INTO %s (a, b, c, d) VALUES (?, ?, ?, ?) USING TIMESTAMP 3", 1, 1, 1, 1);
-        Assert.assertEquals(0, executeNet(protocolVersion, "SELECT * FROM mv WHERE c = 1 AND a = 1 AND b = 1").all().size());
+        Assert.assertEquals(0, executeNet("SELECT * FROM mv WHERE c = 1 AND a = 1 AND b = 1").all().size());
     }
 
     @Test
@@ -1025,7 +1023,7 @@ public class ViewTest extends CQLTester
                     "c int," +
                     "PRIMARY KEY (a, b))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE c IS NOT NULL AND a IS NOT NULL AND b IS NOT NULL PRIMARY KEY (c, a, b)");
 
@@ -1034,11 +1032,11 @@ public class ViewTest extends CQLTester
             updateView("INSERT INTO %s (a, b, c) VALUES (?, ?, ?) USING TIMESTAMP 1", 1, 1, i);
         }
 
-        ResultSet mvRows = executeNet(protocolVersion, "SELECT c FROM mv");
-        List<Row> rows = executeNet(protocolVersion, "SELECT c FROM %s").all();
+        ResultSet mvRows = executeNet("SELECT c FROM mv");
+        List<Row> rows = executeNet("SELECT c FROM %s").all();
         Assert.assertEquals("There should be exactly one row in base", 1, rows.size());
         int expected = rows.get(0).getInt("c");
-        assertRowsNet(protocolVersion, mvRows, row(expected));
+        assertRowsNet(mvRows, row(expected));
     }
 
     @Test
@@ -1052,7 +1050,7 @@ public class ViewTest extends CQLTester
                     "PRIMARY KEY (a, b, c))" +
                     "WITH CLUSTERING ORDER BY (b ASC, c DESC)");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv1", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE a IS NOT NULL AND b IS NOT NULL AND c IS NOT NULL PRIMARY KEY (a, b, c) WITH CLUSTERING ORDER BY (b DESC, c ASC)");
         createView("mv2", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE a IS NOT NULL AND b IS NOT NULL AND c IS NOT NULL PRIMARY KEY (a, c, b) WITH CLUSTERING ORDER BY (c ASC, b ASC)");
@@ -1062,23 +1060,23 @@ public class ViewTest extends CQLTester
         updateView("INSERT INTO %s (a, b, c, d) VALUES (?, ?, ?, ?)", 1, 1, 1, 1);
         updateView("INSERT INTO %s (a, b, c, d) VALUES (?, ?, ?, ?)", 1, 2, 2, 2);
 
-        ResultSet mvRows = executeNet(protocolVersion, "SELECT b FROM mv1");
-        assertRowsNet(protocolVersion, mvRows,
+        ResultSet mvRows = executeNet("SELECT b FROM mv1");
+        assertRowsNet(mvRows,
                       row(2),
                       row(1));
 
-        mvRows = executeNet(protocolVersion, "SELECT c FROM mv2");
-        assertRowsNet(protocolVersion, mvRows,
+        mvRows = executeNet("SELECT c FROM mv2");
+        assertRowsNet(mvRows,
                       row(1),
                       row(2));
 
-        mvRows = executeNet(protocolVersion, "SELECT b FROM mv3");
-        assertRowsNet(protocolVersion, mvRows,
+        mvRows = executeNet("SELECT b FROM mv3");
+        assertRowsNet(mvRows,
                       row(1),
                       row(2));
 
-        mvRows = executeNet(protocolVersion, "SELECT c FROM mv4");
-        assertRowsNet(protocolVersion, mvRows,
+        mvRows = executeNet("SELECT c FROM mv4");
+        assertRowsNet(mvRows,
                       row(2),
                       row(1));
     }
@@ -1091,7 +1089,7 @@ public class ViewTest extends CQLTester
                     "b int," +
                     "PRIMARY KEY (a, b))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv1", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE a IS NOT NULL AND b IS NOT NULL PRIMARY KEY (b, a)");
 
@@ -1099,8 +1097,8 @@ public class ViewTest extends CQLTester
         updateView("INSERT INTO %s (a, b) VALUES (?, ?)", 1, 2);
         updateView("INSERT INTO %s (a, b) VALUES (?, ?)", 1, 3);
 
-        ResultSet mvRows = executeNet(protocolVersion, "SELECT a, b FROM mv1");
-        assertRowsNet(protocolVersion, mvRows,
+        ResultSet mvRows = executeNet("SELECT a, b FROM mv1");
+        assertRowsNet(mvRows,
                       row(1, 1),
                       row(1, 2),
                       row(1, 3));
@@ -1110,8 +1108,8 @@ public class ViewTest extends CQLTester
                                  "DELETE FROM %s WHERE a = 1;" +
                                  "APPLY BATCH", currentTable(), currentTable()));
 
-        mvRows = executeNet(protocolVersion, "SELECT a, b FROM mv1");
-        assertRowsNet(protocolVersion, mvRows);
+        mvRows = executeNet("SELECT a, b FROM mv1");
+        assertRowsNet(mvRows);
     }
 
     @Test
@@ -1122,15 +1120,15 @@ public class ViewTest extends CQLTester
                     "b int," +
                     "PRIMARY KEY (a, b))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         // Cannot use SELECT *, as those are always handled by the includeAll shortcut in View.updateAffectsView
         createView("mv1", "CREATE MATERIALIZED VIEW %s AS SELECT a, b FROM %%s WHERE a IS NOT NULL AND b IS NOT NULL PRIMARY KEY (b, a)");
 
         updateView("INSERT INTO %s (a, b) VALUES (?, ?)", 1, 1);
 
-        ResultSet mvRows = executeNet(protocolVersion, "SELECT a, b FROM mv1");
-        assertRowsNet(protocolVersion, mvRows, row(1, 1));
+        ResultSet mvRows = executeNet("SELECT a, b FROM mv1");
+        assertRowsNet(mvRows, row(1, 1));
     }
 
     @Test
@@ -1141,15 +1139,15 @@ public class ViewTest extends CQLTester
                     "b int," +
                     "PRIMARY KEY ((a, b)))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         // Cannot use SELECT *, as those are always handled by the includeAll shortcut in View.updateAffectsView
         createView("mv1", "CREATE MATERIALIZED VIEW %s AS SELECT a, b FROM %%s WHERE a IS NOT NULL AND b IS NOT NULL PRIMARY KEY (b, a)");
 
         updateView("INSERT INTO %s (a, b) VALUES (?, ?)", 1, 1);
 
-        ResultSet mvRows = executeNet(protocolVersion, "SELECT a, b FROM mv1");
-        assertRowsNet(protocolVersion, mvRows, row(1, 1));
+        ResultSet mvRows = executeNet("SELECT a, b FROM mv1");
+        assertRowsNet(mvRows, row(1, 1));
     }
 
     @Test
@@ -1162,19 +1160,19 @@ public class ViewTest extends CQLTester
                     "d int," +
                     "PRIMARY KEY (a, b))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
         createView("mv1", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE a IS NOT NULL AND b IS NOT NULL AND d IS NOT NULL PRIMARY KEY (a, d, b)");
 
         updateView("INSERT INTO %s (a, b, c, d) VALUES (?, ?, ?, ?)", 0, 0, 0, 0);
-        ResultSet mvRows = executeNet(protocolVersion, "SELECT a, d, b, c FROM mv1");
-        assertRowsNet(protocolVersion, mvRows, row(0, 0, 0, 0));
+        ResultSet mvRows = executeNet("SELECT a, d, b, c FROM mv1");
+        assertRowsNet(mvRows, row(0, 0, 0, 0));
 
         updateView("DELETE c FROM %s WHERE a = ? AND b = ?", 0, 0);
-        mvRows = executeNet(protocolVersion, "SELECT a, d, b, c FROM mv1");
-        assertRowsNet(protocolVersion, mvRows, row(0, 0, 0, null));
+        mvRows = executeNet("SELECT a, d, b, c FROM mv1");
+        assertRowsNet(mvRows, row(0, 0, 0, null));
 
         updateView("DELETE d FROM %s WHERE a = ? AND b = ?", 0, 0);
-        mvRows = executeNet(protocolVersion, "SELECT a, d, b FROM mv1");
+        mvRows = executeNet("SELECT a, d, b FROM mv1");
         assertTrue(mvRows.isExhausted());
     }
 
@@ -1188,19 +1186,19 @@ public class ViewTest extends CQLTester
                     "d int," +
                     "PRIMARY KEY (a, b))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
         createView("mv1", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE a IS NOT NULL AND b IS NOT NULL AND d IS NOT NULL PRIMARY KEY (d, a, b)");
 
         updateView("INSERT INTO %s (a, b, c, d) VALUES (?, ?, ?, ?)", 0, 0, 0, 0);
-        ResultSet mvRows = executeNet(protocolVersion, "SELECT a, d, b, c FROM mv1");
-        assertRowsNet(protocolVersion, mvRows, row(0, 0, 0, 0));
+        ResultSet mvRows = executeNet("SELECT a, d, b, c FROM mv1");
+        assertRowsNet(mvRows, row(0, 0, 0, 0));
 
         updateView("DELETE c FROM %s WHERE a = ? AND b = ?", 0, 0);
-        mvRows = executeNet(protocolVersion, "SELECT a, d, b, c FROM mv1");
-        assertRowsNet(protocolVersion, mvRows, row(0, 0, 0, null));
+        mvRows = executeNet("SELECT a, d, b, c FROM mv1");
+        assertRowsNet(mvRows, row(0, 0, 0, null));
 
         updateView("DELETE d FROM %s WHERE a = ? AND b = ?", 0, 0);
-        mvRows = executeNet(protocolVersion, "SELECT a, d, b FROM mv1");
+        mvRows = executeNet("SELECT a, d, b FROM mv1");
         assertTrue(mvRows.isExhausted());
     }
 
@@ -1213,20 +1211,20 @@ public class ViewTest extends CQLTester
                     "c map<int, text>," +
                     "PRIMARY KEY (a))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
         createView("mvmap", "CREATE MATERIALIZED VIEW %s AS SELECT a, b FROM %%s WHERE a IS NOT NULL AND b IS NOT NULL PRIMARY KEY (b, a)");
 
         updateView("INSERT INTO %s (a, b) VALUES (?, ?)", 0, 0);
-        ResultSet mvRows = executeNet(protocolVersion, "SELECT a, b FROM mvmap WHERE b = ?", 0);
-        assertRowsNet(protocolVersion, mvRows, row(0, 0));
+        ResultSet mvRows = executeNet("SELECT a, b FROM mvmap WHERE b = ?", 0);
+        assertRowsNet(mvRows, row(0, 0));
 
         updateView("INSERT INTO %s (a, b, c) VALUES (?, ?, ?)", 1, 1, map(1, "1"));
-        mvRows = executeNet(protocolVersion, "SELECT a, b FROM mvmap WHERE b = ?", 1);
-        assertRowsNet(protocolVersion, mvRows, row(1, 1));
+        mvRows = executeNet("SELECT a, b FROM mvmap WHERE b = ?", 1);
+        assertRowsNet(mvRows, row(1, 1));
 
         updateView("INSERT INTO %s (a, b, c) VALUES (?, ?, ?)", 0, 0, map(0, "0"));
-        mvRows = executeNet(protocolVersion, "SELECT a, b FROM mvmap WHERE b = ?", 0);
-        assertRowsNet(protocolVersion, mvRows, row(0, 0));
+        mvRows = executeNet("SELECT a, b FROM mvmap WHERE b = ?", 0);
+        assertRowsNet(mvRows, row(0, 0));
     }
 
     @Test
@@ -1265,7 +1263,7 @@ public class ViewTest extends CQLTester
     {
         createTable("CREATE TABLE %s (id1 int, id2 int, v1 text, v2 text, PRIMARY KEY (id1, id2))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv",
                    "CREATE MATERIALIZED VIEW %s AS" +
@@ -1277,16 +1275,16 @@ public class ViewTest extends CQLTester
 
         execute("INSERT INTO %s (id1, id2, v1, v2) VALUES (?, ?, ?, ?)", 0, 1, "foo", "bar");
 
-        assertRowsNet(protocolVersion, executeNet(protocolVersion, "SELECT * FROM %s"), row(0, 1, "foo", "bar"));
-        assertRowsNet(protocolVersion, executeNet(protocolVersion, "SELECT * FROM mv"), row(0, "foo", 1, "bar"));
+        assertRowsNet(executeNet("SELECT * FROM %s"), row(0, 1, "foo", "bar"));
+        assertRowsNet(executeNet("SELECT * FROM mv"), row(0, "foo", 1, "bar"));
 
-        executeNet(protocolVersion, "UPDATE %s SET v1=? WHERE id1=? AND id2=?", null, 0, 1);
-        assertRowsNet(protocolVersion, executeNet(protocolVersion, "SELECT * FROM %s"), row(0, 1, null, "bar"));
-        assertRowsNet(protocolVersion, executeNet(protocolVersion, "SELECT * FROM mv"));
+        executeNet("UPDATE %s SET v1=? WHERE id1=? AND id2=?", null, 0, 1);
+        assertRowsNet(executeNet("SELECT * FROM %s"), row(0, 1, null, "bar"));
+        assertRowsNet(executeNet("SELECT * FROM mv"));
 
-        executeNet(protocolVersion, "UPDATE %s SET v2=? WHERE id1=? AND id2=?", "rab", 0, 1);
-        assertRowsNet(protocolVersion, executeNet(protocolVersion, "SELECT * FROM %s"), row(0, 1, null, "rab"));
-        assertRowsNet(protocolVersion, executeNet(protocolVersion, "SELECT * FROM mv"));
+        executeNet("UPDATE %s SET v2=? WHERE id1=? AND id2=?", "rab", 0, 1);
+        assertRowsNet(executeNet("SELECT * FROM %s"), row(0, 1, null, "rab"));
+        assertRowsNet(executeNet("SELECT * FROM mv"));
     }
 
     @Test
@@ -1294,7 +1292,7 @@ public class ViewTest extends CQLTester
     {
         createTable("CREATE TABLE %s (\"token\" int PRIMARY KEY, \"keyspace\" int)");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("mv",
                    "CREATE MATERIALIZED VIEW %s AS" +
@@ -1305,8 +1303,8 @@ public class ViewTest extends CQLTester
 
         execute("INSERT INTO %s (\"token\", \"keyspace\") VALUES (?, ?)", 0, 1);
 
-        assertRowsNet(protocolVersion, executeNet(protocolVersion, "SELECT * FROM %s"), row(0, 1));
-        assertRowsNet(protocolVersion, executeNet(protocolVersion, "SELECT * FROM mv"), row(1, 0));
+        assertRowsNet(executeNet("SELECT * FROM %s"), row(0, 1));
+        assertRowsNet(executeNet("SELECT * FROM mv"), row(1, 0));
     }
 
     public void testCreateMvWithTTL() throws Throwable
@@ -1317,7 +1315,7 @@ public class ViewTest extends CQLTester
                     "val int) WITH default_time_to_live = 60");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         // Must NOT include "default_time_to_live" for Materialized View creation
         try
@@ -1343,7 +1341,7 @@ public class ViewTest extends CQLTester
         // Must NOT include "default_time_to_live" on alter Materialized View
         try
         {
-            executeNet(protocolVersion, "ALTER MATERIALIZED VIEW %s WITH default_time_to_live = 30");
+            executeNet("ALTER MATERIALIZED VIEW %s WITH default_time_to_live = 30");
             Assert.fail("Should fail if TTL is provided while altering materialized view");
         }
         catch (Exception e)
@@ -1360,7 +1358,7 @@ public class ViewTest extends CQLTester
                     "PRIMARY KEY(k,c))");
 
         execute("USE " + keyspace());
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         CompactionManager.instance.setConcurrentViewBuilders(concurrentViewBuilders);
         CompactionManager.instance.setCoreCompactorThreads(1);
@@ -1445,7 +1443,7 @@ public class ViewTest extends CQLTester
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, v int)");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         boolean enableMaterializedViews = DatabaseDescriptor.getEnableMaterializedViews();
         try
@@ -1470,7 +1468,7 @@ public class ViewTest extends CQLTester
     {
         createTable("CREATE TABLE %s (\"theKey\" int, \"theClustering_1\" int, \"theClustering_2\" int, \"theValue\" int, PRIMARY KEY (\"theKey\", \"theClustering_1\", \"theClustering_2\"))");
 
-        executeNet(protocolVersion, "USE " + keyspace());
+        executeNet("USE " + keyspace());
 
         createView("view1", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE \"theKey\" IS NOT NULL AND \"theClustering_1\" IS NOT NULL AND \"theClustering_2\" IS NOT NULL AND \"theValue\" IS NOT NULL  PRIMARY KEY (\"theKey\", \"theClustering_1\", \"theClustering_2\");");
         createView("view2", "CREATE MATERIALIZED VIEW %s AS SELECT * FROM %%s WHERE \"theKey\" IS NOT NULL AND (\"theClustering_1\", \"theClustering_2\") = (1, 2) AND \"theValue\" IS NOT NULL  PRIMARY KEY (\"theKey\", \"theClustering_1\", \"theClustering_2\");");
