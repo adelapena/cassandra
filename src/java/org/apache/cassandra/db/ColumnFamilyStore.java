@@ -2244,6 +2244,8 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
         final long truncatedAt;
         final CommitLogPosition replayAfter;
 
+        viewManager.stopBuild();
+        
         if (keyspace.getMetadata().params.durableWrites || DatabaseDescriptor.isAutoSnapshot())
         {
             replayAfter = forceBlockingFlush();
