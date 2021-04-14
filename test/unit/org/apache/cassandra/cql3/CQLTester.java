@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
 import java.rmi.server.RMISocketFactory;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -159,6 +160,7 @@ public abstract class CQLTester
     private List<String> types = new ArrayList<>();
     private List<String> functions = new ArrayList<>();
     private List<String> aggregates = new ArrayList<>();
+    private List<Future<?>> schemaCleanups = new ArrayList<>();
 
     // We don't use USE_PREPARED_VALUES in the code below so some test can foce value preparation (if the result
     // is not expected to be the same without preparation)
@@ -324,50 +326,45 @@ public abstract class CQLTester
         aggregates = null;
 
         // We want to clean up after the test, but dropping a table is rather long so just do that asynchronously
-        ScheduledExecutors.optionalTasks.execute(new Runnable()
-        {
-            public void run()
+        schemaCleanups.add(ScheduledExecutors.optionalTasks.submit(() -> {
+            try
             {
-                try
-                {
-                    for (int i = tablesToDrop.size() - 1; i >= 0; i--)
-                        schemaChange(String.format("DROP TABLE IF EXISTS %s.%s", KEYSPACE, tablesToDrop.get(i)));
+                for (int i = tablesToDrop.size() - 1; i >= 0; i--)
+                    schemaChange(String.format("DROP TABLE IF EXISTS %s.%s", KEYSPACE, tablesToDrop.get(i)));
 
-                    for (int i = aggregatesToDrop.size() - 1; i >= 0; i--)
-                        schemaChange(String.format("DROP AGGREGATE IF EXISTS %s", aggregatesToDrop.get(i)));
+                for (int i = aggregatesToDrop.size() - 1; i >= 0; i--)
+                    schemaChange(String.format("DROP AGGREGATE IF EXISTS %s", aggregatesToDrop.get(i)));
 
-                    for (int i = functionsToDrop.size() - 1; i >= 0; i--)
-                        schemaChange(String.format("DROP FUNCTION IF EXISTS %s", functionsToDrop.get(i)));
+                for (int i = functionsToDrop.size() - 1; i >= 0; i--)
+                    schemaChange(String.format("DROP FUNCTION IF EXISTS %s", functionsToDrop.get(i)));
 
-                    for (int i = typesToDrop.size() - 1; i >= 0; i--)
-                        schemaChange(String.format("DROP TYPE IF EXISTS %s.%s", KEYSPACE, typesToDrop.get(i)));
+                for (int i = typesToDrop.size() - 1; i >= 0; i--)
+                    schemaChange(String.format("DROP TYPE IF EXISTS %s.%s", KEYSPACE, typesToDrop.get(i)));
 
-                    for (int i = keyspacesToDrop.size() - 1; i >= 0; i--)
-                        schemaChange(String.format("DROP KEYSPACE IF EXISTS %s", keyspacesToDrop.get(i)));
+                for (int i = keyspacesToDrop.size() - 1; i >= 0; i--)
+                    schemaChange(String.format("DROP KEYSPACE IF EXISTS %s", keyspacesToDrop.get(i)));
 
-                    // Dropping doesn't delete the sstables. It's not a huge deal but it's cleaner to cleanup after us
-                    // Thas said, we shouldn't delete blindly before the TransactionLogs.SSTableTidier for the table we drop
-                    // have run or they will be unhappy. Since those taks are scheduled on StorageService.tasks and that's
-                    // mono-threaded, just push a task on the queue to find when it's empty. No perfect but good enough.
+                // Dropping doesn't delete the sstables. It's not a huge deal but it's cleaner to cleanup after us
+                // Thas said, we shouldn't delete blindly before the TransactionLogs.SSTableTidier for the table we drop
+                // have run or they will be unhappy. Since those taks are scheduled on StorageService.tasks and that's
+                // mono-threaded, just push a task on the queue to find when it's empty. No perfect but good enough.
 
-                    final CountDownLatch latch = new CountDownLatch(1);
-                    ScheduledExecutors.nonPeriodicTasks.execute(new Runnable()
-                    {
-                        public void run()
-                        {
-                            latch.countDown();
-                        }
-                    });
-                    latch.await(2, TimeUnit.SECONDS);
+                final CountDownLatch latch = new CountDownLatch(1);
+                ScheduledExecutors.nonPeriodicTasks.execute(latch::countDown);
+                latch.await(2, TimeUnit.SECONDS);
 
-                    removeAllSSTables(KEYSPACE, tablesToDrop);
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
+                removeAllSSTables(KEYSPACE, tablesToDrop);
             }
-        });
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }));
+    }
+
+    protected void waitForSchemaCleanups()
+    {
+        FBUtilities.waitOnFutures(schemaCleanups);
     }
 
     public static List<String> buildNodetoolArgs(List<String> args)
