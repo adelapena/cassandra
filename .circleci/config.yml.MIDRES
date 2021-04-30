@@ -113,8 +113,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -199,8 +199,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -299,8 +299,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -386,8 +386,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -472,8 +472,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -559,8 +559,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -685,8 +685,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -772,8 +772,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -933,8 +933,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -1020,8 +1020,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1106,8 +1106,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1192,8 +1192,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -1282,8 +1282,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -1350,8 +1350,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1417,8 +1417,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1520,8 +1520,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1574,8 +1574,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1674,8 +1674,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1774,8 +1774,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -1864,8 +1864,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -1951,8 +1951,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -1997,8 +1997,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -2065,8 +2065,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2151,8 +2151,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -2252,8 +2252,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2341,8 +2341,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2427,8 +2427,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2587,8 +2587,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2673,8 +2673,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2727,8 +2727,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2827,8 +2827,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2872,8 +2872,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2926,8 +2926,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -3015,8 +3015,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -3116,8 +3116,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -3202,8 +3202,8 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
-    - REPEATED_DTEST_NAME: null
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_NAME: transient_replication_ring_test.py::TestTransientReplicationRing::test_move_backwards_and_cleanup
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_VNODES: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
