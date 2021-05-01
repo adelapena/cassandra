@@ -109,9 +109,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -195,9 +195,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -295,9 +295,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -382,9 +382,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -468,9 +468,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -555,9 +555,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -681,9 +681,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -768,9 +768,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -917,9 +917,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1004,9 +1004,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1090,9 +1090,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1176,9 +1176,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1266,9 +1266,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1334,9 +1334,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1401,9 +1401,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1504,9 +1504,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1558,9 +1558,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1658,9 +1658,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1758,9 +1758,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1848,9 +1848,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1935,9 +1935,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -1981,9 +1981,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2049,9 +2049,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2135,9 +2135,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2236,9 +2236,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2325,9 +2325,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2411,9 +2411,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2559,9 +2559,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2645,9 +2645,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2699,9 +2699,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2799,9 +2799,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2844,9 +2844,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2898,9 +2898,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -2987,9 +2987,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -3088,9 +3088,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
@@ -3174,9 +3174,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: long-testsome
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.compaction.LongLeveledCompactionStrategyCQLTest
+    - REPEATED_UTEST_METHODS: stressTestCompactionStrategyManager
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
