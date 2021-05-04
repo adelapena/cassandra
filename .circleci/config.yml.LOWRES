@@ -869,13 +869,22 @@ jobs:
               for i in `seq $count`; do
 
                 # run the test
-                if !(ant $target $name $methods -Dno-build-test=true); then
+                status="passes"
+                if !( set -o pipefail && ant $target $name $methods -Dno-build-test=true | tee stdout.txt ); then
+                  status="fails"
                   exit_code=1
                 fi
 
+                printf -v iteration "%0${#count}d" $i
+
+                # move the stdout output file
+                dest=/tmp/results/repeated_utest/stdout/${status}/${iteration}
+                mkdir -p $dest
+                mv stdout.txt $dest/${REPEATED_UTEST_TARGET}-${REPEATED_UTEST_CLASS}.txt
+
                 # move the XML output files
                 source=build/test/output
-                dest=/tmp/results/repeated_utest/output/${i}
+                dest=/tmp/results/repeated_utest/output/${status}/${iteration}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
                   mv $source/* $dest/
@@ -883,7 +892,7 @@ jobs:
 
                 # move the log files
                 source=build/test/logs
-                dest=/tmp/results/repeated_utest/logs/${i}
+                dest=/tmp/results/repeated_utest/logs/${status}/${iteration}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
                   mv $source/* $dest/
@@ -895,6 +904,9 @@ jobs:
           fi
     - store_test_results:
         path: /tmp/results/repeated_utest/output/
+    - store_artifacts:
+        path: /tmp/results/repeated_utest/stdout
+        destination: stdout
     - store_artifacts:
         path: /tmp/results/repeated_utest/output
         destination: junitxml
@@ -2511,13 +2523,22 @@ jobs:
               for i in `seq $count`; do
 
                 # run the test
-                if !(ant $target $name $methods -Dno-build-test=true); then
+                status="passes"
+                if !( set -o pipefail && ant $target $name $methods -Dno-build-test=true | tee stdout.txt ); then
+                  status="fails"
                   exit_code=1
                 fi
 
+                printf -v iteration "%0${#count}d" $i
+
+                # move the stdout output file
+                dest=/tmp/results/repeated_utest/stdout/${status}/${iteration}
+                mkdir -p $dest
+                mv stdout.txt $dest/${REPEATED_UTEST_TARGET}-${REPEATED_UTEST_CLASS}.txt
+
                 # move the XML output files
                 source=build/test/output
-                dest=/tmp/results/repeated_utest/output/${i}
+                dest=/tmp/results/repeated_utest/output/${status}/${iteration}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
                   mv $source/* $dest/
@@ -2525,7 +2546,7 @@ jobs:
 
                 # move the log files
                 source=build/test/logs
-                dest=/tmp/results/repeated_utest/logs/${i}
+                dest=/tmp/results/repeated_utest/logs/${status}/${iteration}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
                   mv $source/* $dest/
@@ -2537,6 +2558,9 @@ jobs:
           fi
     - store_test_results:
         path: /tmp/results/repeated_utest/output/
+    - store_artifacts:
+        path: /tmp/results/repeated_utest/stdout
+        destination: stdout
     - store_artifacts:
         path: /tmp/results/repeated_utest/output
         destination: junitxml
