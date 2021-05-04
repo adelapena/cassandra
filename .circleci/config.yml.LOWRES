@@ -112,7 +112,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -198,7 +198,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -298,7 +298,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -385,7 +385,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -471,7 +471,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -558,7 +558,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -684,7 +684,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -771,7 +771,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -930,7 +930,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1017,7 +1017,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1103,7 +1103,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1189,7 +1189,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1279,7 +1279,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1347,7 +1347,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1414,7 +1414,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1517,7 +1517,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1571,7 +1571,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1671,7 +1671,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1771,7 +1771,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1861,7 +1861,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1948,7 +1948,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -1994,7 +1994,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -2062,7 +2062,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -2148,7 +2148,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -2249,7 +2249,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -2338,7 +2338,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -2424,7 +2424,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -2582,7 +2582,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -2668,7 +2668,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -2722,7 +2722,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -2822,7 +2822,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -2867,7 +2867,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -2921,7 +2921,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -3010,7 +3010,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -3111,7 +3111,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
@@ -3197,7 +3197,7 @@ jobs:
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.metrics.StreamingMetricsTest
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_COUNT: 100
     - REPEATED_DTEST_VNODES: false
