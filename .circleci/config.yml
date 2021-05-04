@@ -21,10 +21,10 @@ jobs:
   j8_jvm_upgrade_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 1
+    parallelism: 2
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -121,10 +121,10 @@ jobs:
   j8_cqlsh-dtests-py2-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -207,10 +207,10 @@ jobs:
   j11_unit_tests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -308,10 +308,10 @@ jobs:
   j8_cqlsh-dtests-py38-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -394,10 +394,10 @@ jobs:
   j11_cqlsh-dtests-py3-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -481,10 +481,10 @@ jobs:
   j11_cqlsh-dtests-py3-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -568,10 +568,10 @@ jobs:
   j11_repeated-dtest:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -694,10 +694,10 @@ jobs:
   j11_cqlsh-dtests-py38-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -781,10 +781,10 @@ jobs:
   j11_repeated-utest:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -869,13 +869,20 @@ jobs:
               for i in `seq $count`; do
 
                 # run the test
-                if !(ant $target $name $methods -Dno-build-test=true); then
+                status="passes"
+                if !( set -o pipefail && ant $target $name $methods -Dno-build-test=true | tee stdout.txt ); then
+                  status="fails"
                   exit_code=1
                 fi
 
+                # move the stdout output file
+                dest=/tmp/results/repeated_utest/stdout/${i}-${status}
+                mkdir -p $dest
+                mv stdout.txt $dest/${REPEATED_UTEST_TARGET}-${REPEATED_UTEST_CLASS}.txt
+
                 # move the XML output files
                 source=build/test/output
-                dest=/tmp/results/repeated_utest/output/${i}
+                dest=/tmp/results/repeated_utest/output/${i}-${status}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
                   mv $source/* $dest/
@@ -883,7 +890,7 @@ jobs:
 
                 # move the log files
                 source=build/test/logs
-                dest=/tmp/results/repeated_utest/logs/${i}
+                dest=/tmp/results/repeated_utest/logs/${i}-${status}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
                   mv $source/* $dest/
@@ -895,6 +902,9 @@ jobs:
           fi
     - store_test_results:
         path: /tmp/results/repeated_utest/output/
+    - store_artifacts:
+        path: /tmp/results/repeated_utest/stdout
+        destination: stdout
     - store_artifacts:
         path: /tmp/results/repeated_utest/output
         destination: junitxml
@@ -930,10 +940,10 @@ jobs:
   j8_cqlsh-dtests-py3-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1016,10 +1026,10 @@ jobs:
   j8_cqlsh-dtests-py2-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1102,10 +1112,10 @@ jobs:
   j11_cqlsh-dtests-py2-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1189,10 +1199,10 @@ jobs:
   j11_dtests-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1279,10 +1289,10 @@ jobs:
   j8_dtests-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1346,10 +1356,10 @@ jobs:
   j8_upgradetests-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1413,10 +1423,10 @@ jobs:
   j8_repeated-dtest:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1516,7 +1526,7 @@ jobs:
   utests_stress:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
     parallelism: 1
@@ -1570,10 +1580,10 @@ jobs:
   j8_unit_tests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1670,10 +1680,10 @@ jobs:
   j11_jvm_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 1
+    parallelism: 2
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1861,10 +1871,10 @@ jobs:
   j11_cqlsh-dtests-py2-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1994,10 +2004,10 @@ jobs:
   j8_dtests-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2061,10 +2071,10 @@ jobs:
   j11_cqlsh-dtests-py38-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2148,10 +2158,10 @@ jobs:
   j8_jvm_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 1
+    parallelism: 5
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2337,10 +2347,10 @@ jobs:
   j8_cqlsh-dtests-py3-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2423,10 +2433,10 @@ jobs:
   j8_repeated-utest:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2511,13 +2521,20 @@ jobs:
               for i in `seq $count`; do
 
                 # run the test
-                if !(ant $target $name $methods -Dno-build-test=true); then
+                status="passes"
+                if !( set -o pipefail && ant $target $name $methods -Dno-build-test=true | tee stdout.txt ); then
+                  status="fails"
                   exit_code=1
                 fi
 
+                # move the stdout output file
+                dest=/tmp/results/repeated_utest/stdout/${i}-${status}
+                mkdir -p $dest
+                mv stdout.txt $dest/${REPEATED_UTEST_TARGET}-${REPEATED_UTEST_CLASS}.txt
+
                 # move the XML output files
                 source=build/test/output
-                dest=/tmp/results/repeated_utest/output/${i}
+                dest=/tmp/results/repeated_utest/output/${i}-${status}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
                   mv $source/* $dest/
@@ -2525,7 +2542,7 @@ jobs:
 
                 # move the log files
                 source=build/test/logs
-                dest=/tmp/results/repeated_utest/logs/${i}
+                dest=/tmp/results/repeated_utest/logs/${i}-${status}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
                   mv $source/* $dest/
@@ -2537,6 +2554,9 @@ jobs:
           fi
     - store_test_results:
         path: /tmp/results/repeated_utest/output/
+    - store_artifacts:
+        path: /tmp/results/repeated_utest/stdout
+        destination: stdout
     - store_artifacts:
         path: /tmp/results/repeated_utest/output
         destination: junitxml
@@ -2571,10 +2591,10 @@ jobs:
   j8_cqlsh-dtests-py38-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2657,7 +2677,7 @@ jobs:
   utests_long:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
     parallelism: 1
@@ -2711,10 +2731,10 @@ jobs:
   utests_system_keyspace_directory:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2856,7 +2876,7 @@ jobs:
   utests_fqltool:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
     parallelism: 1
@@ -2910,10 +2930,10 @@ jobs:
   j11_dtests-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3000,10 +3020,10 @@ jobs:
   utests_compression:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:20210304
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
