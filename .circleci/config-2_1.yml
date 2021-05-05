@@ -1272,6 +1272,7 @@ commands:
                   fi
 
                   printf -v iteration "%0${#count}d" $i
+                  echo "ITERATION dir: ${iteration}"
 
                   # move the stdout output file
                   dest=/tmp/results/repeated_utest/stdout/${status}/${iteration}
