@@ -1262,7 +1262,9 @@ commands:
 
                 # Run the test target as many times as requested, even if it fails, collecting the exit code.
                 exit_code="$?"
-                for i in `seq -w 1 $count`; do
+                for i in $(seq -w 1 $count); do
+
+                  echo "*** ITERATION: ${i}"
 
                   # run the test
                   status="passes"
@@ -1270,8 +1272,6 @@ commands:
                     status="fails"
                     exit_code=1
                   fi
-
-                  echo "ITERATION dir: ${i}"
 
                   # move the stdout output file
                   dest=/tmp/results/repeated_utest/stdout/${status}/${i}
