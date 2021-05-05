@@ -866,7 +866,7 @@ jobs:
 
               # Run the test target as many times as requested, even if it fails, collecting the exit code.
               exit_code="$?"
-              for i in `seq $count`; do
+              for i in `seq -w 1 $count`; do
 
                 # run the test
                 status="passes"
@@ -875,18 +875,17 @@ jobs:
                   exit_code=1
                 fi
 
-                printf -v iteration "%0${#count}d" $i
-                echo "ITERATION dir: ${iteration}"
+                echo "ITERATION dir: ${i}"
 
                 # move the stdout output file
-                dest=/tmp/results/repeated_utest/stdout/${status}/${iteration}
+                dest=/tmp/results/repeated_utest/stdout/${status}/${i}
                 echo "STDOUT dir: ${dest}"
                 mkdir -p $dest
                 mv stdout.txt $dest/${REPEATED_UTEST_TARGET}-${REPEATED_UTEST_CLASS}.txt
 
                 # move the XML output files
                 source=build/test/output
-                dest=/tmp/results/repeated_utest/output/${status}/${iteration}
+                dest=/tmp/results/repeated_utest/output/${status}/${i}
                 echo "OUTPUT dir: ${dest}"
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -895,7 +894,7 @@ jobs:
 
                 # move the log files
                 source=build/test/logs
-                dest=/tmp/results/repeated_utest/logs/${status}/${iteration}
+                dest=/tmp/results/repeated_utest/logs/${status}/${i}
                 echo "LOG dir: ${dest}"
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -2524,7 +2523,7 @@ jobs:
 
               # Run the test target as many times as requested, even if it fails, collecting the exit code.
               exit_code="$?"
-              for i in `seq $count`; do
+              for i in `seq -w 1 $count`; do
 
                 # run the test
                 status="passes"
@@ -2533,18 +2532,17 @@ jobs:
                   exit_code=1
                 fi
 
-                printf -v iteration "%0${#count}d" $i
-                echo "ITERATION dir: ${iteration}"
+                echo "ITERATION dir: ${i}"
 
                 # move the stdout output file
-                dest=/tmp/results/repeated_utest/stdout/${status}/${iteration}
+                dest=/tmp/results/repeated_utest/stdout/${status}/${i}
                 echo "STDOUT dir: ${dest}"
                 mkdir -p $dest
                 mv stdout.txt $dest/${REPEATED_UTEST_TARGET}-${REPEATED_UTEST_CLASS}.txt
 
                 # move the XML output files
                 source=build/test/output
-                dest=/tmp/results/repeated_utest/output/${status}/${iteration}
+                dest=/tmp/results/repeated_utest/output/${status}/${i}
                 echo "OUTPUT dir: ${dest}"
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -2553,7 +2551,7 @@ jobs:
 
                 # move the log files
                 source=build/test/logs
-                dest=/tmp/results/repeated_utest/logs/${status}/${iteration}
+                dest=/tmp/results/repeated_utest/logs/${status}/${i}
                 echo "LOG dir: ${dest}"
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
