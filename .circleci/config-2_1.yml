@@ -1275,12 +1275,14 @@ commands:
 
                   # move the stdout output file
                   dest=/tmp/results/repeated_utest/stdout/${status}/${iteration}
+                  echo "STDOUT dir: ${dest}"
                   mkdir -p $dest
                   mv stdout.txt $dest/${REPEATED_UTEST_TARGET}-${REPEATED_UTEST_CLASS}.txt
 
                   # move the XML output files
                   source=build/test/output
                   dest=/tmp/results/repeated_utest/output/${status}/${iteration}
+                  echo "OUTPUT dir: ${dest}"
                   mkdir -p $dest
                   if [[ -d $source && -n "$(ls $source)" ]]; then
                     mv $source/* $dest/
@@ -1289,6 +1291,7 @@ commands:
                   # move the log files
                   source=build/test/logs
                   dest=/tmp/results/repeated_utest/logs/${status}/${iteration}
+                  echo "LOG dir: ${dest}"
                   mkdir -p $dest
                   if [[ -d $source && -n "$(ls $source)" ]]; then
                     mv $source/* $dest/
