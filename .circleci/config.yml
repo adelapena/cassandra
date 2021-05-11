@@ -109,14 +109,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   build:
@@ -199,14 +199,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_dtests-no-vnodes:
@@ -266,14 +266,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_upgradetests-no-vnodes:
@@ -374,14 +374,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_repeated-dtest:
@@ -482,14 +482,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_unit_tests:
@@ -583,14 +583,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_dtests-with-vnodes:
@@ -650,14 +650,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_jvm_dtests:
@@ -751,14 +751,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_repeated-utest:
@@ -918,14 +918,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   utests_long:
@@ -973,14 +973,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   utests_compression:
@@ -1074,14 +1074,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_dtest_jars_build:
@@ -1161,14 +1161,14 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
-    - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 10
+    - REPEATED_UTEST_STOP_ON_FAILURE: true
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
-    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_COUNT: 10
+    - REPEATED_DTEST_STOP_ON_FAILURE: true
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
 workflows:
