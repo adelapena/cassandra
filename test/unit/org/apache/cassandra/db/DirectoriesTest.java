@@ -34,12 +34,15 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.schema.Indexes;
 import org.apache.cassandra.schema.SchemaConstants;
 import org.apache.cassandra.schema.SchemaKeyspace;
 import org.apache.cassandra.schema.TableMetadata;
+import org.apache.cassandra.RepeatableRunner;
+import org.apache.cassandra.RepeatableRunner.RepeatableRunnerConfiguration;
 import org.apache.cassandra.auth.AuthKeyspace;
 import org.apache.cassandra.config.Config.DiskFailurePolicy;
 import org.apache.cassandra.config.DatabaseDescriptor;
@@ -63,6 +66,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@RunWith(RepeatableRunner.class)
+@RepeatableRunnerConfiguration(iterations=2)
 public class DirectoriesTest
 {
     private static File tempDataDir;

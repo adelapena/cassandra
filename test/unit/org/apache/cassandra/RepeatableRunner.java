@@ -17,6 +17,11 @@
  */
 package org.apache.cassandra;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
@@ -24,16 +29,24 @@ import org.junit.runners.model.InitializationError;
 
 /**
  * This class comes useful when debugging flaky tests that will fail only when the full test suite is ran. It is
- * intended for test failure investigation only. Decorate your class with the runner and hardcode the iterations you
- * need.
- * 
- * If your test uses a runner already, as they can't be chained, you can use this class as inspiration to modify the
- * original runner to loop your test.
+ * intended for test failure investigation only.
+ * <p>
+ * Decorate your class with the runner and iterations you want. Defaults to 10.
+ * Beware of tests that change singleton status as those won't work.
+ * <pre>
+ * @RunWith(RepeatableRunner.class)
+ * @RepeatableRunnerConfiguration(iterations=2)
+ * public class MyTest
+ * {
+ * ...
+ * }
+ * <pre>
  */
 public class RepeatableRunner extends Runner
 {
-    private static final int REPETITIONS = Integer.parseInt(System.getProperty("cassandra.test.repetitions", "10"));
+    private static final int DEFAULT_REPETITIONS = 10;
 
+    protected Class<?> testClass;
     private final Runner runner;
 
     private RepeatableRunner(Runner runner)
@@ -44,6 +57,7 @@ public class RepeatableRunner extends Runner
     public RepeatableRunner(Class<?> klass) throws InitializationError
     {
         this(new org.junit.runners.BlockJUnit4ClassRunner(klass));
+        this.testClass = klass;
     }
 
     @Override
@@ -55,7 +69,11 @@ public class RepeatableRunner extends Runner
     @Override
     public void run(RunNotifier notifier)
     {
-        for (int i = 0; i < REPETITIONS; i++)
+        int repetitions = DEFAULT_REPETITIONS;
+        if (this.testClass.isAnnotationPresent(RepeatableRunnerConfiguration.class))
+            repetitions = this.testClass.getAnnotation(RepeatableRunnerConfiguration.class).iterations();
+
+        for (int i = 0; i < repetitions; i++)
         {
             runner.run(notifier);
         }
@@ -66,6 +84,7 @@ public class RepeatableRunner extends Runner
         public BlockJUnit4ClassRunner(Class<?> klass) throws InitializationError
         {
             super(new org.junit.runners.BlockJUnit4ClassRunner(klass));
+            this.testClass = klass;
         }
     }
 
@@ -74,6 +93,7 @@ public class RepeatableRunner extends Runner
         public Parameterized(Class<?> klass) throws Throwable
         {
             super(new org.junit.runners.Parameterized(klass));
+            this.testClass = klass;
         }
     }
 
@@ -82,6 +102,7 @@ public class RepeatableRunner extends Runner
         public BMUnitRunner(Class<?> klass) throws Throwable
         {
             super(new org.jboss.byteman.contrib.bmunit.BMUnitRunner(klass));
+            this.testClass = klass;
         }
     }
 
@@ -90,6 +111,7 @@ public class RepeatableRunner extends Runner
         public OrderedJUnit4ClassRunner(Class<?> klass) throws Throwable
         {
             super(new org.apache.cassandra.OrderedJUnit4ClassRunner(klass));
+            this.testClass = klass;
         }
     }
 
@@ -98,6 +120,14 @@ public class RepeatableRunner extends Runner
         public CassandraIsolatedJunit4ClassRunner(Class<?> klass) throws Throwable
         {
             super(new org.apache.cassandra.CassandraIsolatedJunit4ClassRunner(klass));
+            this.testClass = klass;
         }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface RepeatableRunnerConfiguration
+    {
+        int iterations() default DEFAULT_REPETITIONS;
     }
 }
