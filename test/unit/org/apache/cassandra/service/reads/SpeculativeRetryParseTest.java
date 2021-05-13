@@ -27,6 +27,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import org.apache.cassandra.RepeatableRunner;
 import org.apache.cassandra.exceptions.ConfigurationException;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +35,8 @@ import static org.junit.runners.Parameterized.Parameters;
 
 import static org.apache.cassandra.service.reads.HybridSpeculativeRetryPolicy.Function;
 
-@RunWith(Enclosed.class)
+@RunWith(RepeatableRunner.class)
+@RepeatableRunner.RepeatableRunnerConfiguration(iterations = 5, runner = Enclosed.class)
 public class SpeculativeRetryParseTest
 {
     @RunWith(Parameterized.class)

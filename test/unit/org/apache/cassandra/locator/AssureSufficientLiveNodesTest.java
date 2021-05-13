@@ -37,6 +37,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.cassandra.RepeatableRunner;
 import org.apache.cassandra.SchemaLoader;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.Keyspace;
@@ -64,7 +65,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *
  * See https://issues.apache.org/jira/browse/CASSANDRA-16545 for details.
  */
-@RunWith(BMUnitRunner.class)
+@RunWith(RepeatableRunner.class)
+@RepeatableRunner.RepeatableRunnerConfiguration(iterations = 5, runner = BMUnitRunner.class)
 @BMRule(name = "FailureDecector sees all nodes as live", // applies to all test cases in the class
         targetClass = "FailureDetector",
         targetMethod = "isAlive",

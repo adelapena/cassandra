@@ -22,10 +22,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.junit.internal.builders.AllDefaultPossibilitiesBuilder;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.model.InitializationError;
+import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.model.RunnerBuilder;
 
 /**
  * This class comes useful when debugging flaky tests that will fail only when the full test suite is ran. It is
@@ -33,31 +35,39 @@ import org.junit.runners.model.InitializationError;
  * <p>
  * Decorate your class with the runner and iterations you want. Defaults to 10.
  * Beware of tests that change singleton status as those won't work.
- * <pre>
+ * <pre>{@code
  * @RunWith(RepeatableRunner.class)
- * @RepeatableRunnerConfiguration(iterations=2)
+ * @RepeatableRunnerConfiguration(iterations = 2, runner = BlockJUnit4ClassRunner.class)
  * public class MyTest
  * {
  * ...
  * }
- * <pre>
+ * }</pre>
  */
 public class RepeatableRunner extends Runner
 {
     private static final int DEFAULT_REPETITIONS = 10;
+    private static final Class<? extends Runner> DEFAULT_RUNNER_CLASS = BlockJUnit4ClassRunner.class;
 
-    protected Class<?> testClass;
     private final Runner runner;
+    private final int iterations;
 
-    private RepeatableRunner(Runner runner)
+    public RepeatableRunner(Class<?> testClass) throws Throwable
     {
-        this.runner = runner;
-    }
+        Class<? extends Runner> runnerClass = DEFAULT_RUNNER_CLASS;
 
-    public RepeatableRunner(Class<?> klass) throws InitializationError
-    {
-        this(new org.junit.runners.BlockJUnit4ClassRunner(klass));
-        this.testClass = klass;
+        if (testClass.isAnnotationPresent(RepeatableRunnerConfiguration.class))
+        {
+            RepeatableRunnerConfiguration configuration = testClass.getAnnotation(RepeatableRunnerConfiguration.class);
+            iterations = configuration.iterations();
+            runnerClass = configuration.runner();
+        }
+        else
+        {
+            iterations = DEFAULT_REPETITIONS;
+        }
+
+        runner = buildRunner(runnerClass, testClass);
     }
 
     @Override
@@ -69,58 +79,22 @@ public class RepeatableRunner extends Runner
     @Override
     public void run(RunNotifier notifier)
     {
-        int repetitions = DEFAULT_REPETITIONS;
-        if (this.testClass.isAnnotationPresent(RepeatableRunnerConfiguration.class))
-            repetitions = this.testClass.getAnnotation(RepeatableRunnerConfiguration.class).iterations();
-
-        for (int i = 0; i < repetitions; i++)
+        for (int i = 0; i < iterations; i++)
         {
             runner.run(notifier);
         }
     }
 
-    public static class BlockJUnit4ClassRunner extends RepeatableRunner
+    private static Runner buildRunner(Class<? extends Runner> runnerClass, Class<?> testClass) throws Throwable
     {
-        public BlockJUnit4ClassRunner(Class<?> klass) throws InitializationError
+        try
         {
-            super(new org.junit.runners.BlockJUnit4ClassRunner(klass));
-            this.testClass = klass;
+            return runnerClass.getConstructor(Class.class).newInstance(testClass);
         }
-    }
-
-    public static class Parameterized extends RepeatableRunner
-    {
-        public Parameterized(Class<?> klass) throws Throwable
+        catch (NoSuchMethodException e)
         {
-            super(new org.junit.runners.Parameterized(klass));
-            this.testClass = klass;
-        }
-    }
-
-    public static class BMUnitRunner extends RepeatableRunner
-    {
-        public BMUnitRunner(Class<?> klass) throws Throwable
-        {
-            super(new org.jboss.byteman.contrib.bmunit.BMUnitRunner(klass));
-            this.testClass = klass;
-        }
-    }
-
-    public static class OrderedJUnit4ClassRunner extends RepeatableRunner
-    {
-        public OrderedJUnit4ClassRunner(Class<?> klass) throws Throwable
-        {
-            super(new org.apache.cassandra.OrderedJUnit4ClassRunner(klass));
-            this.testClass = klass;
-        }
-    }
-
-    public static class CassandraIsolatedJunit4ClassRunner extends RepeatableRunner
-    {
-        public CassandraIsolatedJunit4ClassRunner(Class<?> klass) throws Throwable
-        {
-            super(new org.apache.cassandra.CassandraIsolatedJunit4ClassRunner(klass));
-            this.testClass = klass;
+            return runnerClass.getConstructor(Class.class, RunnerBuilder.class)
+                              .newInstance(testClass, new AllDefaultPossibilitiesBuilder(true));
         }
     }
 
@@ -129,5 +103,7 @@ public class RepeatableRunner extends Runner
     public @interface RepeatableRunnerConfiguration
     {
         int iterations() default DEFAULT_REPETITIONS;
+
+        Class<? extends Runner> runner() default BlockJUnit4ClassRunner.class;
     }
 }
