@@ -20,21 +20,14 @@ import re
 from .basecase import BaseTestCase, cassandra_dir
 from cqlshlib.cqlhandling import cql_reserved_keywords as cqlsh_reserved_keywords
 
-RESERVED_KEYWORDS_SOURCE = join(cassandra_dir, 'src', 'java', 'org', 'apache', 'cassandra', 'cql3', 'ReservedKeywords.java')
+RESERVED_KEYWORDS_SOURCE = join(cassandra_dir, 'src', 'resources', 'org', 'apache', 'cassandra', 'cql3', 'reserved_keywords.txt')
 
 
 class TestConstants(BaseTestCase):
 
     def test_cql_reserved_keywords(self):
         with open(RESERVED_KEYWORDS_SOURCE) as f:
-            text = f.read()
-
-        start = text.find('static final String[] reservedKeywords')
-        start = text.find('{', start)
-        end = text.find('}', start)
-
-        tokens = re.split('["|\\s|,]+', text[start+1:end-1])
-        source_reserved_keywords = set(t.lower() for t in tokens if t)
+            source_reserved_keywords = set(line.rstrip().lower() for line in f)
 
         cqlsh_not_source = cqlsh_reserved_keywords - source_reserved_keywords
         self.assertFalse(cqlsh_not_source, "Reserved keywords in cqlsh not read from source %s."
