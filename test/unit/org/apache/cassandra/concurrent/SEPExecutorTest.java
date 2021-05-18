@@ -77,63 +77,52 @@ public class SEPExecutorTest
         }
     }
 
-    @Test
-    public void changingMaxWorkersMeetsConcurrencyGoalsTest() throws InterruptedException, TimeoutException
+    private class BusyExecutor
     {
         // Number of busy worker threads to run and gum things up. Chosen to be
         // between the low and high max pool size so the test exercises resizing
         // under a number of different conditions.
         final int numBusyWorkers = 2;
-        SharedExecutorPool sharedPool = new SharedExecutorPool("ChangingMaxWorkersMeetsConcurrencyGoalsTest");
         final AtomicInteger notifiedMaxPoolSize = new AtomicInteger();
 
-        LocalAwareExecutorService executor = sharedPool.newExecutor(0, notifiedMaxPoolSize::set, "internal", "resizetest");
+        SharedExecutorPool sharedPool;
+        LocalAwareExecutorService executor;
 
-        // Keep feeding the executor work while resizing
-        // so it stays under load.
-        AtomicBoolean stayBusy = new AtomicBoolean(true);
-        Semaphore busyWorkerPermits = new Semaphore(numBusyWorkers);
-        Thread makeBusy = new Thread(() -> {
-            while (stayBusy.get() == true)
-            {
-                try
+        Thread makeBusy;
+        AtomicBoolean stayBusy;
+
+        public BusyExecutor(String poolName, String executorName)
+        {
+            sharedPool = new SharedExecutorPool("");
+            executor = sharedPool.newExecutor(0, notifiedMaxPoolSize::set, "internal", executorName);
+        }
+
+        public void start()
+        {
+            // Keep feeding the executor work while resizing
+            // so it stays under load.
+            stayBusy = new AtomicBoolean(true);
+            Semaphore busyWorkerPermits = new Semaphore(numBusyWorkers);
+            makeBusy = new Thread(() -> {
+                while (stayBusy.get() == true)
                 {
-                    if (busyWorkerPermits.tryAcquire(1, MILLISECONDS)) {
-                        executor.execute(new BusyWork(busyWorkerPermits));
+                    try
+                    {
+                        if (busyWorkerPermits.tryAcquire(1, MILLISECONDS)) {
+                            executor.execute(new BusyWork(busyWorkerPermits));
+                        }
+                    }
+                    catch (InterruptedException e)
+                    {
+                        // ignore, will either stop looping if done or retry the lock
                     }
                 }
-                catch (InterruptedException e)
-                {
-                    // ignore, will either stop looping if done or retry the lock
-                }
-            }
-        });
+            });
 
-        makeBusy.start();
-        try
-        {
-            for (int repeat = 0; repeat < 1000; repeat++)
-            {
-                assertMaxTaskConcurrency(executor, 1);
-                Assert.assertEquals(1, notifiedMaxPoolSize.get());
-
-                assertMaxTaskConcurrency(executor, 2);
-                Assert.assertEquals(2, notifiedMaxPoolSize.get());
-
-                assertMaxTaskConcurrency(executor, 1);
-                Assert.assertEquals(1, notifiedMaxPoolSize.get());
-
-                assertMaxTaskConcurrency(executor, 3);
-                Assert.assertEquals(3, notifiedMaxPoolSize.get());
-
-                executor.setMaximumPoolSize(0);
-                Assert.assertEquals(0, notifiedMaxPoolSize.get());
-
-                assertMaxTaskConcurrency(executor, 4);
-                Assert.assertEquals(4, notifiedMaxPoolSize.get());
-            }
+            makeBusy.start();
         }
-        finally
+
+        public void shutdown() throws TimeoutException, InterruptedException
         {
             stayBusy.set(false);
             makeBusy.join(TimeUnit.SECONDS.toMillis(5));
@@ -141,6 +130,80 @@ public class SEPExecutorTest
                                makeBusy.isAlive());
             sharedPool.shutdownAndWait(1L, MINUTES);
         }
+
+        public LocalAwareExecutorService getExecutor()
+        {
+            return executor;
+        }
+
+        public int getNotifiedMaxPoolSize()
+        {
+            return notifiedMaxPoolSize.get();
+        }
+    }
+
+    @Test
+    public void changingMaxWorkersMeetsConcurrencyGoalsTest() throws InterruptedException, TimeoutException
+    {
+        BusyExecutor busyExecutor = new BusyExecutor("ChangingMaxWorkersMeetsConcurrencyGoalsTest", "resizetest");
+        LocalAwareExecutorService executor = busyExecutor.getExecutor();
+
+        busyExecutor.start();
+        try
+        {
+            for (int repeat = 0; repeat < 1000; repeat++)
+            {
+                assertMaxTaskConcurrency(executor, 1);
+                Assert.assertEquals(1, busyExecutor.getNotifiedMaxPoolSize());
+
+                assertMaxTaskConcurrency(executor, 2);
+                Assert.assertEquals(2, busyExecutor.getNotifiedMaxPoolSize());
+
+                assertMaxTaskConcurrency(executor, 1);
+                Assert.assertEquals(1, busyExecutor.getNotifiedMaxPoolSize());
+
+                assertMaxTaskConcurrency(executor, 3);
+                Assert.assertEquals(3, busyExecutor.getNotifiedMaxPoolSize());
+
+                executor.setMaximumPoolSize(0);
+                Assert.assertEquals(0, busyExecutor.getNotifiedMaxPoolSize());
+
+                assertMaxTaskConcurrency(executor, 4);
+                Assert.assertEquals(4, busyExecutor.getNotifiedMaxPoolSize());
+            }
+        }
+        finally
+        {
+            busyExecutor.shutdown();
+        }
+    }
+
+
+    @Test
+    public void stoppedWorkersProcessTasksWhenConcurrencyIncreases() throws InterruptedException, TimeoutException
+    {
+        BusyExecutor busyExecutor = new BusyExecutor("StoppedWorkersProcessTasksWhenConcurrencyIncreases", "stoptest");
+        LocalAwareExecutorService executor = busyExecutor.getExecutor();
+        busyExecutor.start();
+        try
+        {
+            for (int repeat = 0; repeat < 25; repeat++)
+            {
+                assertMaxTaskConcurrency(executor, 3);
+                Assert.assertEquals(3, busyExecutor.getNotifiedMaxPoolSize());
+
+                executor.setMaximumPoolSize(0);
+                Assert.assertEquals(0, busyExecutor.getNotifiedMaxPoolSize());
+                Thread.sleep(250);
+
+                assertMaxTaskConcurrency(executor, 4);
+                Assert.assertEquals(4, busyExecutor.getNotifiedMaxPoolSize());
+            }
+        }
+        finally
+        {
+            executor.shutdown();
+       }
     }
 
     static class LatchWaiter implements Runnable
