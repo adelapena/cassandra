@@ -3359,11 +3359,10 @@ workflows:
         - start_j8_dtest_jars_build
     - start_jvm_upgrade_dtest:
         type: approval
-        requires:
-        - j8_dtest_jars_build
     - j8_jvm_upgrade_dtests:
         requires:
         - start_jvm_upgrade_dtest
+        - j8_dtest_jars_build
     - start_j8_dtests:
         type: approval
     - j8_dtests-with-vnodes:
