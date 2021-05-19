@@ -109,14 +109,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -197,14 +197,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -299,14 +299,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -388,14 +388,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -476,14 +476,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -565,14 +565,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -671,7 +671,7 @@ jobs:
               fi
 
               # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $REPEATED_DTEST_NAME | tee /tmp/dtest/stdout.txt
+              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg --execute-upgrade-tests --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $REPEATED_DTEST_NAME | tee /tmp/dtest/stdout.txt
             fi
           fi
     - store_test_results:
@@ -698,14 +698,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -787,14 +787,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -956,14 +956,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -1045,14 +1045,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1133,14 +1133,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1221,14 +1221,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -1313,14 +1313,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -1383,14 +1383,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1452,14 +1452,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1535,7 +1535,7 @@ jobs:
               fi
 
               # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $REPEATED_DTEST_NAME | tee /tmp/dtest/stdout.txt
+              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg --execute-upgrade-tests --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $REPEATED_DTEST_NAME | tee /tmp/dtest/stdout.txt
             fi
           fi
     - store_test_results:
@@ -1562,14 +1562,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1618,14 +1618,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1720,14 +1720,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1822,14 +1822,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -1914,14 +1914,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -2003,14 +2003,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -2051,14 +2051,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -2121,14 +2121,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2209,14 +2209,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -2312,14 +2312,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2403,14 +2403,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2491,14 +2491,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2659,14 +2659,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2747,14 +2747,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2803,14 +2803,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2905,14 +2905,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -2952,14 +2952,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -3008,14 +3008,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -3099,14 +3099,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -3202,14 +3202,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -3290,14 +3290,14 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 20
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -3447,7 +3447,7 @@ workflows:
     - j8_repeated-utest:
         requires:
         - start_j8_repeated-utest
-        - j8_build
+        - j8_dtest_jars_build
     - start_j11_repeated-utest:
         type: approval
     - j11_repeated-utest:

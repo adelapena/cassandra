@@ -41,29 +41,29 @@ default_env_vars: &default_env_vars
     # REPEATED_UTEST_TARGET: test-cdc
     # REPEATED_UTEST_TARGET: test-compression
     # REPEATED_UTEST_TARGET: test-system-keyspace-directory
-    REPEATED_UTEST_TARGET: testsome
+    REPEATED_UTEST_TARGET: test-jvm-dtest-some
     # The name of JUnit class to be run multiple times, for example:
     # REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
     # REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.PagingTest
-    REPEATED_UTEST_CLASS:
+    REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     # The optional specific methods within REPEATED_UTEST_CLASS to be run, for example:
     # REPEATED_UTEST_METHODS: testCompoundPartitionKey
     # REPEATED_UTEST_METHODS: testCompoundPartitionKey,testStaticTable
     # Please note that some Ant targets will ignore the -Dtest.methods argument produced by this.
     REPEATED_UTEST_METHODS:
     # The number of times that the repeated JUnit test should be run
-    REPEATED_UTEST_COUNT: 100
+    REPEATED_UTEST_COUNT: 20
     # Whether the test iteration should stop on the first failure
     REPEATED_UTEST_STOP_ON_FAILURE: false
     # A Python dtest to be run multiple times, for example:
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
-    REPEATED_DTEST_NAME:
+    REPEATED_DTEST_NAME: upgrade_tests/cql_tests.py
     # Whether the repeated Python dtest should use vnodes
     REPEATED_DTEST_VNODES: false
     # The number of times that the repeated Python dtest should be run
-    REPEATED_DTEST_COUNT: 100
+    REPEATED_DTEST_COUNT: 20
     # Whether the test iteration should stop on the first failure
     REPEATED_DTEST_STOP_ON_FAILURE: false
 
@@ -266,7 +266,7 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
     - j8_repeated-utest:
         requires:
           - start_j8_repeated-utest
-          - j8_build
+          - j8_dtest_jars_build
     # Java 11 repeated utest (on request)
     - start_j11_repeated-utest:
         type: approval
@@ -1368,7 +1368,7 @@ commands:
                 fi
 
                 # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-                set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $REPEATED_DTEST_NAME | tee /tmp/dtest/stdout.txt
+                set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg --execute-upgrade-tests --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $REPEATED_DTEST_NAME | tee /tmp/dtest/stdout.txt
               fi
             fi
       - store_test_results:
