@@ -109,10 +109,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -197,10 +197,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -299,10 +299,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -388,10 +388,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -476,10 +476,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -565,10 +565,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -698,10 +698,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -787,10 +787,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -956,10 +956,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1045,10 +1045,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1133,10 +1133,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1221,10 +1221,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1313,10 +1313,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1383,10 +1383,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1452,10 +1452,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1562,10 +1562,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1618,10 +1618,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1720,10 +1720,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1822,10 +1822,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1914,10 +1914,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2003,10 +2003,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2051,10 +2051,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2121,10 +2121,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2209,10 +2209,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2312,10 +2312,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2403,10 +2403,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2491,10 +2491,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2659,10 +2659,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2747,10 +2747,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2803,10 +2803,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2905,10 +2905,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2952,10 +2952,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3008,10 +3008,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3099,10 +3099,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3202,10 +3202,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3290,10 +3290,10 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 500
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
