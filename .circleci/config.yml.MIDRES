@@ -3351,14 +3351,17 @@ workflows:
         requires:
         - start_utests_system_keyspace_directory
         - j8_build
-    - start_jvm_upgrade_dtest:
+    - start_j8_dtest_jars_build:
         type: approval
     - j8_dtest_jars_build:
         requires:
         - j8_build
-        - start_jvm_upgrade_dtest
+        - start_j8_dtest_jars_build
+    - start_jvm_upgrade_dtest:
+        type: approval
     - j8_jvm_upgrade_dtests:
         requires:
+        - start_jvm_upgrade_dtest
         - j8_dtest_jars_build
     - start_j8_dtests:
         type: approval
