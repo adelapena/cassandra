@@ -55,13 +55,14 @@ public class SEPExecutorTest
         OutputStream nullOutputStream = new OutputStream() {
             public void write(int b) { }
         };
-        PrintStream nullPrintSteam = new PrintStream(nullOutputStream);
-
-        for (int idx = 0; idx < 20; idx++)
+        try (PrintStream nullPrintSteam = new PrintStream(nullOutputStream))
         {
-            ExecutorService es = sharedPool.newExecutor(FBUtilities.getAvailableProcessors(), "STAGE", run + MAGIC + idx);
-            // Write to black hole
-            es.execute(() -> nullPrintSteam.println("TEST" + es));
+            for (int idx = 0; idx < 20; idx++)
+            {
+                ExecutorService es = sharedPool.newExecutor(FBUtilities.getAvailableProcessors(), "STAGE", run + MAGIC + idx);
+                // Write to black hole
+                es.execute(() -> nullPrintSteam.println("TEST" + es));
+            }
         }
 
         // shutdown does not guarantee that threads are actually dead once it exits, only that they will stop promptly afterwards
@@ -77,12 +78,12 @@ public class SEPExecutorTest
         }
     }
 
-    private class BusyExecutor
+    private static class BusyExecutor
     {
         // Number of busy worker threads to run and gum things up. Chosen to be
         // between the low and high max pool size so the test exercises resizing
         // under a number of different conditions.
-        final int numBusyWorkers = 2;
+        static final int numBusyWorkers = 2;
         final AtomicInteger notifiedMaxPoolSize = new AtomicInteger();
 
         SharedExecutorPool sharedPool;
@@ -93,7 +94,7 @@ public class SEPExecutorTest
 
         public BusyExecutor(String poolName, String executorName)
         {
-            sharedPool = new SharedExecutorPool("");
+            sharedPool = new SharedExecutorPool(poolName);
             executor = sharedPool.newExecutor(0, notifiedMaxPoolSize::set, "internal", executorName);
         }
 
@@ -104,7 +105,7 @@ public class SEPExecutorTest
             stayBusy = new AtomicBoolean(true);
             Semaphore busyWorkerPermits = new Semaphore(numBusyWorkers);
             makeBusy = new Thread(() -> {
-                while (stayBusy.get() == true)
+                while (stayBusy.get())
                 {
                     try
                     {
@@ -180,7 +181,7 @@ public class SEPExecutorTest
 
 
     @Test
-    public void stoppedWorkersProcessTasksWhenConcurrencyIncreases() throws InterruptedException, TimeoutException
+    public void stoppedWorkersProcessTasksWhenConcurrencyIncreases() throws InterruptedException
     {
         BusyExecutor busyExecutor = new BusyExecutor("StoppedWorkersProcessTasksWhenConcurrencyIncreases", "stoptest");
         LocalAwareExecutorService executor = busyExecutor.getExecutor();
@@ -235,7 +236,7 @@ public class SEPExecutorTest
 
     static class BusyWork implements Runnable
     {
-        private Semaphore busyWorkers;
+        private final Semaphore busyWorkers;
 
         public BusyWork(Semaphore busyWorkers)
         {
@@ -258,7 +259,6 @@ public class SEPExecutorTest
             executor.execute(new LatchWaiter(concurrencyGoal, 5L, TimeUnit.SECONDS));
         }
         // Will return true if all of the LatchWaiters count down before the timeout
-        Assert.assertEquals("Test tasks did not hit max concurrency goal",
-                            true, concurrencyGoal.await(3L, TimeUnit.SECONDS));
+        Assert.assertTrue("Test tasks did not hit max concurrency goal", concurrencyGoal.await(3L, TimeUnit.SECONDS));
     }
 }
