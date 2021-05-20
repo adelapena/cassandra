@@ -71,7 +71,7 @@ public class SEPExecutorTest
         {
             if (thread.getName().contains(MAGIC))
             {
-                thread.join(100);
+                thread.join(1000);
                 if (thread.isAlive())
                     Assert.fail(thread + " is still running " + Arrays.toString(thread.getStackTrace()));
             }
