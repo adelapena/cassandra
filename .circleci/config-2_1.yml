@@ -270,6 +270,12 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_j8_repeated-utest
           - j8_build
+    - start_j8_repeated-jvm-upgrade-dtest:
+        type: approval
+    - j8_repeated-jvm-upgrade-dtest:
+        requires:
+          - start_j8_repeated-jvm-upgrade-dtest
+          - j8_dtest_jars_build
     # Java 11 repeated utest (on request)
     - start_j11_repeated-utest:
         type: approval
@@ -832,6 +838,14 @@ jobs:
           python_version: '3.8'
 
   j8_repeated-utest:
+    <<: *j8_par_executor
+    steps:
+      - attach_workspace:
+          at: /home/cassandra
+      - log_environment
+      - run_repeated_utest
+
+  j8_repeated-jvm-upgrade-dtest:
     <<: *j8_par_executor
     steps:
       - attach_workspace:
