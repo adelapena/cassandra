@@ -35,6 +35,7 @@ default_env_vars: &default_env_vars
     DTEST_BRANCH: trunk
     CCM_MAX_HEAP_SIZE: 1024M
     CCM_HEAP_NEWSIZE: 256M
+
     # The Ant test target to run, for example:
     # REPEATED_UTEST_TARGET: testsome
     # REPEATED_UTEST_TARGET: test-jvm-dtest-some
@@ -55,6 +56,7 @@ default_env_vars: &default_env_vars
     REPEATED_UTEST_COUNT: 100
     # Whether the test iteration should stop on the first failure
     REPEATED_UTEST_STOP_ON_FAILURE: false
+
     # A Python dtest to be run multiple times, for example:
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke
@@ -66,6 +68,16 @@ default_env_vars: &default_env_vars
     REPEATED_DTEST_COUNT: 100
     # Whether the test iteration should stop on the first failure
     REPEATED_DTEST_STOP_ON_FAILURE: false
+
+    # A Python upgrade dtest to be run multiple times, for example:
+    # REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py
+    # REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x
+    REPEATED_UPGRADE_DTEST_NAME:
+    # The number of times that the repeated Python upgrade dtest should be run
+    REPEATED_UPGRADE_DTEST_COUNT: 100
+    # Whether the test iteration should stop on the first failure
+    REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+
     # The name of JVM upgrade dtest class to be run multiple times, for example:
     # REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     REPEATED_JVM_UPGRADE_DTEST_CLASS:
@@ -275,39 +287,47 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
           - start_j11_cqlsh_tests-no-vnodes
           - j8_build
     # Java 8 repeated utest (on request)
-    - start_j8_repeated-utest:
+    - start_j8_repeated_utest:
         type: approval
-    - j8_repeated-utest:
+    - j8_repeated_utest:
         requires:
-          - start_j8_repeated-utest
+          - start_j8_repeated_utest
           - j8_build
-    - start_j8_repeated-jvm-upgrade-dtest:
-        type: approval
-    - j8_repeated-jvm-upgrade-dtest:
-        requires:
-          - start_j8_repeated-jvm-upgrade-dtest
-          - j8_dtest_jars_build
     # Java 11 repeated utest (on request)
-    - start_j11_repeated-utest:
+    - start_j11_repeated_utest:
         type: approval
-    - j11_repeated-utest:
+    - j11_repeated_utest:
         requires:
-          - start_j11_repeated-utest
+          - start_j11_repeated_utest
           - j8_build
     # Java 8 repeated dtest (on request)
-    - start_j8_repeated-dtest:
+    - start_j8_repeated_dtest:
         type: approval
-    - j8_repeated-dtest:
+    - j8_repeated_dtest:
         requires:
-          - start_j8_repeated-dtest
+          - start_j8_repeated_dtest
           - j8_build
     # Java 11 repeated dtest (on request)
-    - start_j11_repeated-dtest:
+    - start_j11_repeated_dtest:
         type: approval
-    - j11_repeated-dtest:
+    - j11_repeated_dtest:
         requires:
-          - start_j11_repeated-dtest
+          - start_j11_repeated_dtest
           - j8_build
+    # Repeated Python upgrade dtest (on request)
+    - start_repeated_upgrade_dtest:
+        type: approval
+    - repeated_upgrade_dtest:
+        requires:
+            - start_repeated_upgrade_dtest
+            - j8_build
+    # Repeated JVM upgrade dtest (on request)
+    - start_repeated_jvm_upgrade_dtest:
+        type: approval
+    - repeated_jvm_upgrade_dtest:
+        requires:
+          - start_repeated_jvm_upgrade_dtest
+          - j8_dtest_jars_build
 
 j11_with_dtests_jobs: &j11_with_dtests_jobs
   jobs:
@@ -362,18 +382,18 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
           - start_j11_cqlsh_tests-no-vnodes
           - j11_build
     # Java 11 repeated utest (on request)
-    - start_j11_repeated-utest:
+    - start_j11_repeated_utest:
         type: approval
-    - j11_repeated-utest:
+    - j11_repeated_utest:
         requires:
-          - start_j11_repeated-utest
+          - start_j11_repeated_utest
           - j11_build
     # Java 11 repeated dtest (on request)
-    - start_j11_repeated-dtest:
+    - start_j11_repeated_dtest:
         type: approval
-    - j11_repeated-dtest:
+    - j11_repeated_dtest:
         requires:
-          - start_j11_repeated-dtest
+          - start_j11_repeated_dtest
           - j11_build
 
 j8_with_dtest_jobs_only: &j8_with_dtest_jobs_only
@@ -848,15 +868,62 @@ jobs:
           extra_env_args: 'CQLSH_PYTHON=/usr/bin/python3.8'
           python_version: '3.8'
 
-  j8_repeated-utest:
+  j8_repeated_utest:
     <<: *j8_par_executor
     steps:
       - attach_workspace:
           at: /home/cassandra
       - log_environment
-      - run_repeated_utest
+      - run_repeated_utest:
+          target: ${REPEATED_UTEST_TARGET}
+          class: ${REPEATED_UTEST_CLASS}
+          methods: ${REPEATED_UTEST_METHODS}
+          count: ${REPEATED_UTEST_COUNT}
+          stop_on_failure: ${REPEATED_UTEST_STOP_ON_FAILURE}
 
-  j8_repeated-jvm-upgrade-dtest:
+  j11_repeated_utest:
+    <<: *j11_par_executor
+    steps:
+      - attach_workspace:
+          at: /home/cassandra
+      - log_environment
+      - run_repeated_utest:
+          target: ${REPEATED_UTEST_TARGET}
+          class: ${REPEATED_UTEST_CLASS}
+          methods: ${REPEATED_UTEST_METHODS}
+          count: ${REPEATED_UTEST_COUNT}
+          stop_on_failure: ${REPEATED_UTEST_STOP_ON_FAILURE}
+
+  j8_repeated_dtest:
+    <<: *j8_par_executor
+    steps:
+      - attach_workspace:
+          at: /home/cassandra
+      - clone_dtest
+      - create_venv
+      - run_repeated_dtest:
+          tests: ${REPEATED_DTEST_NAME}
+          vnodes: ${REPEATED_DTEST_VNODES}
+          upgrade: "false"
+          count: ${REPEATED_DTEST_COUNT}
+          stop_on_failure: ${REPEATED_DTEST_STOP_ON_FAILURE}
+
+  j11_repeated_dtest:
+    <<: *j11_par_executor
+    steps:
+      - attach_workspace:
+          at: /home/cassandra
+      - log_environment
+      - clone_dtest
+      - create_venv
+      - run_repeated_dtest:
+          tests: ${REPEATED_DTEST_NAME}
+          vnodes: ${REPEATED_DTEST_VNODES}
+          upgrade: "false"
+          count: ${REPEATED_DTEST_COUNT}
+          stop_on_failure: ${REPEATED_DTEST_STOP_ON_FAILURE}
+
+  repeated_jvm_upgrade_dtest:
     <<: *j8_par_executor
     steps:
       - attach_workspace:
@@ -869,32 +936,19 @@ jobs:
           count: ${REPEATED_JVM_UPGRADE_DTEST_COUNT}
           stop_on_failure: ${REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE}
 
-  j11_repeated-utest:
-    <<: *j11_par_executor
-    steps:
-      - attach_workspace:
-          at: /home/cassandra
-      - log_environment
-      - run_repeated_utest
-
-  j8_repeated-dtest:
+  repeated_upgrade_dtest:
     <<: *j8_par_executor
     steps:
       - attach_workspace:
           at: /home/cassandra
       - clone_dtest
       - create_venv
-      - run_repeated_dtest
-
-  j11_repeated-dtest:
-    <<: *j11_par_executor
-    steps:
-      - attach_workspace:
-          at: /home/cassandra
-      - log_environment
-      - clone_dtest
-      - create_venv
-      - run_repeated_dtest
+      - run_repeated_dtest:
+          tests: ${REPEATED_UPGRADE_DTEST_NAME}
+          vnodes: "false"
+          upgrade: "true"
+          stop_on_failure: ${REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE}
+          count: ${REPEATED_UPGRADE_DTEST_COUNT}
 
 commands:
   log_environment:
@@ -1246,19 +1300,14 @@ commands:
     parameters:
       target:
         type: string
-        default: ${REPEATED_UTEST_TARGET}
       class:
         type: string
-        default: ${REPEATED_UTEST_CLASS}
       methods:
         type: string
-        default: ${REPEATED_UTEST_METHODS}
       count:
         type: string
-        default: ${REPEATED_UTEST_COUNT}
       stop_on_failure:
         type: string
-        default: ${REPEATED_UTEST_STOP_ON_FAILURE}
     steps:
       - run:
           name: Run repeated utest
@@ -1371,30 +1420,41 @@ commands:
           destination: logs
 
   run_repeated_dtest:
+    parameters:
+      tests:
+        type: string
+      vnodes:
+        type: string
+      upgrade:
+        type: string
+      count:
+        type: string
+      stop_on_failure:
+        type: string
     steps:
       - run:
           name: Run repeated dtest
           no_output_timeout: 15m
           command: |
-            if [ "$REPEATED_DTEST_NAME" == "<nil>" ]; then
+            if [ "<<parameters.tests>>" == "<nil>" ]; then
               echo "Repeated dtest name hasn't been defined, exiting without running any test"
-            elif [ "$REPEATED_DTEST_COUNT" == "<nil>" ]; then
+            elif [ "<<parameters.count>>" == "<nil>" ]; then
               echo "Repeated dtest count hasn't been defined, exiting without running any test"
-            elif [ "$REPEATED_DTEST_COUNT" -le 0 ]; then
+            elif [ "<<parameters.count>>" -le 0 ]; then
               echo "Repeated dtest count is lesser or equals than zero, exiting without running any test"
             else
 
               # Calculate the number of test iterations to be run by the current parallel runner.
               # Since we are running the same test multiple times there is no need to use `circleci tests split`.
-              count=$((REPEATED_DTEST_COUNT / CIRCLE_NODE_TOTAL))
-              if (($CIRCLE_NODE_INDEX < (REPEATED_DTEST_COUNT % CIRCLE_NODE_TOTAL))); then
+              count=$((<<parameters.count>> / CIRCLE_NODE_TOTAL))
+              if (($CIRCLE_NODE_INDEX < (<<parameters.count>> % CIRCLE_NODE_TOTAL))); then
                 count=$((count+1))
               fi
 
               if (($count <= 0)); then
                 echo "No tests to run in this runner"
               else
-                echo "Running $REPEATED_DTEST_NAME $count times"
+                echo "Running <<parameters.tests>> $count times"
             
                 source ~/env3.6/bin/activate
                 export PATH=$JAVA_HOME/bin:$PATH
@@ -1408,17 +1468,22 @@ commands:
                 mkdir -p /tmp/results/dtests
 
                 stop_on_failure_arg=""
-                if $REPEATED_UTEST_STOP_ON_FAILURE; then
+                if <<parameters.stop_on_failure>>; then
                   stop_on_failure_arg="-x"
                 fi
 
                 vnodes_args=""
-                if $REPEATED_DTEST_VNODES; then
+                if <<parameters.vnodes>>; then
                   vnodes_args="--use-vnodes --num-tokens=16"
                 fi
 
+                upgrade_arg=""
+                if <<parameters.upgrade>>; then
+                  upgrade_arg="--execute-upgrade-tests"
+                fi
+
                 # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-                set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg --execute-upgrade-tests --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $REPEATED_DTEST_NAME | tee /tmp/dtest/stdout.txt
+                set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir <<parameters.tests>> | tee /tmp/dtest/stdout.txt
               fi
             fi
       - store_test_results:
