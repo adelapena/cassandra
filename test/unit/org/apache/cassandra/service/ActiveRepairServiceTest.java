@@ -18,19 +18,27 @@
 */
 package org.apache.cassandra.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.Uninterruptibles;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -55,8 +63,8 @@ import org.apache.cassandra.locator.InetAddressAndPort;
 import org.apache.cassandra.locator.Replica;
 import org.apache.cassandra.locator.TokenMetadata;
 import org.apache.cassandra.repair.messages.RepairOption;
-import org.apache.cassandra.streaming.PreviewKind;
 import org.apache.cassandra.schema.KeyspaceParams;
+import org.apache.cassandra.streaming.PreviewKind;
 import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.concurrent.Refs;
 import org.apache.cassandra.utils.concurrent.SimpleCondition;
@@ -389,9 +397,22 @@ public class ActiveRepairServiceTest
             }
             // allow executing tests to complete
             blocked.signalAll();
-            completed.await(10, TimeUnit.SECONDS);
+            completed.await(11, TimeUnit.SECONDS);
+
             // Submission is unblocked
-            validationExecutor.submit(() -> {});
+            Util.spinAssertEquals(true,
+                                  () -> {
+                                            try
+                                            {
+                                                validationExecutor.submit(() -> {});
+                                            }
+                                            catch(Exception e)
+                                            {
+                                                return false;
+                                            }
+                                            return true;
+                                        },
+                                  10);
         }
         finally
         {
