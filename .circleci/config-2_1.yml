@@ -61,20 +61,20 @@ default_env_vars: &default_env_vars
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
-    REPEATED_DTEST_NAME:
+    REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     # Whether the repeated Python dtest should use vnodes
     REPEATED_DTEST_VNODES: false
     # The number of times that the repeated Python dtest should be run
-    REPEATED_DTEST_COUNT: 100
+    REPEATED_DTEST_COUNT: 200
     # Whether the test iteration should stop on the first failure
     REPEATED_DTEST_STOP_ON_FAILURE: false
 
     # A Python upgrade dtest to be run multiple times, for example:
     # REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py
     # REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x
-    REPEATED_UPGRADE_DTEST_NAME:
+    REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
     # The number of times that the repeated Python upgrade dtest should be run
-    REPEATED_UPGRADE_DTEST_COUNT: 100
+    REPEATED_UPGRADE_DTEST_COUNT: 200
     # Whether the test iteration should stop on the first failure
     REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
 
