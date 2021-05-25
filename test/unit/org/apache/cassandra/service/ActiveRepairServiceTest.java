@@ -418,6 +418,7 @@ public class ActiveRepairServiceTest
         {
             // necessary to unregister mbean
             validationExecutor.shutdownNow();
+            validationExecutor.awaitTermination(10, TimeUnit.SECONDS);
         }
     }
 
