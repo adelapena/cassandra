@@ -46,14 +46,14 @@ default_env_vars: &default_env_vars
     # The name of JUnit class to be run multiple times, for example:
     # REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
     # REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.PagingTest
-    REPEATED_UTEST_CLASS:
+    REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
     # The optional specific methods within REPEATED_UTEST_CLASS to be run, for example:
     # REPEATED_UTEST_METHODS: testCompoundPartitionKey
     # REPEATED_UTEST_METHODS: testCompoundPartitionKey,testStaticTable
     # Please note that some Ant targets will ignore the -Dtest.methods argument produced by this.
-    REPEATED_UTEST_METHODS:
+    REPEATED_UTEST_METHODS: testCompoundPartitionKey
     # The number of times that the repeated JUnit test should be run
-    REPEATED_UTEST_COUNT: 100
+    REPEATED_UTEST_COUNT: 25
     # Whether the test iteration should stop on the first failure
     REPEATED_UTEST_STOP_ON_FAILURE: false
 
@@ -65,28 +65,28 @@ default_env_vars: &default_env_vars
     # Whether the repeated Python dtest should use vnodes
     REPEATED_DTEST_VNODES: false
     # The number of times that the repeated Python dtest should be run
-    REPEATED_DTEST_COUNT: 100
+    REPEATED_DTEST_COUNT: 20
     # Whether the test iteration should stop on the first failure
     REPEATED_DTEST_STOP_ON_FAILURE: false
 
     # A Python upgrade dtest to be run multiple times, for example:
     # REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py
     # REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x
-    REPEATED_UPGRADE_DTEST_NAME:
+    REPEATED_UPGRADE_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     # The number of times that the repeated Python upgrade dtest should be run
-    REPEATED_UPGRADE_DTEST_COUNT: 100
+    REPEATED_UPGRADE_DTEST_COUNT: 15
     # Whether the test iteration should stop on the first failure
     REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
 
     # The name of JVM upgrade dtest class to be run multiple times, for example:
     # REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
-    REPEATED_JVM_UPGRADE_DTEST_CLASS:
+    REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
     # The optional specific methods within REPEATED_JVM_UPGRADE_DTEST_CLASS to be run, for example:
     # REPEATED_JVM_UPGRADE_DTEST_METHODS: testAvailabilityV30ToV3X
     # REPEATED_JVM_UPGRADE_DTEST_METHODS: testAvailabilityV30ToV3X,testAvailabilityV30ToV4
-    REPEATED_JVM_UPGRADE_DTEST_METHODS:
+    REPEATED_JVM_UPGRADE_DTEST_METHODS: testAvailabilityV30ToV3X
     # The number of times that the repeated JVM upgrade dtest should be run
-    REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     # Whether the JVM upgrade dtest iteration should stop on the first failure
     REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
 
