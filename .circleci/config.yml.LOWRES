@@ -109,20 +109,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -283,20 +283,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -403,20 +403,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -523,20 +523,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -620,20 +620,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -694,20 +694,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -809,20 +809,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -871,20 +871,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -979,20 +979,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1053,20 +1053,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1161,20 +1161,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1223,20 +1223,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1331,20 +1331,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1505,20 +1505,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
@@ -1599,20 +1599,20 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    - REPEATED_UTEST_METHODS: testCompoundPartitionKey
+    - REPEATED_UTEST_COUNT: 25
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 20
     - REPEATED_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x::test_counters
+    - REPEATED_UPGRADE_DTEST_COUNT: 15
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadRepairTest
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: mixedModeReadRepairCompactStorage
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
