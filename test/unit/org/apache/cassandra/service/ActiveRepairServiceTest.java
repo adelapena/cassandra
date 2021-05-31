@@ -384,8 +384,10 @@ public class ActiveRepairServiceTest
         {
             Condition blocked = new SimpleCondition();
             CountDownLatch completed = new CountDownLatch(2);
-            validationExecutor.submit(new Task(blocked, completed));
-            validationExecutor.submit(new Task(blocked, completed));
+
+            safesubmit(validationExecutor, new Task(blocked, completed));
+            safesubmit(validationExecutor, new Task(blocked, completed));
+
             try
             {
                 validationExecutor.submit(new Task(blocked, completed));
@@ -395,30 +397,17 @@ public class ActiveRepairServiceTest
             {
                 // expected
             }
+
             // allow executing tests to complete
             blocked.signalAll();
             completed.await(11, TimeUnit.SECONDS);
-
             // Submission is unblocked
-            Util.spinAssertEquals(true,
-                                  () -> {
-                                            try
-                                            {
-                                                validationExecutor.submit(() -> {});
-                                            }
-                                            catch(Exception e)
-                                            {
-                                                return false;
-                                            }
-                                            return true;
-                                        },
-                                  10);
+            safesubmit(validationExecutor, () -> {});
         }
         finally
         {
             // necessary to unregister mbean
             validationExecutor.shutdownNow();
-            validationExecutor.awaitTermination(10, TimeUnit.SECONDS);
         }
     }
 
@@ -482,6 +471,38 @@ public class ActiveRepairServiceTest
         {
             Uninterruptibles.awaitUninterruptibly(blocked, 10, TimeUnit.SECONDS);
             complete.countDown();
+        }
+    }
+
+    /*
+     * CASSANDRA-16685
+     * When the underlying executor's queue is a SynchronousQueue there can be races just after the ThreadPool's initialization leading to false rejections. That
+     * queue needs a thread ready to pick up the task immediately or it will produce a reject exception upon 'offer()' method call on the executor's code.
+     * If the executor is still initializing you can get false rejections.
+     *
+     * Avoiding spinAssert variants that hammer the thread pool as it relies on Thread.yield() with this custom method.
+     */
+    private void safesubmit(ExecutorService validationExecutor, Runnable task) throws InterruptedException
+    {
+        int submitted = 0;
+        int retries = 0;
+
+        while (submitted < 1 && retries < 100)
+        {
+            try
+            {
+                Thread.sleep(100);
+                validationExecutor.submit(task);
+                submitted++;
+            }
+            catch(RejectedExecutionException e)
+            {
+                // expected
+            }
+            finally
+            {
+                retries++;
+            }
         }
     }
 }
