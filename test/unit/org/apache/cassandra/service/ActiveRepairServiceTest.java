@@ -43,10 +43,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import org.apache.cassandra.RepeatableRunner;
-import org.apache.cassandra.RepeatableRunner.RepeatableRunnerConfiguration;
 import org.apache.cassandra.SchemaLoader;
 import org.apache.cassandra.Util;
 import org.apache.cassandra.concurrent.DebuggableThreadPoolExecutor;
@@ -83,8 +80,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-@RunWith(RepeatableRunner.class)
-@RepeatableRunnerConfiguration(iterations = 500)
 public class ActiveRepairServiceTest
 {
     public static final String KEYSPACE5 = "Keyspace5";
