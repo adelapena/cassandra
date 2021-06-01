@@ -43,7 +43,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import org.apache.cassandra.RepeatableRunner;
+import org.apache.cassandra.RepeatableRunner.RepeatableRunnerConfiguration;
 import org.apache.cassandra.SchemaLoader;
 import org.apache.cassandra.Util;
 import org.apache.cassandra.concurrent.DebuggableThreadPoolExecutor;
@@ -80,6 +83,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+@RunWith(RepeatableRunner.class)
+@RepeatableRunnerConfiguration(iterations = 500)
 public class ActiveRepairServiceTest
 {
     public static final String KEYSPACE5 = "Keyspace5";
@@ -385,8 +390,18 @@ public class ActiveRepairServiceTest
             Condition blocked = new SimpleCondition();
             CountDownLatch completed = new CountDownLatch(2);
 
-            safesubmit(validationExecutor, new Task(blocked, completed));
-            safesubmit(validationExecutor, new Task(blocked, completed));
+            /*
+             * CASSANDRA-16685 When the underlying executor's queue is a SynchronousQueue, there can be races just after
+             * the ThreadPool's initialization while juggling and spinning up threads internally leading to false
+             * rejections. That queue needs a thread ready to pick up the task immediately or it will produce a reject
+             * exception upon 'offer()' method call on the executor's code. If the executor is still initializing or
+             * threads are not ready to take work you can get false rejections.
+             *
+             * A sleep has been added to give time to the thread pool to be ready to get work.
+             */
+            Thread.sleep(100);
+            validationExecutor.submit(new Task(blocked, completed));
+            validationExecutor.submit(new Task(blocked, completed));
 
             try
             {
@@ -401,8 +416,10 @@ public class ActiveRepairServiceTest
             // allow executing tests to complete
             blocked.signalAll();
             completed.await(11, TimeUnit.SECONDS);
+
             // Submission is unblocked
-            safesubmit(validationExecutor, () -> {});
+            Thread.sleep(100);
+            validationExecutor.submit(() -> {});
         }
         finally
         {
@@ -471,38 +488,6 @@ public class ActiveRepairServiceTest
         {
             Uninterruptibles.awaitUninterruptibly(blocked, 10, TimeUnit.SECONDS);
             complete.countDown();
-        }
-    }
-
-    /*
-     * CASSANDRA-16685
-     * When the underlying executor's queue is a SynchronousQueue there can be races just after the ThreadPool's initialization leading to false rejections. That
-     * queue needs a thread ready to pick up the task immediately or it will produce a reject exception upon 'offer()' method call on the executor's code.
-     * If the executor is still initializing you can get false rejections.
-     *
-     * Avoiding spinAssert variants that hammer the thread pool as it relies on Thread.yield() with this custom method.
-     */
-    private void safesubmit(ExecutorService validationExecutor, Runnable task) throws InterruptedException
-    {
-        int submitted = 0;
-        int retries = 0;
-
-        while (submitted < 1 && retries < 100)
-        {
-            try
-            {
-                Thread.sleep(100);
-                validationExecutor.submit(task);
-                submitted++;
-            }
-            catch(RejectedExecutionException e)
-            {
-                // expected
-            }
-            finally
-            {
-                retries++;
-            }
         }
     }
 }
