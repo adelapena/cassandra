@@ -65,7 +65,7 @@ default_env_vars: &default_env_vars
     # Whether the repeated Python dtest should use vnodes
     REPEATED_DTEST_VNODES: false
     # The number of times that the repeated Python dtest should be run
-    REPEATED_DTEST_COUNT: 1000
+    REPEATED_DTEST_COUNT: 3000
     # Whether the test iteration should stop on the first failure
     REPEATED_DTEST_STOP_ON_FAILURE: false
 

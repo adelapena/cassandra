@@ -116,7 +116,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -291,7 +291,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -386,7 +386,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -495,7 +495,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -618,7 +618,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -713,7 +713,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -808,7 +808,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -904,7 +904,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1000,7 +1000,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1096,7 +1096,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1191,7 +1191,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1335,7 +1335,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1458,7 +1458,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1553,7 +1553,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1652,7 +1652,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1729,7 +1729,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1805,7 +1805,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1868,7 +1868,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1977,7 +1977,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -2086,7 +2086,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -2185,7 +2185,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -2281,7 +2281,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -2336,7 +2336,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -2512,7 +2512,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -2589,7 +2589,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -2684,7 +2684,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -2794,7 +2794,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -2892,7 +2892,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -2987,7 +2987,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -3082,7 +3082,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -3145,7 +3145,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -3254,7 +3254,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -3308,7 +3308,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -3371,7 +3371,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -3469,7 +3469,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -3579,7 +3579,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -3754,7 +3754,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -3849,7 +3849,7 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 1000
+    - REPEATED_DTEST_COUNT: 3000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
