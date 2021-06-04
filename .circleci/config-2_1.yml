@@ -46,7 +46,7 @@ default_env_vars: &default_env_vars
     # The name of JUnit class to be run multiple times, for example:
     # REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
     # REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.PagingTest
-    REPEATED_UTEST_CLASS: org.apache.cassandra.db.filter.ColumnFilterTest
+    REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.validation.operations.CompactTableTest
     # The optional specific methods within REPEATED_UTEST_CLASS to be run, for example:
     # REPEATED_UTEST_METHODS: testCompoundPartitionKey
     # REPEATED_UTEST_METHODS: testCompoundPartitionKey,testStaticTable
@@ -80,7 +80,7 @@ default_env_vars: &default_env_vars
 
     # The name of JVM upgrade dtest class to be run multiple times, for example:
     # REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
-    REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    REPEATED_JVM_UPGRADE_DTEST_CLASS:
     # The optional specific methods within REPEATED_JVM_UPGRADE_DTEST_CLASS to be run, for example:
     # REPEATED_JVM_UPGRADE_DTEST_METHODS: testAvailabilityV30ToV3X
     # REPEATED_JVM_UPGRADE_DTEST_METHODS: testAvailabilityV30ToV3X,testAvailabilityV30ToV4
