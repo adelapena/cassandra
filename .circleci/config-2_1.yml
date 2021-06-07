@@ -62,7 +62,7 @@ default_env_vars: &default_env_vars
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
     REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     # Whether the repeated Python dtest should use vnodes
-    REPEATED_DTEST_VNODES: false
+    REPEATED_DTEST_VNODES: true
     # The number of times that the repeated Python dtest should be run
     REPEATED_DTEST_COUNT: 1000
     # Whether the test iteration should stop on the first failure
