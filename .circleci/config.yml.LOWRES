@@ -104,8 +104,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -113,9 +113,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -278,8 +278,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -287,9 +287,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -398,8 +398,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -407,9 +407,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -518,8 +518,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -527,9 +527,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -615,8 +615,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -624,9 +624,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -689,8 +689,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -698,9 +698,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -804,8 +804,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -813,9 +813,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -866,8 +866,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -875,9 +875,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -974,8 +974,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -983,9 +983,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1048,8 +1048,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -1057,9 +1057,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1156,8 +1156,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -1165,9 +1165,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1218,8 +1218,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -1227,9 +1227,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1326,8 +1326,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -1335,9 +1335,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1500,8 +1500,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -1509,9 +1509,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
@@ -1594,8 +1594,8 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
+    - DTEST_REPO: git://github.com/bereng/cassandra-dtest.git
+    - DTEST_BRANCH: CASSANDRA-16716
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
@@ -1603,9 +1603,9 @@ jobs:
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
-    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_NAME: consistency_test.py::TestConsistency::test_13880
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: 1000
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
