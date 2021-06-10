@@ -85,6 +85,7 @@ public class ActiveRepairServiceTest
     public static final String KEYSPACE5 = "Keyspace5";
     public static final String CF_STANDARD1 = "Standard1";
     public static final String CF_COUNTER = "Counter1";
+    public static final int TASK_SECONDS = 10;
 
     public String cfname;
     public ColumnFamilyStore store;
@@ -386,15 +387,15 @@ public class ActiveRepairServiceTest
             CountDownLatch completed = new CountDownLatch(2);
 
             /*
-             * CASSANDRA-16685 When the underlying executor's queue is a SynchronousQueue, there can be races just after
-             * the ThreadPool's initialization while juggling and spinning up threads internally leading to false
-             * rejections. That queue needs a thread ready to pick up the task immediately or it will produce a reject
-             * exception upon 'offer()' method call on the executor's code. If the executor is still initializing or
-             * threads are not ready to take work you can get false rejections.
+             * CASSANDRA-16685 This is a Java bug. When the underlying executor's queue is a SynchronousQueue, there can
+             * be races just after the ThreadPool's initialization while juggling and spinning up threads internally
+             * leading to false rejections. That queue needs a thread ready to pick up the task immediately or it will
+             * produce a reject exception upon 'offer()' method call on the executor's code. If the executor is still
+             * initializing or threads are not ready to take work you can get false rejections.
              *
              * A sleep has been added to give time to the thread pool to be ready to get work.
              */
-            Thread.sleep(100);
+            Thread.sleep(250);
             validationExecutor.submit(new Task(blocked, completed));
             validationExecutor.submit(new Task(blocked, completed));
 
@@ -410,10 +411,10 @@ public class ActiveRepairServiceTest
 
             // allow executing tests to complete
             blocked.signalAll();
-            completed.await(11, TimeUnit.SECONDS);
+            completed.await(TASK_SECONDS + 1, TimeUnit.SECONDS);
 
             // Submission is unblocked
-            Thread.sleep(100);
+            Thread.sleep(250);
             validationExecutor.submit(() -> {});
         }
         finally
@@ -448,7 +449,7 @@ public class ActiveRepairServiceTest
             }
 
             // Make sure all tasks have been submitted to the validation executor
-            allSubmitted.await(10, TimeUnit.SECONDS);
+            allSubmitted.await(TASK_SECONDS + 1, TimeUnit.SECONDS);
 
             // Give the tasks we expect to execute immediately chance to be scheduled
             Util.spinAssertEquals(2 , ((DebuggableThreadPoolExecutor) validationExecutor)::getActiveTaskCount, 1);
@@ -459,7 +460,7 @@ public class ActiveRepairServiceTest
             Assert.assertEquals(3, ((DebuggableThreadPoolExecutor) validationExecutor).getPendingTaskCount());
             // allow executing tests to complete
             blocked.signalAll();
-            completed.await(10, TimeUnit.SECONDS);
+            completed.await(TASK_SECONDS + 1, TimeUnit.SECONDS);
         }
         finally
         {
@@ -481,7 +482,7 @@ public class ActiveRepairServiceTest
 
         public void run()
         {
-            Uninterruptibles.awaitUninterruptibly(blocked, 10, TimeUnit.SECONDS);
+            Uninterruptibles.awaitUninterruptibly(blocked, TASK_SECONDS, TimeUnit.SECONDS);
             complete.countDown();
         }
     }
