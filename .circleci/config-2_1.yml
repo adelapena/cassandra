@@ -61,7 +61,7 @@ default_env_vars: &default_env_vars
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
-    REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstableofflinerelevel
+    REPEATED_DTEST_NAME: offline_tools_test.py::TestOfflineTools::test_sstablelevelreset
     # Whether the repeated Python dtest should use vnodes
     REPEATED_DTEST_VNODES: false
     # The number of times that the repeated Python dtest should be run
