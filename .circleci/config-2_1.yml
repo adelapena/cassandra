@@ -51,9 +51,9 @@ default_env_vars: &default_env_vars
     # REPEATED_UTEST_METHODS: testCompoundPartitionKey
     # REPEATED_UTEST_METHODS: testCompoundPartitionKey,testStaticTable
     # Please note that some Ant targets will ignore the -Dtest.methods argument produced by this.
-    REPEATED_UTEST_METHODS:
+    REPEATED_UTEST_METHODS: testQueryUpdatesConcurrentMetricsUpdate
     # The number of times that the repeated JUnit test should be run
-    REPEATED_UTEST_COUNT: 2000
+    REPEATED_UTEST_COUNT: 3000
     # Whether the test iteration should stop on the first failure
     REPEATED_UTEST_STOP_ON_FAILURE: false
 
