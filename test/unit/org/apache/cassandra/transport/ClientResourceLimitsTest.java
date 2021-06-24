@@ -44,8 +44,10 @@ import org.apache.cassandra.metrics.CassandraMetricsRegistry;
 import org.apache.cassandra.schema.TableMetadata;
 import org.apache.cassandra.transport.messages.QueryMessage;
 import org.apache.cassandra.utils.FBUtilities;
+import org.awaitility.Awaitility;
 
 import static org.apache.cassandra.Util.spinAssertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -318,6 +320,12 @@ public class ClientResourceLimitsTest extends CQLTester
     {
         try (SimpleClient client = client(true))
         {
+            // wait for the completion of the intial messages created by the client connection
+            Awaitility.await()
+                      .pollDelay(1, TimeUnit.SECONDS)
+                      .atMost(30, TimeUnit.SECONDS)
+                      .untilAsserted(() -> assertEquals(0, ClientResourceLimits.getCurrentGlobalUsage()));
+
             CyclicBarrier barrier = new CyclicBarrier(2);
             String table = createTableName();
 
@@ -347,8 +355,6 @@ public class ClientResourceLimitsTest extends CQLTester
 
             final QueryMessage queryMessage = new QueryMessage(String.format("SELECT * FROM %s.%s", table, table),
                                                                V5_DEFAULT_OPTIONS);
-
-            Assert.assertEquals(0L, ClientResourceLimits.getCurrentGlobalUsage());
             try
             {
                 Thread tester = new Thread(() -> client.execute(queryMessage));
@@ -357,7 +363,8 @@ public class ClientResourceLimitsTest extends CQLTester
                 // block until query in progress
                 barrier.await(30, TimeUnit.SECONDS);
                 assertTrue(ClientResourceLimits.getCurrentGlobalUsage() > 0);
-            } finally
+            }
+            finally
             {
                 // notify query thread that metric has been checked. This will also throw TimeoutException if both
                 // the query threads barriers are not reached
