@@ -348,7 +348,7 @@ public class ClientResourceLimitsTest extends CQLTester
             final QueryMessage queryMessage = new QueryMessage(String.format("SELECT * FROM %s.%s", table, table),
                                                                V5_DEFAULT_OPTIONS);
 
-            Assert.assertEquals(0L, ClientResourceLimits.getCurrentGlobalUsage());
+            long globalUsage = ClientResourceLimits.getCurrentGlobalUsage();
             try
             {
                 Thread tester = new Thread(() -> client.execute(queryMessage));
@@ -356,8 +356,9 @@ public class ClientResourceLimitsTest extends CQLTester
                 tester.start();
                 // block until query in progress
                 barrier.await(30, TimeUnit.SECONDS);
-                assertTrue(ClientResourceLimits.getCurrentGlobalUsage() > 0);
-            } finally
+                assertTrue(ClientResourceLimits.getCurrentGlobalUsage() > globalUsage);
+            }
+            finally
             {
                 // notify query thread that metric has been checked. This will also throw TimeoutException if both
                 // the query threads barriers are not reached
