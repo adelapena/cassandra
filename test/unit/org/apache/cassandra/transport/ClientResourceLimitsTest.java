@@ -73,7 +73,9 @@ public class ClientResourceLimitsTest extends CQLTester
         DatabaseDescriptor.setNativeTransportReceiveQueueCapacityInBytes(1);
         DatabaseDescriptor.setNativeTransportMaxConcurrentRequestsInBytesPerIp(LOW_LIMIT);
         DatabaseDescriptor.setNativeTransportMaxConcurrentRequestsInBytes(LOW_LIMIT);
-        requireNetwork();
+
+        // The driver control connections would send queries that might interfere with the tests.
+        requireNetworkWithoutDriver();
     }
 
     @AfterClass
