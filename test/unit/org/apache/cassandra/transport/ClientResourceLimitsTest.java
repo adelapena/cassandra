@@ -46,6 +46,7 @@ import org.apache.cassandra.transport.messages.QueryMessage;
 import org.apache.cassandra.utils.FBUtilities;
 
 import static org.apache.cassandra.Util.spinAssertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -316,8 +317,12 @@ public class ClientResourceLimitsTest extends CQLTester
     @Test
     public void testQueryUpdatesConcurrentMetricsUpdate() throws Throwable
     {
+        Assert.assertEquals(0L, ClientResourceLimits.getCurrentGlobalUsage());
+
         try (SimpleClient client = client(true))
         {
+            Assert.assertEquals(0L, ClientResourceLimits.getCurrentGlobalUsage());
+
             CyclicBarrier barrier = new CyclicBarrier(2);
             String table = createTableName();
 
@@ -343,12 +348,14 @@ public class ClientResourceLimitsTest extends CQLTester
                 }
                 return new SimpleDataSet(tableMetadata);
             });
+            Assert.assertEquals(0L, ClientResourceLimits.getCurrentGlobalUsage());
             VirtualKeyspaceRegistry.instance.register(new VirtualKeyspace(table, ImmutableList.of(vt1)));
+            Assert.assertEquals(0L, ClientResourceLimits.getCurrentGlobalUsage());
 
             final QueryMessage queryMessage = new QueryMessage(String.format("SELECT * FROM %s.%s", table, table),
                                                                V5_DEFAULT_OPTIONS);
 
-            long globalUsage = ClientResourceLimits.getCurrentGlobalUsage();
+            Assert.assertEquals(0L, ClientResourceLimits.getCurrentGlobalUsage());
             try
             {
                 Thread tester = new Thread(() -> client.execute(queryMessage));
@@ -356,7 +363,7 @@ public class ClientResourceLimitsTest extends CQLTester
                 tester.start();
                 // block until query in progress
                 barrier.await(30, TimeUnit.SECONDS);
-                assertTrue(ClientResourceLimits.getCurrentGlobalUsage() > globalUsage);
+                assertTrue(ClientResourceLimits.getCurrentGlobalUsage() > 0);
             }
             finally
             {
