@@ -18,7 +18,6 @@
 
 package org.apache.cassandra.cql3;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
@@ -26,17 +25,12 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
-import com.datastax.driver.core.exceptions.OperationTimedOutException;
-import org.apache.cassandra.concurrent.Stage;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.Keyspace;
@@ -64,83 +58,11 @@ import static org.junit.Assert.assertTrue;
  * - ViewTimesTest
  */
 @RunWith(BMUnitRunner.class)
-public class ViewTest extends CQLTester
+public class ViewTest extends ViewAbstractTest
 {
     /** Latch used by {@link #testTruncateWhileBuilding()} Byteman injections. */
     @SuppressWarnings("unused")
     private static final CountDownLatch blockViewBuild = new CountDownLatch(1);
-
-    private final List<String> views = new ArrayList<>();
-
-    @BeforeClass
-    public static void startup()
-    {
-        requireNetwork();
-    }
-
-    @Before
-    public void begin()
-    {
-        begin(views);
-    }
-    
-    public static void begin(List<String> views)
-    {
-        views.clear();
-    }
-
-    @After
-    public void end() throws Throwable
-    {
-        end(views, this);
-    }
-    
-    public static void end(List<String> views, CQLTester tester) throws Throwable
-    {
-        for (String viewName : views)
-            tester.executeNet("DROP MATERIALIZED VIEW " + viewName);
-    }
-
-    private void createView(String name, String query) throws Throwable
-    {
-        createView(name, query, views, this);
-    }
-
-    public static void createView(String name, String query, List<String> views, CQLTester tester) throws Throwable
-    {
-        try
-        {
-            tester.executeNet(String.format(query, name));
-            // If exception is thrown, the view will not be added to the list; since it shouldn't have been created, this is
-            // the desired behavior
-            views.add(name);
-        }
-        catch (OperationTimedOutException ex)
-        {
-            // ... except for timeout, when we actually do not know whether the view was created or not
-            views.add(name);
-            throw ex;
-        }
-    }
-
-    private void updateView(String query, Object... params) throws Throwable
-    {
-        updateView(query, this, params);
-    }
-
-    public static void updateView(String query, CQLTester tester, Object... params) throws Throwable
-    {
-        tester.executeNet(query, params);
-        waitForViewMutations();
-    }
-
-    private static void waitForViewMutations()
-    {
-        Awaitility.await()
-                  .atMost(5, TimeUnit.MINUTES)
-                  .until(() -> Stage.VIEW_MUTATION.executor().getPendingTaskCount() == 0
-                               && Stage.VIEW_MUTATION.executor().getActiveTaskCount() == 0);
-    }
 
     @Test
     public void testNonExistingOnes() throws Throwable

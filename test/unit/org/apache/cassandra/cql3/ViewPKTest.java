@@ -18,14 +18,9 @@
 
 package org.apache.cassandra.cql3;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
@@ -42,38 +37,8 @@ import static org.junit.Assert.assertTrue;
  * - ViewRangesTest
  * - ViewTimesTest
  */
-public class ViewPKTest extends CQLTester
+public class ViewPKTest extends ViewAbstractTest
 {
-    private final List<String> views = new ArrayList<>();
-
-    @BeforeClass
-    public static void startup()
-    {
-        ViewTest.startup();
-    }
-
-    @Before
-    public void begin()
-    {
-        ViewTest.begin(views);
-    }
-
-    @After
-    public void end() throws Throwable
-    {
-        ViewTest.end(views, this);
-    }
-
-    private void createView(String name, String query) throws Throwable
-    {
-        ViewTest.createView(name, query, views, this);
-    }
-
-    private void updateView(String query, Object... params) throws Throwable
-    {
-        ViewTest.updateView(query, this, params);
-    }
-
     @Test
     public void testPartitionTombstone() throws Throwable
     {
