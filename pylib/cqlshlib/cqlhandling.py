@@ -19,12 +19,13 @@
 
 import traceback
 
+import cassandra
 from cqlshlib import pylexotron, util
 
 Hint = pylexotron.Hint
 
 # CASSANDRA-16659 - to keep things compact cql_keywords_reserved will not be imported from the drivers anymore
-cql_reserved_keywords = set((
+cql_keywords_reserved = set((
     'authorize', 'rename', 'set', 'revoke', 'into', 'describe', 'primary', 'columnfamily', 'apply',
     'table', 'null', 'select', 'if', 'index', 'use', 'from', 'and', 'unlogged', 'create', 'nan', 'to', 'add',
     'alter', 'schema', 'begin', 'full', 'infinity', 'grant', 'truncate', 'on', 'modify', 'update',
@@ -67,7 +68,8 @@ class CqlParsingRuleSet(pylexotron.ParsingRuleSet):
         We cannot let reserved cql keywords be simple 'identifier' since this caused
         problems with completion, see CASSANDRA-10415
         """
-        syntax = '<reserved_identifier> ::= /(' + '|'.join(r'\b{}\b'.format(k) for k in cql_reserved_keywords) + ')/ ;'
+        cassandra.metadata.cql_keywords_reserved = cql_keywords_reserved
+        syntax = '<reserved_identifier> ::= /(' + '|'.join(r'\b{}\b'.format(k) for k in cql_keywords_reserved) + ')/ ;'
         self.append_rules(syntax)
 
     def completer_for(self, rulename, symname):
