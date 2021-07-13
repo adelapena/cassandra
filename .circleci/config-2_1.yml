@@ -30,8 +30,8 @@ default_env_vars: &default_env_vars
     CASS_DRIVER_NO_CYTHON: true
     #Skip all syncing to disk to avoid performance issues in flaky CI environments
     CASSANDRA_SKIP_SYNC: true
-    DTEST_REPO: git://github.com/apache/cassandra-dtest.git
-    DTEST_BRANCH: trunk
+    DTEST_REPO: git://github.com/adelapena/cassandra-dtest.git
+    DTEST_BRANCH: CASSANDRA-16104
     CCM_MAX_HEAP_SIZE: 1024M
     CCM_HEAP_NEWSIZE: 256M
 
@@ -60,7 +60,7 @@ default_env_vars: &default_env_vars
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke
     # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
-    REPEATED_DTEST_NAME:
+    REPEATED_DTEST_NAME: nodetool_test.py::TestNodetool::test_jobs_option_warning
     # Whether the repeated Python dtest should use vnodes
     REPEATED_DTEST_VNODES: false
     # The number of times that the repeated Python dtest should be run
