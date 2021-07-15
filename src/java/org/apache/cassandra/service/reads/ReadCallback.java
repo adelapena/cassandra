@@ -47,7 +47,7 @@ public class ReadCallback<E extends Endpoints<E>, P extends ReplicaPlan.ForRead<
 {
     protected static final Logger logger = LoggerFactory.getLogger( ReadCallback.class );
 
-    public final ResponseResolver resolver;
+    public final ResponseResolver<E, P> resolver;
     final SimpleCondition condition = new SimpleCondition();
     private final long queryStartNanoTime;
     final int blockFor; // TODO: move to replica plan as well?
@@ -63,7 +63,7 @@ public class ReadCallback<E extends Endpoints<E>, P extends ReplicaPlan.ForRead<
     private volatile int failures = 0;
     private final Map<InetAddressAndPort, RequestFailureReason> failureReasonByEndpoint;
 
-    public ReadCallback(ResponseResolver resolver, ReadCommand command, ReplicaPlan.Shared<E, P> replicaPlan, long queryStartNanoTime)
+    public ReadCallback(ResponseResolver<E, P> resolver, ReadCommand command, ReplicaPlan.Shared<E, P> replicaPlan, long queryStartNanoTime)
     {
         this.command = command;
         this.resolver = resolver;
@@ -140,7 +140,13 @@ public class ReadCallback<E extends Endpoints<E>, P extends ReplicaPlan.ForRead<
               ? recievedUpdater.incrementAndGet(this)
               : received;
 
-        if (n >= blockFor && resolver.isDataPresent())
+        /*
+         * Ensure that data is present and the response accumulator has properly published the
+         * responses it has received. This may result in not signaling immediately when we receive
+         * the minimum number of required results, but it guarantees at least the minimum will
+         * be accessible when we do signal. (see CASSANDRA-16807)
+         */
+        if (n >= blockFor && resolver.isDataPresent() && resolver.getMessages().size() >= n)
             condition.signalAll();
     }
 
