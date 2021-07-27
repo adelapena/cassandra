@@ -22,27 +22,45 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import org.apache.cassandra.OrderedJUnit4ClassRunner;
 import org.apache.cassandra.tools.ToolRunner.ToolResult;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.CoreMatchers;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@RunWith(OrderedJUnit4ClassRunner.class)
 public class SSTableExportTest extends OfflineToolUtils
 {
-    private ObjectMapper mapper = new ObjectMapper();
-    private TypeReference<List<Map<String, Object>>> jacksonListOfMapsType = new TypeReference<List<Map<String, Object>>>() {};
+    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final TypeReference<List<Map<String, Object>>> jacksonListOfMapsType = new TypeReference<List<Map<String, Object>>>() {};
+    private static String sstable;
+
+    @BeforeClass
+    public static void setupTest() throws IOException
+    {
+        sstable = findOneSSTable("legacy_sstables", "legacy_ma_simple");
+    }
+
+    @After
+    public void assertPostTestEnv()
+    {
+        assertNoUnexpectedThreadsStarted(null, OPTIONAL_THREADS_WITH_SCHEMA);
+        assertCLSMNotLoaded();
+        assertSystemKSNotLoaded();
+        assertServerNotLoaded();
+        assertSchemaNotLoaded();
+    }
 
     @Test
     public void testNoArgsPrintsHelp()
@@ -51,12 +69,6 @@ public class SSTableExportTest extends OfflineToolUtils
         assertThat(tool.getStdout(), CoreMatchers.containsStringIgnoringCase("usage:"));
         assertThat(tool.getCleanedStderr(), CoreMatchers.containsStringIgnoringCase("You must supply exactly one sstable"));
         assertEquals(1, tool.getExitCode());
-        assertNoUnexpectedThreadsStarted(null, OPTIONAL_THREADS_WITH_SCHEMA);
-        assertSchemaNotLoaded();
-        assertCLSMNotLoaded();
-        assertSystemKSNotLoaded();
-        assertKeyspaceNotLoaded();
-        assertServerNotLoaded();
     }
 
     @Test
@@ -64,22 +76,22 @@ public class SSTableExportTest extends OfflineToolUtils
     {
         // If you added, modified options or help, please update docs if necessary
         ToolResult tool = ToolRunner.invokeClass(SSTableExport.class);
-        String help = "usage: sstabledump <sstable file path> <options>\n" + 
-                       "                   \n" + 
-                       "Dump contents of given SSTable to standard output in JSON format.\n" + 
-                       " -d         CQL row per line internal representation\n" + 
-                       " -e         enumerate partition keys only\n" + 
-                       " -k <arg>   Partition key\n" + 
-                       " -l         Output json lines, by partition\n" + 
-                       " -t         Print raw timestamps instead of iso8601 date strings\n" + 
+        String help = "usage: sstabledump <sstable file path> <options>\n" +
+                       "                   \n" +
+                       "Dump contents of given SSTable to standard output in JSON format.\n" +
+                       " -d         CQL row per line internal representation\n" +
+                       " -e         enumerate partition keys only\n" +
+                       " -k <arg>   Partition key\n" +
+                       " -l         Output json lines, by partition\n" +
+                       " -t         Print raw timestamps instead of iso8601 date strings\n" +
                        " -x <arg>   Excluded partition key\n";
         Assertions.assertThat(tool.getStdout()).isEqualTo(help);
     }
 
     @Test
-    public void testWrongArgFailsAndPrintsHelp() throws IOException
+    public void testWrongArgFailsAndPrintsHelp()
     {
-        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, "--debugwrong", findOneSSTable("legacy_sstables", "legacy_ma_simple"));
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, "--debugwrong", sstable);
         assertThat(tool.getStdout(), CoreMatchers.containsStringIgnoringCase("usage:"));
         assertThat(tool.getCleanedStderr(), CoreMatchers.containsStringIgnoringCase("Unrecognized option"));
         assertEquals(1, tool.getExitCode());
@@ -88,82 +100,100 @@ public class SSTableExportTest extends OfflineToolUtils
     @Test
     public void testDefaultCall() throws IOException
     {
-        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class,findOneSSTable("legacy_sstables", "legacy_ma_simple"));
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable);
         List<Map<String, Object>> parsed = mapper.readValue(tool.getStdout(), jacksonListOfMapsType);
-        assertTrue(tool.getStdout(), parsed.get(0).get("partition") != null);
-        assertTrue(tool.getStdout(), parsed.get(0).get("rows") != null);
+        assertNotNull(tool.getStdout(), parsed.get(0).get("partition"));
+        assertNotNull(tool.getStdout(), parsed.get(0).get("rows"));
         Assertions.assertThat(tool.getCleanedStderr()).isEmpty();
         tool.assertOnExitCode();
-        assertPostTestEnv();
     }
 
     @Test
-    public void testCQLRowArg() throws IOException
+    public void testCQLRowArg()
     {
-        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, findOneSSTable("legacy_sstables", "legacy_ma_simple"), "-d");
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable, "-d");
         assertThat(tool.getStdout(), CoreMatchers.startsWith("[0]"));
         Assertions.assertThat(tool.getCleanedStderr()).isEmpty();
         tool.assertOnExitCode();
-        assertPostTestEnv();
     }
 
     @Test
-    public void testPKOnlyArg() throws IOException
+    public void testPKOnlyArg()
     {
-        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, findOneSSTable("legacy_sstables", "legacy_ma_simple"), "-e");
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable, "-e");
         assertEquals(tool.getStdout(), "[ [ \"0\" ], [ \"1\" ], [ \"2\" ], [ \"3\" ], [ \"4\" ]\n]", tool.getStdout());
         Assertions.assertThat(tool.getCleanedStderr()).isEmpty();
         tool.assertOnExitCode();
-        assertPostTestEnv();
     }
 
     @Test
     public void testPKArg() throws IOException
     {
-        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, findOneSSTable("legacy_sstables", "legacy_ma_simple"), "-k", "0");
-        List<Map<String, Object>> parsed = mapper.readValue(tool.getStdout(), jacksonListOfMapsType);
-        assertEquals(tool.getStdout(), 1, parsed.size());
-        assertEquals(tool.getStdout(), "0", ((List) ((Map) parsed.get(0).get("partition")).get("key")).get(0));
-        Assertions.assertThat(tool.getCleanedStderr()).isEmpty();
-        tool.assertOnExitCode();
-        assertPostTestEnv();
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable, "-k", "0");
+        assertKeys(tool, "0");
+    }
+
+    @Test
+    public void testMultiplePKArg() throws IOException
+    {
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable, "-k", "0", "-k", "2");
+        assertKeys(tool, "0", "2");
     }
 
     @Test
     public void testExcludePKArg() throws IOException
     {
-        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, findOneSSTable("legacy_sstables", "legacy_ma_simple"), "-x", "0");
-        List<Map<String, Object>> parsed = mapper.readValue(tool.getStdout(), jacksonListOfMapsType);
-        assertEquals(tool.getStdout(), 4, parsed.size());
-        Assertions.assertThat(tool.getCleanedStderr()).isEmpty();
-        tool.assertOnExitCode();
-        assertPostTestEnv();
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable, "-x", "0");
+        assertKeys(tool, "1", "2", "3", "4");
     }
 
     @Test
+    public void testMultipleExcludePKArg() throws IOException
+    {
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable, "-x", "0", "-x", "2");
+        assertKeys(tool, "1", "3", "4");
+    }
+
+    @SuppressWarnings("rawtypes")
+    private void assertKeys(ToolResult tool, String... expectedKeys) throws IOException
+    {
+        List<Map<String, Object>> parsed = mapper.readValue(tool.getStdout(), jacksonListOfMapsType);
+        String[] actualKeys = parsed.stream()
+                                    .map(x -> (Map) x.get("partition"))
+                                    .map(x -> (List) x.get("key"))
+                                    .map(x -> (String) x.get(0))
+                                    .toArray(String[]::new);
+        assertArrayEquals(expectedKeys, actualKeys);
+        Assertions.assertThat(tool.getCleanedStderr()).isEmpty();
+        tool.assertOnExitCode();
+    }
+
+    @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void testTSFormatArg() throws IOException
     {
-        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, findOneSSTable("legacy_sstables", "legacy_ma_simple"), "-t");
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable, "-t");
         List<Map<String, Object>> parsed = mapper.readValue(tool.getStdout(), jacksonListOfMapsType);
         assertEquals(tool.getStdout(),
                      "1445008632854000",
                      ((Map) ((List<Map>) parsed.get(0).get("rows")).get(0).get("liveness_info")).get("tstamp"));
         Assertions.assertThat(tool.getCleanedStderr()).isEmpty();
         tool.assertOnExitCode();
-        assertPostTestEnv();
     }
 
     @Test
+    @SuppressWarnings("rawtypes")
     public void testJSONLineArg() throws IOException
     {
-        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, findOneSSTable("legacy_sstables", "legacy_ma_simple"), "-l");
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable, "-l");
         try
         {
             mapper.readValue(tool.getStdout(), jacksonListOfMapsType);
             fail("Shouldn't be able to deserialize that output, now it's not a collection anymore.");
         }
-        catch(MismatchedInputException e)
+        catch (MismatchedInputException e)
         {
+            assertThat(e.getMessage(), CoreMatchers.startsWith("Cannot deserialize"));
         }
 
         int parsedCount = 0;
@@ -178,14 +208,5 @@ public class SSTableExportTest extends OfflineToolUtils
         assertThat(tool.getStdout(), CoreMatchers.startsWith("{\""));
         Assertions.assertThat(tool.getCleanedStderr()).isEmpty();
         tool.assertOnExitCode();
-        assertPostTestEnv();
-    }
-
-    private void assertPostTestEnv()
-    {
-        assertNoUnexpectedThreadsStarted(null, OPTIONAL_THREADS_WITH_SCHEMA);
-        assertCLSMNotLoaded();
-        assertSystemKSNotLoaded();
-        assertServerNotLoaded();
     }
 }

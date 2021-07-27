@@ -74,13 +74,13 @@ public class SSTableExport
         DatabaseDescriptor.clientInitialization();
 
         Option optKey = new Option(KEY_OPTION, true, "Partition key");
-        // Number of times -k <key> can be passed on the command line.
-        optKey.setArgs(500);
+        // Number of arguments for -k. Option could be repeated multiple times.
+        optKey.setArgs(1);
         options.addOption(optKey);
 
         Option excludeKey = new Option(EXCLUDE_KEY_OPTION, true, "Excluded partition key");
-        // Number of times -x <key> can be passed on the command line.
-        excludeKey.setArgs(500);
+        // Number of arguments for -x. Option could be repeated multiple times.
+        excludeKey.setArgs(1);
         options.addOption(excludeKey);
 
         Option optEnumerate = new Option(ENUMERATE_KEYS_OPTION, false, "enumerate partition keys only");
