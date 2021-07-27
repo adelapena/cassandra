@@ -70,7 +70,7 @@ public class SSTableMetadataViewerTest extends OfflineToolUtils
     public void testMaybeChangeDocs()
     {
         // If you added, modified options or help, please update docs if necessary
-        ToolResult tool = ToolRunner.invokeClass(SSTableMetadataViewer.class, "-h");
+        ToolResult tool = ToolRunner.invokeClass(SSTableMetadataViewer.class);
         assertEquals("You must supply at least one sstable\n" + 
                      "usage: sstablemetadata <options> <sstable...> [-c] [-g <arg>] [-s] [-t <arg>] [-u]\n" + 
                      "\n" + 
