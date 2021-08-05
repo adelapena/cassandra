@@ -24,6 +24,9 @@ import org.apache.cassandra.distributed.Cluster;
 import org.apache.cassandra.distributed.api.IInvokableInstance;
 
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ONE;
+import static org.apache.cassandra.distributed.api.Feature.GOSSIP;
+import static org.apache.cassandra.distributed.api.Feature.NATIVE_PROTOCOL;
+import static org.apache.cassandra.distributed.api.Feature.NETWORK;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WriteWithNodeDownTest extends TestBaseImpl
@@ -34,7 +37,8 @@ public class WriteWithNodeDownTest extends TestBaseImpl
     public void testHintsServiceMetrics() throws Exception
     {
         try (Cluster cluster = builder().withNodes(2)
-                                        .withConfig(c -> c.set("hinted_handoff_enabled", false))
+                                        .withConfig(c -> c.set("hinted_handoff_enabled", false)
+                                                          .with(NETWORK, GOSSIP, NATIVE_PROTOCOL))
                                         .start())
         {
             cluster.schemaChange(withKeyspace("CREATE KEYSPACE %s WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 2}"));
