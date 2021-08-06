@@ -18,10 +18,13 @@
 
 package org.apache.cassandra.distributed.test;
 
+import java.net.InetSocketAddress;
+
 import org.junit.Test;
 
 import org.apache.cassandra.distributed.Cluster;
 import org.apache.cassandra.distributed.api.IInvokableInstance;
+import org.apache.cassandra.locator.InetAddressAndPort;
 
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ONE;
 import static org.apache.cassandra.distributed.api.Feature.GOSSIP;
@@ -44,12 +47,11 @@ public class WriteWithNodeDownTest extends TestBaseImpl
             cluster.schemaChange(withKeyspace("CREATE KEYSPACE %s WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 2}"));
             cluster.schemaChange(withKeyspace("CREATE TABLE %s.t (k int PRIMARY KEY, v int)"));
 
-            cluster.get(2).shutdown().get();
+            shutdownWaitingOthersNotice(cluster, 2);
 
             for (int i = 0; i < NUM_ROWS; i++)
                 cluster.coordinator(1).execute(withKeyspace("INSERT INTO %s.t (k, v) VALUES (?, ?)"), ONE, i, i);
 
-            Thread.sleep(5000);
             cluster.get(2).startup();
 
             assertThat(countRows(cluster.get(1))).isEqualTo(NUM_ROWS);
@@ -60,5 +62,31 @@ public class WriteWithNodeDownTest extends TestBaseImpl
     private static int countRows(IInvokableInstance node)
     {
         return node.executeInternal(withKeyspace("SELECT * FROM %s.t")).length;
+    }
+
+    private static void shutdownWaitingOthersNotice(Cluster cluster, int node) throws Exception
+    {
+        long[] marks = new long[cluster.size()];
+        for (int i = 1; i <= cluster.size(); i++)
+        {
+            if (i != node)
+                marks[i] = cluster.get(i).logs().mark();
+        }
+
+        String msg = String.format("%s is now DOWN", getNodeAddress(cluster, node));
+        cluster.get(node).shutdown().get();
+
+        for (int i = 1; i <= cluster.size(); i++)
+        {
+            if (i != node)
+                cluster.get(i).logs().watchFor(marks[i], msg);
+        }
+    }
+
+    private static InetAddressAndPort getNodeAddress(Cluster cluster, int node)
+    {
+        InetSocketAddress broadcastAddress = cluster.get(node).broadcastAddress();
+        return InetAddressAndPort.getByAddressOverrideDefaults(broadcastAddress.getAddress(),
+                                                               broadcastAddress.getPort());
     }
 }
