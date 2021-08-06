@@ -45,11 +45,11 @@ public class WriteWithNodeDownTest extends TestBaseImpl
             cluster.schemaChange(withKeyspace("CREATE TABLE %s.t (k int PRIMARY KEY, v int)"));
 
             cluster.get(2).shutdown().get();
-            Thread.sleep(5000);
 
             for (int i = 0; i < NUM_ROWS; i++)
                 cluster.coordinator(1).execute(withKeyspace("INSERT INTO %s.t (k, v) VALUES (?, ?)"), ONE, i, i);
 
+            Thread.sleep(5000);
             cluster.get(2).startup();
 
             assertThat(countRows(cluster.get(1))).isEqualTo(NUM_ROWS);
