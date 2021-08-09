@@ -43,7 +43,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@RunWith(OrderedJUnit4ClassRunner.class)
+@RunWith(OrderedJUnit4ClassRunner.class) // tests calling assertSchemaNotLoaded should be the first ones
 public class SSTableExportTest extends OfflineToolUtils
 {
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -96,6 +96,28 @@ public class SSTableExportTest extends OfflineToolUtils
     }
 
     @Test
+    public void testPKArgOutOfOrder()
+    {
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, "-k", "0", sstable);
+        assertThat(tool.getStdout(), containsStringIgnoringCase("usage:"));
+        assertThat(tool.getCleanedStderr(), containsStringIgnoringCase("You must supply exactly one sstable"));
+        assertThat(tool.getCleanedStderr(), containsStringIgnoringCase("before the -k/-x options"));
+        assertEquals(1, tool.getExitCode());
+        assertPostTestEnv(false);
+    }
+
+    @Test
+    public void testExcludePKArgOutOfOrder()
+    {
+        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, "-x", "0", sstable);
+        assertThat(tool.getStdout(), containsStringIgnoringCase("usage:"));
+        assertThat(tool.getCleanedStderr(), containsStringIgnoringCase("You must supply exactly one sstable"));
+        assertThat(tool.getCleanedStderr(), containsStringIgnoringCase("before the -k/-x options"));
+        assertEquals(1, tool.getExitCode());
+        assertPostTestEnv(false);
+    }
+
+    @Test
     public void testDefaultCall() throws IOException
     {
         ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable);
@@ -136,17 +158,6 @@ public class SSTableExportTest extends OfflineToolUtils
     }
 
     @Test
-    public void testPKArgOutOfOrder()
-    {
-        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, "-k", "0", sstable);
-        assertThat(tool.getStdout(), containsStringIgnoringCase("usage:"));
-        assertThat(tool.getCleanedStderr(), containsStringIgnoringCase("You must supply exactly one sstable"));
-        assertThat(tool.getCleanedStderr(), containsStringIgnoringCase("before the -k/-x options"));
-        assertEquals(1, tool.getExitCode());
-        assertPostTestEnv(false);
-    }
-
-    @Test
     public void testMultiplePKArg() throws IOException
     {
         ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable, "-k", "0", "2");
@@ -160,17 +171,6 @@ public class SSTableExportTest extends OfflineToolUtils
         ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, sstable, "-x", "0");
         assertKeys(tool, "1", "2", "3", "4");
         assertPostTestEnv(true);
-    }
-
-    @Test
-    public void testExcludePKArgOutOfOrder()
-    {
-        ToolResult tool = ToolRunner.invokeClass(SSTableExport.class, "-x", "0", sstable);
-        assertThat(tool.getStdout(), containsStringIgnoringCase("usage:"));
-        assertThat(tool.getCleanedStderr(), containsStringIgnoringCase("You must supply exactly one sstable"));
-        assertThat(tool.getCleanedStderr(), containsStringIgnoringCase("before the -k/-x options"));
-        assertEquals(1, tool.getExitCode());
-        assertPostTestEnv(false);
     }
 
     @Test
