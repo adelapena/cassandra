@@ -239,12 +239,21 @@ public class SSTableExportTest extends OfflineToolUtils
         assertPostTestEnv(true);
     }
 
-    private void assertPostTestEnv(boolean loadsSchema)
+    /**
+     * Runs post-test assertions about loaded classed and started threads.
+     *
+     * @param maybeLoadsSchema {@code true} if the test may or may not have loaded the schema depending on the JVM,
+     * {@code false} if the test shoudln't load the schema in any case. Note that a test not loading the schema can
+     * still end with the schema loaded if a previous test already loaded it, so we should always run first the tests
+     * that don't load the schema, and then the ones that may or may not load it. We also need to use the
+     * {@link OrderedJUnit4ClassRunner} runner to guarantee the desired run order.
+     */
+    private void assertPostTestEnv(boolean maybeLoadsSchema)
     {
         assertNoUnexpectedThreadsStarted(null, OPTIONAL_THREADS_WITH_SCHEMA);
         // schema loading seems to depend of the JVM version,
         // so we only verify the cases where we are sure it's not loaded
-        if (!loadsSchema)
+        if (!maybeLoadsSchema)
             assertSchemaNotLoaded();
         assertCLSMNotLoaded();
         assertSystemKSNotLoaded();
