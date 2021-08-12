@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 version: 2
 jobs:
   j8_jvm_upgrade_dtests:
@@ -211,6 +210,9 @@ jobs:
               else
                 methods="-Dtest.methods=${REPEATED_JVM_UPGRADE_DTEST_METHODS}"
               fi
+
+              # build the tests once for all the iterations
+              ant build-test
 
               # Run the test target as many times as requested collecting the exit code,
               # stopping the iteration only if stop_on_failure is set.
@@ -1433,6 +1435,9 @@ jobs:
               else
                 methods="-Dtest.methods=${REPEATED_UTEST_METHODS}"
               fi
+
+              # build the tests once for all the iterations
+              ant build-test
 
               # Run the test target as many times as requested collecting the exit code,
               # stopping the iteration only if stop_on_failure is set.
