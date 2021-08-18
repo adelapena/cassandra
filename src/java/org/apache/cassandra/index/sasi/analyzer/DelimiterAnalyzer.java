@@ -28,9 +28,11 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 
+import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.utils.AbstractIterator;
 
 @Beta
@@ -51,19 +53,25 @@ public class DelimiterAnalyzer extends AbstractAnalyzer
     {
     }
 
+    @Override
     public ByteBuffer next()
     {
         return iter.next();
     }
 
-    public void init(Map<String, String> options, AbstractType validator)
+    @Override
+    public void validate(Map<String, String> options, ColumnDefinition cd) throws ConfigurationException
+    {
+        super.validate(options, cd);
+        if (!VALID_ANALYZABLE_TYPES.containsKey(cd.cellValueType()))
+            throw new ConfigurationException(String.format("Only text types supported, got %s", cd.cellValueType()));
+
+    }
+
+    public void init(Map<String, String> options, AbstractType<?> validator)
     {
         DelimiterTokenizingOptions tokenizingOptions = DelimiterTokenizingOptions.buildFromMap(options);
         delimiter = tokenizingOptions.getDelimiter();
-
-        if (!VALID_ANALYZABLE_TYPES.containsKey(validator))
-            throw new IllegalArgumentException(String.format("Only text types supported, got %s", validator));
-
         charset = VALID_ANALYZABLE_TYPES.get(validator);
     }
 
@@ -100,11 +108,11 @@ public class DelimiterAnalyzer extends AbstractAnalyzer
         };
     }
 
-
+    @Override
     public boolean isTokenizing()
     {
         return true;
-    }
+        }
 
     @Override
     public boolean isCompatibleWith(AbstractType<?> validator)
