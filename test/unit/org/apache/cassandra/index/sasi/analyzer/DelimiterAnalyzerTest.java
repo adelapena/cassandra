@@ -19,11 +19,13 @@ package org.apache.cassandra.index.sasi.analyzer;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.Int32Type;
+import org.apache.cassandra.db.marshal.SetType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.utils.ByteBufferUtil;
@@ -84,9 +86,16 @@ public class DelimiterAnalyzerTest
     }
 
     @Test(expected = ConfigurationException.class)
-    public void ensureIncompatibleInputSkipped() throws Exception
+    public void ensureIncompatibleInputOnCollectionTypeSkipped()
     {
-        new DelimiterAnalyzer().validate(new HashMap<>(),
+        new DelimiterAnalyzer().validate(Collections.emptyMap(),
+                                         ColumnDefinition.regularDef("a", "b", "c", SetType.getInstance(UTF8Type.instance, true)));
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void ensureIncompatibleInputSkipped()
+    {
+        new DelimiterAnalyzer().validate(Collections.emptyMap(),
                                          ColumnDefinition.regularDef("a", "b", "c", Int32Type.instance));
     }
 
