@@ -607,10 +607,15 @@ public final class Schema implements SchemaProvider
      */
     public synchronized void reloadSchemaAndAnnounceVersion()
     {
+        reloadSchema();
+        updateVersionAndAnnounce();
+    }
+
+    public synchronized void reloadSchema()
+    {
         Keyspaces before = keyspaces.filter(k -> !SchemaConstants.isLocalSystemKeyspace(k.name));
         Keyspaces after = SchemaKeyspace.fetchNonSystemKeyspaces();
         merge(Keyspaces.diff(before, after));
-        updateVersionAndAnnounce();
     }
 
     /**
