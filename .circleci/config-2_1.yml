@@ -140,7 +140,11 @@ j11_small_executor: &j11_small_executor
 
 j8_with_dtests_jobs: &j8_with_dtests_jobs
   jobs:
-    - j8_build
+    - start_j8_build:
+       type: approval
+    - j8_build:
+        requires:
+          - start_j8_build
     # Java 8 unit tests will be run automatically
     - j8_unit_tests:
         requires:
@@ -331,7 +335,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
 
 j11_with_dtests_jobs: &j11_with_dtests_jobs
   jobs:
-    - j11_build
+    - start_j11_build:
+        type: approval
+    - j11_build:
+        requires:
+          - start_j11_build
     # Java 11 unit tests
     - j11_unit_tests:
         requires:
