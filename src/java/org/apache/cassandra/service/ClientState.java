@@ -404,6 +404,19 @@ public class ClientState
         ensurePermissionOnResourceChain(perm, resource);
     }
 
+    public boolean hasPermission(Permission required, RoleResource resource) throws UnauthorizedException
+    {
+        try
+        {
+            ensurePermission(required, resource);
+        }
+        catch (UnauthorizedException e)
+        {
+            return false;
+        }
+        return true;
+    }
+
     // Convenience method called from authorize method of CQLStatement
     // Also avoids needlessly creating lots of FunctionResource objects
     public void ensurePermission(Permission permission, Function function)

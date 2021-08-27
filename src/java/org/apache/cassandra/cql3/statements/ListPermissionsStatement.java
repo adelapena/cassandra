@@ -23,6 +23,7 @@ import org.apache.cassandra.audit.AuditLogContext;
 import org.apache.cassandra.audit.AuditLogEntryType;
 import org.apache.cassandra.auth.*;
 import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.exceptions.UnauthorizedException;
 import org.apache.cassandra.schema.SchemaConstants;
 import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -43,7 +44,7 @@ public class ListPermissionsStatement extends AuthorizationStatement
 
     static
     {
-        List<ColumnSpecification> columns = new ArrayList<ColumnSpecification>(4);
+        List<ColumnSpecification> columns = new ArrayList<>(4);
         columns.add(new ColumnSpecification(KS, CF, new ColumnIdentifier("role", true), UTF8Type.instance));
         columns.add(new ColumnSpecification(KS, CF, new ColumnIdentifier("username", true), UTF8Type.instance));
         columns.add(new ColumnSpecification(KS, CF, new ColumnIdentifier("resource", true), UTF8Type.instance));
@@ -78,6 +79,17 @@ public class ListPermissionsStatement extends AuthorizationStatement
 
         if ((grantee != null) && !DatabaseDescriptor.getRoleManager().isExistingRole(grantee))
             throw new InvalidRequestException(String.format("%s doesn't exist", grantee));
+
+        // If the user requesting 'LIST PERMISSIONS' is not a superuser OR their username doesn't match 'grantee' OR
+        // has no DESCRIBE permission on the role or all roles, we throw UnauthorizedException.
+        // So only a superuser, system user can view everybody's permissions. Regular users are only
+        // allowed to see their own permissions and those of roles for which they have DESCRIBE permission.
+        if (!state.getUser().isSuper()
+            && !state.getUser().isSystem()
+            && !state.getUser().getRoles().contains(grantee)
+            && !state.hasPermission(Permission.DESCRIBE, grantee == null ? RoleResource.root() : grantee))
+            throw new UnauthorizedException(String.format("You are not authorized to view %s's permissions",
+                                                          grantee == null ? "everyone" : grantee.getRoleName()));
    }
 
     public void authorize(ClientState state)
@@ -88,7 +100,7 @@ public class ListPermissionsStatement extends AuthorizationStatement
     // TODO: Create a new ResultMessage type (?). Rows will do for now.
     public ResultMessage execute(ClientState state) throws RequestValidationException, RequestExecutionException
     {
-        List<PermissionDetails> details = new ArrayList<PermissionDetails>();
+        List<PermissionDetails> details = new ArrayList<>();
 
         if (resource != null && recursive)
         {
