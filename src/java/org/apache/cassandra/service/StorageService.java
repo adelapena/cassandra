@@ -1486,6 +1486,7 @@ public class StorageService extends NotificationBroadcasterSupport implements IE
     public void setStreamThroughputMbPerSec(int value)
     {
         DatabaseDescriptor.setStreamThroughputOutboundMegabitsPerSec(value);
+        StreamManager.StreamRateLimiter.updateThroughput();
         logger.info("setstreamthroughput: throttle set to {}", value);
     }
 
@@ -1497,6 +1498,7 @@ public class StorageService extends NotificationBroadcasterSupport implements IE
     public void setInterDCStreamThroughputMbPerSec(int value)
     {
         DatabaseDescriptor.setInterDCStreamThroughputOutboundMegabitsPerSec(value);
+        StreamManager.StreamRateLimiter.updateInterDCThroughput();
         logger.info("setinterdcstreamthroughput: throttle set to {}", value);
     }
 
