@@ -4062,8 +4062,6 @@ workflows:
         requires:
         - start_pre-commit_tests
         - j8_build
-    - start_j11_unit_tests:
-        type: approval
     - j11_unit_tests:
         requires:
         - start_pre-commit_tests

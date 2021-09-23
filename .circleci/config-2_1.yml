@@ -352,9 +352,7 @@ j8_pre-commit: &j8_pre-commit
         requires:
           - start_pre-commit_tests
           - j8_build
-    # Java 11 unit tests (on request, currently not working)
-    - start_j11_unit_tests:
-        type: approval
+    # Java 11 unit tests
     - j11_unit_tests:
         requires:
           - start_pre-commit_tests
