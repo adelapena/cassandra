@@ -686,11 +686,11 @@ j11_with_dtest_jobs_only: &j11_with_dtest_jobs_only
 
 workflows:
     version: 2
-    java8_build_and_run_tests: *j8_with_dtests_jobs
-#    java8_build_and_run_tests: *j8_with_dtest_jobs_only
+    java8_separate_tests: *j8_with_dtests_jobs
+#    java8_separate_tests: *j8_with_dtest_jobs_only
     java8_pre-commit_tests: *j8_pre-commit
-    java11_build_and_run_tests: *j11_with_dtests_jobs
-#    java11_build_and_run_tests: *j11_with_dtest_jobs_only
+    java11_separate_tests: *j11_with_dtests_jobs
+#    java11_separate_tests: *j11_with_dtest_jobs_only
     java11_pre-commit_tests: *j11_pre-commit
 
 executors:

@@ -3862,7 +3862,7 @@ jobs:
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
 workflows:
   version: 2
-  java8_build_and_run_tests:
+  java8_separate_tests:
     jobs:
     - j8_build
     - start_j8_unit_tests:
@@ -4216,7 +4216,7 @@ workflows:
         requires:
         - start_repeated_jvm_upgrade_dtest
         - j8_dtest_jars_build
-  java11_build_and_run_tests:
+  java11_separate_tests:
     jobs:
     - j11_build
     - start_j11_unit_tests:
