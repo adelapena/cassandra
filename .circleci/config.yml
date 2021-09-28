@@ -4047,11 +4047,11 @@ workflows:
         - j8_dtest_jars_build
   java8_pre-commit_tests:
     jobs:
-    - start_j8_build:
+    - start_j8_tests:
         type: approval
     - j8_build:
         requires:
-        - start_j8_build
+        - start_j8_tests
     - j8_unit_tests:
         requires:
         - j8_build
@@ -4267,11 +4267,11 @@ workflows:
         - j11_build
   java11_pre-commit_tests:
     jobs:
-    - start_j11_build:
+    - start_j11_tests:
         type: approval
     - j11_build:
         requires:
-        - start_j11_build
+        - start_j11_tests
     - j11_unit_tests:
         requires:
         - j11_build
