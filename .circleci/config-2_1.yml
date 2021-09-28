@@ -336,11 +336,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
 
 j8_pre-commit: &j8_pre-commit
   jobs:
-    - start_j8_build:
+    - start_pre-commit_tests:
         type: approval
     - j8_build:
         requires:
-          - start_j8_build
+          - start_pre-commit_tests
     # Java 8 unit tests will be run automatically
     - j8_unit_tests:
         requires:
@@ -574,11 +574,11 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
 
 j11_pre-commit: &j11_pre-commit
   jobs:
-    - start_j11_build:
+    - start_pre-commit_tests:
         type: approval
     - j11_build:
         requires:
-          - start_j11_build
+          - start_pre-commit_tests
     - j11_unit_tests:
         requires:
           - j11_build
