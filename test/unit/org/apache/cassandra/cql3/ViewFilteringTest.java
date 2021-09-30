@@ -125,11 +125,11 @@ public class ViewFilteringTest extends CQLTester
     private void updateView(String query, Object... params) throws Throwable
     {
         executeNet(version, query, params);
-        while (!(((SEPExecutor) Stage.VIEW_MUTATION.executor()).getPendingTaskCount() == 0
-                 && ((SEPExecutor) Stage.VIEW_MUTATION.executor()).getActiveTaskCount() == 0))
-        {
-            Thread.sleep(1);
-        }
+//        while (!(((SEPExecutor) Stage.VIEW_MUTATION.executor()).getPendingTaskCount() == 0
+//                 && ((SEPExecutor) Stage.VIEW_MUTATION.executor()).getActiveTaskCount() == 0))
+//        {
+//            Thread.sleep(1);
+//        }
     }
 
     private void dropView(String name) throws Throwable
@@ -145,12 +145,11 @@ public class ViewFilteringTest extends CQLTester
 
     public static void waitForView(String keyspace, String view) throws InterruptedException
     {
-        while (!SystemKeyspace.isViewBuilt(keyspace, view))
-            Thread.sleep(10);
+//        while (!SystemKeyspace.isViewBuilt(keyspace, view))
+//            Thread.sleep(10);
     }
 
     // TODO will revise the non-pk filter condition in MV, see CASSANDRA-11500
-    @Ignore
     @Test
     public void testViewFilteringWithFlush() throws Throwable
     {
@@ -158,7 +157,6 @@ public class ViewFilteringTest extends CQLTester
     }
 
     // TODO will revise the non-pk filter condition in MV, see CASSANDRA-11500
-    @Ignore
     @Test
     public void testViewFilteringWithoutFlush() throws Throwable
     {
@@ -373,7 +371,6 @@ public class ViewFilteringTest extends CQLTester
     }
 
     // TODO will revise the non-pk filter condition in MV, see CASSANDRA-11500
-    @Ignore
     @Test
     public void testMVFilteringWithComplexColumn() throws Throwable
     {
