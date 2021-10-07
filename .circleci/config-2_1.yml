@@ -121,7 +121,7 @@ j8_seq_executor: &j8_seq_executor
     #exec_resource_class: xlarge
   parallelism: 1 # sequential, single container tests: no parallelism benefits
 
-separate_tests: &with_dtest_jobs
+with_dtests_jobs: &with_dtest_jobs
   jobs:
     - start_build:
         type: approval
@@ -135,7 +135,6 @@ separate_tests: &with_dtest_jobs
         requires:
           - start_j8_unit_tests
           - build
-    # Java 8 JVM dtests
     - start_j8_jvm_dtests:
         type: approval
     - j8_jvm_dtests:
@@ -220,7 +219,7 @@ separate_tests: &with_dtest_jobs
           - start_repeated_jvm_upgrade_dtest
           - j8_dtest_jars_build
 
-pre-commit_tests: &pre-commit_jobs
+pre-commit_jobs: &pre-commit_jobs
   jobs:
     - start_pre-commit_tests:
         type: approval
