@@ -20,6 +20,8 @@ package org.apache.cassandra.db.guardrails;
 
 import java.util.Set;
 
+import org.apache.cassandra.db.ConsistencyLevel;
+
 /**
  * JMX entrypoint for updating the default guardrails configuration parsed from {@code cassandra.yaml}.
  * <p>
@@ -136,6 +138,26 @@ public interface GuardrailsMBean
     void setMaterializedViewsPerTableThreshold(int warn, int fail);
 
     /**
+     * @return properties that are warned about when creating or altering a table.
+     */
+    Set<String> getTablePropertiesWarned();
+
+    /**
+     * @return Comma-separated list of properties that are warned about when creating or altering a table.
+     */
+    String getTablePropertiesWarnedCSV();
+
+    /**
+     * @param properties properties that are warned about when creating or altering a table.
+     */
+    void setTablePropertiesWarned(Set<String> properties);
+
+    /**
+     * @param properties Comma-separated list of properties that are warned about when creating or altering a table.
+     */
+    void setTablePropertiesWarnedCSV(String properties);
+
+    /**
      * @return properties that are not allowed when creating or altering a table.
      */
     Set<String> getTablePropertiesDisallowed();
@@ -220,4 +242,84 @@ public interface GuardrailsMBean
      * @param enabled {@code true} if list operations that require read before write are allowed, {@code false} otherwise.
      */
     void setReadBeforeWriteListOperationsEnabled(boolean enabled);
+
+    /**
+     * @return consistency levels that are warned about when reading.
+     */
+    Set<ConsistencyLevel> getReadConsistencyLevelsWarned();
+
+    /**
+     * @return Comma-separated list of consistency levels that are warned about when reading.
+     */
+    String getReadConsistencyLevelsWarnedCSV();
+
+    /**
+     * @param consistencyLevels consistency levels that are warned about when reading.
+     */
+    void setReadConsistencyLevelsWarned(Set<ConsistencyLevel> consistencyLevels);
+
+    /**
+     * @param consistencyLevels Comma-separated list of consistency levels that are warned about when reading.
+     */
+    void setReadConsistencyLevelsWarnedCSV(String consistencyLevels);
+
+    /**
+     * @return consistency levels that are not allowed when reading.
+     */
+    Set<ConsistencyLevel> getReadConsistencyLevelsDisallowed();
+
+    /**
+     * @return Comma-separated list of consistency levels that are not allowed when reading.
+     */
+    String getReadConsistencyLevelsDisallowedCSV();
+
+    /**
+     * @param consistencyLevels consistency levels that are not allowed when reading.
+     */
+    void setReadConsistencyLevelsDisallowed(Set<ConsistencyLevel> consistencyLevels);
+
+    /**
+     * @param consistencyLevels Comma-separated list of consistency levels that are not allowed when reading.
+     */
+    void setReadConsistencyLevelsDisallowedCSV(String consistencyLevels);
+
+    /**
+     * @return consistency levels that are warned about when writing.
+     */
+    Set<ConsistencyLevel> getWriteConsistencyLevelsWarned();
+
+    /**
+     * @return Comma-separated list of consistency levels that are warned about when writing.
+     */
+    String getWriteConsistencyLevelsWarnedCSV();
+
+    /**
+     * @param consistencyLevels consistency levels that are warned about when writing.
+     */
+    void setWriteConsistencyLevelsWarned(Set<ConsistencyLevel> consistencyLevels);
+
+    /**
+     * @param consistencyLevels Comma-separated list of consistency levels that are warned about when writing.
+     */
+    void setWriteConsistencyLevelsWarnedCSV(String consistencyLevels);
+
+    /**
+     * @return consistency levels that are not allowed when writing.
+     */
+    Set<ConsistencyLevel> getWriteConsistencyLevelsDisallowed();
+
+    /**
+     * @return Comma-separated list of consistency levels that are not allowed when writing.
+     */
+    String getWriteConsistencyLevelsDisallowedCSV();
+
+    /**
+     * @param consistencyLevels consistency levels that are not allowed when writing.
+     */
+    void setWriteConsistencyLevelsDisallowed(Set<ConsistencyLevel> consistencyLevels);
+
+    /**
+     * @param consistencyLevels Comma-separated list of consistency levels that are not allowed when writing.
+     */
+    void setWriteConsistencyLevelsDisallowedCSV(String consistencyLevels);
 }

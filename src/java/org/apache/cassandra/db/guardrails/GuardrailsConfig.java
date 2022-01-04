@@ -20,6 +20,8 @@ package org.apache.cassandra.db.guardrails;
 
 import java.util.Set;
 
+import org.apache.cassandra.db.ConsistencyLevel;
+
 /**
  * Configuration settings for guardrails.
  *
@@ -101,6 +103,11 @@ public interface GuardrailsConfig
     int getMaterializedViewsPerTableFailThreshold();
 
     /**
+     * @return The table properties that are warned about when creating or altering a table.
+     */
+    Set<String> getTablePropertiesWarned();
+
+    /**
      * @return The table properties that are ignored when creating or altering a table.
      */
     Set<String> getTablePropertiesIgnored();
@@ -133,4 +140,24 @@ public interface GuardrailsConfig
      * @return {@code true} if list operations that require read before write are allowed, {@code false} otherwise.
      */
     boolean getReadBeforeWriteListOperationsEnabled();
+
+    /**
+     * @return The consistency levels that are warned about when reading.
+     */
+    Set<ConsistencyLevel> getReadConsistencyLevelsWarned();
+
+    /**
+     * @return The consistency levels that are disallowed when reading.
+     */
+    Set<ConsistencyLevel> getReadConsistencyLevelsDisallowed();
+
+    /**
+     * @return The consistency levels that are warned about when writing.
+     */
+    Set<ConsistencyLevel> getWriteConsistencyLevelsWarned();
+
+    /**
+     * @return The consistency levels that are disallowed when writing.
+     */
+    Set<ConsistencyLevel> getWriteConsistencyLevelsDisallowed();
 }

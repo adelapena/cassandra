@@ -737,10 +737,15 @@ public class Config
     public volatile int materialized_views_per_table_fail_threshold = DISABLED_GUARDRAIL;
     public volatile int page_size_warn_threshold = DISABLED_GUARDRAIL;
     public volatile int page_size_fail_threshold = DISABLED_GUARDRAIL;
+    public volatile Set<String> table_properties_warned = Collections.emptySet();
     public volatile Set<String> table_properties_ignored = Collections.emptySet();
     public volatile Set<String> table_properties_disallowed = Collections.emptySet();
     public volatile boolean user_timestamps_enabled = true;
     public volatile boolean read_before_write_list_operations_enabled = true;
+    public volatile Set<ConsistencyLevel> read_consistency_levels_warned = Collections.emptySet();
+    public volatile Set<ConsistencyLevel> read_consistency_levels_disallowed = Collections.emptySet();
+    public volatile Set<ConsistencyLevel> write_consistency_levels_warned = Collections.emptySet();
+    public volatile Set<ConsistencyLevel> write_consistency_levels_disallowed = Collections.emptySet();
 
     public enum PaxosVariant
     {

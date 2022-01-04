@@ -18,6 +18,7 @@
 
 package org.apache.cassandra.config;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -27,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.cql3.statements.schema.TableAttributes;
+import org.apache.cassandra.db.ConsistencyLevel;
 import org.apache.cassandra.db.guardrails.Guardrails;
 import org.apache.cassandra.db.guardrails.GuardrailsConfig;
 
@@ -67,6 +69,10 @@ public class GuardrailsOptions implements GuardrailsConfig
         config.table_properties_ignored = validateTableProperties(config.table_properties_ignored, "table_properties_ignored");
         config.table_properties_disallowed = validateTableProperties(config.table_properties_disallowed, "table_properties_disallowed");
         validateIntThreshold(config.page_size_warn_threshold, config.page_size_fail_threshold, "page_size");
+        config.read_consistency_levels_warned = validateConsistencyLevels(config.read_consistency_levels_warned, "read_consistency_levels_warned");
+        config.read_consistency_levels_disallowed = validateConsistencyLevels(config.read_consistency_levels_disallowed, "read_consistency_levels_disallowed");
+        config.write_consistency_levels_warned = validateConsistencyLevels(config.write_consistency_levels_warned, "write_consistency_levels_warned");
+        config.write_consistency_levels_disallowed = validateConsistencyLevels(config.write_consistency_levels_disallowed, "write_consistency_levels_disallowed");
     }
 
     @Override
@@ -239,6 +245,20 @@ public class GuardrailsOptions implements GuardrailsConfig
     }
 
     @Override
+    public Set<String> getTablePropertiesWarned()
+    {
+        return config.table_properties_warned;
+    }
+
+    public void setTablePropertiesWarned(Set<String> properties)
+    {
+        updatePropertyWithLogging("table_properties_warned",
+                                  validateTableProperties(properties, "table_properties_warned"),
+                                  () -> config.table_properties_warned,
+                                  x -> config.table_properties_warned = x);
+    }
+
+    @Override
     public Set<String> getTablePropertiesIgnored()
     {
         return config.table_properties_ignored;
@@ -292,6 +312,62 @@ public class GuardrailsOptions implements GuardrailsConfig
                                   enabled,
                                   () -> config.read_before_write_list_operations_enabled,
                                   x -> config.read_before_write_list_operations_enabled = x);
+    }
+
+    @Override
+    public Set<ConsistencyLevel> getReadConsistencyLevelsWarned()
+    {
+        return config.read_consistency_levels_warned;
+    }
+
+    public void setReadConsistencyLevelsWarned(Set<ConsistencyLevel> consistencyLevels)
+    {
+        updatePropertyWithLogging("read_consistency_levels_warned",
+                                  validateConsistencyLevels(consistencyLevels, "read_consistency_levels_warned"),
+                                  () -> config.read_consistency_levels_warned,
+                                  x -> config.read_consistency_levels_warned = x);
+    }
+
+    @Override
+    public Set<ConsistencyLevel> getReadConsistencyLevelsDisallowed()
+    {
+        return config.read_consistency_levels_disallowed;
+    }
+
+    public void setReadConsistencyLevelsDisallowed(Set<ConsistencyLevel> consistencyLevels)
+    {
+        updatePropertyWithLogging("read_consistency_levels_disallowed",
+                                  validateConsistencyLevels(consistencyLevels, "read_consistency_levels_disallowed"),
+                                  () -> config.read_consistency_levels_disallowed,
+                                  x -> config.read_consistency_levels_disallowed = x);
+    }
+
+    @Override
+    public Set<ConsistencyLevel> getWriteConsistencyLevelsWarned()
+    {
+        return config.write_consistency_levels_warned;
+    }
+
+    public void setWriteConsistencyLevelsWarned(Set<ConsistencyLevel> consistencyLevels)
+    {
+        updatePropertyWithLogging("write_consistency_levels_warned",
+                                  validateConsistencyLevels(consistencyLevels, "write_consistency_levels_warned"),
+                                  () -> config.write_consistency_levels_warned,
+                                  x -> config.write_consistency_levels_warned = x);
+    }
+
+    @Override
+    public Set<ConsistencyLevel> getWriteConsistencyLevelsDisallowed()
+    {
+        return config.write_consistency_levels_disallowed;
+    }
+
+    public void setWriteConsistencyLevelsDisallowed(Set<ConsistencyLevel> consistencyLevels)
+    {
+        updatePropertyWithLogging("write_consistency_levels_disallowed",
+                                  validateConsistencyLevels(consistencyLevels, "write_consistency_levels_disallowed"),
+                                  () -> config.write_consistency_levels_disallowed,
+                                  x -> config.write_consistency_levels_disallowed = x);
     }
 
     private static <T> void updatePropertyWithLogging(String propertyName, T newValue, Supplier<T> getter, Consumer<T> setter)
@@ -361,5 +437,13 @@ public class GuardrailsOptions implements GuardrailsConfig
                                                       name, diff));
 
         return lowerCaseProperties;
+    }
+
+    private static Set<ConsistencyLevel> validateConsistencyLevels(Set<ConsistencyLevel> consistencyLevels, String name)
+    {
+        if (consistencyLevels == null)
+            throw new IllegalArgumentException(format("Invalid value for %s: null is not allowed", name));
+
+        return consistencyLevels.isEmpty() ? Collections.emptySet() : Sets.immutableEnumSet(consistencyLevels);
     }
 }

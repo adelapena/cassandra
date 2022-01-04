@@ -1599,7 +1599,8 @@ drop_compact_storage_enabled: false
 # The two thresholds default to -1 to disable.
 # materialized_views_per_table_warn_threshold: -1
 # materialized_views_per_table_fail_threshold: -1
-# Guardrail to ignore or reject properties when creating tables. By default all properties are allowed.
+# Guardrail to warn about, ignore or reject properties when creating tables. By default all properties are allowed.
+# table_properties_warned: []
 # table_properties_ignored: []
 # table_properties_disallowed: []
 # Guardrail to allow/disallow user-provided timestamps. Defaults to true.
@@ -1611,3 +1612,9 @@ drop_compact_storage_enabled: false
 # Guardrail to allow/disallow list operations that require read before write, i.e. setting list element by index and
 # removing list elements by either index or value. Defaults to true.
 # read_before_write_list_operations_enabled: true
+# Guardrail to warn about or reject read consistency levels. By default, all consistency levels are allowed.
+# read_consistency_levels_warned: []
+# read_consistency_levels_disallowed: []
+# Guardrail to warn about or reject write consistency levels. By default, all consistency levels are allowed.
+# write_consistency_levels_warned: []
+# write_consistency_levels_disallowed: []
