@@ -692,7 +692,7 @@ public final class Schema implements SchemaProvider
     /**
      * See CASSANDRA-16856/16996. Make sure schema pulls are synchronized to prevent concurrent schema pull/writes
      */
-    synchronized void merge(Collection<Mutation> mutations)
+    public synchronized void merge(Collection<Mutation> mutations)
     {
         // only compare the keyspaces affected by this set of schema mutations
         Set<String> affectedKeyspaces = SchemaKeyspace.affectedKeyspaces(mutations);

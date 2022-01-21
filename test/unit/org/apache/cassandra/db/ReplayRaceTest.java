@@ -22,11 +22,10 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -39,20 +38,17 @@ import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.cql3.QualifiedName;
 import org.apache.cassandra.cql3.statements.schema.CreateTableStatement;
 import org.apache.cassandra.db.commitlog.CommitLog;
+import org.apache.cassandra.db.commitlog.CommitLogDescriptor;
 import org.apache.cassandra.db.commitlog.CommitLogPosition;
 import org.apache.cassandra.db.commitlog.CommitLogReplayer;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.FilteredPartition;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.schema.KeyspaceParams;
 import org.apache.cassandra.schema.Keyspaces;
-import org.apache.cassandra.schema.MigrationManager;
 import org.apache.cassandra.schema.Schema;
 import org.apache.cassandra.schema.SchemaKeyspace;
 import org.apache.cassandra.schema.TableId;
-import org.apache.cassandra.schema.TableMetadata;
 import org.apache.cassandra.schema.Tables;
-import org.apache.cassandra.utils.FBUtilities;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -87,11 +83,9 @@ public class ReplayRaceTest
         // When replaying, we should see 99 rows. But, in fact, we will only see 0 rows.
         // In other words, data loss.
         List<Mutation> timeOrderedmnutations = new ArrayList<>(100);
-        timeOrderedmnutations.add(schemaChangeToAddTable());
-        MigrationManager.announceNewTable(TableMetadata.builder(KEYSPACE, TABLE)
-                                                       .addPartitionKeyColumn("pk", UTF8Type.instance)
-                                                       .addRegularColumn("val", UTF8Type.instance)
-                                                       .build(), true);
+        Mutation schemaChange = schemaChangeToAddTable();
+        timeOrderedmnutations.add(schemaChange);
+        Schema.instance.merge(Collections.singletonList(schemaChange));
         for (int i = 1; i < 100; i ++)
         {
             timeOrderedmnutations.add(new RowUpdateBuilder(ks.getColumnFamilyStore(TABLE).metadata(),
@@ -102,12 +96,10 @@ public class ReplayRaceTest
         Schema.instance.load(Schema.instance.getKeyspaceMetadata(KEYSPACE).withSwapped(Tables.none()));
         assertNull(Schema.instance.getTableMetadata(KEYSPACE, TABLE));
 
-        CommitLogReplayer.MutationInitiator mutationInitiator = new CommitLogReplayer.MutationInitiator();
         CommitLogReplayer replayer = new MockReplayer();
-        List<Future<?>> futures = timeOrderedmnutations.stream().map(m -> {
-            return mutationInitiator.initiateMutation(m, 1, 1, 1, replayer);
-        }).collect(Collectors.toList());
-        FBUtilities.waitOnFutures(futures);
+        timeOrderedmnutations.forEach(m -> {
+            replayer.handleMutation(m, 1, 1, new CommitLogDescriptor(1, 1, null, null));
+        });
 
         List<FilteredPartition> replayed = Util.getAll(Util.cmd(ks.getColumnFamilyStore(TABLE)).build());
 
