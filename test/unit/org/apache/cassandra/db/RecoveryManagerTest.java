@@ -342,7 +342,7 @@ public class RecoveryManagerTest
         final Semaphore blocked = new Semaphore(0);
 
         @Override
-        protected org.apache.cassandra.utils.concurrent.Future<Integer> initiateMutation(final Mutation mutation,
+        public org.apache.cassandra.utils.concurrent.Future<Integer> initiateMutation(final Mutation mutation,
                                                                                          final long segmentId,
                                                                                          final int serializedSize,
                                                                                          final int entryLocation,

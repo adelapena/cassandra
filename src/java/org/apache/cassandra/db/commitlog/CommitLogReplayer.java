@@ -69,7 +69,7 @@ public class CommitLogReplayer implements CommitLogReadHandler
     private final Set<Keyspace> keyspacesReplayed;
     private final Queue<Future<Integer>> futures;
 
-    private final AtomicInteger replayedCount;
+    public final AtomicInteger replayedCount;
     private final Map<TableId, IntervalSet<CommitLogPosition>> cfPersisted;
     private final CommitLogPosition globalPosition;
 
@@ -88,7 +88,7 @@ public class CommitLogReplayer implements CommitLogReadHandler
     // The OpOrder used to order mutations before and after schema mutations
     private final OpOrder writeOrder = new OpOrder();
 
-    CommitLogReplayer(CommitLog commitLog,
+    public CommitLogReplayer(CommitLog commitLog,
                       CommitLogPosition globalPosition,
                       Map<TableId, IntervalSet<CommitLogPosition>> cfPersisted,
                       ReplayFilter replayFilter)
@@ -235,7 +235,7 @@ public class CommitLogReplayer implements CommitLogReadHandler
     @VisibleForTesting
     public static class MutationInitiator
     {
-        protected Future<Integer> initiateMutation(final Mutation mutation,
+        public Future<Integer> initiateMutation(final Mutation mutation,
                                                    final long segmentId,
                                                    final int serializedSize,
                                                    final int entryLocation,
@@ -378,7 +378,7 @@ public class CommitLogReplayer implements CommitLogReadHandler
         }
     }
 
-    private static class AlwaysReplayFilter extends ReplayFilter
+    public static class AlwaysReplayFilter extends ReplayFilter
     {
         public Iterable<PartitionUpdate> filter(Mutation mutation)
         {
@@ -427,7 +427,7 @@ public class CommitLogReplayer implements CommitLogReadHandler
      *
      * @return true iff replay is necessary
      */
-    private boolean shouldReplay(TableId tableId, CommitLogPosition position)
+    public boolean shouldReplay(TableId tableId, CommitLogPosition position)
     {
         // If we are replaying schema mutations (unlikely event) it's possible that the table id
         // is not present in cfPersisted map, eventhough we should replay the mutation.
