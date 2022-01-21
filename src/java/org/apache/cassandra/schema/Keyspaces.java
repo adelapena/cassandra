@@ -192,7 +192,7 @@ public final class Keyspaces implements Iterable<KeyspaceMetadata>
         }
     }
 
-    static KeyspacesDiff diff(Keyspaces before, Keyspaces after)
+    public static KeyspacesDiff diff(Keyspaces before, Keyspaces after)
     {
         return KeyspacesDiff.diff(before, after);
     }

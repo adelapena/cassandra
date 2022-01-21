@@ -253,7 +253,7 @@ public final class SchemaKeyspace
         return KeyspaceMetadata.create(SchemaConstants.SCHEMA_KEYSPACE_NAME, KeyspaceParams.local(), org.apache.cassandra.schema.Tables.of(ALL_TABLE_METADATA));
     }
 
-    static Collection<Mutation> convertSchemaDiffToMutations(KeyspacesDiff diff, long timestamp)
+    public static Collection<Mutation> convertSchemaDiffToMutations(KeyspacesDiff diff, long timestamp)
     {
         Map<String, Mutation> mutations = new HashMap<>();
 
