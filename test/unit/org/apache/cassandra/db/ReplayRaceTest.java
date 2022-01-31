@@ -23,8 +23,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -123,7 +123,7 @@ public class ReplayRaceTest
     {
         public MockReplayer()
         {
-            super(CommitLog.instance, null, Map.of(), new AlwaysReplayFilter());
+            super(CommitLog.instance, null, new HashMap<>(), new AlwaysReplayFilter());
         }
 
         @Override
