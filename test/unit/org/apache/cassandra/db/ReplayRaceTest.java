@@ -41,7 +41,6 @@ import org.apache.cassandra.db.commitlog.CommitLog;
 import org.apache.cassandra.db.commitlog.CommitLogDescriptor;
 import org.apache.cassandra.db.commitlog.CommitLogPosition;
 import org.apache.cassandra.db.commitlog.CommitLogReplayer;
-import org.apache.cassandra.db.partitions.FilteredPartition;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.schema.KeyspaceParams;
 import org.apache.cassandra.schema.Keyspaces;
@@ -50,7 +49,6 @@ import org.apache.cassandra.schema.SchemaKeyspace;
 import org.apache.cassandra.schema.TableId;
 import org.apache.cassandra.schema.Tables;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class ReplayRaceTest
@@ -101,9 +99,7 @@ public class ReplayRaceTest
             replayer.handleMutation(m, 1, 1, new CommitLogDescriptor(1, 1, null, null));
         });
 
-        List<FilteredPartition> replayed = Util.getAll(Util.cmd(ks.getColumnFamilyStore(TABLE)).build());
-
-        assertEquals(99, replayed.size());
+        Util.spinAssertEquals(99, () -> Util.getAll(Util.cmd(ks.getColumnFamilyStore(TABLE)).build()).size(), 60);
     }
 
     private Mutation schemaChangeToAddTable() throws UnknownHostException
