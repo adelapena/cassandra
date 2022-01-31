@@ -88,7 +88,7 @@ public class CommitLogReplayer implements CommitLogReadHandler
     // The OpOrder used to order mutations before and after schema mutations
     private final OpOrder writeOrder = new OpOrder();
 
-    public CommitLogReplayer(CommitLog commitLog,
+    CommitLogReplayer(CommitLog commitLog,
                       CommitLogPosition globalPosition,
                       Map<TableId, IntervalSet<CommitLogPosition>> cfPersisted,
                       ReplayFilter replayFilter)
@@ -235,7 +235,7 @@ public class CommitLogReplayer implements CommitLogReadHandler
     @VisibleForTesting
     public static class MutationInitiator
     {
-        public Future<Integer> initiateMutation(final Mutation mutation,
+        protected Future<Integer> initiateMutation(final Mutation mutation,
                                                    final long segmentId,
                                                    final int serializedSize,
                                                    final int entryLocation,
@@ -378,7 +378,8 @@ public class CommitLogReplayer implements CommitLogReadHandler
         }
     }
 
-    public static class AlwaysReplayFilter extends ReplayFilter
+    @VisibleForTesting
+    static class AlwaysReplayFilter extends ReplayFilter
     {
         public Iterable<PartitionUpdate> filter(Mutation mutation)
         {
@@ -427,7 +428,8 @@ public class CommitLogReplayer implements CommitLogReadHandler
      *
      * @return true iff replay is necessary
      */
-    public boolean shouldReplay(TableId tableId, CommitLogPosition position)
+    @VisibleForTesting
+    boolean shouldReplay(TableId tableId, CommitLogPosition position)
     {
         // If we are replaying schema mutations (unlikely event) it's possible that the table id
         // is not present in cfPersisted map, eventhough we should replay the mutation.

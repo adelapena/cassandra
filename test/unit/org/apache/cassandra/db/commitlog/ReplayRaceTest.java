@@ -16,15 +16,14 @@
  * limitations under the License.
  */
 
-package org.apache.cassandra.db;
+package org.apache.cassandra.db.commitlog;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -37,10 +36,9 @@ import org.apache.cassandra.cql3.CQL3Type;
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.cql3.QualifiedName;
 import org.apache.cassandra.cql3.statements.schema.CreateTableStatement;
-import org.apache.cassandra.db.commitlog.CommitLog;
-import org.apache.cassandra.db.commitlog.CommitLogDescriptor;
-import org.apache.cassandra.db.commitlog.CommitLogPosition;
-import org.apache.cassandra.db.commitlog.CommitLogReplayer;
+import org.apache.cassandra.db.Keyspace;
+import org.apache.cassandra.db.Mutation;
+import org.apache.cassandra.db.RowUpdateBuilder;
 import org.apache.cassandra.db.partitions.FilteredPartition;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.schema.KeyspaceParams;
@@ -57,6 +55,7 @@ public class ReplayRaceTest
 {
     private static final String KEYSPACE = "replay_race";
     private static final String TABLE = "test_table";
+    private static final int NUM_MUTATIONS = 100;
 
     @Before
     public void setUp() throws IOException
@@ -68,8 +67,7 @@ public class ReplayRaceTest
     public static void defineSchema() throws ConfigurationException
     {
         SchemaLoader.prepareServer();
-        SchemaLoader.createKeyspace(KEYSPACE,
-                                    KeyspaceParams.simple(1));
+        SchemaLoader.createKeyspace(KEYSPACE, KeyspaceParams.simple(1));
     }
 
     @Test
@@ -77,36 +75,34 @@ public class ReplayRaceTest
     {
         Keyspace ks = Keyspace.open(KEYSPACE);
 
-        // 100 mutationed sorted by its write time
-        // The first mutation creates the table
-        // Following mutations insert rows into the table
-        // When replaying, we should see 99 rows. But, in fact, we will only see 0 rows.
-        // In other words, data loss.
-        List<Mutation> timeOrderedmnutations = new ArrayList<>(100);
+        // NUM_MUTATIONS mutationes sorted by its write time.
+        // The first mutation creates the table.
+        // Following mutations insert rows into the table.
+        // When replaying, we should see NUM_MUTATIONS - 1 rows.
+        List<Mutation> timeOrderedMutations = new ArrayList<>(NUM_MUTATIONS);
         Mutation schemaChange = schemaChangeToAddTable();
-        timeOrderedmnutations.add(schemaChange);
+        timeOrderedMutations.add(schemaChange);
         Schema.instance.merge(Collections.singletonList(schemaChange));
-        for (int i = 1; i < 100; i ++)
+
+        for (int i = 1; i < NUM_MUTATIONS; i++)
         {
-            timeOrderedmnutations.add(new RowUpdateBuilder(ks.getColumnFamilyStore(TABLE).metadata(),
-                                               System.currentTimeMillis(), 0, "key_" + i)
-                          .add("val", "col_val_" + i)
-                          .build());
+            timeOrderedMutations.add(new RowUpdateBuilder(ks.getColumnFamilyStore(TABLE).metadata(),
+                                                          System.currentTimeMillis(), 0, "key_" + i)
+                                     .add("val", "col_val_" + i)
+                                     .build());
         }
+
         Schema.instance.load(Schema.instance.getKeyspaceMetadata(KEYSPACE).withSwapped(Tables.none()));
         assertNull(Schema.instance.getTableMetadata(KEYSPACE, TABLE));
 
         CommitLogReplayer replayer = new MockReplayer();
-        timeOrderedmnutations.forEach(m -> {
-            replayer.handleMutation(m, 1, 1, new CommitLogDescriptor(1, 1, null, null));
-        });
+        timeOrderedMutations.forEach(m -> replayer.handleMutation(m, 1, 1, new CommitLogDescriptor(1, 1, null, null)));
 
         List<FilteredPartition> replayed = Util.getAll(Util.cmd(ks.getColumnFamilyStore(TABLE)).build());
-
-        assertEquals(99, replayed.size());
+        assertEquals(NUM_MUTATIONS - 1, replayed.size());
     }
 
-    private Mutation schemaChangeToAddTable() throws UnknownHostException
+    private static Mutation schemaChangeToAddTable()
     {
         CreateTableStatement.Raw raw = new CreateTableStatement.Raw(new QualifiedName(KEYSPACE, TABLE), false);
         raw.setPartitionKeyColumn(ColumnIdentifier.getInterned("pk", false));
@@ -115,19 +111,20 @@ public class ReplayRaceTest
         CreateTableStatement createTableStatement = raw.prepare(null);
         Keyspaces keyspaces = Schema.instance.snapshot();
         Keyspaces after = createTableStatement.apply(keyspaces);
-        Collection<Mutation> schemaChange = SchemaKeyspace.convertSchemaDiffToMutations(Keyspaces.diff(keyspaces, after), TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis()));
+        Collection<Mutation> schemaChange = SchemaKeyspace.convertSchemaDiffToMutations(Keyspaces.diff(keyspaces, after),
+                                                                                        TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis()));
         return schemaChange.iterator().next();
     }
 
-    static class MockReplayer extends CommitLogReplayer
+    private static class MockReplayer extends CommitLogReplayer
     {
         public MockReplayer()
         {
-            super(CommitLog.instance, null, Map.of(), new AlwaysReplayFilter());
+            super(CommitLog.instance, null, new HashMap<>(), new AlwaysReplayFilter());
         }
 
         @Override
-        public boolean shouldReplay(TableId tableId, CommitLogPosition position)
+        boolean shouldReplay(TableId tableId, CommitLogPosition position)
         {
             return true;
         }

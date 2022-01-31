@@ -98,15 +98,10 @@ public class MigrationManager
 
     public static void announceNewTable(TableMetadata cfm)
     {
-        announceNewTable(cfm, true, FBUtilities.timestampMicros(), false);
+        announceNewTable(cfm, true, FBUtilities.timestampMicros());
     }
 
-    public static void announceNewTable(TableMetadata cfm, boolean announceLocally)
-    {
-        announceNewTable(cfm, true, FBUtilities.timestampMicros(), announceLocally);
-    }
-
-    private static void announceNewTable(TableMetadata cfm, boolean throwOnDuplicate, long timestamp, boolean announceLocally)
+    private static void announceNewTable(TableMetadata cfm, boolean throwOnDuplicate, long timestamp)
     {
         cfm.validate();
 
@@ -118,7 +113,7 @@ public class MigrationManager
             throw new AlreadyExistsException(cfm.keyspace, cfm.name);
 
         logger.info("Create new table: {}", cfm);
-        announce(SchemaKeyspace.makeCreateTableMutation(ksm, cfm, timestamp), announceLocally);
+        announce(SchemaKeyspace.makeCreateTableMutation(ksm, cfm, timestamp), false);
     }
 
     static void announceKeyspaceUpdate(KeyspaceMetadata ksm)
