@@ -38,6 +38,7 @@ import org.apache.cassandra.cql3.QualifiedName;
 import org.apache.cassandra.cql3.statements.schema.CreateTableStatement;
 import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.Mutation;
+import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.db.RowUpdateBuilder;
 import org.apache.cassandra.db.partitions.FilteredPartition;
 import org.apache.cassandra.exceptions.ConfigurationException;
@@ -98,8 +99,8 @@ public class ReplayRaceTest
         CommitLogReplayer replayer = new MockReplayer();
         timeOrderedMutations.forEach(m -> replayer.handleMutation(m, 1, 1, new CommitLogDescriptor(1, 1, null, null)));
 
-        List<FilteredPartition> replayed = Util.getAll(Util.cmd(ks.getColumnFamilyStore(TABLE)).build());
-        assertEquals(NUM_MUTATIONS - 1, replayed.size());
+        ReadCommand cmd = Util.cmd(ks.getColumnFamilyStore(TABLE)).build();
+        Util.spinAssertEquals(NUM_MUTATIONS - 1, () -> Util.getAll(cmd).size(), 60);
     }
 
     private static Mutation schemaChangeToAddTable()
