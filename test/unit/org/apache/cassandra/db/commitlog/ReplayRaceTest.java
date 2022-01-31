@@ -38,7 +38,6 @@ import org.apache.cassandra.cql3.QualifiedName;
 import org.apache.cassandra.cql3.statements.schema.CreateTableStatement;
 import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.Mutation;
-import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.db.RowUpdateBuilder;
 import org.apache.cassandra.db.partitions.FilteredPartition;
 import org.apache.cassandra.exceptions.ConfigurationException;
@@ -76,7 +75,7 @@ public class ReplayRaceTest
     {
         Keyspace ks = Keyspace.open(KEYSPACE);
 
-        // NUM_MUTATIONS mutationes sorted by its write time.
+        // NUM_MUTATIONS mutations sorted by its write time.
         // The first mutation creates the table.
         // Following mutations insert rows into the table.
         // When replaying, we should see NUM_MUTATIONS - 1 rows.
@@ -99,8 +98,12 @@ public class ReplayRaceTest
         CommitLogReplayer replayer = new MockReplayer();
         timeOrderedMutations.forEach(m -> replayer.handleMutation(m, 1, 1, new CommitLogDescriptor(1, 1, null, null)));
 
-        ReadCommand cmd = Util.cmd(ks.getColumnFamilyStore(TABLE)).build();
-        Util.spinAssertEquals(NUM_MUTATIONS - 1, () -> Util.getAll(cmd).size(), 60);
+        // We should have replayed NUM_MUTATIONS - 1 partitions updates for the inserted rows and other three additional
+        // partition updates in system_schema.keyspaces/tables/columns for the schema mutation.
+        assertEquals(NUM_MUTATIONS + 2, replayer.blockForWrites());
+
+        List<FilteredPartition> replayed = Util.getAll(Util.cmd(ks.getColumnFamilyStore(TABLE)).build());
+        assertEquals(NUM_MUTATIONS - 1, replayed.size());
     }
 
     private static Mutation schemaChangeToAddTable()
