@@ -98,6 +98,8 @@ public class BootstrapTest extends TestBaseImpl
             populate(cluster,0, 100);
 
             Assert.assertEquals(100, newInstance.executeInternal("SELECT *FROM " + KEYSPACE + ".tbl").length);
+
+            newInstance.shutdown().get();
         }
     }
 
