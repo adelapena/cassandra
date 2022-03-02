@@ -111,7 +111,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -286,7 +286,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -395,7 +395,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -518,7 +518,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -613,7 +613,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -708,7 +708,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -804,7 +804,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -900,7 +900,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -996,7 +996,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1140,7 +1140,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1263,7 +1263,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1361,7 +1361,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1438,7 +1438,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1514,7 +1514,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1577,7 +1577,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1686,7 +1686,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1795,7 +1795,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1894,7 +1894,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1949,7 +1949,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2125,7 +2125,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2202,7 +2202,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2297,7 +2297,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2407,7 +2407,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2505,7 +2505,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2600,7 +2600,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2695,7 +2695,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2758,7 +2758,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2867,7 +2867,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2921,7 +2921,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2984,7 +2984,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3082,7 +3082,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3192,7 +3192,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3367,7 +3367,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3462,7 +3462,7 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: test-jvm-dtest-some
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.trackwarnings.TombstoneCountWarningTest
-    - REPEATED_UTEST_METHODS: failThresholdSinglePartition
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
