@@ -77,6 +77,7 @@ public abstract class Guardrail
         ClientWarn.instance.warn(message);
         // Similarly, tracing will also ignore the message if we're not running tracing on the current thread.
         Tracing.trace(message);
+        GuardrailsDiagnostics.warned(name, message);
     }
 
     protected void fail(String message, @Nullable ClientState state)
@@ -89,6 +90,7 @@ public abstract class Guardrail
         ClientWarn.instance.warn(message);
         // Similarly, tracing will also ignore the message if we're not running tracing on the current thread.
         Tracing.trace(message);
+        GuardrailsDiagnostics.failed(name, message);
 
         if (state != null)
             throw new GuardrailViolatedException(message);

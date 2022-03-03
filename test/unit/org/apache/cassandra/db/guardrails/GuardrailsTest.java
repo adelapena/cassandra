@@ -129,7 +129,7 @@ public class GuardrailsTest extends GuardrailTester
 
         // value over fail threshold. An undefined user means that the check comes from a background process,
         // so we warn instead of failing to prevent interrupting that process.
-        assertWarns(() -> guard.guard(101, "z", null), "Failure: for z, 101 > 100");
+        assertFails(() -> guard.guard(101, "z", null), false, "Failure: for z, 101 > 100");
         assertFails(() -> guard.guard(101, "z", userClientState), "Failure: for z, 101 > 100");
         assertValid(() -> guard.guard(101, "z", systemClientState));
         assertValid(() -> guard.guard(101, "z", superClientState));
@@ -234,9 +234,9 @@ public class GuardrailsTest extends GuardrailTester
         assertValid(() -> disallowed.guard(set(200), action, userClientState));
         assertValid(() -> disallowed.guard(set(1, 2, 3), action, userClientState));
 
-        assertWarns(() -> disallowed.guard(set(4, 6), action, null),
+        assertFails(() -> disallowed.guard(set(4, 6), action, null), false,
                     "Provided values [4, 6] are not allowed for integer (disallowed values are: [4, 6, 20])");
-        assertWarns(() -> disallowed.guard(set(4, 5, 6, 7), action, null),
+        assertFails(() -> disallowed.guard(set(4, 5, 6, 7), action, null), false,
                     "Provided values [4, 6] are not allowed for integer (disallowed values are: [4, 6, 20])");
     }
 
@@ -271,7 +271,7 @@ public class GuardrailsTest extends GuardrailTester
         Assert.assertEquals(list(3, 3), triggeredOn);
 
         message = "Provided values [4] are not allowed for integer (disallowed values are: [4])";
-        assertWarns(() -> disallowed.guard(set(4), action, null), message);
+        assertFails(() -> disallowed.guard(set(4), action, null), false, message);
         assertFails(() -> disallowed.guard(set(4), action, userClientState), message);
         assertValid(() -> disallowed.guard(set(4), action, systemClientState));
         assertValid(() -> disallowed.guard(set(4), action, superClientState));
