@@ -44,14 +44,17 @@ public class Values<T> extends Guardrail
     /**
      * Creates a new values guardrail.
      *
+     * @param name             the name of the guardrail (for identification in diagnostic events).
      * @param ignoredValues    a {@link ClientState}-based of the values that are ignored.
      * @param disallowedValues a {@link ClientState}-based of the values that are disallowed.
      * @param what             The feature that is guarded by this guardrail (for reporting in error messages).
      */
-    public Values(Function<ClientState, Set<T>> ignoredValues,
+    public Values(String name,
+                  Function<ClientState, Set<T>> ignoredValues,
                   Function<ClientState, Set<T>> disallowedValues,
                   String what)
     {
+        super(name);
         this.ignoredValues = ignoredValues;
         this.disallowedValues = disallowedValues;
         this.what = what;

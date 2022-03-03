@@ -226,7 +226,7 @@ public interface GuardrailsMBean
      * @param warn The threshold to warn when the number of partition keys in a select statement is greater than
      *             threshold -1 means disabled.
      * @param fail The threshold to prevent when the number of partition keys in a select statement is more than
-     *              threshold -1 means disabled.
+     *             threshold -1 means disabled.
      */
     void setPartitionKeysInSelectThreshold(int warn, int fail);
 

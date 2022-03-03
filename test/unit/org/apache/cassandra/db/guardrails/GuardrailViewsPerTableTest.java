@@ -39,7 +39,7 @@ public class GuardrailViewsPerTableTest extends ThresholdTester
     {
         super(VIEWS_PER_TABLE_WARN_THRESHOLD,
               VIEWS_PER_TABLE_FAIL_THRESHOLD,
-              "materialized_views_per_table",
+              Guardrails.materializedViewsPerTable,
               Guardrails::setMaterializedViewsPerTableThreshold,
               Guardrails::getMaterializedViewsPerTableWarnThreshold,
               Guardrails::getMaterializedViewsPerTableFailThreshold);

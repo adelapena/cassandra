@@ -18,25 +18,33 @@
 
 package org.apache.cassandra.db.guardrails;
 
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import org.apache.cassandra.auth.AuthenticatedUser;
 import org.apache.cassandra.auth.CassandraRoleManager;
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.CQLStatement;
 import org.apache.cassandra.cql3.CQLTester;
 import org.apache.cassandra.cql3.QueryOptions;
 import org.apache.cassandra.cql3.QueryProcessor;
+import org.apache.cassandra.db.guardrails.GuardrailEvent.GuardrailEventType;
 import org.apache.cassandra.db.view.View;
+import org.apache.cassandra.diag.DiagnosticEventService;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.sasi.SASIIndex;
 import org.apache.cassandra.service.ClientState;
@@ -48,6 +56,7 @@ import org.assertj.core.api.Assertions;
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -63,6 +72,24 @@ public abstract class GuardrailTester extends CQLTester
 
     protected static ClientState systemClientState, userClientState, superClientState;
 
+    /** The tested guardrail, if we are testing a specific one. */
+    @Nullable
+    protected final Guardrail guardrail;
+
+    /** A listener for emitted diagnostic events. */
+    protected final Listener listener;
+
+    public GuardrailTester()
+    {
+        this(null);
+    }
+
+    public GuardrailTester(@Nullable Guardrail guardrail)
+    {
+        this.guardrail = guardrail;
+        this.listener = new Listener();
+    }
+
     @BeforeClass
     public static void setUpClass()
     {
@@ -70,6 +97,7 @@ public abstract class GuardrailTester extends CQLTester
         requireAuthentication();
         requireNetwork();
         guardrails().setEnabled(true);
+        DatabaseDescriptor.setDiagnosticEventsEnabled(true);
 
         systemClientState = ClientState.forInternalCalls();
         userClientState = ClientState.forExternalCalls(InetSocketAddress.createUnresolved("127.0.0.1", 123));
@@ -92,6 +120,14 @@ public abstract class GuardrailTester extends CQLTester
         execute(userClientState, useKeyspaceQuery);
         execute(systemClientState, useKeyspaceQuery);
         execute(superClientState, useKeyspaceQuery);
+
+        DiagnosticEventService.instance().subscribe(GuardrailEvent.class, listener);
+    }
+
+    @After
+    public void afterGuardrailTest() throws Throwable
+    {
+        DiagnosticEventService.instance().unsubscribe(listener);
     }
 
     static Guardrails guardrails()
@@ -147,6 +183,8 @@ public abstract class GuardrailTester extends CQLTester
         {
             function.apply();
             assertEmptyWarnings();
+            listener.assertNotWarned();
+            listener.assertNotFailed();
         }
         catch (InvalidRequestException e)
         {
@@ -155,6 +193,7 @@ public abstract class GuardrailTester extends CQLTester
         finally
         {
             ClientWarn.instance.resetWarnings();
+            listener.clear();
         }
     }
 
@@ -172,10 +211,13 @@ public abstract class GuardrailTester extends CQLTester
         {
             function.apply();
             assertWarnings(message);
+            listener.assertWarned(message);
+            listener.assertNotFailed();
         }
         finally
         {
             ClientWarn.instance.resetWarnings();
+            listener.clear();
         }
     }
 
@@ -207,10 +249,13 @@ public abstract class GuardrailTester extends CQLTester
                        e.getMessage().contains(message));
 
             assertWarnings(message);
+            listener.assertNotWarned();
+            listener.assertFailed(message);
         }
         finally
         {
             ClientWarn.instance.resetWarnings();
+            listener.clear();
         }
     }
 
@@ -280,5 +325,77 @@ public abstract class GuardrailTester extends CQLTester
         QueryOptions options = QueryOptions.forInternalCalls(Collections.emptyList());
 
         return statement.executeLocally(queryState, options);
+    }
+
+    /**
+     * A listener for guardrails diagnostic events.
+     */
+    public class Listener implements Consumer<GuardrailEvent>
+    {
+        private final List<String> warnings = new CopyOnWriteArrayList<>();
+        private final List<String> failures = new CopyOnWriteArrayList<>();
+
+        @Override
+        public void accept(GuardrailEvent event)
+        {
+            assertNotNull(event);
+            Map<String, Serializable> map = event.toMap();
+
+            if (guardrail != null)
+                assertEquals(guardrail.name, map.get("name"));
+
+            GuardrailEventType type = (GuardrailEventType) event.getType();
+            String message = map.toString();
+
+            switch (type)
+            {
+                case WARNED:
+                    warnings.add(message);
+                    break;
+                case FAILED:
+                    failures.add(message);
+                    break;
+                default:
+                    fail("Unexpected diagnostic event:" + type);
+            }
+        }
+
+        public void clear()
+        {
+            warnings.clear();
+            failures.clear();
+        }
+
+        public void assertNotWarned()
+        {
+            assertTrue(format("Expect no warning diagnostic events but got %s", warnings), warnings.isEmpty());
+        }
+
+        public void assertWarned(String message)
+        {
+            assertFalse("Expected to emit warning diagnostic event, but no warning was emitted", warnings.isEmpty());
+            assertEquals(format("Got more thant 1 warning diagnostic event (got %d => %s)", warnings.size(), warnings),
+                         1, warnings.size());
+
+            String warning = warnings.get(0);
+            assertTrue(format("Warning diagnostic event '%s' does not contain expected message '%s'", warning, message),
+                       warning.contains(message));
+        }
+
+        public void assertNotFailed()
+        {
+            assertTrue(format("Expect no failure diagnostic events but got %s", failures), failures.isEmpty());
+        }
+
+        public void assertFailed(String message)
+        {
+            assertFalse("Expected to emit failure diagnostic event, but no failure was emitted", failures.isEmpty());
+            assertEquals(format("Got more thant 1 failure diagnostic event (got %d => %s)", failures.size(), failures),
+                         1, failures.size());
+
+            String failure = failures.get(0);
+            assertTrue(format("Failure diagnostic event '%s' does not contain expected message '%s'", failure, message),
+                       failure.contains(message));
+        }
     }
 }

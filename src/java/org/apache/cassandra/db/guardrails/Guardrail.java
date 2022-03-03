@@ -44,6 +44,14 @@ public abstract class Guardrail
     protected static final NoSpamLogger logger = NoSpamLogger.getLogger(LoggerFactory.getLogger(Guardrail.class),
                                                                         10, TimeUnit.MINUTES);
 
+    /** A name identifying the guardrail (mainly for shipping with diagnostic events). */
+    public final String name;
+
+    Guardrail(String name)
+    {
+        this.name = name;
+    }
+
     /**
      * Checks whether this guardrail is enabled or not. This will be enabled if guardrails are enabled
      * ({@link Guardrails#enabled(ClientState)}) and if the authenticated user (if specified) is not system nor
@@ -66,6 +74,7 @@ public abstract class Guardrail
         ClientWarn.instance.warn(message);
         // Similarly, tracing will also ignore the message if we're not running tracing on the current thread.
         Tracing.trace(message);
+        GuardrailsDiagnostics.warned(name, message);
     }
 
     protected void fail(String message)
@@ -76,6 +85,7 @@ public abstract class Guardrail
         ClientWarn.instance.warn(message);
         // Similarly, tracing will also ignore the message if we're not running tracing on the current thread.
         Tracing.trace(message);
+        GuardrailsDiagnostics.failed(name, message);
 
         throw new InvalidRequestException(message);
     }
