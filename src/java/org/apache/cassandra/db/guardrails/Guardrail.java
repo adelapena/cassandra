@@ -43,6 +43,7 @@ public abstract class Guardrail
 {
     protected static final NoSpamLogger logger = NoSpamLogger.getLogger(LoggerFactory.getLogger(Guardrail.class),
                                                                         10, TimeUnit.MINUTES);
+    protected static final String REDACTED = "<redacted>";
 
     /** A name identifying the guardrail (mainly for shipping with diagnostic events). */
     public final String name;
@@ -66,27 +67,37 @@ public abstract class Guardrail
         return Guardrails.enabled(state) && (state == null || state.isOrdinaryUser());
     }
 
-    protected void warn(String message)
+    protected void warn(String fullMessage, String redactedMessage)
     {
-        logger.warn(message);
+        logger.warn(fullMessage);
         // Note that ClientWarn will simply ignore the message if we're not running this as part of a user query
         // (the internal "state" will be null)
-        ClientWarn.instance.warn(message);
+        ClientWarn.instance.warn(fullMessage);
         // Similarly, tracing will also ignore the message if we're not running tracing on the current thread.
-        Tracing.trace(message);
-        GuardrailsDiagnostics.warned(name, message);
+        Tracing.trace(fullMessage);
+        GuardrailsDiagnostics.warned(name, redactedMessage);
     }
 
-    protected void fail(String message)
+    protected void warn(String fullMessage)
     {
-        logger.error(message);
+        warn(fullMessage, fullMessage);
+    }
+
+    protected void fail(String fullMessage, String redactedMessage)
+    {
+        logger.error(fullMessage);
         // Note that ClientWarn will simply ignore the message if we're not running this as part of a user query
         // (the internal "state" will be null)
-        ClientWarn.instance.warn(message);
+        ClientWarn.instance.warn(fullMessage);
         // Similarly, tracing will also ignore the message if we're not running tracing on the current thread.
-        Tracing.trace(message);
-        GuardrailsDiagnostics.failed(name, message);
+        Tracing.trace(fullMessage);
+        GuardrailsDiagnostics.failed(name, redactedMessage);
 
-        throw new InvalidRequestException(message);
+        throw new InvalidRequestException(fullMessage);
+    }
+
+    protected void fail(String fullMessage)
+    {
+        fail(fullMessage, fullMessage);
     }
 }

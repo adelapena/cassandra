@@ -204,6 +204,11 @@ public abstract class GuardrailTester extends CQLTester
 
     protected void assertWarns(CheckedFunction function, String message) throws Throwable
     {
+        assertWarns(function, message, message);
+    }
+
+    protected void assertWarns(CheckedFunction function, String message, String redactedMessage) throws Throwable
+    {
         // We use client warnings to check we properly warn as this is the most convenient. Technically,
         // this doesn't validate we also log the warning, but that's probably fine ...
         ClientWarn.instance.captureWarnings();
@@ -211,7 +216,7 @@ public abstract class GuardrailTester extends CQLTester
         {
             function.apply();
             assertWarnings(message);
-            listener.assertWarned(message);
+            listener.assertWarned(redactedMessage);
             listener.assertNotFailed();
         }
         finally
@@ -228,10 +233,15 @@ public abstract class GuardrailTester extends CQLTester
 
     protected void assertFails(CheckedFunction function, String message) throws Throwable
     {
-        assertFails(function, message, true);
+        assertFails(function, message, message);
     }
 
-    protected void assertFails(CheckedFunction function, String message, boolean thrown) throws Throwable
+    protected void assertFails(CheckedFunction function, String message, String redactedMessage) throws Throwable
+    {
+        assertFails(function, message, redactedMessage, true);
+    }
+
+    protected void assertFails(CheckedFunction function, String message, String redactedMessage, boolean thrown) throws Throwable
     {
         ClientWarn.instance.captureWarnings();
         try
@@ -250,7 +260,7 @@ public abstract class GuardrailTester extends CQLTester
 
             assertWarnings(message);
             listener.assertNotWarned();
-            listener.assertFailed(message);
+            listener.assertFailed(redactedMessage);
         }
         finally
         {

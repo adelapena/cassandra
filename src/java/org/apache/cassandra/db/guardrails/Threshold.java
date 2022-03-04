@@ -64,6 +64,14 @@ public class Threshold extends Guardrail
                                              thresholdValue);
     }
 
+    private String redactedErrMsg(boolean isWarning, long value, long thresholdValue)
+    {
+        return messageProvider.createMessage(isWarning,
+                                             REDACTED,
+                                             value,
+                                             thresholdValue);
+    }
+
     private long failValue(ClientState state)
     {
         long failValue = failThreshold.applyAsLong(state);
@@ -95,7 +103,7 @@ public class Threshold extends Guardrail
      * @param state The client state, used to skip the check if the query is internal or is done by a superuser.
      *              A {@code null} value means that the check should be done regardless of the query.
      */
-    public void guard(long value, String what, @Nullable ClientState state)
+    public void guard(long value, String what, boolean containsUserData, @Nullable ClientState state)
     {
         if (!enabled(state))
             return;
@@ -103,23 +111,25 @@ public class Threshold extends Guardrail
         long failValue = failValue(state);
         if (value > failValue)
         {
-            triggerFail(value, failValue, what);
+            triggerFail(value, failValue, what, containsUserData);
             return;
         }
 
         long warnValue = warnValue(state);
         if (value > warnValue)
-            triggerWarn(value, warnValue, what);
+            triggerWarn(value, warnValue, what, containsUserData);
     }
 
-    private void triggerFail(long value, long failValue, String what)
+    private void triggerFail(long value, long failValue, String what, boolean containsUserData)
     {
-        fail(errMsg(false, what, value, failValue));
+        String fullMessage = errMsg(false, what, value, failValue);
+        fail(fullMessage, containsUserData ? redactedErrMsg(false, value, failValue) : fullMessage);
     }
 
-    private void triggerWarn(long value, long warnValue, String what)
+    private void triggerWarn(long value, long warnValue, String what, boolean containsUserData)
     {
-        warn(errMsg(true, what, value, warnValue));
+        String fullMessage = errMsg(true, what, value, warnValue);
+        warn(fullMessage, containsUserData ? redactedErrMsg(true, value, warnValue) : fullMessage);
     }
 
     /**

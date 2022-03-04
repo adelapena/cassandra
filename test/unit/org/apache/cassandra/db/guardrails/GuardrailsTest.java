@@ -48,11 +48,14 @@ public class GuardrailsTest extends GuardrailTester
     {
         assertFalse(guard.enabled(userClientState));
 
-        assertValid(() -> guard.guard(5, "Z", null));
-        assertValid(() -> guard.guard(25, "A", userClientState));
-        assertValid(() -> guard.guard(100, "B", userClientState));
-        assertValid(() -> guard.guard(101, "X", userClientState));
-        assertValid(() -> guard.guard(200, "Y", userClientState));
+        for (boolean containsUserData : Arrays.asList(true, false))
+        {
+            assertValid(() -> guard.guard(5, "Z", containsUserData, null));
+            assertValid(() -> guard.guard(25, "A", containsUserData, userClientState));
+            assertValid(() -> guard.guard(100, "B", containsUserData, userClientState));
+            assertValid(() -> guard.guard(101, "X", containsUserData, userClientState));
+            assertValid(() -> guard.guard(200, "Y", containsUserData, userClientState));
+        }
     }
 
     @Test
@@ -66,12 +69,19 @@ public class GuardrailsTest extends GuardrailTester
 
         assertTrue(guard.enabled(userClientState));
 
-        assertValid(() -> guard.guard(5, "Z", userClientState));
-        assertWarns(() -> guard.guard(25, "A", userClientState), "Warning: for A, 25 > 10");
-        assertWarns(() -> guard.guard(100, "B", userClientState), "Warning: for B, 100 > 10");
-        assertFails(() -> guard.guard(101, "X", userClientState), "Aborting: for X, 101 > 100");
-        assertFails(() -> guard.guard(200, "Y", userClientState), "Aborting: for Y, 200 > 100");
-        assertValid(() -> guard.guard(5, "Z", userClientState));
+        assertValid(() -> guard.guard(5, "Z", false, userClientState));
+        assertWarns(() -> guard.guard(25, "A", false, userClientState), "Warning: for A, 25 > 10");
+        assertWarns(() -> guard.guard(100, "B", false, userClientState), "Warning: for B, 100 > 10");
+        assertFails(() -> guard.guard(101, "X", false, userClientState), "Aborting: for X, 101 > 100");
+        assertFails(() -> guard.guard(200, "Y", false, userClientState), "Aborting: for Y, 200 > 100");
+        assertValid(() -> guard.guard(5, "Z", false, userClientState));
+
+        assertValid(() -> guard.guard(5, "Z", true, userClientState));
+        assertWarns(() -> guard.guard(25, "A", true, userClientState), "Warning: for A, 25 > 10", "Warning: for <redacted>, 25 > 10");
+        assertWarns(() -> guard.guard(100, "B", true, userClientState), "Warning: for B, 100 > 10", "Warning: for <redacted>, 100 > 10");
+        assertFails(() -> guard.guard(101, "X", true, userClientState), "Aborting: for X, 101 > 100", "Aborting: for <redacted>, 101 > 100");
+        assertFails(() -> guard.guard(200, "Y", true, userClientState), "Aborting: for Y, 200 > 100", "Aborting: for <redacted>, 200 > 100");
+        assertValid(() -> guard.guard(5, "Z", true, userClientState));
     }
 
     @Test
@@ -85,8 +95,11 @@ public class GuardrailsTest extends GuardrailTester
 
         assertTrue(guard.enabled(userClientState));
 
-        assertValid(() -> guard.guard(5, "Z", userClientState));
-        assertWarns(() -> guard.guard(11, "A", userClientState), "Warning: for A, 11 > 10");
+        assertValid(() -> guard.guard(5, "Z", false, userClientState));
+        assertWarns(() -> guard.guard(11, "A", false, userClientState), "Warning: for A, 11 > 10");
+
+        assertValid(() -> guard.guard(5, "Z", true, userClientState));
+        assertWarns(() -> guard.guard(11, "A", true, userClientState), "Warning: for A, 11 > 10", "Warning: for <redacted>, 11 > 10");
     }
 
     @Test
@@ -100,8 +113,10 @@ public class GuardrailsTest extends GuardrailTester
 
         assertTrue(guard.enabled(userClientState));
 
-        assertValid(() -> guard.guard(5, "Z", userClientState));
-        assertFails(() -> guard.guard(11, "A", userClientState), "Aborting: for A, 11 > 10");
+        assertValid(() -> guard.guard(5, "Z", false, userClientState));
+        assertValid(() -> guard.guard(5, "Z", true, userClientState));
+        assertFails(() -> guard.guard(11, "A", false, userClientState), "Aborting: for A, 11 > 10");
+        assertFails(() -> guard.guard(11, "A", true, userClientState), "Aborting: for A, 11 > 10", "Aborting: for <redacted>, 11 > 10");
     }
 
     @Test
@@ -114,22 +129,22 @@ public class GuardrailsTest extends GuardrailTester
                                                                        isWarn ? "Warning" : "Aborting", what, v, t));
 
         // value under both thresholds
-        assertValid(() -> guard.guard(5, "x", null));
-        assertValid(() -> guard.guard(5, "x", userClientState));
-        assertValid(() -> guard.guard(5, "x", systemClientState));
-        assertValid(() -> guard.guard(5, "x", superClientState));
+        assertValid(() -> guard.guard(5, "x", false, null));
+        assertValid(() -> guard.guard(5, "x", false, userClientState));
+        assertValid(() -> guard.guard(5, "x", false, systemClientState));
+        assertValid(() -> guard.guard(5, "x", false, superClientState));
 
         // value over warning threshold
-        assertWarns(() -> guard.guard(100, "y", null), "Warning: for y, 100 > 10");
-        assertWarns(() -> guard.guard(100, "y", userClientState), "Warning: for y, 100 > 10");
-        assertValid(() -> guard.guard(100, "y", systemClientState));
-        assertValid(() -> guard.guard(100, "y", superClientState));
+        assertWarns(() -> guard.guard(100, "y", false, null), "Warning: for y, 100 > 10");
+        assertWarns(() -> guard.guard(100, "y", false, userClientState), "Warning: for y, 100 > 10");
+        assertValid(() -> guard.guard(100, "y", false, systemClientState));
+        assertValid(() -> guard.guard(100, "y", false, superClientState));
 
         // value over fail threshold
-        assertFails(() -> guard.guard(101, "z", null), "Aborting: for z, 101 > 100");
-        assertFails(() -> guard.guard(101, "z", userClientState), "Aborting: for z, 101 > 100");
-        assertValid(() -> guard.guard(101, "z", systemClientState));
-        assertValid(() -> guard.guard(101, "z", superClientState));
+        assertFails(() -> guard.guard(101, "z", false, null), "Aborting: for z, 101 > 100");
+        assertFails(() -> guard.guard(101, "z", false, userClientState), "Aborting: for z, 101 > 100");
+        assertValid(() -> guard.guard(101, "z", false, systemClientState));
+        assertValid(() -> guard.guard(101, "z", false, superClientState));
     }
 
     @Test
