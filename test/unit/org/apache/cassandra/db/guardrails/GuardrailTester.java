@@ -50,9 +50,7 @@ import org.apache.cassandra.cql3.QueryProcessor;
 import org.apache.cassandra.db.ConsistencyLevel;
 import org.apache.cassandra.db.view.View;
 import org.apache.cassandra.db.guardrails.GuardrailEvent.GuardrailEventType;
-import org.apache.cassandra.db.view.View;
 import org.apache.cassandra.diag.DiagnosticEventService;
-import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.sasi.SASIIndex;
 import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.service.ClientWarn;
@@ -217,7 +215,42 @@ public abstract class GuardrailTester extends CQLTester
         assertValid(() -> execute(userClientState, query));
     }
 
-    protected void assertWarns(CheckedFunction function, String... messages) throws Throwable
+    protected void assertWarns(String query, String message) throws Throwable
+    {
+        assertWarns(query, message, message);
+    }
+
+    protected void assertWarns(String query, String message, String redactedMessage) throws Throwable
+    {
+        assertWarns(query, Collections.singletonList(message), Collections.singletonList(redactedMessage));
+    }
+
+    protected void assertWarns(String query, List<String> messages) throws Throwable
+    {
+        assertWarns(() -> execute(userClientState, query), messages, messages);
+    }
+
+    protected void assertWarns(String query, List<String> messages, List<String> redactedMessages) throws Throwable
+    {
+        assertWarns(() -> execute(userClientState, query), messages, redactedMessages);
+    }
+
+    protected void assertWarns(CheckedFunction function, String message) throws Throwable
+    {
+        assertWarns(function, message, message);
+    }
+
+    protected void assertWarns(CheckedFunction function, String message, String redactedMessage) throws Throwable
+    {
+        assertWarns(function, Collections.singletonList(message), Collections.singletonList(redactedMessage));
+    }
+
+    protected void assertWarns(CheckedFunction function, List<String> messages) throws Throwable
+    {
+        assertWarns(function, messages, messages);
+    }
+
+    protected void assertWarns(CheckedFunction function, List<String> messages, List<String> redactedMessages) throws Throwable
     {
         // We use client warnings to check we properly warn as this is the most convenient. Technically,
         // this doesn't validate we also log the warning, but that's probably fine ...
@@ -226,7 +259,7 @@ public abstract class GuardrailTester extends CQLTester
         {
             function.apply();
             assertWarnings(messages);
-            listener.assertWarned(messages);
+            listener.assertWarned(redactedMessages);
             listener.assertNotFailed();
         }
         finally
@@ -236,17 +269,57 @@ public abstract class GuardrailTester extends CQLTester
         }
     }
 
-    protected void assertWarns(String query, String... messages) throws Throwable
+    protected void assertFails(String query, String message) throws Throwable
     {
-        assertWarns(() -> execute(userClientState, query), messages);
+        assertFails(query, message, message);
     }
 
-    protected void assertFails(CheckedFunction function, String... messages) throws Throwable
+    protected void assertFails(String query, String message, String redactedMessage) throws Throwable
     {
-        assertFails(function, true, messages);
+        assertFails(query, Collections.singletonList(message), Collections.singletonList(redactedMessage));
     }
 
-    protected void assertFails(CheckedFunction function, boolean thrown, String... messages) throws Throwable
+    protected void assertFails(String query, List<String> messages) throws Throwable
+    {
+        assertFails(query, messages, messages);
+    }
+
+    protected void assertFails(String query, List<String> messages, List<String> redactedMessages) throws Throwable
+    {
+        assertFails(() -> execute(userClientState, query), messages, redactedMessages);
+    }
+
+    protected void assertFails(CheckedFunction function, String message) throws Throwable
+    {
+        assertFails(function, message, message);
+    }
+
+    protected void assertFails(CheckedFunction function, String message, String redactedMessage) throws Throwable
+    {
+        assertFails(function, true, message, redactedMessage);
+    }
+
+    protected void assertFails(CheckedFunction function, boolean thrown, String message) throws Throwable
+    {
+        assertFails(function, thrown, message, message);
+    }
+
+    protected void assertFails(CheckedFunction function, boolean thrown, String message, String redactedMessage) throws Throwable
+    {
+        assertFails(function, thrown, Collections.singletonList(message), Collections.singletonList(redactedMessage));
+    }
+
+    protected void assertFails(CheckedFunction function, List<String> messages) throws Throwable
+    {
+        assertFails(function, messages, messages);
+    }
+
+    protected void assertFails(CheckedFunction function, List<String> messages, List<String> redactedMessages) throws Throwable
+    {
+        assertFails(function, true, messages, redactedMessages);
+    }
+
+    protected void assertFails(CheckedFunction function, boolean thrown, List<String> messages, List<String> redactedMessages) throws Throwable
     {
         ClientWarn.instance.captureWarnings();
         try
@@ -261,7 +334,7 @@ public abstract class GuardrailTester extends CQLTester
             assertTrue("Expect no exception thrown", thrown);
 
             // the last message is the one raising the guardrail failure, the previous messages are warnings
-            String failMessage = messages[messages.length - 1];
+            String failMessage = messages.get(messages.size() - 1);
 
             if (guardrail != null)
             {
@@ -274,11 +347,11 @@ public abstract class GuardrailTester extends CQLTester
                        e.getMessage().contains(failMessage));
 
             assertWarnings(messages);
-            if (messages.length > 1)
-                listener.assertWarned(Arrays.copyOfRange(messages, 0, messages.length - 1));
+            if (messages.size() > 1)
+                listener.assertWarned(redactedMessages.subList(0, messages.size() - 1));
             else
                 listener.assertNotWarned();
-            listener.assertFailed(messages[messages.length - 1]);
+            listener.assertFailed(redactedMessages.get(messages.size() - 1));
         }
         finally
         {
@@ -289,7 +362,7 @@ public abstract class GuardrailTester extends CQLTester
 
     protected void assertFails(String query, String... messages) throws Throwable
     {
-        assertFails(() -> execute(userClientState, query), messages);
+        assertFails(() -> execute(userClientState, query), Arrays.asList(messages));
     }
 
     protected void assertThrows(CheckedFunction function, Class<? extends Throwable> exception, String message)
@@ -309,20 +382,19 @@ public abstract class GuardrailTester extends CQLTester
         }
     }
 
-    private void assertWarnings(String... messages)
+    private void assertWarnings(List<String> messages)
     {
         List<String> warnings = getWarnings();
 
         assertFalse("Expected to warn, but no warning was received", warnings == null || warnings.isEmpty());
-        assertEquals(format("Expected %d warnings but got %d: %s", messages.length, warnings.size(), warnings),
-                     messages.length,
+        assertEquals(format("Expected %d warnings but got %d: %s", messages.size(), warnings.size(), warnings),
+                     messages.size(),
                      warnings.size());
 
-        for (int i = 0; i < messages.length; i++)
+        for (int i = 0; i < messages.size(); i++)
         {
+            String message = messages.get(i);
             String warning = warnings.get(i);
-
-            String message = messages[i];
             if (guardrail != null)
             {
                 String prefix = guardrail.decorateMessage("");
@@ -462,15 +534,15 @@ public abstract class GuardrailTester extends CQLTester
             assertTrue(format("Expect no warning diagnostic events but got %s", warnings), warnings.isEmpty());
         }
 
-        public void assertWarned(String... messages)
+        public void assertWarned(List<String> messages)
         {
             assertFalse("Expected to emit warning diagnostic event, but no warning was emitted", warnings.isEmpty());
-            assertEquals(format("Expected %d warning diagnostic events but got %d: %s)", messages.length, warnings.size(), warnings),
-                         messages.length, warnings.size());
+            assertEquals(format("Expected %d warning diagnostic events but got %d: %s)", messages.size(), warnings.size(), warnings),
+                         messages.size(), warnings.size());
 
-            for (int i = 0; i < messages.length; i++)
+            for (int i = 0; i < messages.size(); i++)
             {
-                String message = messages[i];
+                String message = messages.get(i);
                 String warning = warnings.get(i);
                 assertTrue(format("Warning diagnostic event '%s' does not contain expected message '%s'", warning, message),
                            warning.contains(message));

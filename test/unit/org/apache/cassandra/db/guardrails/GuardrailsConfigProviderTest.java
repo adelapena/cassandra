@@ -42,12 +42,12 @@ public class GuardrailsConfigProviderTest extends GuardrailTester
                                         (isWarn, what, v, t) -> format("%s: for %s, %s > %s",
                                                                        isWarn ? "Warning" : "Aborting", what, v, t));
 
-        assertValid(() -> guard.guard(5, "Z", userClientState));
-        assertWarns(() -> guard.guard(25, "A", userClientState), "Warning: for A, 25 > 10");
-        assertWarns(() -> guard.guard(100, "B", userClientState), "Warning: for B, 100 > 10");
-        assertFails(() -> guard.guard(101, "X", userClientState), "Aborting: for X, 101 > 100");
-        assertFails(() -> guard.guard(200, "Y", userClientState), "Aborting: for Y, 200 > 100");
-        assertValid(() -> guard.guard(5, "Z", userClientState));
+        assertValid(() -> guard.guard(5, "Z", false, userClientState));
+        assertWarns(() -> guard.guard(25, "A", false, userClientState), "Warning: for A, 25 > 10");
+        assertWarns(() -> guard.guard(100, "B", false, userClientState), "Warning: for B, 100 > 10");
+        assertFails(() -> guard.guard(101, "X", false, userClientState), "Aborting: for X, 101 > 100");
+        assertFails(() -> guard.guard(200, "Y", false, userClientState), "Aborting: for Y, 200 > 100");
+        assertValid(() -> guard.guard(5, "Z", false, userClientState));
 
         Assertions.assertThatThrownBy(() -> GuardrailsConfigProvider.build("unexistent_class"))
                   .isInstanceOf(ConfigurationException.class)
