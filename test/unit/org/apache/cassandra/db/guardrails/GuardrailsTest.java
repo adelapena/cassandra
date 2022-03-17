@@ -143,8 +143,8 @@ public class GuardrailsTest extends GuardrailTester
         assertValid(() -> guard.guard(100, "y", false, systemClientState));
         assertValid(() -> guard.guard(100, "y", false, superClientState));
 
-        // value over fail threshold. An undefined user means that the check comes from a background process,
-        // so we warn instead of failing to prevent interrupting that process.
+        // value over fail threshold. An undefined user means that the check comes from a background process, so we
+        // still emit failure messages and events, but we don't throw an exception to prevent interrupting that process.
         assertFails(() -> guard.guard(101, "z", false, null), false, "Failure: for z, 101 > 100");
         assertFails(() -> guard.guard(101, "z", false, userClientState), "Failure: for z, 101 > 100");
         assertValid(() -> guard.guard(101, "z", false, systemClientState));
