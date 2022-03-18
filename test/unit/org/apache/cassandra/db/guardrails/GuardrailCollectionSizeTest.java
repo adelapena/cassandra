@@ -215,6 +215,14 @@ public class GuardrailCollectionSizeTest extends ThresholdTester
         assertWarns("UPDATE %s SET v = v + ? WHERE k = 6", map(allocate(FAIL_THRESHOLD / 4 + 1), allocate(FAIL_THRESHOLD / 4)));
     }
 
+    @Override
+    protected String createTable(String query)
+    {
+        String table = super.createTable(query);
+        disableCompaction();
+        return table;
+    }
+
     private void assertValid(String query, ByteBuffer... values) throws Throwable
     {
         assertValid(execute(query, values));
