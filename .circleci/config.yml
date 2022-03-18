@@ -109,8 +109,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -284,8 +284,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -393,8 +393,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -516,8 +516,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -611,8 +611,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -706,8 +706,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -802,8 +802,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -898,8 +898,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -994,8 +994,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -1138,8 +1138,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -1261,8 +1261,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -1359,8 +1359,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -1436,8 +1436,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -1512,8 +1512,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -1575,8 +1575,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -1684,8 +1684,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -1793,8 +1793,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -1892,8 +1892,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -1947,8 +1947,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -2123,8 +2123,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -2200,8 +2200,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -2295,8 +2295,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -2405,8 +2405,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -2503,8 +2503,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -2598,8 +2598,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -2693,8 +2693,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -2756,8 +2756,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -2865,8 +2865,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -2919,8 +2919,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -2982,8 +2982,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -3080,8 +3080,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -3190,8 +3190,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -3365,8 +3365,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
@@ -3460,8 +3460,8 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: Guardrail*Test
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.guardrails.GuardrailCollectionSizeOnSSTableWriteTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 100
     - REPEATED_UTEST_STOP_ON_FAILURE: false
