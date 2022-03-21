@@ -109,9 +109,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -284,9 +284,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -379,9 +379,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -488,9 +488,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -611,9 +611,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -706,9 +706,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -801,9 +801,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -897,9 +897,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -993,9 +993,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1089,9 +1089,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1184,9 +1184,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1328,9 +1328,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1451,9 +1451,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1546,9 +1546,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1645,9 +1645,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1722,9 +1722,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1798,9 +1798,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1861,9 +1861,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1970,9 +1970,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2079,9 +2079,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2178,9 +2178,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2274,9 +2274,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2329,9 +2329,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2505,9 +2505,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2582,9 +2582,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2677,9 +2677,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2787,9 +2787,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2885,9 +2885,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2980,9 +2980,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3075,9 +3075,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3138,9 +3138,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3247,9 +3247,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3301,9 +3301,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3364,9 +3364,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3462,9 +3462,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3572,9 +3572,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3747,9 +3747,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3842,9 +3842,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.ImportTest
-    - REPEATED_UTEST_METHODS: testImportCorrupt
+    - REPEATED_UTEST_TARGET: test-cdc
+    - REPEATED_UTEST_CLASS: ImportTest
+    - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
