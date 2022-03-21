@@ -109,9 +109,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -284,9 +284,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -393,9 +393,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -516,9 +516,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -611,9 +611,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -706,9 +706,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -802,9 +802,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -898,9 +898,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -994,9 +994,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1138,9 +1138,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1261,9 +1261,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1359,9 +1359,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1436,9 +1436,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1512,9 +1512,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1575,9 +1575,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1684,9 +1684,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1793,9 +1793,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1892,9 +1892,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -1947,9 +1947,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2123,9 +2123,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2200,9 +2200,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2295,9 +2295,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2405,9 +2405,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2503,9 +2503,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2598,9 +2598,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2693,9 +2693,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2756,9 +2756,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2865,9 +2865,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2919,9 +2919,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -2982,9 +2982,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3080,9 +3080,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3190,9 +3190,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3365,9 +3365,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
@@ -3460,9 +3460,9 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_UTEST_TARGET: test
-    - REPEATED_UTEST_CLASS: org.apache.cassandra.db.SinglePartitionSliceCommandTest
-    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_TARGET: test-jvm-dtest-some
+    - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.CASTest
+    - REPEATED_UTEST_METHODS: testConflictingWritesWithStaleRingInformation
     - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
