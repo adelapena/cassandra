@@ -110,8 +110,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -284,8 +284,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -404,8 +404,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -524,8 +524,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -621,8 +621,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -695,8 +695,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -810,8 +810,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -918,8 +918,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -992,8 +992,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1100,8 +1100,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1162,8 +1162,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1270,8 +1270,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1444,8 +1444,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1538,8 +1538,8 @@ jobs:
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: org.apache.cassandra.index.internal.CassandraIndexTest
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_COUNT: 500
+    - REPEATED_UTEST_METHODS: indexCorrectlyMarkedAsBuildAndRemoved
+    - REPEATED_UTEST_COUNT: 1000
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
