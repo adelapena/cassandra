@@ -113,7 +113,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -295,7 +295,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -405,7 +405,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -515,7 +515,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -639,7 +639,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -735,7 +735,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -831,7 +831,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -928,7 +928,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1025,7 +1025,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1136,7 +1136,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1233,7 +1233,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1378,7 +1378,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1502,7 +1502,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1601,7 +1601,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1679,7 +1679,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1756,7 +1756,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1820,7 +1820,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -1930,7 +1930,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2040,7 +2040,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2140,7 +2140,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2196,7 +2196,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2379,7 +2379,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2457,7 +2457,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2553,7 +2553,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2664,7 +2664,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2763,7 +2763,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2859,7 +2859,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -2955,7 +2955,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3019,7 +3019,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3129,7 +3129,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3184,7 +3184,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3248,7 +3248,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3347,7 +3347,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3458,7 +3458,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3640,7 +3640,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
@@ -3736,7 +3736,7 @@ jobs:
     - REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.TopPartitionsTest
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: true
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: 200
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
