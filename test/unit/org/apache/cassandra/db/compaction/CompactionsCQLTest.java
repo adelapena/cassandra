@@ -78,9 +78,11 @@ public class CompactionsCQLTest extends CQLTester
     @After
     public void after()
     {
-        DatabaseDescriptor.setCorruptedTombstoneStrategy(DatabaseDescriptor.getCorruptedTombstoneStrategy());
-    }
+        DatabaseDescriptor.setCorruptedTombstoneStrategy(strategy);
 
+        // wait for the async cleanup task, so we don't leave dirty commitlogs for the next tests (see CASSANDRA-17609)
+        waitForCleanup();
+    }
 
     @Test
     public void testTriggerMinorCompactionSTCS() throws Throwable
