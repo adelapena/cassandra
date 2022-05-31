@@ -78,7 +78,7 @@ public class CompactionsCQLTest extends CQLTester
     @After
     public void after()
     {
-        DatabaseDescriptor.setCorruptedTombstoneStrategy(DatabaseDescriptor.getCorruptedTombstoneStrategy());
+        DatabaseDescriptor.setCorruptedTombstoneStrategy(strategy);
     }
 
 
@@ -402,6 +402,10 @@ public class CompactionsCQLTest extends CQLTester
     @Test
     public void testLCSThresholdParams() throws Throwable
     {
+        // Wait for the cleanup tasks of previous tests, so we don't find additional flushes due to the dirty commitlog
+        // left by those previous tests (see CASSANDRA-17609).
+        waitForCleanupTasks();
+
         createTable("create table %s (id int, id2 int, t blob, primary key (id, id2)) with compaction = {'class':'LeveledCompactionStrategy', 'sstable_size_in_mb':'1', 'max_threshold':'60'}");
         ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         cfs.disableAutoCompaction();
