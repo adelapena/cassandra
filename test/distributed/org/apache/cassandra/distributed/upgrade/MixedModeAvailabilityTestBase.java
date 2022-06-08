@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.UUID;
 
 import com.vdurmont.semver4j.Semver;
-
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
 import org.apache.cassandra.distributed.api.ICoordinator;
 import org.apache.cassandra.exceptions.ReadTimeoutException;
 import org.apache.cassandra.exceptions.WriteTimeoutException;
 import org.apache.cassandra.net.Verb;
 
+import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ALL;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ONE;
@@ -39,7 +39,6 @@ import static org.apache.cassandra.distributed.shared.AssertUtils.row;
 import static org.apache.cassandra.net.Verb.READ_REQ;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static java.lang.String.format;
 
 
 public class MixedModeAvailabilityTestBase extends UpgradeTestBase
@@ -72,7 +71,11 @@ public class MixedModeAvailabilityTestBase extends UpgradeTestBase
         .upgrades(initial, upgrade)
         .withConfig(config -> config.set("read_request_timeout_in_ms", SECONDS.toMillis(2))
                                     .set("write_request_timeout_in_ms", SECONDS.toMillis(2)))
-        .setup(c -> c.schemaChange(withKeyspace("CREATE TABLE %s.t (k uuid, c int, v int, PRIMARY KEY (k, c))")))
+        // use retry of 10ms so that each check is consistent
+        // At the start of the world cfs.sampleLatencyNanos == 0, which means speculation acts as if ALWAYS is done,
+        // but after the first refresh this gets set high enough that we don't trigger speculation for the rest of the test!
+        // To be consistent set retry to 10ms so cfs.sampleLatencyNanos stays consistent for the duration of the test.
+        .setup(c -> c.schemaChange(withKeyspace("CREATE TABLE %s.t (k uuid, c int, v int, PRIMARY KEY (k, c)) WITH speculative_retry = 'ALWAYS'")))
         .runAfterNodeUpgrade((cluster, n) -> {
 
             // using 0 to 2 down nodes...
@@ -123,7 +126,7 @@ public class MixedModeAvailabilityTestBase extends UpgradeTestBase
             try
             {
                 // test write
-                maybeFail(WriteTimeoutException.class, numNodesDown > maxNodesDown(writeConsistencyLevel), () -> {
+                maybeFail(WriteTimeoutException.class, numNodesDown > maxNodesDown(writeConsistencyLevel), false, () -> {
                     coordinator.execute(INSERT, writeConsistencyLevel, row1);
                     coordinator.execute(INSERT, writeConsistencyLevel, row2);
                 });
@@ -131,7 +134,7 @@ public class MixedModeAvailabilityTestBase extends UpgradeTestBase
                 wrote = true;
 
                 // test read
-                maybeFail(ReadTimeoutException.class, numNodesDown > maxNodesDown(readConsistencyLevel), () -> {
+                maybeFail(ReadTimeoutException.class, numNodesDown > maxNodesDown(readConsistencyLevel), true, () -> {
                     Object[][] rows = coordinator.execute(SELECT, readConsistencyLevel, key);
                     if (numNodesDown <= maxNodesDown(writeConsistencyLevel))
                         assertRows(rows, row1, row2);
@@ -148,12 +151,12 @@ public class MixedModeAvailabilityTestBase extends UpgradeTestBase
             }
         }
 
-        private static <E extends Exception> void maybeFail(Class<E> exceptionClass, boolean shouldFail, Runnable test)
+        private static <E extends Exception> void maybeFail(Class<E> exceptionClass, boolean shouldFail, boolean isRead, Runnable test)
         {
             try
             {
                 test.run();
-                assertFalse(shouldFail);
+                assertFalse(format("%s should have failed", isRead ? "Read" : "Write"), shouldFail);
             }
             catch (Exception e)
             {
