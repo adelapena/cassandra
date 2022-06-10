@@ -18,8 +18,6 @@
 
 package org.apache.cassandra.distributed.upgrade;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import com.vdurmont.semver4j.Semver;
@@ -45,32 +43,30 @@ public class MixedModeAvailabilityTestBase extends UpgradeTestBase
 {
     private static final int NUM_NODES = 3;
     private static final int COORDINATOR = 1;
-    private static final List<Tester> TESTERS = Arrays.asList(new Tester(ONE, ALL),
-                                                              new Tester(QUORUM, QUORUM),
-                                                              new Tester(ALL, ONE));
+    private static final String INSERT = withKeyspace("INSERT INTO %s.t (k, c, v) VALUES (?, ?, ?)");
+    private static final String SELECT = withKeyspace("SELECT * FROM %s.t WHERE k = ?");
 
-
-    protected static void testAvailability(Semver initial) throws Throwable
+    protected static void testAvailability(Semver initial,
+                                           ConsistencyLevel writeConsistencyLevel,
+                                           ConsistencyLevel readConsistencyLevel) throws Throwable
     {
-        testAvailability(initial, UpgradeTestBase.CURRENT);
-    }
-
-    protected static void testAvailability(Semver initial, Semver upgrade) throws Throwable
-    {
-        testAvailability(true, initial, upgrade);
-        testAvailability(false, initial, upgrade);
+        Semver upgrade = UpgradeTestBase.CURRENT;
+        testAvailability(true, initial, upgrade, writeConsistencyLevel, readConsistencyLevel);
+        testAvailability(false, initial, upgrade, writeConsistencyLevel, readConsistencyLevel);
     }
 
     private static void testAvailability(boolean upgradedCoordinator,
                                          Semver initial,
-                                         Semver upgrade) throws Throwable
+                                         Semver upgrade,
+                                         ConsistencyLevel writeConsistencyLevel,
+                                         ConsistencyLevel readConsistencyLevel) throws Throwable
     {
         new TestCase()
         .nodes(NUM_NODES)
         .nodesToUpgrade(upgradedCoordinator ? 1 : 2)
         .upgrades(initial, upgrade)
-        .withConfig(config -> config.set("read_request_timeout_in_ms", SECONDS.toMillis(2))
-                                    .set("write_request_timeout_in_ms", SECONDS.toMillis(2)))
+        .withConfig(config -> config.set("read_request_timeout_in_ms", SECONDS.toMillis(5))
+                                    .set("write_request_timeout_in_ms", SECONDS.toMillis(5)))
         // use retry of 10ms so that each check is consistent
         // At the start of the world cfs.sampleLatencyNanos == 0, which means speculation acts as if ALWAYS is done,
         // but after the first refresh this gets set high enough that we don't trigger speculation for the rest of the test!
@@ -78,9 +74,13 @@ public class MixedModeAvailabilityTestBase extends UpgradeTestBase
         .setup(c -> c.schemaChange(withKeyspace("CREATE TABLE %s.t (k uuid, c int, v int, PRIMARY KEY (k, c)) WITH speculative_retry = 'ALWAYS'")))
         .runAfterNodeUpgrade((cluster, n) -> {
 
+            ICoordinator coordinator = cluster.coordinator(COORDINATOR);
+
             // using 0 to 2 down nodes...
-            for (int numNodesDown = 0; numNodesDown < NUM_NODES; numNodesDown++)
+            for (int i = 0; i < NUM_NODES; i++)
             {
+                final int numNodesDown = i;
+
                 // disable communications to the down nodes
                 if (numNodesDown > 0)
                 {
@@ -88,10 +88,38 @@ public class MixedModeAvailabilityTestBase extends UpgradeTestBase
                     cluster.filters().outbound().verbs(Verb.MUTATION_REQ.id).to(replica(COORDINATOR, numNodesDown)).drop();
                 }
 
-                // run the test cases that are compatible with the number of down nodes
-                ICoordinator coordinator = cluster.coordinator(COORDINATOR);
-                for (Tester tester : TESTERS)
-                    tester.test(coordinator, numNodesDown, upgradedCoordinator);
+                UUID key = UUID.randomUUID();
+                Object[] row1 = row(key, 1, 10);
+                Object[] row2 = row(key, 2, 20);
+
+                boolean wrote = false;
+                try
+                {
+                    // test write
+                    maybeFail(WriteTimeoutException.class, numNodesDown > maxNodesDown(writeConsistencyLevel), () -> {
+                        coordinator.execute(INSERT, writeConsistencyLevel, row1);
+                        coordinator.execute(INSERT, writeConsistencyLevel, row2);
+                    });
+
+                    wrote = true;
+
+                    // test read
+                    maybeFail(ReadTimeoutException.class, numNodesDown > maxNodesDown(readConsistencyLevel), () -> {
+                        Object[][] rows = coordinator.execute(SELECT, readConsistencyLevel, key);
+                        if (numNodesDown <= maxNodesDown(writeConsistencyLevel))
+                            assertRows(rows, row1, row2);
+                    });
+                }
+                catch (Throwable t)
+                {
+                    throw new AssertionError(format("Unexpected error while %s in case write-read consistency %s-%s with %s coordinator and %d nodes down: %s",
+                                                    wrote ? "reading" : "writing",
+                                                    writeConsistencyLevel,
+                                                    readConsistencyLevel,
+                                                    upgradedCoordinator ? "upgraded" : "not upgraded",
+                                                    numNodesDown,
+                                                    t), t);
+                }
             }
         }).run();
     }
@@ -102,88 +130,38 @@ public class MixedModeAvailabilityTestBase extends UpgradeTestBase
         return depth == 0 ? node : replica(node == NUM_NODES ? 1 : node + 1, depth - 1);
     }
 
-    private static class Tester
+    private static <E extends Exception> void maybeFail(Class<E> exceptionClass, boolean shouldFail, Runnable test)
     {
-        private static final String INSERT = withKeyspace("INSERT INTO %s.t (k, c, v) VALUES (?, ?, ?)");
-        private static final String SELECT = withKeyspace("SELECT * FROM %s.t WHERE k = ?");
-
-        private final ConsistencyLevel writeConsistencyLevel;
-        private final ConsistencyLevel readConsistencyLevel;
-
-        private Tester(ConsistencyLevel writeConsistencyLevel, ConsistencyLevel readConsistencyLevel)
+        try
         {
-            this.writeConsistencyLevel = writeConsistencyLevel;
-            this.readConsistencyLevel = readConsistencyLevel;
+            test.run();
+            assertFalse("Should have failed", shouldFail);
         }
-
-        public void test(ICoordinator coordinator, int numNodesDown, boolean upgradedCoordinator)
+        catch (Exception e)
         {
-            UUID key = UUID.randomUUID();
-            Object[] row1 = row(key, 1, 10);
-            Object[] row2 = row(key, 2, 20);
+            // we should use exception class names due to the different classpaths
+            String className = e.getClass().getCanonicalName();
+            if (e instanceof RuntimeException && e.getCause() != null)
+                className = e.getCause().getClass().getCanonicalName();
 
-            boolean wrote = false;
-            try
-            {
-                // test write
-                maybeFail(WriteTimeoutException.class, numNodesDown > maxNodesDown(writeConsistencyLevel), false, () -> {
-                    coordinator.execute(INSERT, writeConsistencyLevel, row1);
-                    coordinator.execute(INSERT, writeConsistencyLevel, row2);
-                });
-
-                wrote = true;
-
-                // test read
-                maybeFail(ReadTimeoutException.class, numNodesDown > maxNodesDown(readConsistencyLevel), true, () -> {
-                    Object[][] rows = coordinator.execute(SELECT, readConsistencyLevel, key);
-                    if (numNodesDown <= maxNodesDown(writeConsistencyLevel))
-                        assertRows(rows, row1, row2);
-                });
-            }
-            catch (Throwable t)
-            {
-                throw new AssertionError(format("Unexpected error while %s in case write-read consistency %s-%s with %s coordinator and %d nodes down",
-                                                wrote ? "reading" : "writing",
-                                                writeConsistencyLevel,
-                                                readConsistencyLevel,
-                                                upgradedCoordinator ? "upgraded" : "not upgraded",
-                                                numNodesDown), t);
-            }
+            if (shouldFail)
+                assertEquals(exceptionClass.getCanonicalName(), className);
+            else
+                throw e;
         }
+    }
 
-        private static <E extends Exception> void maybeFail(Class<E> exceptionClass, boolean shouldFail, boolean isRead, Runnable test)
-        {
-            try
-            {
-                test.run();
-                assertFalse(format("%s should have failed", isRead ? "Read" : "Write"), shouldFail);
-            }
-            catch (Exception e)
-            {
-                // we should use exception class names due to the different classpaths
-                String className = e.getClass().getCanonicalName();
-                if (e instanceof RuntimeException && e.getCause() != null)
-                    className = e.getCause().getClass().getCanonicalName();
+    private static int maxNodesDown(ConsistencyLevel cl)
+    {
+        if (cl == ONE)
+            return 2;
 
-                if (shouldFail)
-                    assertEquals(exceptionClass.getCanonicalName(), className);
-                else
-                    throw e;
-            }
-        }
+        if (cl == QUORUM)
+            return 1;
 
-        private static int maxNodesDown(ConsistencyLevel cl)
-        {
-            if (cl == ONE)
-                return 2;
+        if (cl == ALL)
+            return 0;
 
-            if (cl == QUORUM)
-                return 1;
-
-            if (cl == ALL)
-                return 0;
-
-            throw new IllegalArgumentException("Unsupported consistency level: " + cl);
-        }
+        throw new IllegalArgumentException("Unsupported consistency level: " + cl);
     }
 }

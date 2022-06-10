@@ -20,16 +20,16 @@ package org.apache.cassandra.distributed.upgrade;
 
 import org.junit.Test;
 
-import org.apache.cassandra.distributed.shared.Versions;
+import org.apache.cassandra.distributed.api.ConsistencyLevel;
 
 /**
- * {@link MixedModeAvailabilityTestBase} for upgrades from v3X.
+ * {@link MixedModeAvailabilityTestBase} for upgrades from v30 with ALL-ONE write-read consistency.
  */
-public class MixedModeAvailabilityV3XTest extends MixedModeAvailabilityTestBase
+public class MixedModeAvailabilityV30AllOneTest extends MixedModeAvailabilityTestBase
 {
     @Test
     public void testAvailability() throws Throwable
     {
-        testAvailability(v3X);
+        testAvailability(v30, ConsistencyLevel.ALL, ConsistencyLevel.ONE);
     }
 }
