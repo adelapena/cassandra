@@ -656,12 +656,40 @@ j11_pre-commit_jobs: &j11_pre-commit_jobs
           - start_j11_repeated_dtest
           - j11_build
 
+j8_repeated_tests_jobs: &j8_repeated_tests_jobs
+  jobs:
+    - j8_build
+    - j8_repeated_utest:
+        requires:
+          - j8_build
+    - j8_repeated_dtest:
+        requires:
+          - j8_build
+    - j11_repeated_utest:
+        requires:
+          - j8_build
+    - j11_repeated_dtest:
+        requires:
+          - j8_build
+
+j11_repeated_tests_jobs: &j11_repeated_tests_jobs
+  jobs:
+    - j11_build
+    - j11_repeated_utest:
+        requires:
+          - j11_build
+    - j11_repeated_dtest:
+        requires:
+          - j11_build
+
 workflows:
     version: 2
     java8_separate_tests: *j8_with_dtests_jobs
     java8_pre-commit_tests: *j8_pre-commit_jobs
+#    java8_repeated_tests: *j8_repeated_tests_jobs
     java11_separate_tests: *j11_with_dtests_jobs
     java11_pre-commit_tests: *j11_pre-commit_jobs
+#    java11_repeated_tests: *j11_repeated_tests_jobs
 
 executors:
   java8-executor:
