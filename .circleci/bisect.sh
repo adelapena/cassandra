@@ -29,15 +29,17 @@ die ()
 }
 
 tested_commit=$(git rev-parse HEAD)
-echo Testing commit $tested_commit
+tested_branch=$(git rev-parse --abbrev-ref HEAD)
+echo Testing commit $tested_commit on branch @tested_branch
 
 $CIRCLE_DIR/generate.sh -r "$@"
 git add $CIRCLE_DIR/config.yml
-git checkout -b bisector-tests
 git commit -m "DO NOT MERGE - CircleCI testing $tested_commit"
+git push origin $tested_branch
+test_commit=$(git rev-parse HEAD)
 
-status=$(curl https://api.github.com/repos/adelapena/cassandra/commits/63f496c247f17209aed4023034295543dd6c3228/status | sed -n '2p')
-echo "$status"
+sleep 20
+status=$(curl https://api.github.com/repos/adelapena/cassandra/commits/$test_commit/status | sed -n '2p')
 
 if echo $status | grep -q success; then
   echo success
