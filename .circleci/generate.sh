@@ -28,13 +28,14 @@ die ()
 
 print_help()
 {
-  echo "Usage: $0 [-l|-m|-h|-f|-e]"
+  echo "Usage: $0 [-l|-m|-h|-r|-f|-e]"
   echo "   -a Generate the default config.yml using low resources and the three templates"
   echo "      (config.yml.LOWRES, config.yml.MIDRES and config.yml.HIGHRES). Use this for"
   echo "      permanent changes in config-2_1.yml that will be committed to the main repo."
   echo "   -l Generate config.yml using low resources"
   echo "   -m Generate config.yml using mid resources"
   echo "   -h Generate config.yml using high resources"
+  echo "   -r Generate workflows only with repeated runs that should be automatically run"
   echo "   -e <key=value> Environment variables to be used in the generated config.yml, e.g.:"
   echo "                   -e DTEST_BRANCH=CASSANDRA-8272"
   echo "                   -e DTEST_REPO=https://github.com/adelapena/cassandra-dtest.git"
@@ -59,10 +60,11 @@ all=false
 lowres=false
 midres=false
 highres=false
+multiplexer=false
 env_vars=""
 has_env_vars=false
 check_env_vars=true
-while getopts "e:almhf" opt; do
+while getopts "e:almhrf" opt; do
   case $opt in
       a ) all=true
           ;;
@@ -71,6 +73,8 @@ while getopts "e:almhf" opt; do
       m ) midres=true
           ;;
       h ) highres=true
+          ;;
+      r ) multiplexer=true
           ;;
       e ) if (!($has_env_vars)); then
             env_vars="$OPTARG"
@@ -118,17 +122,28 @@ if $has_env_vars && $check_env_vars; then
   done
 fi
 
+cp $BASEDIR/config-2_1.yml $BASEDIR/config-2_1.yml.tmp
+
+if $multiplexer; then
+  sed -i.bak '/java8_separate_tests/s/^/#/' $BASEDIR/config-2_1.yml.tmp
+  sed -i.bak '/java8_pre-commit_tests/s/^/#/' $BASEDIR/config-2_1.yml.tmp
+  sed -i.bak '/java8_repeated_tests/s/^#//' $BASEDIR/config-2_1.yml.tmp
+  sed -i.bak '/java11_repeated_tests/s/^#//' $BASEDIR/config-2_1.yml.tmp
+  sed -i.bak '/java11_separate_tests/s/^/#/' $BASEDIR/config-2_1.yml.tmp
+  sed -i.bak '/java11_pre-commit_tests/s/^/#/' $BASEDIR/config-2_1.yml.tmp
+fi
+
 if $lowres; then
   ($all || $midres || $highres) && die "Cannot use option -l with options -a, -m or -h"
   echo "Generating new config.yml file with low resources from config-2_1.yml"
-  circleci config process $BASEDIR/config-2_1.yml > $BASEDIR/config.yml.LOWRES.tmp
+  circleci config process $BASEDIR/config-2_1.yml.tmp > $BASEDIR/config.yml.LOWRES.tmp
   cat $BASEDIR/license.yml $BASEDIR/config.yml.LOWRES.tmp > $BASEDIR/config.yml
   rm $BASEDIR/config.yml.LOWRES.tmp
 
 elif $midres; then
   ($all || $lowres || $highres) && die "Cannot use option -m with options -a, -l or -h"
   echo "Generating new config.yml file with middle resources from config-2_1.yml"
-  patch -o $BASEDIR/config-2_1.yml.MIDRES $BASEDIR/config-2_1.yml $BASEDIR/config-2_1.yml.mid_res.patch
+  patch -o $BASEDIR/config-2_1.yml.MIDRES $BASEDIR/config-2_1.yml.tmp $BASEDIR/config-2_1.yml.mid_res.patch
   circleci config process $BASEDIR/config-2_1.yml.MIDRES > $BASEDIR/config.yml.MIDRES.tmp
   cat $BASEDIR/license.yml $BASEDIR/config.yml.MIDRES.tmp > $BASEDIR/config.yml
   rm $BASEDIR/config-2_1.yml.MIDRES $BASEDIR/config.yml.MIDRES.tmp
@@ -136,7 +151,7 @@ elif $midres; then
 elif $highres; then
   ($all || $lowres || $midres) && die "Cannot use option -h with options -a, -l or -m"
   echo "Generating new config.yml file with high resources from config-2_1.yml"
-  patch -o $BASEDIR/config-2_1.yml.HIGHRES $BASEDIR/config-2_1.yml $BASEDIR/config-2_1.yml.high_res.patch
+  patch -o $BASEDIR/config-2_1.yml.HIGHRES $BASEDIR/config-2_1.yml.tmp $BASEDIR/config-2_1.yml.high_res.patch
   circleci config process $BASEDIR/config-2_1.yml.HIGHRES > $BASEDIR/config.yml.HIGHRES.tmp
   cat $BASEDIR/license.yml $BASEDIR/config.yml.HIGHRES.tmp > $BASEDIR/config.yml
   rm $BASEDIR/config-2_1.yml.HIGHRES $BASEDIR/config.yml.HIGHRES.tmp
@@ -146,18 +161,18 @@ elif $all; then
   echo "Generating new config.yml file with low resources and LOWRES/MIDRES/HIGHRES templates from config-2_1.yml"
 
   # setup lowres
-  circleci config process $BASEDIR/config-2_1.yml > $BASEDIR/config.yml.LOWRES.tmp
+  circleci config process $BASEDIR/config-2_1.yml.tmp > $BASEDIR/config.yml.LOWRES.tmp
   cat $BASEDIR/license.yml $BASEDIR/config.yml.LOWRES.tmp > $BASEDIR/config.yml.LOWRES
   rm $BASEDIR/config.yml.LOWRES.tmp
 
   # setup midres
-  patch -o $BASEDIR/config-2_1.yml.MIDRES $BASEDIR/config-2_1.yml $BASEDIR/config-2_1.yml.mid_res.patch
+  patch -o $BASEDIR/config-2_1.yml.MIDRES $BASEDIR/config-2_1.yml.tmp $BASEDIR/config-2_1.yml.mid_res.patch
   circleci config process $BASEDIR/config-2_1.yml.MIDRES > $BASEDIR/config.yml.MIDRES.tmp
   cat $BASEDIR/license.yml $BASEDIR/config.yml.MIDRES.tmp > $BASEDIR/config.yml.MIDRES
   rm $BASEDIR/config-2_1.yml.MIDRES $BASEDIR/config.yml.MIDRES.tmp
 
   # setup highres
-  patch -o $BASEDIR/config-2_1.yml.HIGHRES $BASEDIR/config-2_1.yml $BASEDIR/config-2_1.yml.high_res.patch
+  patch -o $BASEDIR/config-2_1.yml.HIGHRES $BASEDIR/config-2_1.yml.tmp $BASEDIR/config-2_1.yml.high_res.patch
   circleci config process $BASEDIR/config-2_1.yml.HIGHRES > $BASEDIR/config.yml.HIGHRES.tmp
   cat $BASEDIR/license.yml $BASEDIR/config.yml.HIGHRES.tmp > $BASEDIR/config.yml.HIGHRES
   rm $BASEDIR/config-2_1.yml.HIGHRES $BASEDIR/config.yml.HIGHRES.tmp
@@ -168,6 +183,8 @@ elif $all; then
 elif (!($has_env_vars)); then
   print_help
 fi
+
+rm $BASEDIR/config-2_1.yml.tmp
 
 # replace environment variables
 if $has_env_vars; then

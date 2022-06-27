@@ -21,10 +21,28 @@ CIRCLE_DIR=`dirname $0`
 CIRCLE_CONFIG_FILE=$CIRCLE_DIR/config-2_1.yml
 CASSANDRA_DIR="$(dirname "$CIRCLE_DIR")"
 
-# setup the workflows for repeated tests only
-sed -i.bak '/java8_separate_tests/s/^/#/' $CIRCLE_CONFIG_FILE
-sed -i.bak '/java8_pre-commit_tests/s/^/#/' $CIRCLE_CONFIG_FILE
-sed -i.bak '/java8_repeated_tests/s/^#//' $CIRCLE_CONFIG_FILE
-sed -i.bak '/java11_repeated_tests/s/^#//' $CIRCLE_CONFIG_FILE
-sed -i.bak '/java11_separate_tests/s/^/#/' $CIRCLE_CONFIG_FILE
-sed -i.bak '/java11_pre-commit_tests/s/^/#/' $CIRCLE_CONFIG_FILE
+die ()
+{
+  echo "ERROR: $*"
+  print_help
+  exit 1
+}
+
+tested_commit=$(git rev-parse HEAD)
+echo Testing commit $tested_commit
+
+$CIRCLE_DIR/generate.sh -r "$@"
+git add $CIRCLE_DIR/config.yml
+git checkout -b bisector-tests
+git commit -m "DO NOT MERGE - CircleCI testing $tested_commit"
+
+status=$(curl https://api.github.com/repos/adelapena/cassandra/commits/63f496c247f17209aed4023034295543dd6c3228/status | sed -n '2p')
+echo "$status"
+
+if echo $status | grep -q success; then
+  echo success
+elif echo $status | grep -q failure; then
+  echo failure
+elif echo $status | grep -q pending; then
+  echo pending
+fi
