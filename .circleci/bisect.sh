@@ -38,13 +38,19 @@ git commit -m "DO NOT MERGE - CircleCI testing $tested_commit"
 git push origin $tested_branch
 test_commit=$(git rev-parse HEAD)
 
-sleep 20
-status=$(curl https://api.github.com/repos/adelapena/cassandra/commits/$test_commit/status | sed -n '2p')
+sleep 10
+while true; do
+  status=$(curl https://api.github.com/repos/adelapena/cassandra/commits/$test_commit/status | sed -n '2p')
 
-if echo $status | grep -q success; then
-  echo success
-elif echo $status | grep -q failure; then
-  echo failure
-elif echo $status | grep -q pending; then
-  echo pending
-fi
+  if echo $status | grep -q success; then
+    echo "Tests for $tested_commit are successful"
+    exit 0
+  elif echo $status | grep -q failure; then
+    echo "Tests for $tested_commit have failed"
+    exit 1
+  elif echo $status | grep -q pending; then
+    echo "Tests for $tested_commit haven't yet finished, waiting"
+    sleep 30
+  fi
+
+done
