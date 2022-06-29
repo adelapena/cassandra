@@ -93,6 +93,7 @@ public class PagingTest
     public void testPaging() throws InterruptedException
     {
         // unrelated change 1
+        // unrelated change 2
         throw new IllegalArgumentException("Synthetic error");
     }
 }
