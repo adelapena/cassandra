@@ -92,65 +92,6 @@ public class PagingTest
     @Test
     public void testPaging() throws InterruptedException
     {
-        String table = KEYSPACE + ".paging";
-        String createTableStatement = "CREATE TABLE IF NOT EXISTS " + table + " (id int, id2 int, id3 int, val text, PRIMARY KEY ((id, id2), id3));";
-        String dropTableStatement = "DROP TABLE IF EXISTS " + table + ';';
-
-        // custom snitch to avoid merging ranges back together after StorageProxy#getRestrictedRanges splits them up
-        IEndpointSnitch snitch = new AbstractEndpointSnitch()
-        {
-            private IEndpointSnitch oldSnitch = DatabaseDescriptor.getEndpointSnitch();
-            public int compareEndpoints(InetAddressAndPort target, Replica a1, Replica a2)
-            {
-                return oldSnitch.compareEndpoints(target, a1, a2);
-            }
-
-            public String getRack(InetAddressAndPort endpoint)
-            {
-                return oldSnitch.getRack(endpoint);
-            }
-
-            public String getDatacenter(InetAddressAndPort endpoint)
-            {
-                return oldSnitch.getDatacenter(endpoint);
-            }
-
-            @Override
-            public boolean isWorthMergingForRangeQuery(ReplicaCollection merged, ReplicaCollection l1, ReplicaCollection l2)
-            {
-                return false;
-            }
-        };
-        DatabaseDescriptor.setEndpointSnitch(snitch);
-        StorageService.instance.getTokenMetadata().clearUnsafe();
-        StorageService.instance.getTokenMetadata().updateNormalToken(new LongToken(5097162189738624638L), FBUtilities.getBroadcastAddressAndPort());
-        session.execute(createTableStatement);
-
-        for (int i = 0; i < 110; i++)
-        {
-            // removing row with idx 10 causes the last row in the first page read to be empty
-            String ttlClause = i == 10 ? "USING TTL 1" : "";
-            session.execute(String.format("INSERT INTO %s (id, id2, id3, val) VALUES (%d, %d, %d, '%d') %s", table, i, i, i, i, ttlClause));
-        }
-        Thread.sleep(1500);
-
-        Statement stmt = new SimpleStatement(String.format("SELECT DISTINCT token(id, id2), id, id2 FROM %s", table));
-        stmt.setFetchSize(100);
-        ResultSet res = session.execute(stmt);
-        stmt.setFetchSize(200);
-        ResultSet res2 = session.execute(stmt);
-
-        Iterator<Row> iter1 = res.iterator();
-        Iterator<Row> iter2 = res2.iterator();
-
-        while (iter1.hasNext() && iter2.hasNext())
-        {
-            Row row1 = iter1.next();
-            Row row2 = iter2.next();
-            assertEquals(row1.getInt("id"), row2.getInt("id"));
-        }
-        assertFalse(iter1.hasNext());
-        assertFalse(iter2.hasNext());
-        session.execute(dropTableStatement);
+        throw new IllegalArgumentException("Synthetic error");
     }
 }
