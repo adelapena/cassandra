@@ -94,6 +94,7 @@ public class PagingTest
     {
         // unrelated change 1
         // unrelated change 2
+        // unrelated change 3
         throw new IllegalArgumentException("Synthetic error");
     }
 }
