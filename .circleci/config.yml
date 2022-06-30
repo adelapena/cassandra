@@ -122,7 +122,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -304,7 +304,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -414,7 +414,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -524,7 +524,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -648,7 +648,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -744,7 +744,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -840,7 +840,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -937,7 +937,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -1034,7 +1034,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -1145,7 +1145,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -1242,7 +1242,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -1387,7 +1387,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -1511,7 +1511,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -1610,7 +1610,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -1688,7 +1688,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -1765,7 +1765,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -1829,7 +1829,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -1939,7 +1939,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -2049,7 +2049,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -2149,7 +2149,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -2205,7 +2205,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -2388,7 +2388,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -2466,7 +2466,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -2562,7 +2562,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -2673,7 +2673,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -2772,7 +2772,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -2868,7 +2868,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -2964,7 +2964,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -3028,7 +3028,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -3138,7 +3138,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -3193,7 +3193,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -3257,7 +3257,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -3356,7 +3356,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -3467,7 +3467,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -3649,7 +3649,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
@@ -3745,7 +3745,7 @@ jobs:
     - REPEATED_UPGRADE_DTEST_NAME: null
     - REPEATED_UPGRADE_DTEST_COUNT: 100
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30QuorumQuorumTest
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30AllOneTest
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - REPEATED_JVM_UPGRADE_DTEST_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
