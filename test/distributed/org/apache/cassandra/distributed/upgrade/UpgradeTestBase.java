@@ -51,7 +51,7 @@ import static org.apache.cassandra.distributed.shared.Versions.find;
 
 public class UpgradeTestBase extends DistributedTestBase
 {
-    private static final Logger logger = LoggerFactory.getLogger(UpgradeTestBase.class);
+    protected static final Logger logger = LoggerFactory.getLogger(UpgradeTestBase.class);
 
     @After
     public void afterEach()
