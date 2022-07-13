@@ -124,6 +124,7 @@ public class BatchlogManager implements BatchlogManagerMBean
 
     public static void remove(TimeUUID id)
     {
+        System.out.println("*** Removing batch mutation " + id);
         logger.info("*** Removing batch mutation {}", id);
         new Mutation(PartitionUpdate.fullPartitionDelete(SystemKeyspace.Batches,
                                                          id.toBytes(),
@@ -144,6 +145,7 @@ public class BatchlogManager implements BatchlogManagerMBean
 
         for (Mutation mutation : batch.decodedMutations)
         {
+            System.out.println("*** Storing batch mutation "+ batch.id +" -> "+ mutation);
             logger.info("*** Storing batch mutation {} -> {}", batch.id, mutation);
             try (DataOutputBuffer buffer = new DataOutputBuffer())
             {
@@ -356,7 +358,10 @@ public class BatchlogManager implements BatchlogManagerMBean
         public int replay(RateLimiter rateLimiter, Set<UUID> hintedNodes) throws IOException
         {
             for (Mutation mutation : mutations)
+            {
+                System.out.println("*** Replaying batch " + id + " -> " + mutation);
                 logger.info("*** Replaying batch {} -> {}", id, mutation);
+            }
 
             if (mutations.isEmpty())
                 return 0;
