@@ -124,6 +124,7 @@ public class BatchlogManager implements BatchlogManagerMBean
 
     public static void remove(TimeUUID id)
     {
+        logger.info("*** Removing batch mutation {}", id);
         new Mutation(PartitionUpdate.fullPartitionDelete(SystemKeyspace.Batches,
                                                          id.toBytes(),
                                                          FBUtilities.timestampMicros(),
@@ -143,6 +144,7 @@ public class BatchlogManager implements BatchlogManagerMBean
 
         for (Mutation mutation : batch.decodedMutations)
         {
+            logger.info("*** Storing batch mutation {} -> {}", batch.id, mutation);
             try (DataOutputBuffer buffer = new DataOutputBuffer())
             {
                 Mutation.serializer.serialize(mutation, buffer, MessagingService.current_version);
