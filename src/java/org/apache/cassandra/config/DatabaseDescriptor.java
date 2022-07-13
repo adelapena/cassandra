@@ -2167,6 +2167,8 @@ public class DatabaseDescriptor
 
     public static int getMaxMutationSize()
     {
+        if (conf.max_mutation_size == null)
+            return Integer.MAX_VALUE - 1;
         return conf.max_mutation_size.toBytes();
     }
 
