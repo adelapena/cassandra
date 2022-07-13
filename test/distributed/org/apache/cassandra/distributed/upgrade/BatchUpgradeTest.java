@@ -18,10 +18,17 @@
 
 package org.apache.cassandra.distributed.upgrade;
 
+import java.nio.ByteBuffer;
+
 import org.junit.Test;
 
+import org.apache.cassandra.batchlog.BatchlogManager;
+import org.apache.cassandra.db.Mutation;
+import org.apache.cassandra.db.marshal.BytesType;
+import org.apache.cassandra.db.marshal.ListType;
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
 import org.apache.cassandra.distributed.shared.AssertUtils;
+import org.apache.cassandra.io.util.DataInputBuffer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -51,6 +58,22 @@ public class BatchUpgradeTest extends UpgradeTestBase
 
             logger.info("Node1 system.batches: " + AssertUtils.rowsToString(rows1));
             logger.info("Node2 system.batches: " + AssertUtils.rowsToString(rows2));
+
+            if (rows1.length > 0)
+            {
+                Object mutation = rows1[0][1];
+                Object version = rows1[0][2];
+                logger.info("Node1 serialized mutations: {} {} {}", mutation.getClass(), mutation, version);
+                ListType<ByteBuffer> ms = ListType.getInstance(BytesType.instance, true);
+                for (ByteBuffer bb : ms.compose((ByteBuffer) mutation))
+                {
+                    try (DataInputBuffer in = new DataInputBuffer(bb, true))
+                    {
+                        Mutation m = Mutation.serializer.deserialize(in, 12);
+                        logger.info("Node1 mutation: {} {}", mutation.getClass(), m);
+                    }
+                }
+            }
 
             assertEquals(0, rows1.length);
             assertEquals(0, rows2.length);
