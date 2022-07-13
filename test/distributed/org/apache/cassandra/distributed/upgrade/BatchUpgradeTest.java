@@ -19,6 +19,7 @@
 package org.apache.cassandra.distributed.upgrade;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import org.junit.Test;
 
@@ -64,8 +65,8 @@ public class BatchUpgradeTest extends UpgradeTestBase
                 Object mutation = rows1[0][1];
                 Object version = rows1[0][2];
                 logger.info("Node1 serialized mutations: {} {} {}", mutation.getClass(), mutation, version);
-                ListType<ByteBuffer> ms = ListType.getInstance(BytesType.instance, true);
-                for (ByteBuffer bb : ms.compose((ByteBuffer) mutation))
+                ArrayList<ByteBuffer> ms = (ArrayList<ByteBuffer>) mutation;
+                for (ByteBuffer bb : ms)
                 {
                     try (DataInputBuffer in = new DataInputBuffer(bb, true))
                     {
