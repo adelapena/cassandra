@@ -41,7 +41,7 @@ public class BatchUpgradeTest extends UpgradeTestBase
         new TestCase()
         .nodes(2)
 
-        .nodesToUpgrade(2)
+        .nodesToUpgrade(2).withConfig(c -> c.set("max_mutation_size", "10MiB"))
         .upgradesFrom(v40).setup((cluster) -> {
             cluster.schemaChange("CREATE TABLE "+KEYSPACE+".users (" +
                                  "userid uuid PRIMARY KEY," +
@@ -53,25 +53,48 @@ public class BatchUpgradeTest extends UpgradeTestBase
                                            "    UPDATE "+KEYSPACE+".users SET age = 37 WHERE userid = f47ac10b-58cc-4372-a567-0e02b2c3d479\n" +
                                            "    DELETE firstname, lastname FROM "+KEYSPACE+".users WHERE userid = 550e8400-e29b-41d4-a716-446655440000\n" +
                                            "APPLY BATCH", ConsistencyLevel.ALL);
-        }).runAfterClusterUpgrade((cluster) -> {
+
             Object[][] rows1 = cluster.get(1).executeInternal("select * from system.batches");
             Object[][] rows2 = cluster.get(2).executeInternal("select * from system.batches");
 
-            logger.info("Node1 system.batches: " + AssertUtils.rowsToString(rows1));
-            logger.info("Node2 system.batches: " + AssertUtils.rowsToString(rows2));
+            logger.info("Node1 after node system.batches: " + AssertUtils.rowsToString(rows1));
+            logger.info("Node2 after node system.batches: " + AssertUtils.rowsToString(rows2));
 
             if (rows1.length > 0)
             {
                 Object mutation = rows1[0][1];
                 Object version = rows1[0][2];
-                logger.info("Node1 serialized mutations: {} {} {}", mutation.getClass(), mutation, version);
+                logger.info("Node1 after node serialized mutations: {} {} {}", mutation.getClass(), mutation, version);
                 ArrayList<ByteBuffer> ms = (ArrayList<ByteBuffer>) mutation;
                 for (ByteBuffer bb : ms)
                 {
                     try (DataInputBuffer in = new DataInputBuffer(bb, true))
                     {
                         Mutation m = Mutation.serializer.deserialize(in, 12);
-                        logger.info("Node1 mutation: {} {}", mutation.getClass(), m);
+                        logger.info("Node1 after node mutation: {} {}", mutation.getClass(), m);
+                    }
+                }
+            }
+
+        }).runAfterClusterUpgrade((cluster) -> {
+            Object[][] rows1 = cluster.get(1).executeInternal("select * from system.batches");
+            Object[][] rows2 = cluster.get(2).executeInternal("select * from system.batches");
+
+            logger.info("Node1 after cluster system.batches: " + AssertUtils.rowsToString(rows1));
+            logger.info("Node2 after cluster system.batches: " + AssertUtils.rowsToString(rows2));
+
+            if (rows1.length > 0)
+            {
+                Object mutation = rows1[0][1];
+                Object version = rows1[0][2];
+                logger.info("Node1 after cluster serialized mutations: {} {} {}", mutation.getClass(), mutation, version);
+                ArrayList<ByteBuffer> ms = (ArrayList<ByteBuffer>) mutation;
+                for (ByteBuffer bb : ms)
+                {
+                    try (DataInputBuffer in = new DataInputBuffer(bb, true))
+                    {
+                        Mutation m = Mutation.serializer.deserialize(in, 12);
+                        logger.info("Node1 after cluster mutation: {} {}", mutation.getClass(), m);
                     }
                 }
             }
