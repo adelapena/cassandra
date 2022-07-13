@@ -353,7 +353,8 @@ public class BatchlogManager implements BatchlogManagerMBean
 
         public int replay(RateLimiter rateLimiter, Set<UUID> hintedNodes) throws IOException
         {
-            logger.trace("Replaying batch {}", id);
+            for (Mutation mutation : mutations)
+                logger.info("*** Replaying batch {} -> {}", id, mutation);
 
             if (mutations.isEmpty())
                 return 0;
