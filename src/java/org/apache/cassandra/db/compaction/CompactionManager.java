@@ -857,7 +857,7 @@ public class CompactionManager implements CompactionManagerMBean
 
         for (Range<Token> tokenRange : tokenRangeCollection)
         {
-            Iterable<SSTableReader> ssTableReaders = View.sstablesInBounds(tokenRange.left.minKeyBound(), tokenRange.right.maxKeyBound(), tree);
+            Iterable<SSTableReader> ssTableReaders = View.sstablesInBounds(tokenRange, tree);
             Iterables.addAll(sstables, ssTableReaders);
         }
         return sstables;

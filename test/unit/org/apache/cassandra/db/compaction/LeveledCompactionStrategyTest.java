@@ -385,8 +385,6 @@ public class LeveledCompactionStrategyTest
         assertFalse(repaired.manifest.getLevel(1).contains(sstable2));
     }
 
-
-
     @Test
     public void testTokenRangeCompaction() throws Exception
     {
@@ -433,7 +431,7 @@ public class LeveledCompactionStrategyTest
 
         // Compact just the tables with key2
         // Bit hackish to use the key1.token as the prior key but works in BytesToken
-        Range<Token> tokenRange = new Range<>(key2.getToken(), key2.getToken());
+        Range<Token> tokenRange = new Range<>(key1.getToken(), key2.getToken());
         Collection<Range<Token>> tokenRanges = new ArrayList<>(Arrays.asList(tokenRange));
         cfs.forceCompactionForTokenRange(tokenRanges);
 
@@ -445,10 +443,11 @@ public class LeveledCompactionStrategyTest
         assertEquals(11, cfs.getLiveSSTables().size());
 
         // Compact just the tables with key1. At this point all 11 tables should have key1
-        Range<Token> tokenRange2 = new Range<>(key1.getToken(), key1.getToken());
+        // As before, we use key0.token as the prior key; it works in BytesToken
+        DecoratedKey key0 = Util.dk(String.valueOf(0));
+        Range<Token> tokenRange2 = new Range<>(key0.getToken(), key1.getToken());
         Collection<Range<Token>> tokenRanges2 = new ArrayList<>(Arrays.asList(tokenRange2));
         cfs.forceCompactionForTokenRange(tokenRanges2);
-
 
         while(CompactionManager.instance.isCompacting(Arrays.asList(cfs))) {
             Thread.sleep(100);
