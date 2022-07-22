@@ -29,6 +29,8 @@ import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.memtable.Memtable;
 import org.apache.cassandra.db.PartitionPosition;
 import org.apache.cassandra.dht.AbstractBounds;
+import org.apache.cassandra.dht.Range;
+import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.utils.Interval;
 
@@ -191,6 +193,11 @@ public class View
 
         PartitionPosition stopInTree = right.isMinimum() ? intervalTree.max() : right;
         return intervalTree.search(Interval.create(left, stopInTree));
+    }
+
+    public static List<SSTableReader> sstablesInBounds(Range<Token> tokenRange, SSTableIntervalTree intervalTree)
+    {
+        return sstablesInBounds(tokenRange.left.maxKeyBound(), tokenRange.right.maxKeyBound(), intervalTree);
     }
 
     public static List<SSTableReader> sstablesInBounds(PartitionPosition left, PartitionPosition right, SSTableIntervalTree intervalTree)
