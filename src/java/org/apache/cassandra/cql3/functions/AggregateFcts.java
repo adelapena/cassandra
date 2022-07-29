@@ -22,10 +22,11 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.cassandra.cql3.CQL3Type;
 import org.apache.cassandra.db.marshal.*;
@@ -65,24 +66,41 @@ public abstract class AggregateFcts
         functions.add(avgFunctionForVarint);
         functions.add(avgFunctionForCounter);
 
-        // count, max, and min for all standard types
-        Set<AbstractType<?>> types = new HashSet<>();
-        for (CQL3Type type : CQL3Type.Native.values())
-        {
-            AbstractType<?> udfType = type.getType().udfType();
-            if (!types.add(udfType))
-                continue;
+        // count, max, and min for counters
+        functions.add(AggregateFcts.makeCountFunction(CounterColumnType.instance));
+        functions.add(AggregateFcts.maxFunctionForCounter);
+        functions.add(AggregateFcts.minFunctionForCounter);
 
-            functions.add(AggregateFcts.makeCountFunction(udfType));
-            if (type != CQL3Type.Native.COUNTER)
+        // count, max, and min for all standard, not-counter types
+        Set<AbstractType<?>> types = Arrays.stream(CQL3Type.Native.values())
+                                           .filter(type -> type != CQL3Type.Native.COUNTER)
+                                           .map(type -> type.getType().udfType())
+                                           .collect(Collectors.toSet());
+        for (AbstractType<?> type : types)
+        {
+            functions.add(AggregateFcts.makeCountFunction(type));
+            functions.add(AggregateFcts.makeMaxFunction(type));
+            functions.add(AggregateFcts.makeMinFunction(type));
+
+            for (boolean isMultiCell : Arrays.asList(true, false))
             {
-                functions.add(AggregateFcts.makeMaxFunction(udfType));
-                functions.add(AggregateFcts.makeMinFunction(udfType));
-            }
-            else
-            {
-                functions.add(AggregateFcts.maxFunctionForCounter);
-                functions.add(AggregateFcts.minFunctionForCounter);
+                SetType<?> setType = SetType.getInstance(type, isMultiCell);
+                functions.add(AggregateFcts.makeCountFunction(setType));
+                functions.add(AggregateFcts.makeMaxFunction(setType));
+                functions.add(AggregateFcts.makeMinFunction(setType));
+
+                ListType<?> listType = ListType.getInstance(type, isMultiCell);
+                functions.add(AggregateFcts.makeCountFunction(listType));
+                functions.add(AggregateFcts.makeMaxFunction(listType));
+                functions.add(AggregateFcts.makeMinFunction(listType));
+
+                for (AbstractType<?> valueType : types)
+                {
+                    MapType<?, ?> mapType = MapType.getInstance(type, valueType, isMultiCell);
+                    functions.add(AggregateFcts.makeCountFunction(mapType));
+                    functions.add(AggregateFcts.makeMaxFunction(mapType));
+                    functions.add(AggregateFcts.makeMinFunction(mapType));
+                }
             }
         }
 
