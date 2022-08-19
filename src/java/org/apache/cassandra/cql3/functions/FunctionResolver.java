@@ -20,6 +20,7 @@ package org.apache.cassandra.cql3.functions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -99,6 +100,7 @@ public final class FunctionResolver
             candidates.addAll(NativeFunctions.instance.getFunctions(name));
             candidates.addAll(NativeFunctions.instance.getFactories(name).stream()
                                             .map(f -> f.getOrCreateFunction(providedArgs, receiverType, receiverKs, receiverCf))
+                                            .filter(Objects::nonNull)
                                             .collect(Collectors.toList()));
         }
         else
@@ -111,6 +113,7 @@ public final class FunctionResolver
             candidates.addAll(NativeFunctions.instance.getFunctions(nativeName));
             candidates.addAll(NativeFunctions.instance.getFactories(nativeName).stream()
                                             .map(f -> f.getOrCreateFunction(providedArgs, receiverType, receiverKs, receiverCf))
+                                            .filter(Objects::nonNull)
                                             .collect(Collectors.toList()));
         }
 

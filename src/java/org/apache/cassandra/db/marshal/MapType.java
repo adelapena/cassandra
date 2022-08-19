@@ -387,4 +387,10 @@ public class MapType<K, V> extends CollectionType<Map<K, V>>
     {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public ByteBuffer getMaskedValue()
+    {
+        return decompose(Collections.emptyMap());
+    }
 }

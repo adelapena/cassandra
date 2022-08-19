@@ -55,10 +55,54 @@ public interface FunctionParameter
     void validateType(FunctionName name, AssignmentTestable arg, AbstractType<?> argType);
 
     /**
+     * @return whether this parameter is optional
+     */
+    default boolean isOptional()
+    {
+        return false;
+    }
+
+    /**
+     * @param wrapped the wrapped parameter
+     * @return a function parameter definition that accepts the specified wrapped parameter, considering it optional as
+     * defined by {@link #isOptional()}.
+     */
+    static FunctionParameter optional(FunctionParameter wrapped)
+    {
+        return new FunctionParameter()
+        {
+            @Nullable
+            @Override
+            public AbstractType<?> inferType(String keyspace, AssignmentTestable arg, @Nullable AbstractType<?> receiverType)
+            {
+                return wrapped.inferType(keyspace, arg, receiverType);
+            }
+
+            @Override
+            public void validateType(FunctionName name, AssignmentTestable arg, AbstractType<?> argType)
+            {
+                wrapped.validateType(name, arg, argType);
+            }
+
+            @Override
+            public boolean isOptional()
+            {
+                return true;
+            }
+
+            @Override
+            public String toString()
+            {
+                return '[' + wrapped.toString() + ']';
+            }
+        };
+    }
+
+    /**
      * @param type the accepted data type
      * @return a function parameter definition that accepts values of a specific data type
      */
-    public static FunctionParameter fixed(AbstractType<?> type)
+    static FunctionParameter fixed(AbstractType<?> type)
     {
         return new FunctionParameter()
         {
@@ -75,13 +119,13 @@ public interface FunctionParameter
                 if (argType.testAssignment(type) == NOT_ASSIGNABLE)
                     throw new InvalidRequestException(format("Function %s requires an argument of type %s, " +
                                                              "but found argument %s of type %s",
-                                                             name, type, arg, argType.asCQL3Type()));
+                                                             name, type.asCQL3Type(), arg, argType.asCQL3Type()));
             }
 
             @Override
             public String toString()
             {
-                return type.toString();
+                return type.asCQL3Type().toString();
             }
         };
     }
@@ -90,7 +134,7 @@ public interface FunctionParameter
      * @param inferFromReceiver whether the parameter should try to use the function receiver to infer its data type
      * @return a function parameter definition that accepts columns of any data type
      */
-    public static FunctionParameter anyType(boolean inferFromReceiver)
+    static FunctionParameter anyType(boolean inferFromReceiver)
     {
         return new FunctionParameter()
         {
