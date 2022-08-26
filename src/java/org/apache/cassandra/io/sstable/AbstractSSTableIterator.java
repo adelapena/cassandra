@@ -115,7 +115,7 @@ public abstract class AbstractSSTableIterator<RIE extends AbstractRowIndexEntry>
                         file.seek(indexEntry.position);
 
                     ByteBufferUtil.skipShortLength(file); // Skip partition key
-                    this.partitionLevelDeletion = DeletionTime.serializer.deserialize(file);
+                    this.partitionLevelDeletion = DeletionTime.getSerializer(sstable.descriptor.version).deserialize(file);
 
                     // Note that this needs to be called after file != null and after the partitionDeletion has been set, but before readStaticRow
                     // (since it uses it) so we can't move that up (but we'll be able to simplify as soon as we drop support for the old file format).

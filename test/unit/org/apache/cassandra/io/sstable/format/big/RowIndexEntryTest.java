@@ -163,7 +163,7 @@ public class RowIndexEntryTest extends CQLTester
 
         Version version = BigFormat.getInstance().getLatestVersion();
 
-        DeletionTime deletionInfo = new DeletionTime(FBUtilities.timestampMicros(), FBUtilities.nowInSeconds());
+        DeletionTime deletionInfo = DeletionTime.build(FBUtilities.timestampMicros(), FBUtilities.nowInSeconds());
         LivenessInfo primaryKeyLivenessInfo = LivenessInfo.EMPTY;
         Row.Deletion deletion = Row.Deletion.LIVE;
 
@@ -221,7 +221,8 @@ public class RowIndexEntryTest extends CQLTester
                                           deletionInfo, partitionWriter.getHeaderLength(), partitionWriter.getColumnIndexCount(),
                                           partitionWriter.indexInfoSerializedSize(),
                                           partitionWriter.indexSamples(), partitionWriter.offsets(),
-                                          rieSerializer.indexInfoSerializer());
+                                          rieSerializer.indexInfoSerializer(),
+                                          BigFormat.getInstance().getLatestVersion());
             rieSerializer.serialize(rieNew, rieOutput, partitionWriter.buffer());
             rieNewSerialized = rieOutput.buffer().duplicate();
 
@@ -797,7 +798,7 @@ public class RowIndexEntryTest extends CQLTester
     @Test
     public void testIndexFor() throws IOException
     {
-        DeletionTime deletionInfo = new DeletionTime(FBUtilities.timestampMicros(), FBUtilities.nowInSeconds());
+        DeletionTime deletionInfo = DeletionTime.build(FBUtilities.timestampMicros(), FBUtilities.nowInSeconds());
 
         List<IndexInfo> indexes = new ArrayList<>();
         indexes.add(new IndexInfo(cn(0L), cn(5L), 0, 0, deletionInfo));
