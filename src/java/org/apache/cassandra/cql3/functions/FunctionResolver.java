@@ -20,6 +20,7 @@ package org.apache.cassandra.cql3.functions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.cassandra.cql3.AbstractMarker;
 import org.apache.cassandra.cql3.AssignmentTestable;
@@ -38,7 +39,7 @@ public final class FunctionResolver
     {
     }
 
-    // We special case the token function because that's the only function whose argument types actually
+    // We special-case the token function because that's the only function whose argument types actually
     // depend on the table on which the function is called. Because it's the sole exception, it's easier
     // to handle it as a special case.
     private static final FunctionName TOKEN_FUNCTION_NAME = FunctionName.nativeFunction("token");
@@ -69,6 +70,13 @@ public final class FunctionResolver
                                AbstractType<?> receiverType)
     throws InvalidRequestException
     {
+        // Search first in the dynamic function factories
+        Optional<Function> function = FunctionFactories.instance.getFunction(name, keyspace, providedArgs, receiverType);
+        if (function.isPresent())
+            return function.get();
+
+        // If the dynamic function factories weren't able to provide a function for the provided signature,
+        // then search for static functions matching the signature.
         Collection<Function> candidates = collectCandidates(keyspace, name, receiverKs, receiverCf, receiverType);
 
         if (candidates.isEmpty())

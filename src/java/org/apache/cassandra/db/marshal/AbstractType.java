@@ -709,4 +709,10 @@ public abstract class AbstractType<T> implements Comparator<ByteBuffer>, Assignm
     {
         return testAssignment(receiver.type);
     }
+
+    @Override
+    public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+    {
+        return this;
+    }
 }
