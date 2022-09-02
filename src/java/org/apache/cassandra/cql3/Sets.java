@@ -117,11 +117,20 @@ public abstract class Sets
      * @param mapper the mapper used to retrieve the element types from the items
      * @return the exact SetType from the items if it can be known or <code>null</code>
      */
-    public static <T> AbstractType<?> getExactSetTypeIfKnown(List<T> items,
-                                                             java.util.function.Function<T, AbstractType<?>> mapper)
+    public static <T> SetType<?> getExactSetTypeIfKnown(List<T> items,
+                                                        java.util.function.Function<T, AbstractType<?>> mapper)
     {
         Optional<AbstractType<?>> type = items.stream().map(mapper).filter(Objects::nonNull).findFirst();
         return type.isPresent() ? SetType.getInstance(type.get(), false) : null;
+    }
+
+    public static <T> SetType<?> getPreferredCompatibleType(List<T> items,
+                                                            AbstractType<?> receiver,
+                                                            java.util.function.Function<T, AbstractType<?>> mapper)
+    {
+        Set<AbstractType<?>> types = items.stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toSet());
+        AbstractType<?> type = AssignmentTestable.getCompatibleTypeIfKnown(types);
+        return type == null ? null : SetType.getInstance(type, receiver != null && receiver.isMultiCell());
     }
 
     public static class Literal extends Term.Raw
@@ -192,6 +201,12 @@ public abstract class Sets
         public AbstractType<?> getExactTypeIfKnown(String keyspace)
         {
             return getExactSetTypeIfKnown(elements, p -> p.getExactTypeIfKnown(keyspace));
+        }
+
+        @Override
+        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        {
+            return Sets.getPreferredCompatibleType(elements, receiver, p -> p.getCompatibleTypeIfKnown(keyspace, receiver));
         }
 
         public String getText()

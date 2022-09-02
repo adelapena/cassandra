@@ -120,6 +120,12 @@ public interface Term
         public abstract AbstractType<?> getExactTypeIfKnown(String keyspace);
 
         @Override
+        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        {
+            return getExactTypeIfKnown(keyspace);
+        }
+
+        @Override
         public String toString()
         {
             return getText();
