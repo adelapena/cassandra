@@ -23,11 +23,8 @@ import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.cassandra.cql3.CQL3Type;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.transport.ProtocolVersion;
@@ -65,28 +62,33 @@ public abstract class AggregateFcts
         functions.add(avgFunctionForVarint);
         functions.add(avgFunctionForCounter);
 
-        // count, max, and min for all standard types
-        Set<AbstractType<?>> types = new HashSet<>();
-        for (CQL3Type type : CQL3Type.Native.values())
-        {
-            AbstractType<?> udfType = type.getType().udfType();
-            if (!types.add(udfType))
-                continue;
-
-            functions.add(AggregateFcts.makeCountFunction(udfType));
-            if (type != CQL3Type.Native.COUNTER)
-            {
-                functions.add(AggregateFcts.makeMaxFunction(udfType));
-                functions.add(AggregateFcts.makeMinFunction(udfType));
-            }
-            else
-            {
-                functions.add(AggregateFcts.maxFunctionForCounter);
-                functions.add(AggregateFcts.minFunctionForCounter);
-            }
-        }
+        // count for all types
+        functions.add(makeCountFunction(BytesType.instance));
 
         return functions;
+    }
+
+    public static void addFactories(FunctionFactories factories)
+    {
+        factories.add(new FunctionFactory("max", FunctionFactory.anyType(true))
+        {
+            @Override
+            protected Function getOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType)
+            {
+                AbstractType<?> type = argTypes.get(0);
+                return type.isCounter() ? maxFunctionForCounter : makeMaxFunction(type);
+            }
+        });
+
+        factories.add(new FunctionFactory("min", FunctionFactory.anyType(true))
+        {
+            @Override
+            protected Function getOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType)
+            {
+                AbstractType<?> type = argTypes.get(0);
+                return type.isCounter() ? minFunctionForCounter : makeMinFunction(type);
+            }
+        });
     }
 
     /**
