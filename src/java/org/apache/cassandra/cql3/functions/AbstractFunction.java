@@ -118,6 +118,12 @@ public abstract class AbstractFunction implements Function
     }
 
     @Override
+    public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+    {
+        return returnType();
+    }
+
+    @Override
     public String toString()
     {
         return new CqlBuilder().append(name)
