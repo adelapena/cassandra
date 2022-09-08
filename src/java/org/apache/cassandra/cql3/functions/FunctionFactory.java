@@ -85,6 +85,7 @@ public abstract class FunctionFactory
             AbstractType<?> type = parameters.get(i).inferType(keyspace, arg, receiverType);
             if (type == null)
                 throw new InvalidRequestException("Cannot infer type for argument " + arg);
+            type = type.udfType();
             types.add(type);
         }
 
