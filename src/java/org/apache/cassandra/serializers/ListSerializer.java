@@ -32,6 +32,7 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.ByteBufferAccessor;
 import org.apache.cassandra.db.marshal.ValueAccessor;
 import org.apache.cassandra.transport.ProtocolVersion;
+import org.apache.cassandra.utils.ByteBufferUtil;
 
 public class ListSerializer<T> extends CollectionSerializer<List<T>>
 {
@@ -254,5 +255,43 @@ public class ListSerializer<T> extends CollectionSerializer<List<T>>
                                                         AbstractType<?> comparator)
     {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ByteBuffer min(ByteBuffer input, ProtocolVersion version, Comparator<ByteBuffer> comparator)
+    {
+        ByteBuffer min = ByteBufferUtil.UNSET_BYTE_BUFFER;
+        try
+        {
+            int s = readCollectionSize(input, ByteBufferAccessor.instance, ProtocolVersion.V3);
+            int offset = sizeOfCollectionSize(s, ProtocolVersion.V3);
+
+            for (int i = 0; i < s; i++)
+            {
+                int size = ByteBufferAccessor.instance.getInt(input, offset);
+                if (size < 0)
+                    continue;
+
+                offset += TypeSizes.INT_SIZE;
+
+                ByteBuffer value = ByteBufferAccessor.instance.slice(input, offset, size);
+
+                if (min == ByteBufferUtil.UNSET_BYTE_BUFFER || comparator.compare(min, value) > 0)
+                    min = value;
+
+                offset += size;
+            }
+            return min;
+        }
+        catch (BufferUnderflowException e)
+        {
+            throw new MarshalException("Not enough bytes to read a list");
+        }
+    }
+
+    @Override
+    public ByteBuffer max(ByteBuffer input, ProtocolVersion version, Comparator<ByteBuffer> comparator)
+    {
+        return min(input, version, comparator.reversed());
     }
 }

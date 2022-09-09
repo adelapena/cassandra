@@ -377,4 +377,16 @@ public class MapType<K, V> extends CollectionType<Map<K, V>>
         }
         return sb.append("}").toString();
     }
+
+    @Override
+    public ByteBuffer min(ByteBuffer collection, ProtocolVersion protocolVersion)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ByteBuffer max(ByteBuffer collection, ProtocolVersion protocolVersion)
+    {
+        throw new UnsupportedOperationException();
+    }
 }
