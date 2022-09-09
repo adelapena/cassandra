@@ -357,4 +357,13 @@ public abstract class CollectionType<T> extends AbstractType<T>
             ByteBufferUtil.skipWithVIntLength(in);
         }
     }
+
+    public int size(ByteBuffer buffer)
+    {
+        return CollectionSerializer.readCollectionSize(buffer.duplicate(), ByteBufferAccessor.instance, ProtocolVersion.V3);
+    }
+
+    public abstract ByteBuffer min(ByteBuffer input, ProtocolVersion version);
+
+    public abstract ByteBuffer max(ByteBuffer input, ProtocolVersion version);
 }

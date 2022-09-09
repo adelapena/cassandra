@@ -20,6 +20,7 @@ package org.apache.cassandra.serializers;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 import com.google.common.collect.Range;
@@ -224,4 +225,8 @@ public abstract class CollectionSerializer<T> extends TypeSerializer<T>
         ByteBufferUtil.copyBytes(input, startPos, output, sizeLen, bodyLen);
         return output;
     }
+
+    public abstract ByteBuffer min(ByteBuffer input, ProtocolVersion version, Comparator<ByteBuffer> comparator);
+
+    public abstract ByteBuffer max(ByteBuffer input, ProtocolVersion version, Comparator<ByteBuffer> comparator);
 }

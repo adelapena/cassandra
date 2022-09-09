@@ -38,6 +38,7 @@ public class NativeFunctions
             TimeFcts.addFunctionsTo(this);
             OperationFcts.addFunctionsTo(this);
             AggregateFcts.addFunctionsTo(this);
+            CollectionFcts.addFunctionsTo(this);
             BytesConversionFcts.addFunctionsTo(this);
         }
     };

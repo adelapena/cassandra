@@ -197,4 +197,16 @@ public class MapSerializer<K, V> extends AbstractMapSerializer<Map<K, V>>
     {
         return (Class) Map.class;
     }
+
+    @Override
+    public ByteBuffer min(ByteBuffer input, ProtocolVersion version, Comparator<ByteBuffer> comparator)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ByteBuffer max(ByteBuffer input, ProtocolVersion version, Comparator<ByteBuffer> comparator)
+    {
+        throw new UnsupportedOperationException();
+    }
 }

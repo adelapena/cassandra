@@ -84,9 +84,11 @@ public abstract class FunctionFactory
         for (int i = 0; i < args.size(); i++)
         {
             AssignmentTestable arg = args.get(i);
-            AbstractType<?> type = parameters.get(i).inferType(SchemaConstants.SYSTEM_KEYSPACE_NAME, arg, receiverType);
+            FunctionParameter parameter = parameters.get(i);
+            AbstractType<?> type = parameter.inferType(SchemaConstants.SYSTEM_KEYSPACE_NAME, arg, receiverType);
             if (type == null)
                 throw new InvalidRequestException("Cannot infer type for argument " + arg);
+            parameter.validateType(name, arg, type);
             type = type.udfType();
             types.add(type);
         }
