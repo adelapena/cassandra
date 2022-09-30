@@ -69,7 +69,7 @@ generate.sh -h \
   -e REPEATED_UTEST_TARGET=testsome \
   -e REPEATED_UTEST_CLASS=org.apache.cassandra.cql3.ViewTest \
   -e REPEATED_UTEST_METHODS=testCompoundPartitionKey,testStaticTable \
-  -e REPEATED_UTEST_COUNT=100
+  -e REPEATED_UTEST_COUNT=500
 ```
 
 ## Updating the config
