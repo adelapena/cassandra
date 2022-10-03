@@ -60,6 +60,7 @@ public class ViewTest
     @Test
     public void testSSTablesInBounds()
     {
+        // modified
         ColumnFamilyStore cfs = MockSchema.newCFS();
         View initialView = fakeView(0, 5, cfs);
         for (int i = 0 ; i < 5 ; i++)

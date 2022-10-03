@@ -39,6 +39,7 @@ public class AuthTest extends TestBaseImpl
     @Test
     public void authSetupIsCalledAfterStartup() throws IOException
     {
+        // modified
         try (Cluster cluster = Cluster.build().withNodes(1).start())
         {
             boolean setupCalled = cluster.get(1).callOnInstance(() -> {

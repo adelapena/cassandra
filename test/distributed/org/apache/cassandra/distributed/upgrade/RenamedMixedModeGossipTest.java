@@ -36,7 +36,7 @@ import org.apache.cassandra.distributed.api.IMessageFilters;
 import org.apache.cassandra.net.Verb;
 import org.assertj.core.api.Assertions;
 
-public class MixedModeGossipTest extends UpgradeTestBase
+public class RenamedMixedModeGossipTest extends UpgradeTestBase
 {
     Pattern expectedNormalStatus = Pattern.compile("STATUS:\\d+:NORMAL,-?\\d+");
     Pattern expectedNormalStatusWithPort = Pattern.compile("STATUS_WITH_PORT:\\d+:NORMAL,-?\\d+");

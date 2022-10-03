@@ -63,6 +63,7 @@ public class TimeFctsTest
     @Test
     public void testMinTimeUuidFromBigInt()
     {
+        // modified
         long timeInMillis = DATE_TIME.toInstant().toEpochMilli();
         ByteBuffer input = LongType.instance.decompose(timeInMillis);
         ByteBuffer output = executeFunction(TimeFcts.minTimeuuidFct, input);

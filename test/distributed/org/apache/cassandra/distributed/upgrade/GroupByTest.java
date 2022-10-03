@@ -32,6 +32,7 @@ public class GroupByTest extends UpgradeTestBase
     @Test
     public void testReads() throws Throwable
     {
+        // modified
         // CASSANDRA-16582: group-by across mixed version cluster would fail with ArrayIndexOutOfBoundException
         new UpgradeTestBase.TestCase()
         .nodes(2)

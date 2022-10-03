@@ -79,6 +79,7 @@ public class ViewTest extends ViewAbstractTest
     @Test
     public void testStaticTable() throws Throwable
     {
+        // modified
         createTable("CREATE TABLE %s (" +
                     "k int, " +
                     "c int, " +

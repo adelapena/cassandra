@@ -56,7 +56,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(BMUnitRunner.class)
-public class HintsServiceTest
+public class RenamedHintsServiceTest
 {
     private static final String KEYSPACE = "hints_service_test";
     private static final String TABLE = "table";
