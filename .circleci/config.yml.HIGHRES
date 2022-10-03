@@ -105,29 +105,256 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+  utests_compression_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_UTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_UTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_UTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=test/unit/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=false
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant test-compression $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - CASSANDRA_USE_JDK11: true
   repeated_jvm_upgrade_dtest:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
@@ -201,7 +428,11 @@ jobs:
               if [[ $target == "test" || \
                     $target == "test-cdc" || \
                     $target == "test-compression" || \
-                    $target == "test-system-keyspace-directory" ]]; then
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
                 name="-Dtest.name=$class_name"
               else
                 name="-Dtest.name=$class_path"
@@ -287,29 +518,256 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+  utests_stress_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_UTESTS_STRESS_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_UTESTS_STRESS_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_UTESTS_STRESS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=tools/stress/test/unit/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra.stress )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=false
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant stress-test-some $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - CASSANDRA_USE_JDK11: true
   j8_jvm_dtests_vnode:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
@@ -397,27 +855,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_unit_tests:
@@ -507,27 +982,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -631,27 +1123,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_cqlsh-dtests-py38-no-vnodes:
@@ -727,27 +1236,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_cqlsh-dtests-py3-with-vnodes:
@@ -823,27 +1349,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -920,27 +1463,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -1017,27 +1577,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -1128,27 +1705,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -1235,29 +1829,256 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+  utests_long_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_UTESTS_LONG_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_UTESTS_LONG_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_UTESTS_LONG} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=test/long/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=false
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant long-testsome $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - CASSANDRA_USE_JDK11: true
   j8_cqlsh-dtests-py3-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
@@ -1331,27 +2152,253 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+  j8_unit_tests_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_UTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_UTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_UTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=test/unit/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=false
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant testsome $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_repeated_dtest:
@@ -1476,27 +2523,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -1600,27 +2664,463 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+  utests_system_keyspace_directory_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_UTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_UTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_UTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=test/unit/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=false
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant test-system-keyspace-directory $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - CASSANDRA_USE_JDK11: true
+  j8_jvm_dtests_vnode_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_JVM_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_JVM_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_JVM_DTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=test/distributed/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra.distributed.test )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=true
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant test-jvm-dtest-some $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_dtests-with-vnodes:
@@ -1699,30 +3199,256 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
+  j8_simulator_dtests_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_SIMULATOR_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_SIMULATOR_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_SIMULATOR_DTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=test/simulator/test/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra.simulator.test )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=false
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant test-simulator-dtest $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_dtests-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
@@ -1777,29 +3503,256 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+  utests_fqltool_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_UTESTS_FQLTOOL_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_UTESTS_FQLTOOL_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_UTESTS_FQLTOOL} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=tools/fqltool/test/unit/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra.fqltool )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=false
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant fqltool-test $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - CASSANDRA_USE_JDK11: true
   j8_upgradetests-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
@@ -1854,29 +3807,465 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+  j8_jvm_upgrade_dtests_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_JVM_UPGRADE_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_JVM_UPGRADE_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_JVM_UPGRADE_DTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=test/distributed/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra.distributed.upgrade )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=false
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant test-jvm-dtest-some $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+  j11_jvm_dtests_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_JVM_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_JVM_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_JVM_DTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=test/distributed/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra.distributed.test )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=false
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant test-jvm-dtest-some $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - CASSANDRA_USE_JDK11: true
   utests_stress:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
@@ -1918,27 +4307,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_unit_tests:
@@ -2028,27 +4434,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_jvm_dtests:
@@ -2138,27 +4561,254 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - CASSANDRA_USE_JDK11: true
+  j11_jvm_dtests_vnode_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_JVM_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_JVM_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_JVM_DTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=test/distributed/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra.distributed.test )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=true
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant test-jvm-dtest-some $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -2196,6 +4846,10 @@ jobs:
         name: Clone Cassandra Repository (via git)
         command: |
           git clone --single-branch --depth 1 --branch $CIRCLE_BRANCH https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git ~/cassandra
+          cd ~/cassandra
+          git remote add apache $CASSANDRA_REPO
+          git fetch --depth 1 apache $CASSANDRA_BRANCH
+          cd ..
     - run:
         name: Build Cassandra
         command: |
@@ -2238,27 +4892,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -2294,30 +4965,256 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
+  j8_jvm_dtests_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_JVM_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_JVM_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_JVM_DTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=test/distributed/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra.distributed.test )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=false
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant test-jvm-dtest-some $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_repeated_utest:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
@@ -2391,7 +5288,11 @@ jobs:
               if [[ $target == "test" || \
                     $target == "test-cdc" || \
                     $target == "test-compression" || \
-                    $target == "test-system-keyspace-directory" ]]; then
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
                 name="-Dtest.name=$class_name"
               else
                 name="-Dtest.name=$class_path"
@@ -2477,27 +5378,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -2555,27 +5473,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_cqlsh-dtests-py38-no-vnodes:
@@ -2651,27 +5586,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -2762,27 +5714,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_build:
@@ -2819,6 +5788,10 @@ jobs:
         name: Clone Cassandra Repository (via git)
         command: |
           git clone --single-branch --depth 1 --branch $CIRCLE_BRANCH https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git ~/cassandra
+          cd ~/cassandra
+          git remote add apache $CASSANDRA_REPO
+          git fetch --depth 1 apache $CASSANDRA_BRANCH
+          cd ..
     - run:
         name: Build Cassandra
         command: |
@@ -2861,27 +5834,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_cqlsh-dtests-py3-no-vnodes:
@@ -2957,27 +5947,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_cqlsh-dtests-py38-with-vnodes:
@@ -3053,27 +6060,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   utests_long:
@@ -3117,29 +6141,256 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+  j11_unit_tests_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11:latest
+    resource_class: xlarge
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 100
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: |
+          set -x
+          export PATH=$JAVA_HOME/bin:$PATH
+          time mv ~/cassandra /tmp
+          cd /tmp/cassandra
+          if [ -d ~/dtest_jars ]; then
+            cp ~/dtest_jars/dtest* /tmp/cassandra/build/
+          fi
+
+          # Calculate the number of test iterations to be run by the current parallel runner.
+          count=$((${REPEATED_UTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+          if (($CIRCLE_NODE_INDEX < (${REPEATED_UTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+            count=$((count+1))
+          fi
+
+          # Split the manually specified tests
+          manual_tests=$(echo ${REPEATED_UTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n")
+          echo Manually specified tests: $manual_tests
+
+          # Find out what tests classes are new or modified compared to the base Apache branch.
+          directory=test/unit/
+          detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \
+                        | grep Test\\.java \
+                        | sed -e "s/\\.java//" \
+                        | sed -e "s,^${directory},," \
+                        | tr  '/' '.' \
+                        | grep org.apache.cassandra )
+          echo Automatically detected classes: $detected_tests
+
+          # Put manually specified tests and automatically detected tests together, removing duplicates
+          tests=$(echo $manual_tests $detected_tests | tr " " "\n" | sort -n | uniq -u)
+          echo All tests: $tests
+
+          # Prepare the JVM dtests vnodes argument, which is optional.
+          vnodes=false
+          vnodes_args=""
+          if [ "$vnodes" = true ] ; then
+            vnodes_args="-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'"
+          fi
+
+          # Run each new or modified test class as many times as requested.
+          exit_code="$?"
+          for test in $tests; do
+
+              # Split class and method names from the test name
+              if [[ $test =~ "#" ]]; then
+                class=${test%"#"*}
+                method=${test#*"#"}
+              else
+                class=$test
+                method=""
+              fi
+
+              # Prepare the -Dtest.name argument.
+              # It can be the fully qualified class name or the short class name, depending on the target.
+              if [[ $target == "test" || \
+                    $target == "test-cdc" || \
+                    $target == "test-compression" || \
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
+                name_arg="-Dtest.name=${class##*.}"
+              else
+                name_arg="-Dtest.name=$class"
+              fi
+
+              # Prepare the -Dtest.methods argument, which is optional
+              if [ $method == "" ]; then
+                methods_arg=""
+              else
+                methods_arg="-Dtest.methods=$method"
+              fi
+
+              for i in $(seq -w 1 $count); do
+                echo "Running test $test, iteration $i of $count"
+
+                # run the test
+                status="passes"
+                if !( set -o pipefail && \
+                      ant testsome $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \
+                      tee stdout.txt \
+                    ); then
+                  status="fails"
+                  exit_code=1
+                fi
+
+                # move the stdout output file
+                dest=/tmp/results/diff/stdout/${status}/${i}
+                mkdir -p $dest
+                mv stdout.txt $dest/${test}.txt
+
+                # move the XML output files
+                source=build/test/output
+                dest=/tmp/results/diff/output/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+
+                # move the log files
+                source=build/test/logs
+                dest=/tmp/results/diff/logs/${status}/${i}
+                mkdir -p $dest
+                if [[ -d $source && -n "$(ls $source)" ]]; then
+                  mv $source/* $dest/
+                fi
+              done
+          done
+          (exit ${exit_code})
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: false
+    - REPEATED_DTEST_NAME: null
+    - REPEATED_DTEST_VNODES: false
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UPGRADE_DTEST_NAME: null
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
+    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - CASSANDRA_USE_JDK11: true
   utests_system_keyspace_directory:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
@@ -3227,27 +6478,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_cqlshlib_tests:
@@ -3282,27 +6550,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   utests_fqltool:
@@ -3346,27 +6631,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_dtests-no-vnodes:
@@ -3445,27 +6747,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -3556,27 +6875,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_repeated_utest:
@@ -3652,7 +6988,11 @@ jobs:
               if [[ $target == "test" || \
                     $target == "test-cdc" || \
                     $target == "test-compression" || \
-                    $target == "test-system-keyspace-directory" ]]; then
+                    $target == "test-system-keyspace-directory" || \
+                    $target == "fqltool-test" || \
+                    $target == "long-test" || \
+                    $target == "stress-test" || \
+                    $target == "test-simulator-dtest" ]]; then
                 name="-Dtest.name=$class_name"
               else
                 name="-Dtest.name=$class_path"
@@ -3738,27 +7078,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_dtest_jars_build:
@@ -3777,7 +7134,6 @@ jobs:
           export PATH=$JAVA_HOME/bin:$PATH
           cd ~/cassandra
           mkdir ~/dtest_jars
-          git remote add apache https://github.com/apache/cassandra.git
           for branch in cassandra-2.2 cassandra-3.0 cassandra-3.11 cassandra-4.0 cassandra-4.1 trunk; do
             # check out the correct cassandra version:
             git remote set-branches --add apache '$branch'
@@ -3834,27 +7190,44 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
     - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
     - REPEATED_UTEST_TARGET: testsome
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: 100
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_STOP_ON_FAILURE: false
     - REPEATED_DTEST_NAME: null
     - REPEATED_DTEST_VNODES: false
-    - REPEATED_DTEST_COUNT: 100
+    - REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_DTEST_STOP_ON_FAILURE: false
     - REPEATED_UPGRADE_DTEST_NAME: null
-    - REPEATED_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
     - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
     - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
-    - REPEATED_JVM_UPGRADE_DTEST_COUNT: 100
+    - REPEATED_JVM_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
 workflows:
@@ -3872,19 +7245,37 @@ workflows:
         requires:
         - start_j8_unit_tests
         - j8_build
+    - j8_unit_tests_repeat:
+        requires:
+        - start_j8_unit_tests
+        - j8_build
     - start_j8_jvm_dtests:
         type: approval
     - j8_jvm_dtests:
         requires:
         - start_j8_jvm_dtests
         - j8_build
-    - j8_simulator_dtests:
+    - j8_jvm_dtests_repeat:
         requires:
         - start_j8_jvm_dtests
         - j8_build
     - j8_jvm_dtests_vnode:
         requires:
         - start_j8_jvm_dtests
+        - j8_build
+    - j8_jvm_dtests_vnode_repeat:
+        requires:
+        - start_j8_jvm_dtests
+        - j8_build
+    - start_j8_simulator_dtests:
+        type: approval
+    - j8_simulator_dtests:
+        requires:
+        - start_j8_simulator_dtests
+        - j8_build
+    - j8_simulator_dtests_repeat:
+        requires:
+        - start_j8_simulator_dtests
         - j8_build
     - start_j8_cqlshlib_tests:
         type: approval
@@ -3898,9 +7289,17 @@ workflows:
         requires:
         - start_j11_unit_tests
         - j8_build
+    - j11_unit_tests_repeat:
+        requires:
+        - start_j11_unit_tests
+        - j8_build
     - start_utests_long:
         type: approval
     - utests_long:
+        requires:
+        - start_utests_long
+        - j8_build
+    - utests_long_repeat:
         requires:
         - start_utests_long
         - j8_build
@@ -3910,9 +7309,17 @@ workflows:
         requires:
         - start_utests_compression
         - j8_build
+    - utests_compression_repeat:
+        requires:
+        - start_utests_compression
+        - j8_build
     - start_utests_stress:
         type: approval
     - utests_stress:
+        requires:
+        - start_utests_stress
+        - j8_build
+    - utests_stress_repeat:
         requires:
         - start_utests_stress
         - j8_build
@@ -3922,9 +7329,17 @@ workflows:
         requires:
         - start_utests_fqltool
         - j8_build
+    - utests_fqltool_repeat:
+        requires:
+        - start_utests_fqltool
+        - j8_build
     - start_utests_system_keyspace_directory:
         type: approval
     - utests_system_keyspace_directory:
+        requires:
+        - start_utests_system_keyspace_directory
+        - j8_build
+    - utests_system_keyspace_directory_repeat:
         requires:
         - start_utests_system_keyspace_directory
         - j8_build
@@ -3937,6 +7352,10 @@ workflows:
     - start_jvm_upgrade_dtest:
         type: approval
     - j8_jvm_upgrade_dtests:
+        requires:
+        - start_jvm_upgrade_dtest
+        - j8_dtest_jars_build
+    - j8_jvm_upgrade_dtests_repeat:
         requires:
         - start_jvm_upgrade_dtest
         - j8_dtest_jars_build
@@ -4048,13 +7467,25 @@ workflows:
     - j8_unit_tests:
         requires:
         - j8_build
+    - j8_unit_tests_repeat:
+        requires:
+        - j8_build
     - j8_simulator_dtests:
+        requires:
+        - j8_build
+    - j8_simulator_dtests_repeat:
         requires:
         - j8_build
     - j8_jvm_dtests:
         requires:
         - j8_build
+    - j8_jvm_dtests_repeat:
+        requires:
+        - j8_build
     - j8_jvm_dtests_vnode:
+        requires:
+        - j8_build
+    - j8_jvm_dtests_vnode_repeat:
         requires:
         - j8_build
     - j8_cqlshlib_tests:
@@ -4063,9 +7494,16 @@ workflows:
     - j11_unit_tests:
         requires:
         - j8_build
+    - j11_unit_tests_repeat:
+        requires:
+        - j8_build
     - start_utests_long:
         type: approval
     - utests_long:
+        requires:
+        - start_utests_long
+        - j8_build
+    - utests_long_repeat:
         requires:
         - start_utests_long
         - j8_build
@@ -4075,9 +7513,17 @@ workflows:
         requires:
         - start_utests_compression
         - j8_build
+    - utests_compression_repeat:
+        requires:
+        - start_utests_compression
+        - j8_build
     - start_utests_stress:
         type: approval
     - utests_stress:
+        requires:
+        - start_utests_stress
+        - j8_build
+    - utests_stress_repeat:
         requires:
         - start_utests_stress
         - j8_build
@@ -4087,7 +7533,14 @@ workflows:
         requires:
         - start_utests_fqltool
         - j8_build
+    - utests_fqltool_repeat:
+        requires:
+        - start_utests_fqltool
+        - j8_build
     - utests_system_keyspace_directory:
+        requires:
+        - j8_build
+    - utests_system_keyspace_directory_repeat:
         requires:
         - j8_build
     - start_j8_dtest_jars_build:
@@ -4099,6 +7552,10 @@ workflows:
     - start_jvm_upgrade_dtest:
         type: approval
     - j8_jvm_upgrade_dtests:
+        requires:
+        - start_jvm_upgrade_dtest
+        - j8_dtest_jars_build
+    - j8_jvm_upgrade_dtests_repeat:
         requires:
         - start_jvm_upgrade_dtest
         - j8_dtest_jars_build
@@ -4193,13 +7650,25 @@ workflows:
         requires:
         - start_j11_unit_tests
         - j11_build
+    - j11_unit_tests_repeat:
+        requires:
+        - start_j11_unit_tests
+        - j11_build
     - start_j11_jvm_dtests:
         type: approval
     - j11_jvm_dtests:
         requires:
         - start_j11_jvm_dtests
         - j11_build
+    - j11_jvm_dtests_repeat:
+        requires:
+        - start_j11_jvm_dtests
+        - j11_build
     - j11_jvm_dtests_vnode:
+        requires:
+        - start_j11_jvm_dtests
+        - j11_build
+    - j11_jvm_dtests_vnode_repeat:
         requires:
         - start_j11_jvm_dtests
         - j11_build
@@ -4259,16 +7728,22 @@ workflows:
     - j11_unit_tests:
         requires:
         - j11_build
+    - j11_unit_tests_repeat:
+        requires:
+        - j11_build
     - j11_jvm_dtests:
+        requires:
+        - j11_build
+    - j11_jvm_dtests_repeat:
         requires:
         - j11_build
     - j11_jvm_dtests_vnode:
         requires:
         - j11_build
-    - j11_cqlshlib_tests:
+    - j11_jvm_dtests_vnode_repeat:
         requires:
         - j11_build
-    - j11_jvm_dtests:
+    - j11_cqlshlib_tests:
         requires:
         - j11_build
     - j11_cqlshlib_tests:
