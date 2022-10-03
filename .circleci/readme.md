@@ -62,14 +62,16 @@ generate.sh -m \
   -e DTEST_BRANCH=CASSANDRA-8272 
 ```
 
-Or you can set the test multiplexer for repeating a specific test with HIGHRES:
+Or you can set the test multiplexer for repeating some specific tests with HIGHRES:
 
 ```
 generate.sh -h \
-  -e REPEATED_UTEST_TARGET=testsome \
-  -e REPEATED_UTEST_CLASS=org.apache.cassandra.cql3.ViewTest \
-  -e REPEATED_UTEST_METHODS=testCompoundPartitionKey,testStaticTable \
-  -e REPEATED_UTEST_COUNT=100
+  -e REPEATED_TESTS_COUNT=500 \
+  -e REPEATED_UTESTS=org.apache.cassandra.cql3.ViewTest,org.apache.cassandra.db.CellTest \
+  -e REPEATED_DTESTS=cql_test.py,consistency_test.py::TestAvailability::test_simple_strategy \
+  -e REPEATED_JVM_DTESTS=org.apache.cassandra.distributed.test.PagingTest#testPaging \
+  -e REPEATED_UPGRADE_DTESTS=upgrade_tests/cql_tests.py \
+  -e REPEATED_JVM_UPGRADE_DTESTS=org.apache.cassandra.distributed.upgrade.GroupByTest
 ```
 
 ## Updating the config
