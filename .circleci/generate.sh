@@ -38,6 +38,7 @@ print_help()
   echo "   -e <key=value> Environment variables to be used in the generated config.yml, e.g.:"
   echo "                   -e DTEST_BRANCH=CASSANDRA-8272"
   echo "                   -e DTEST_REPO=https://github.com/adelapena/cassandra-dtest.git"
+  echo "                   -e REPEATED_TESTS_COUNT"
   echo "                   -e REPEATED_UTEST_TARGET=testsome"
   echo "                   -e REPEATED_UTEST_CLASS=org.apache.cassandra.cql3.ViewTest"
   echo "                   -e REPEATED_UTEST_METHODS=testCompoundPartitionKey,testStaticTable"
@@ -48,6 +49,18 @@ print_help()
   echo "                   -e REPEATED_DTEST_VNODES=false"
   echo "                   -e REPEATED_DTEST_COUNT=100"
   echo "                   -e REPEATED_DTEST_STOP_ON_FAILURE=false"
+  echo "                   -e REPEATED_UTESTS_COUNT"
+  echo "                   -e REPEATED_UTESTS_CLASSES"
+  echo "                   -e REPEATED_UTESTS_FQLTOOL_COUNT"
+  echo "                   -e REPEATED_UTESTS_FQLTOOL_CLASSES"
+  echo "                   -e REPEATED_UTESTS_LONG_COUNT"
+  echo "                   -e REPEATED_UTESTS_LONG_CLASSES"
+  echo "                   -e REPEATED_UTESTS_STRESS_COUNT"
+  echo "                   -e REPEATED_UTESTS_STRESS_CLASSES"
+  echo "                   -e REPEATED_JVM_DTESTS_COUNT"
+  echo "                   -e REPEATED_JVM_DTESTS_CLASSES"
+  echo "                   -e REPEATED_JVM_UPGRADE_DTESTS_COUNT"
+  echo "                   -e REPEATED_JVM_UPGRADE_DTESTS_CLASSES"
   echo "                  For the complete list of environment variables, please check the"
   echo "                  list of examples in config-2_1.yml and/or the documentation."
   echo "                  If you want to specify multiple environment variables simply add"
@@ -96,6 +109,7 @@ if $has_env_vars && $check_env_vars; then
     key=$(echo $entry | tr "=" "\n" | head -n 1)
     if [ "$key" != "DTEST_REPO" ] &&
        [ "$key" != "DTEST_BRANCH" ] &&
+       [ "$key" != "REPEATED_TESTS_COUNT" ] &&
        [ "$key" != "REPEATED_UTEST_TARGET" ] &&
        [ "$key" != "REPEATED_UTEST_CLASS" ] &&
        [ "$key" != "REPEATED_UTEST_METHODS" ] &&
@@ -112,7 +126,19 @@ if $has_env_vars && $check_env_vars; then
        [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_CLASS" ] &&
        [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_METHODS" ] &&
        [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_COUNT" ] &&
-       [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE" ]; then
+       [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE" ] &&
+       [ "$key" != "REPEATED_UTESTS_COUNT" ] &&
+       [ "$key" != "REPEATED_UTESTS_CLASSES" ] &&
+       [ "$key" != "REPEATED_UTESTS_FQLTOOL_COUNT" ] &&
+       [ "$key" != "REPEATED_UTESTS_FQLTOOL_CLASSES" ] &&
+       [ "$key" != "REPEATED_UTESTS_LONG_COUNT" ] &&
+       [ "$key" != "REPEATED_UTESTS_LONG_CLASSES" ] &&
+       [ "$key" != "REPEATED_UTESTS_STRESS_COUNT" ] &&
+       [ "$key" != "REPEATED_UTESTS_STRESS_CLASSES" ] &&
+       [ "$key" != "REPEATED_JVM_DTESTS_COUNT" ] &&
+       [ "$key" != "REPEATED_JVM_DTESTS_CLASSES" ] &&
+       [ "$key" != "REPEATED_JVM_UPGRADE_DTESTS_COUNT"  &&
+       [ "$key" != "REPEATED_JVM_UPGRADE_DTESTS_CLASSES" ]; then
       die "Unrecognised environment variable name: $key"
     fi
   done
