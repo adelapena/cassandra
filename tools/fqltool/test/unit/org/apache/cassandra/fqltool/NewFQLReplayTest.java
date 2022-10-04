@@ -38,13 +38,13 @@ import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.Statement;
 import net.openhft.chronicle.core.io.IORuntimeException;
 import net.openhft.chronicle.queue.ChronicleQueue;
-import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 import net.openhft.chronicle.queue.ExcerptAppender;
 import net.openhft.chronicle.queue.ExcerptTailer;
+import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 import net.openhft.chronicle.wire.WireOut;
-import org.apache.cassandra.fql.FullQueryLogger;
 import org.apache.cassandra.cql3.QueryOptions;
 import org.apache.cassandra.cql3.statements.BatchStatement;
+import org.apache.cassandra.fql.FullQueryLogger;
 import org.apache.cassandra.fqltool.commands.Compare;
 import org.apache.cassandra.fqltool.commands.Replay;
 import org.apache.cassandra.service.ClientState;
@@ -63,10 +63,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-// modified
-public class FQLReplayTest
+public class NewFQLReplayTest
 {
-    public FQLReplayTest()
+    public NewFQLReplayTest()
     {
         Util.initDatabaseDescriptor();
     }
