@@ -105,8 +105,14 @@ default_env_vars: &default_env_vars
     REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE: false
 
     REPEATED_NEW_UNIT_TESTS_COUNT: 10
+    REPEATED_NEW_UNIT_TESTS_CDC_COUNT: 10
+    REPEATED_NEW_UNIT_TESTS_COMPRESSION_COUNT: 10
+    REPEATED_NEW_UNIT_TESTS_SYSTEM_KEYSPACE_DIRECTORY_COUNT: 10
     REPEATED_NEW_JVM_DTESTS_COUNT: 10
     REPEATED_NEW_JVM_UPGRADE_DTESTS_COUNT: 10
+    REPEATED_NEW_FQL_TESTS_COUNT: 10
+    REPEATED_NEW_LONG_TESTS_COUNT: 10
+    REPEATED_NEW_STRESS_TESTS_COUNT: 10
 
 j8_par_executor: &j8_par_executor
   executor:
@@ -337,46 +343,6 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_j11_cqlsh_tests
           - j8_build
-    # Java 8 repeated new utests
-    - start_j8_new_unit_tests:
-        type: approval
-    - j8_new_unit_tests:
-        requires:
-          - start_j8_new_unit_tests
-          - j8_build
-    - start_j8_new_jvm_dtests:
-        type: approval
-    - j8_new_jvm_dtests_with_vnodes:
-        requires:
-          - start_j8_new_jvm_dtests
-          - j8_build
-    - j8_new_jvm_dtests_no_vnodes:
-        requires:
-          - start_j8_new_jvm_dtests
-          - j8_build
-    - start_j8_new_jvm_upgrade_dtests:
-        type: approval
-    - j8_new_jvm_upgrade_dtests:
-        requires:
-          - start_j8_new_jvm_upgrade_dtests
-          - j8_dtest_jars_build
-    # Java 11 repeated new utests
-    - start_j11_new_unit_tests:
-        type: approval
-    - j11_new_unit_tests:
-        requires:
-          - start_j11_new_unit_tests
-          - j8_build
-    - start_j11_new_jvm_dtests:
-        type: approval
-    - j11_new_jvm_dtests_with_vnodes:
-        requires:
-          - start_j11_new_jvm_dtests
-          - j8_build
-    - j11_new_jvm_dtests_no_vnodes:
-        requires:
-          - start_j11_new_jvm_dtests
-          - j8_build
     # Java 8 repeated utest
     - start_j8_repeated_utest:
         type: approval
@@ -534,32 +500,6 @@ j8_pre-commit_jobs: &j8_pre-commit_jobs
     - j11_cqlsh-dtests-py38-no-vnodes:
         requires:
           - j8_build
-    # Java 8 repeated new utests
-    - j8_new_unit_tests:
-        requires:
-          - j8_build
-    - j8_new_jvm_dtests_with_vnodes:
-        requires:
-          - j8_build
-    - j8_new_jvm_dtests_no_vnodes:
-        requires:
-          - j8_build
-    - start_j8_new_jvm_upgrade_dtests:
-        type: approval
-    - j8_new_jvm_upgrade_dtests:
-        requires:
-          - j8_dtest_jars_build
-          - start_j8_new_jvm_upgrade_dtests
-    # Java 11 repeated new utests
-    - j11_new_unit_tests:
-        requires:
-          - j8_build
-    - j11_new_jvm_dtests_with_vnodes:
-        requires:
-          - j8_build
-    - j11_new_jvm_dtests_no_vnodes:
-        requires:
-          - j8_build
     # Java 8 repeated utest (on request)
     - start_j8_repeated_utest:
         type: approval
@@ -662,23 +602,6 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
         requires:
           - start_j11_cqlsh_tests
           - j11_build
-    # Java 11 repeated new utests
-    - start_j11_new_unit_tests:
-        type: approval
-    - j11_new_unit_tests:
-        requires:
-          - start_j11_new_unit_tests
-          - j11_build
-    - start_j11_new_jvm_dtests:
-        type: approval
-    - j11_new_jvm_dtests_with_vnodes:
-        requires:
-          - start_j11_new_jvm_dtests
-          - j11_build
-    - j11_new_jvm_dtests_no_vnodes:
-        requires:
-          - start_j11_new_jvm_dtests
-          - j11_build
     # Java 11 repeated utest
     - start_j11_repeated_utest:
         type: approval
@@ -735,16 +658,6 @@ j11_pre-commit_jobs: &j11_pre-commit_jobs
         requires:
           - j11_build
     - j11_cqlsh-dtests-py38-no-vnodes:
-        requires:
-          - j11_build
-    # Java 11 repeated new utests
-    - j11_new_unit_tests:
-        requires:
-          - j11_build
-    - j11_new_jvm_dtests_with_vnodes:
-        requires:
-          - j11_build
-    - j11_new_jvm_dtests_no_vnodes:
         requires:
           - j11_build
     # Java 11 repeated utest (on request)
@@ -840,8 +753,13 @@ jobs:
     steps:
       - attach_workspace:
           at: /home/cassandra
-      - create_junit_containers
       - log_environment
+      - run_new_utests:
+          target: testsome
+          directory: test/unit/
+          package: org.apache.cassandra
+          count: ${REPEATED_NEW_UNIT_TESTS_COUNT}
+      - create_junit_containers
       - run_parallel_junit_tests
 
   j8_simulator_dtests:
@@ -858,10 +776,16 @@ jobs:
     steps:
       - attach_workspace:
           at: /home/cassandra
+      - log_environment
+      - run_new_utests:
+          target: test-jvm-dtest-some
+          directory: test/distributed/
+          package: org.apache.cassandra.distributed.test
+          count: ${REPEATED_NEW_JVM_DTESTS_COUNT}
+          vnodes: false
       - create_junit_containers:
           classlistprefix: distributed
           extra_filters: "| grep -v upgrade"
-      - log_environment
       - run_parallel_junit_tests:
           classlistprefix: distributed
           target: "testclasslist"
@@ -871,10 +795,16 @@ jobs:
     steps:
       - attach_workspace:
           at: /home/cassandra
+      - log_environment
+      - run_new_utests:
+          target: test-jvm-dtest-some
+          directory: test/distributed/
+          package: org.apache.cassandra.distributed.test
+          count: ${REPEATED_NEW_JVM_DTESTS_COUNT}
+          vnodes: true
       - create_junit_containers:
           classlistprefix: distributed
           extra_filters: "| grep -v upgrade"
-      - log_environment
       - run_parallel_junit_tests:
           classlistprefix: distributed
           target: "testclasslist"
@@ -885,10 +815,16 @@ jobs:
     steps:
       - attach_workspace:
           at: /home/cassandra
+      - log_environment
+      - run_new_utests:
+          target: test-jvm-dtest-some
+          directory: test/distributed/
+          package: org.apache.cassandra.distributed.test
+          count: ${REPEATED_NEW_JVM_DTESTS_COUNT}
+          vnodes: false
       - create_junit_containers:
           classlistprefix: distributed
           extra_filters: "| grep -v upgrade"
-      - log_environment
       - run_parallel_junit_tests:
           classlistprefix: distributed
           target: "testclasslist"
@@ -898,10 +834,16 @@ jobs:
     steps:
       - attach_workspace:
           at: /home/cassandra
+      - log_environment
+      - run_new_utests:
+          target: test-jvm-dtest-some
+          directory: test/distributed/
+          package: org.apache.cassandra.distributed.test
+          count: ${REPEATED_NEW_JVM_DTESTS_COUNT}
+          vnodes: true
       - create_junit_containers:
           classlistprefix: distributed
           extra_filters: "| grep -v upgrade"
-      - log_environment
       - run_parallel_junit_tests:
           classlistprefix: distributed
           target: "testclasslist"
@@ -912,10 +854,16 @@ jobs:
     steps:
       - attach_workspace:
           at: /home/cassandra
+      - log_environment
+      - run_new_utests:
+          target: test-jvm-dtest-some
+          directory: test/distributed/
+          package: org.apache.cassandra.distributed.upgrade
+          count: ${REPEATED_NEW_JVM_UPGRADE_DTESTS_COUNT}
+          vnodes: false
       - create_junit_containers:
           classlistprefix: distributed
           extra_filters: "| grep upgrade"
-      - log_environment
       - run_parallel_junit_tests:
           classlistprefix: distributed
           target: "testclasslist"
@@ -925,8 +873,13 @@ jobs:
     steps:
       - attach_workspace:
           at: /home/cassandra
-      - create_junit_containers
       - log_environment
+      - run_new_utests:
+          target: testsome
+          directory: test/unit/
+          package: org.apache.cassandra
+          count: ${REPEATED_NEW_UNIT_TESTS_COUNT}
+      - create_junit_containers
       - run_parallel_junit_tests
 
   j8_cqlshlib_tests:
@@ -1190,76 +1143,6 @@ jobs:
           pytest_extra_args: '--skip-resource-intensive-tests'
           extra_env_args: 'CQLSH_PYTHON=/usr/bin/python3.8'
           python_version: '3.8'
-
-  j8_new_utests:
-    <<: *j8_repeated_utest_executor
-    steps:
-      - attach_workspace:
-          at: /home/cassandra
-      - log_environment
-
-  j11_new_utests:
-    <<: *j11_repeated_utest_executor
-    steps:
-      - attach_workspace:
-          at: /home/cassandra
-      - log_environment
-
-  j8_new_unit_tests:
-    <<: *j8_repeated_utest_executor
-    steps:
-      - attach_workspace:
-          at: /home/cassandra
-      - log_environment
-      - run_new_unit_tests
-
-  j11_new_unit_tests:
-    <<: *j11_repeated_utest_executor
-    steps:
-      - attach_workspace:
-          at: /home/cassandra
-      - log_environment
-      - run_new_unit_tests
-
-  j8_new_jvm_dtests_no_vnodes:
-    <<: *j8_repeated_utest_executor
-    steps:
-      - attach_workspace:
-          at: /home/cassandra
-      - log_environment
-      - run_new_jvm_dtests_no_vnodes
-
-  j8_new_jvm_dtests_with_vnodes:
-    <<: *j8_repeated_utest_executor
-    steps:
-      - attach_workspace:
-          at: /home/cassandra
-      - log_environment
-      - run_new_jvm_dtests_with_vnodes
-
-  j8_new_jvm_upgrade_dtests:
-    <<: *j8_repeated_jvm_upgrade_dtest_executor
-    steps:
-      - attach_workspace:
-          at: /home/cassandra
-      - log_environment
-      - run_new_jvm_upgrade_dtests
-
-  j11_new_jvm_dtests_no_vnodes:
-    <<: *j11_repeated_utest_executor
-    steps:
-      - attach_workspace:
-          at: /home/cassandra
-      - log_environment
-      - run_new_jvm_dtests_no_vnodes
-
-  j11_new_jvm_dtests_with_vnodes:
-    <<: *j11_repeated_utest_executor
-    steps:
-      - attach_workspace:
-          at: /home/cassandra
-      - log_environment
-      - run_new_jvm_dtests_with_vnodes
 
   j8_repeated_utest:
     <<: *j8_repeated_utest_executor
@@ -1723,41 +1606,6 @@ commands:
       - store_artifacts:
           path: ~/cassandra-dtest/logs
           destination: dtest_<<parameters.file_tag>>_logs
-
-  run_new_unit_tests:
-    steps:
-      - run_new_utests:
-          target: testsome
-          directory: test/unit/
-          package: org.apache.cassandra
-          count: ${REPEATED_NEW_UNIT_TESTS_COUNT}
-
-  run_new_jvm_dtests_no_vnodes:
-    steps:
-      - run_new_utests:
-          target: test-jvm-dtest-some
-          directory: test/distributed/
-          package: org.apache.cassandra.distributed.test
-          count: ${REPEATED_NEW_JVM_DTESTS_COUNT}
-          vnodes: false
-
-  run_new_jvm_dtests_with_vnodes:
-    steps:
-      - run_new_utests:
-          target: test-jvm-dtest-some
-          directory: test/distributed/
-          package: org.apache.cassandra.distributed.test
-          count: ${REPEATED_NEW_JVM_DTESTS_COUNT}
-          vnodes: true
-
-  run_new_jvm_upgrade_dtests:
-    steps:
-      - run_new_utests:
-          target: test-jvm-dtest-some
-          directory: test/distributed/
-          package: org.apache.cassandra.distributed.upgrade
-          count: ${REPEATED_NEW_JVM_UPGRADE_DTESTS_COUNT}
-          vnodes: false
 
   run_new_utests:
     parameters:
