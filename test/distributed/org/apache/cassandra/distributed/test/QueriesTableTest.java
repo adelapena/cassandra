@@ -33,6 +33,7 @@ import org.apache.cassandra.distributed.api.SimpleQueryResult;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
+// modified
 public class QueriesTableTest extends TestBaseImpl
 {
     public static final int ITERATIONS = 256;
