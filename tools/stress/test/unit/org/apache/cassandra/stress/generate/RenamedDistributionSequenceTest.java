@@ -24,7 +24,7 @@ import org.apache.cassandra.stress.settings.OptionDistribution;
 
 import static org.junit.Assert.*;
 
-public class DistributionSequenceTest
+public class RenamedDistributionSequenceTest
 {
     @Test
     public void simpleSequence() throws Exception
