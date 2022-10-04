@@ -16,20 +16,17 @@
  * limitations under the License.
  */
 
-package org.apache.cassandra.stress.settings;
+package org.apache.cassandra.distributed.upgrade;
 
-import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import org.apache.cassandra.distributed.api.ConsistencyLevel;
 
-import static org.junit.Assert.*;
-
-// modified
-public class OptionReplicationTest
+/**
+ * {@link MixedModeAvailabilityTestBase} for upgrades from v3X with ONE-ALL write-read consistency.
+ */
+public class NewMixedModeAvailabilityV3XOneAllTest extends MixedModeAvailabilityTestBase
 {
-    @Test
-    public void defaultsToReplicationFactorOfOne() throws Exception
+    public NewMixedModeAvailabilityV3XOneAllTest()
     {
-        OptionReplication defaults = new OptionReplication();
-        assertEquals(ImmutableMap.of("replication_factor", "1"), defaults.getOptions());
+        super(v3X, ConsistencyLevel.ONE, ConsistencyLevel.ALL);
     }
 }
