@@ -48,6 +48,7 @@ print_help()
   echo "                   -e REPEATED_JVM_DTESTS=org.apache.cassandra.distributed.test.PagingTest"
   echo "                   -e REPEATED_JVM_UPGRADE_DTESTS=org.apache.cassandra.distributed.upgrade.GroupByTest"
   echo "                   -e REPEATED_DTESTS=cdc_test.py cqlsh_tests/test_cqlsh.py::TestCqlshSmoke"
+  echo "                   -e REPEATED_UPGRADE_DTESTS=upgrade_tests/cql_tests.py upgrade_tests/paging_test.py"
   echo "                   -e REPEATED_UTEST_TARGET=testsome"
   echo "                   -e REPEATED_UTEST_CLASS=org.apache.cassandra.cql3.ViewTest"
   echo "                   -e REPEATED_UTEST_METHODS=testCompoundPartitionKey,testStaticTable"
@@ -109,10 +110,8 @@ if $has_env_vars && $check_env_vars; then
        [ "$key" != "REPEATED_SIMULATOR_DTESTS" ] &&
        [ "$key" != "REPEATED_JVM_DTESTS" ] &&
        [ "$key" != "REPEATED_JVM_UPGRADE_DTESTS" ]  &&
-       [ "$key" != "REPEATED_DTESTS_NAME" ] &&
-       [ "$key" != "REPEATED_UPGRADE_DTEST_NAME" ] &&
-       [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_CLASS" ] &&
-       [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_METHODS" ] &&
+       [ "$key" != "REPEATED_DTESTS" ] &&
+       [ "$key" != "REPEATED_UPGRADE_DTESTS" ] &&
        [ "$key" != "REPEATED_UTEST_TARGET" ] &&
        [ "$key" != "REPEATED_UTEST_CLASS" ] &&
        [ "$key" != "REPEATED_UTEST_METHODS" ] &&

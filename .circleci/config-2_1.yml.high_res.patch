@@ -1,6 +1,6 @@
---- config-2_1.yml	2022-10-06 20:24:06.639140464 +0100
-+++ config-2_1.yml.HIGHRES	2022-10-06 20:24:46.303515602 +0100
-@@ -168,14 +168,14 @@
+--- config-2_1.yml	2022-10-06 21:01:03.334331404 +0100
++++ config-2_1.yml.HIGHRES	2022-10-06 21:01:18.972854583 +0100
+@@ -124,14 +124,14 @@
  j8_par_executor: &j8_par_executor
    executor:
      name: java8-executor
@@ -19,7 +19,7 @@
  
  j8_small_executor: &j8_small_executor
    executor:
-@@ -186,62 +186,68 @@
+@@ -142,62 +142,68 @@
  j8_medium_par_executor: &j8_medium_par_executor
    executor:
      name: java8-executor

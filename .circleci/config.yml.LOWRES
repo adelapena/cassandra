@@ -126,8 +126,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   utests_compression_repeat:
@@ -210,8 +208,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -295,8 +291,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -408,8 +402,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_unit_tests:
@@ -520,8 +512,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -619,8 +609,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_cqlsh-dtests-py3-with-vnodes:
@@ -717,8 +705,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -816,8 +802,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -915,8 +899,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -1028,8 +1010,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -1137,8 +1117,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   utests_long_repeat:
@@ -1221,8 +1199,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -1320,8 +1296,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_unit_tests_repeat:
@@ -1404,8 +1378,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_repeated_dtest:
@@ -1529,8 +1501,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_repeated_dtest_vnode:
@@ -1654,8 +1624,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   utests_system_keyspace_directory_repeat:
@@ -1738,8 +1706,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -1823,8 +1789,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_dtests-with-vnodes:
@@ -1924,8 +1888,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -2009,8 +1971,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_dtests-no-vnodes:
@@ -2088,8 +2048,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   utests_fqltool_repeat:
@@ -2172,8 +2130,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -2252,8 +2208,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_jvm_upgrade_dtests_repeat:
@@ -2336,8 +2290,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_jvm_dtests_repeat:
@@ -2420,8 +2372,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -2487,8 +2437,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_repeated_dtests:
@@ -2634,8 +2582,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -2747,8 +2693,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_jvm_dtests:
@@ -2859,8 +2803,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -2944,8 +2886,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -3050,8 +2990,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -3198,8 +3136,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -3256,8 +3192,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -3341,8 +3275,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_repeated_utest:
@@ -3529,8 +3461,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -3609,8 +3539,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_cqlsh-dtests-py38-no-vnodes:
@@ -3707,8 +3635,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -3820,8 +3746,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_build:
@@ -3925,8 +3849,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_cqlsh-dtests-py3-no-vnodes:
@@ -4023,8 +3945,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_cqlsh-dtests-py38-with-vnodes:
@@ -4121,8 +4041,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   utests_long:
@@ -4187,8 +4105,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   repeated_upgrade_dtests:
@@ -4312,8 +4228,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_unit_tests_repeat:
@@ -4396,8 +4310,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -4509,8 +4421,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_cqlshlib_tests:
@@ -4566,8 +4476,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   utests_fqltool:
@@ -4632,8 +4540,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_dtests-no-vnodes:
@@ -4733,8 +4639,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
@@ -4846,8 +4750,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_repeated_utest:
@@ -5034,8 +4936,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_dtest_jars_build:
@@ -5131,8 +5031,6 @@ jobs:
     - REPEATED_UTEST_CLASS: null
     - REPEATED_UTEST_METHODS: null
     - REPEATED_UTEST_VNODES: false
-    - REPEATED_JVM_UPGRADE_DTEST_CLASS: null
-    - REPEATED_JVM_UPGRADE_DTEST_METHODS: null
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
 workflows:
