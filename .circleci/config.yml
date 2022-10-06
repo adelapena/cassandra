@@ -21,10 +21,10 @@ jobs:
   j8_jvm_upgrade_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 1
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -111,19 +111,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -151,7 +151,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -320,19 +320,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -358,10 +358,10 @@ jobs:
   repeated_jvm_upgrade_dtest:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -524,19 +524,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -564,7 +564,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -733,19 +733,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -771,10 +771,10 @@ jobs:
   j8_jvm_dtests_vnode:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 1
+    parallelism: 10
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -861,19 +861,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -901,7 +901,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -988,19 +988,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -1026,10 +1026,10 @@ jobs:
   repeated_upgrade_dtest:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1129,19 +1129,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -1166,10 +1166,10 @@ jobs:
   j8_cqlsh-dtests-py38-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1242,19 +1242,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -1279,10 +1279,10 @@ jobs:
   j11_cqlsh-dtests-py3-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1355,19 +1355,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -1393,10 +1393,10 @@ jobs:
   j11_cqlsh-dtests-py3-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1469,19 +1469,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -1507,10 +1507,10 @@ jobs:
   j11_cqlsh-dtests-py38-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1583,19 +1583,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -1621,10 +1621,10 @@ jobs:
   j11_jvm_dtests_vnode:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 1
+    parallelism: 10
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1711,19 +1711,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -1835,19 +1835,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -1875,7 +1875,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2044,19 +2044,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -2082,10 +2082,10 @@ jobs:
   j8_cqlsh-dtests-py3-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2158,19 +2158,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -2198,7 +2198,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2367,19 +2367,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -2404,10 +2404,10 @@ jobs:
   j11_repeated_dtest:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2529,19 +2529,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -2567,10 +2567,10 @@ jobs:
   j8_repeated_dtest:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2670,19 +2670,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -2710,7 +2710,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2879,19 +2879,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -2920,7 +2920,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3089,19 +3089,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -3126,10 +3126,10 @@ jobs:
   j11_dtests-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3205,19 +3205,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -3246,7 +3246,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3415,19 +3415,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -3452,10 +3452,10 @@ jobs:
   j8_dtests-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3509,19 +3509,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -3549,7 +3549,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3718,19 +3718,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -3756,10 +3756,10 @@ jobs:
   j8_upgradetests-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3813,19 +3813,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -3850,10 +3850,10 @@ jobs:
   j8_jvm_upgrade_dtests_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4022,19 +4022,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -4062,7 +4062,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4231,19 +4231,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -4313,19 +4313,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -4353,7 +4353,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4440,19 +4440,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -4477,10 +4477,10 @@ jobs:
   j11_jvm_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 1
+    parallelism: 10
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4567,19 +4567,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -4608,7 +4608,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4777,19 +4777,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -4898,19 +4898,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -4971,19 +4971,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -5012,7 +5012,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -5181,19 +5181,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -5221,7 +5221,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -5384,19 +5384,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -5422,10 +5422,10 @@ jobs:
   j8_dtests-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -5479,19 +5479,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -5516,10 +5516,10 @@ jobs:
   j11_cqlsh-dtests-py38-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -5592,19 +5592,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -5630,10 +5630,10 @@ jobs:
   j8_jvm_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 1
+    parallelism: 10
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -5720,19 +5720,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -5840,19 +5840,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -5877,10 +5877,10 @@ jobs:
   j8_cqlsh-dtests-py3-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -5953,19 +5953,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -5990,10 +5990,10 @@ jobs:
   j8_cqlsh-dtests-py38-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -6066,19 +6066,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -6147,19 +6147,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -6187,7 +6187,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -6356,19 +6356,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -6397,7 +6397,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -6484,19 +6484,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -6556,19 +6556,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -6637,19 +6637,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -6674,10 +6674,10 @@ jobs:
   j11_dtests-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -6753,19 +6753,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -6794,7 +6794,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -6881,19 +6881,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -6921,7 +6921,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -7084,19 +7084,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
@@ -7196,19 +7196,19 @@ jobs:
     - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_TESTS_COUNT: 5
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
+    - REPEATED_UTESTS_COUNT: 10
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
+    - REPEATED_UTESTS_LONG_COUNT: 2
     - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
+    - REPEATED_JVM_DTESTS_COUNT: 10
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     - REPEATED_UTEST_TARGET: testsome
