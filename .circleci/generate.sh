@@ -104,18 +104,38 @@ if $has_env_vars && $check_env_vars; then
        [ "$key" != "REPEATED_TESTS_COUNT" ] &&
        [ "$key" != "REPEATED_TESTS_STOP_ON_FAILURE" ] &&
        [ "$key" != "REPEATED_UTESTS" ] &&
+       [ "$key" != "REPEATED_UTESTS_COUNT" ] &&
+       [ "$key" != "REPEATED_UTESTS_STOP_ON_FAILURE" ] &&
        [ "$key" != "REPEATED_UTESTS_FQLTOOL" ] &&
+       [ "$key" != "REPEATED_UTESTS_FQLTOOL_COUNT" ] &&
+       [ "$key" != "REPEATED_UTESTS_FQLTOOL_STOP_ON_FAILURE" ] &&
        [ "$key" != "REPEATED_UTESTS_LONG" ] &&
+       [ "$key" != "REPEATED_UTESTS_LONG_COUNT" ] &&
+       [ "$key" != "REPEATED_UTESTS_LONG_STOP_ON_FAILURE" ] &&
        [ "$key" != "REPEATED_UTESTS_STRESS" ] &&
+       [ "$key" != "REPEATED_UTESTS_STRESS_COUNT" ] &&
+       [ "$key" != "REPEATED_UTESTS_STRESS_STOP_ON_FAILURE" ] &&
        [ "$key" != "REPEATED_SIMULATOR_DTESTS" ] &&
+       [ "$key" != "REPEATED_SIMULATOR_DTESTS_COUNT" ] &&
+       [ "$key" != "REPEATED_SIMULATOR_DTESTS_STOP_ON_FAILURE" ] &&
        [ "$key" != "REPEATED_JVM_DTESTS" ] &&
+       [ "$key" != "REPEATED_JVM_DTESTS_COUNT" ] &&
+       [ "$key" != "REPEATED_JVM_DTESTS_STOP_ON_FAILURE" ] &&
        [ "$key" != "REPEATED_JVM_UPGRADE_DTESTS" ]  &&
+       [ "$key" != "REPEATED_JVM_UPGRADE_DTESTS_COUNT" ]  &&
+       [ "$key" != "REPEATED_JVM_UPGRADE_DTESTS_STOP_ON_FAILURE" ]  &&
        [ "$key" != "REPEATED_DTESTS" ] &&
+       [ "$key" != "REPEATED_DTESTS_COUNT" ] &&
+       [ "$key" != "REPEATED_DTESTS_STOP_ON_FAILURE" ] &&
        [ "$key" != "REPEATED_UPGRADE_DTESTS" ] &&
+       [ "$key" != "REPEATED_UPGRADE_DTESTS_COUNT" ] &&
+       [ "$key" != "REPEATED_UPGRADE_DTESTS_STOP_ON_FAILURE" ] &&
        [ "$key" != "REPEATED_UTEST_TARGET" ] &&
        [ "$key" != "REPEATED_UTEST_CLASS" ] &&
        [ "$key" != "REPEATED_UTEST_METHODS" ] &&
-       [ "$key" != "REPEATED_UTEST_VNODES" ]; then
+       [ "$key" != "REPEATED_UTEST_VNODES" ] &&
+       [ "$key" != "REPEATED_UTEST_COUNT" ] &&
+       [ "$key" != "REPEATED_UTEST_STOP_ON_FAILURE" ]; then
       die "Unrecognised environment variable name: $key"
     fi
   done
