@@ -261,9 +261,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_j8_unit_tests
           - j8_build
+    - start_j8_unit_tests_repeat:
+        type: approval
     - j8_unit_tests_repeat:
         requires:
-          - start_j8_unit_tests
+          - start_j8_unit_tests_repeat
           - j8_build
     - start_j8_jvm_dtests:
         type: approval
@@ -271,17 +273,19 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_j8_jvm_dtests
           - j8_build
-    - j8_jvm_dtests_repeat:
-        requires:
-          - start_j8_jvm_dtests
-          - j8_build
     - j8_jvm_dtests_vnode:
         requires:
           - start_j8_jvm_dtests
           - j8_build
+    - start_j8_jvm_dtests_repeat:
+        type: approval
+    - j8_jvm_dtests_repeat:
+        requires:
+          - start_j8_jvm_dtests_repeat
+          - j8_build
     - j8_jvm_dtests_vnode_repeat:
         requires:
-          - start_j8_jvm_dtests
+          - start_j8_jvm_dtests_repeat
           - j8_build
     - start_j8_simulator_dtests:
         type: approval
@@ -289,9 +293,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_j8_simulator_dtests
           - j8_build
+    - start_j8_simulator_dtests_repeat:
+        type: approval
     - j8_simulator_dtests_repeat:
         requires:
-          - start_j8_simulator_dtests
+          - start_j8_simulator_dtests_repeat
           - j8_build
     - start_j8_cqlshlib_tests:
         type: approval
@@ -306,9 +312,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_j11_unit_tests
           - j8_build
+    - start_j11_unit_tests_repeat:
+        type: approval
     - j11_unit_tests_repeat:
         requires:
-          - start_j11_unit_tests
+          - start_j11_unit_tests_repeat
           - j8_build
     # specialized unit tests (all run on request using Java 8)
     - start_utests_long:
@@ -317,9 +325,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_utests_long
           - j8_build
+    - start_utests_long_repeat:
+        type: approval
     - utests_long_repeat:
         requires:
-          - start_utests_long
+          - start_utests_long_repeat
           - j8_build
     - start_utests_compression:
         type: approval
@@ -327,9 +337,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_utests_compression
           - j8_build
+    - start_utests_compression_repeat:
+        type: approval
     - utests_compression_repeat:
         requires:
-          - start_utests_compression
+          - start_utests_compression_repeat
           - j8_build
     - start_utests_stress:
         type: approval
@@ -337,9 +349,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_utests_stress
           - j8_build
+    - start_utests_stress_repeat:
+        type: approval
     - utests_stress_repeat:
         requires:
-          - start_utests_stress
+          - start_utests_stress_repeat
           - j8_build
     - start_utests_fqltool:
         type: approval
@@ -347,9 +361,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_utests_fqltool
           - j8_build
+    - start_utests_fqltool_repeat:
+        type: approval
     - utests_fqltool_repeat:
         requires:
-          - start_utests_fqltool
+          - start_utests_fqltool_repeat
           - j8_build
     - start_utests_system_keyspace_directory:
         type: approval
@@ -357,9 +373,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_utests_system_keyspace_directory
           - j8_build
+    - start_utests_system_keyspace_directory_repeat:
+        type: approval
     - utests_system_keyspace_directory_repeat:
         requires:
-          - start_utests_system_keyspace_directory
+          - start_utests_system_keyspace_directory_repeat
           - j8_build
     - start_j8_dtest_jars_build:
         type: approval
@@ -373,9 +391,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_jvm_upgrade_dtest
           - j8_dtest_jars_build
+    - start_jvm_upgrade_dtest_repeat:
+        type: approval
     - j8_jvm_upgrade_dtests_repeat:
         requires:
-          - start_jvm_upgrade_dtest
+          - start_jvm_upgrade_dtest_repeat
           - j8_dtest_jars_build
     # Java 8 dtests
     - start_j8_dtests:
@@ -696,9 +716,11 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
         requires:
           - start_j11_unit_tests
           - j11_build
+    - start_j11_unit_tests_repeat:
+        type: approval
     - j11_unit_tests_repeat:
         requires:
-          - start_j11_unit_tests
+          - start_j11_unit_tests_repeat
           - j11_build
     - start_j11_jvm_dtests:
         type: approval
@@ -706,17 +728,19 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
         requires:
           - start_j11_jvm_dtests
           - j11_build
-    - j11_jvm_dtests_repeat:
-        requires:
-          - start_j11_jvm_dtests
-          - j11_build
     - j11_jvm_dtests_vnode:
         requires:
           - start_j11_jvm_dtests
           - j11_build
+    - start_j11_jvm_dtests_repeat:
+        type: approval
+    - j11_jvm_dtests_repeat:
+        requires:
+          - start_j11_jvm_dtests_repeat
+          - j11_build
     - j11_jvm_dtests_vnode_repeat:
         requires:
-          - start_j11_jvm_dtests
+          - start_j11_jvm_dtests_repeat
           - j11_build
     - start_j11_cqlshlib_tests:
         type: approval
