@@ -39,30 +39,19 @@ print_help()
   echo "                   -e DTEST_BRANCH=CASSANDRA-8272"
   echo "                   -e DTEST_REPO=https://github.com/adelapena/cassandra-dtest.git"
   echo "                   -e REPEATED_TESTS_COUNT=500"
+  echo "                   -e REPEATED_TESTS_STOP_ON_FAILURE=false"
   echo "                   -e REPEATED_UTESTS=org.apache.cassandra.cql3.ViewTest#testCountersTable"
-  echo "                   -e REPEATED_UTESTS_COUNT=500"
   echo "                   -e REPEATED_UTESTS_FQLTOOL=org.apache.cassandra.fqltool.FQLCompareTest"
-  echo "                   -e REPEATED_UTESTS_FQLTOOL_COUNT=500"
   echo "                   -e REPEATED_UTESTS_LONG=org.apache.cassandra.db.commitlog.CommitLogStressTest"
-  echo "                   -e REPEATED_UTESTS_LONG_COUNT=500"
   echo "                   -e REPEATED_UTESTS_STRESS=org.apache.cassandra.stress.generate.DistributionGaussianTest"
-  echo "                   -e REPEATED_UTESTS_STRESS_COUNT=500"
   echo "                   -e REPEATED_SIMULATOR_DTESTS=org.apache.cassandra.simulator.test.TrivialSimulationTest"
-  echo "                   -e REPEATED_SIMULATOR_DTESTS_COUNT=500"
   echo "                   -e REPEATED_JVM_DTESTS=org.apache.cassandra.distributed.test.PagingTest"
-  echo "                   -e REPEATED_JVM_DTESTS_COUNT=500"
   echo "                   -e REPEATED_JVM_UPGRADE_DTESTS=org.apache.cassandra.distributed.upgrade.GroupByTest"
-  echo "                   -e REPEATED_JVM_UPGRADE_DTESTS_COUNT=500"
+  echo "                   -e REPEATED_DTESTS=cdc_test.py cqlsh_tests/test_cqlsh.py::TestCqlshSmoke"
   echo "                   -e REPEATED_UTEST_TARGET=testsome"
   echo "                   -e REPEATED_UTEST_CLASS=org.apache.cassandra.cql3.ViewTest"
   echo "                   -e REPEATED_UTEST_METHODS=testCompoundPartitionKey,testStaticTable"
   echo "                   -e REPEATED_UTEST_VNODES=false"
-  echo "                   -e REPEATED_UTEST_COUNT=500"
-  echo "                   -e REPEATED_UTEST_STOP_ON_FAILURE=false"
-  echo "                   -e REPEATED_DTEST_NAME=cqlsh_tests/test_cqlsh.py::TestCqlshSmoke"
-  echo "                   -e REPEATED_DTEST_VNODES=false"
-  echo "                   -e REPEATED_DTEST_COUNT=500"
-  echo "                   -e REPEATED_DTEST_STOP_ON_FAILURE=false"
   echo "                  For the complete list of environment variables, please check the"
   echo "                  list of examples in config-2_1.yml and/or the documentation."
   echo "                  If you want to specify multiple environment variables simply add"
@@ -112,37 +101,22 @@ if $has_env_vars && $check_env_vars; then
     if [ "$key" != "DTEST_REPO" ] &&
        [ "$key" != "DTEST_BRANCH" ] &&
        [ "$key" != "REPEATED_TESTS_COUNT" ] &&
+       [ "$key" != "REPEATED_TESTS_STOP_ON_FAILURE" ] &&
        [ "$key" != "REPEATED_UTESTS" ] &&
-       [ "$key" != "REPEATED_UTESTS_COUNT" ] &&
        [ "$key" != "REPEATED_UTESTS_FQLTOOL" ] &&
-       [ "$key" != "REPEATED_UTESTS_FQLTOOL_COUNT" ] &&
        [ "$key" != "REPEATED_UTESTS_LONG" ] &&
-       [ "$key" != "REPEATED_UTESTS_LONG_COUNT" ] &&
        [ "$key" != "REPEATED_UTESTS_STRESS" ] &&
-       [ "$key" != "REPEATED_UTESTS_STRESS_COUNT" ] &&
        [ "$key" != "REPEATED_SIMULATOR_DTESTS" ] &&
-       [ "$key" != "REPEATED_SIMULATOR_DTESTS_COUNT" ] &&
        [ "$key" != "REPEATED_JVM_DTESTS" ] &&
-       [ "$key" != "REPEATED_JVM_DTESTS_COUNT" ] &&
-       [ "$key" != "REPEATED_JVM_UPGRADE_DTESTS" ] &&
-       [ "$key" != "REPEATED_JVM_UPGRADE_DTESTS_COUNT" ] &&
+       [ "$key" != "REPEATED_JVM_UPGRADE_DTESTS" ]  &&
+       [ "$key" != "REPEATED_DTESTS_NAME" ] &&
+       [ "$key" != "REPEATED_UPGRADE_DTEST_NAME" ] &&
+       [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_CLASS" ] &&
+       [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_METHODS" ] &&
        [ "$key" != "REPEATED_UTEST_TARGET" ] &&
        [ "$key" != "REPEATED_UTEST_CLASS" ] &&
        [ "$key" != "REPEATED_UTEST_METHODS" ] &&
-       [ "$key" != "REPEATED_UTEST_VNODES" ] &&
-       [ "$key" != "REPEATED_UTEST_COUNT" ] &&
-       [ "$key" != "REPEATED_UTEST_STOP_ON_FAILURE" ] &&
-       [ "$key" != "REPEATED_DTEST_NAME" ] &&
-       [ "$key" != "REPEATED_DTEST_VNODES" ] &&
-       [ "$key" != "REPEATED_DTEST_COUNT" ] &&
-       [ "$key" != "REPEATED_DTEST_STOP_ON_FAILURE" ] &&
-       [ "$key" != "REPEATED_UPGRADE_DTEST_NAME" ] &&
-       [ "$key" != "REPEATED_UPGRADE_DTEST_COUNT" ] &&
-       [ "$key" != "REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE" ] &&
-       [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_CLASS" ] &&
-       [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_METHODS" ] &&
-       [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_COUNT" ] &&
-       [ "$key" != "REPEATED_JVM_UPGRADE_DTEST_STOP_ON_FAILURE" ]; then
+       [ "$key" != "REPEATED_UTEST_VNODES" ]; then
       die "Unrecognised environment variable name: $key"
     fi
   done
