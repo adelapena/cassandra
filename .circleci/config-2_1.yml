@@ -411,17 +411,17 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
           - start_j11_repeated_utest
           - j8_build
     # Java 8 repeated dtest
-    - start_j8_repeated_dtest:
+    - start_j8_repeated_dtests:
         type: approval
-    - j8_repeated_dtest:
+    - j8_repeated_dtests:
         requires:
-          - start_j8_repeated_dtest
+          - start_j8_repeated_dtests
           - j8_build
-    - start_j8_repeated_dtest_vnode:
+    - start_j8_repeated_dtests_vnode:
         type: approval
-    - j8_repeated_dtest_vnode:
+    - j8_repeated_dtests_vnode:
         requires:
-          - start_j8_repeated_dtest_vnode
+          - start_j8_repeated_dtests_vnode
           - j8_build
     # Java 11 repeated dtest
     - start_j11_repeated_dtests:
@@ -531,21 +531,17 @@ j8_pre-commit_jobs: &j8_pre-commit_jobs
     - utests_system_keyspace_directory_repeat:
         requires:
           - j8_build
-    - start_j8_dtest_jars_build:
+    - start_jvm_upgrade_dtests:
         type: approval
     - j8_dtest_jars_build:
         requires:
           - j8_build
-          - start_j8_dtest_jars_build
-    - start_jvm_upgrade_dtest:
-        type: approval
+          - start_jvm_upgrade_dtests
     - j8_jvm_upgrade_dtests:
         requires:
-          - start_jvm_upgrade_dtest
           - j8_dtest_jars_build
     - j8_jvm_upgrade_dtests_repeat:
         requires:
-          - start_jvm_upgrade_dtest
           - j8_dtest_jars_build
     # Java 8 dtests
     - j8_dtests-with-vnodes:
@@ -609,15 +605,15 @@ j8_pre-commit_jobs: &j8_pre-commit_jobs
           - start_j11_repeated_utest
           - j8_build
     # Java 8 repeated dtest (on request)
-    - start_j8_repeated_dtest:
+    - start_j8_repeated_dtests:
         type: approval
-    - j8_repeated_dtest:
+    - j8_repeated_dtests:
         requires:
-          - start_j8_repeated_dtest
+          - start_j8_repeated_dtests
           - j8_build
-    - j8_repeated_dtest_vnode:
+    - j8_repeated_dtests_vnode:
         requires:
-          - start_j8_repeated_dtest
+          - start_j8_repeated_dtests
           - j8_build
     # Java 11 repeated dtest (on request)
     - start_j11_repeated_dtests:
@@ -1357,7 +1353,7 @@ jobs:
           count: ${REPEATED_UTEST_COUNT}
           stop_on_failure: ${REPEATED_UTEST_STOP_ON_FAILURE}
 
-  j8_repeated_dtest:
+  j8_repeated_dtests:
     <<: *j8_repeated_dtest_executor
     steps:
       - attach_workspace:
@@ -1371,7 +1367,7 @@ jobs:
           count: ${REPEATED_DTESTS_COUNT}
           stop_on_failure: ${REPEATED_DTESTS_STOP_ON_FAILURE}
 
-  j8_repeated_dtest_vnode:
+  j8_repeated_dtests_vnode:
     <<: *j8_repeated_dtest_executor
     steps:
       - attach_workspace:
