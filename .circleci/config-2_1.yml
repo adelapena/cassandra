@@ -132,26 +132,26 @@ default_env_vars: &default_env_vars
     # Whether the test iteration should stop on the first failure
     REPEATED_UTEST_STOP_ON_FAILURE: false
 
-    # A Python dtest to be run multiple times, for example:
-    # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py
-    # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke
-    # REPEATED_DTEST_NAME: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
-    REPEATED_DTEST_NAME:
-    # Whether the repeated Python dtest should use vnodes
-    REPEATED_DTEST_VNODES: false
+    # Space-separated list of Python dtests that should be repeatedly run, for example:
+    # REPEATED_DTESTS: cqlsh_tests/test_cqlsh.py
+    # REPEATED_DTESTS: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke
+    # REPEATED_DTESTS: cqlsh_tests/test_cqlsh.py::TestCqlshSmoke::test_create_index
+    # REPEATED_DTESTS: cqlsh_tests/test_cqlsh.py consistency_test.py
+    REPEATED_DTESTS:
     # The number of times that the repeated Python dtest should be run
-    REPEATED_DTEST_COUNT: REPEATED_TESTS_COUNT
+    REPEATED_DTESTS_COUNT: REPEATED_TESTS_COUNT
     # Whether the test iteration should stop on the first failure
-    REPEATED_DTEST_STOP_ON_FAILURE: false
+    REPEATED_DTESTS_STOP_ON_FAILURE: false
 
-    # A Python upgrade dtest to be run multiple times, for example:
-    # REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py
-    # REPEATED_UPGRADE_DTEST_NAME: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x
-    REPEATED_UPGRADE_DTEST_NAME:
-    # The number of times that the repeated Python upgrade dtest should be run
-    REPEATED_UPGRADE_DTEST_COUNT: REPEATED_TESTS_COUNT
+    # Space-separated list of Python dtests that should be repeatedly run, for example:
+    # REPEATED_DTESTS: upgrade_tests/cql_tests.py
+    # REPEATED_DTESTS: upgrade_tests/cql_tests.py::TestCQLNodes2RF1_Upgrade_current_4_0_x_To_indev_4_0_x
+    # REPEATED_DTESTS: upgrade_tests/cql_tests.py upgrade_tests/paging_test.py
+    REPEATED_UPGRADE_DTESTS:
+    # The number of times that the repeated Python dtest should be run
+    REPEATED_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
     # Whether the test iteration should stop on the first failure
-    REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE: false
+    REPEATED_UPGRADE_DTESTS_STOP_ON_FAILURE: false
 
     # The name of JVM upgrade dtest class to be run multiple times, for example:
     # REPEATED_JVM_UPGRADE_DTEST_CLASS: org.apache.cassandra.distributed.upgrade.MixedModeAvailabilityV30Test
@@ -461,12 +461,24 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_j8_repeated_dtest
           - j8_build
+    - start_j8_repeated_dtest_vnode:
+        type: approval
+    - j8_repeated_dtest_vnode:
+        requires:
+          - start_j8_repeated_dtest_vnode
+          - j8_build
     # Java 11 repeated dtest
     - start_j11_repeated_dtest:
         type: approval
     - j11_repeated_dtest:
         requires:
           - start_j11_repeated_dtest
+          - j8_build
+    - start_j11_repeated_dtest_vnode:
+        type: approval
+    - j11_repeated_dtest_vnode:
+        requires:
+          - start_j11_repeated_dtest_vnode
           - j8_build
     # Repeated Python upgrade dtest
     - start_repeated_upgrade_dtest:
@@ -656,10 +668,18 @@ j8_pre-commit_jobs: &j8_pre-commit_jobs
         requires:
           - start_j8_repeated_dtest
           - j8_build
+    - j8_repeated_dtest_vnode:
+        requires:
+          - start_j8_repeated_dtest
+          - j8_build
     # Java 11 repeated dtest (on request)
     - start_j11_repeated_dtest:
         type: approval
     - j11_repeated_dtest:
+        requires:
+          - start_j11_repeated_dtest
+          - j8_build
+    - j11_repeated_dtest_vnode:
         requires:
           - start_j11_repeated_dtest
           - j8_build
@@ -763,6 +783,12 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
         requires:
           - start_j11_repeated_dtest
           - j11_build
+    - start_j11_repeated_dtest_vnode:
+        type: approval
+    - j11_repeated_dtest_vnode:
+        requires:
+          - start_j11_repeated_dtest_vnode
+          - j11_build
 
 j11_pre-commit_jobs: &j11_pre-commit_jobs
   jobs:
@@ -824,6 +850,10 @@ j11_pre-commit_jobs: &j11_pre-commit_jobs
     - start_j11_repeated_dtest:
         type: approval
     - j11_repeated_dtest:
+        requires:
+          - start_j11_repeated_dtest
+          - j11_build
+    - j11_repeated_dtest_vnode:
         requires:
           - start_j11_repeated_dtest
           - j11_build
@@ -1397,11 +1427,25 @@ jobs:
       - clone_dtest
       - create_venv
       - run_repeated_dtest:
-          tests: ${REPEATED_DTEST_NAME}
-          vnodes: ${REPEATED_DTEST_VNODES}
+          tests: ${REPEATED_DTESTS}
+          vnodes: "false"
           upgrade: "false"
-          count: ${REPEATED_DTEST_COUNT}
-          stop_on_failure: ${REPEATED_DTEST_STOP_ON_FAILURE}
+          count: ${REPEATED_DTESTS_COUNT}
+          stop_on_failure: ${REPEATED_DTESTS_STOP_ON_FAILURE}
+
+  j8_repeated_dtest_vnode:
+    <<: *j8_repeated_dtest_executor
+    steps:
+      - attach_workspace:
+          at: /home/cassandra
+      - clone_dtest
+      - create_venv
+      - run_repeated_dtest:
+          tests: ${REPEATED_DTESTS}
+          vnodes: "true"
+          upgrade: "false"
+          count: ${REPEATED_DTESTS_COUNT}
+          stop_on_failure: ${REPEATED_DTESTS_STOP_ON_FAILURE}
 
   j11_repeated_dtest:
     <<: *j11_repeated_dtest_executor
@@ -1412,11 +1456,26 @@ jobs:
       - clone_dtest
       - create_venv
       - run_repeated_dtest:
-          tests: ${REPEATED_DTEST_NAME}
-          vnodes: ${REPEATED_DTEST_VNODES}
+          tests: ${REPEATED_DTESTS}
+          vnodes: "false"
           upgrade: "false"
-          count: ${REPEATED_DTEST_COUNT}
-          stop_on_failure: ${REPEATED_DTEST_STOP_ON_FAILURE}
+          count: ${REPEATED_DTESTS_COUNT}
+          stop_on_failure: ${REPEATED_DTESTS_STOP_ON_FAILURE}
+
+  j11_repeated_dtest_vnode:
+    <<: *j11_repeated_dtest_executor
+    steps:
+      - attach_workspace:
+          at: /home/cassandra
+      - log_environment
+      - clone_dtest
+      - create_venv
+      - run_repeated_dtest:
+          tests: ${REPEATED_DTESTS}
+          vnodes: "true"
+          upgrade: "false"
+          count: ${REPEATED_DTESTS_COUNT}
+          stop_on_failure: ${REPEATED_DTESTS_STOP_ON_FAILURE}
 
   repeated_jvm_upgrade_dtest:
     <<: *j8_repeated_jvm_upgrade_dtest_executor
