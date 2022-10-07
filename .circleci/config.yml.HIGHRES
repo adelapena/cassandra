@@ -334,6 +334,8 @@ jobs:
               echo "** done env"
               mkdir -p /tmp/results/dtests
 
+              tests_arg=$(echo ${REPEATED_DTESTS} | sed -e "s/,/ /g")
+
               stop_on_failure_arg=""
               if ${REPEATED_DTESTS_STOP_ON_FAILURE}; then
                 stop_on_failure_arg="-x"
@@ -350,7 +352,7 @@ jobs:
               fi
 
               # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir ${REPEATED_DTESTS} | tee /tmp/dtest/stdout.txt
+              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $tests_arg | tee /tmp/dtest/stdout.txt
             fi
           fi
     - store_test_results:
@@ -1887,6 +1889,8 @@ jobs:
               echo "** done env"
               mkdir -p /tmp/results/dtests
 
+              tests_arg=$(echo ${REPEATED_UPGRADE_DTEST_NAME} | sed -e "s/,/ /g")
+
               stop_on_failure_arg=""
               if ${REPEATED_UPGRADE_DTEST_STOP_ON_FAILURE}; then
                 stop_on_failure_arg="-x"
@@ -1903,7 +1907,7 @@ jobs:
               fi
 
               # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir ${REPEATED_UPGRADE_DTEST_NAME} | tee /tmp/dtest/stdout.txt
+              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $tests_arg | tee /tmp/dtest/stdout.txt
             fi
           fi
     - store_test_results:
@@ -2155,6 +2159,8 @@ jobs:
               echo "** done env"
               mkdir -p /tmp/results/dtests
 
+              tests_arg=$(echo ${REPEATED_DTESTS} | sed -e "s/,/ /g")
+
               stop_on_failure_arg=""
               if ${REPEATED_DTESTS_STOP_ON_FAILURE}; then
                 stop_on_failure_arg="-x"
@@ -2171,7 +2177,7 @@ jobs:
               fi
 
               # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir ${REPEATED_DTESTS} | tee /tmp/dtest/stdout.txt
+              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $tests_arg | tee /tmp/dtest/stdout.txt
             fi
           fi
     - store_test_results:
@@ -2503,6 +2509,8 @@ jobs:
               echo "** done env"
               mkdir -p /tmp/results/dtests
 
+              tests_arg=$(echo ${REPEATED_DTESTS} | sed -e "s/,/ /g")
+
               stop_on_failure_arg=""
               if ${REPEATED_DTESTS_STOP_ON_FAILURE}; then
                 stop_on_failure_arg="-x"
@@ -2519,7 +2527,7 @@ jobs:
               fi
 
               # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir ${REPEATED_DTESTS} | tee /tmp/dtest/stdout.txt
+              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $tests_arg | tee /tmp/dtest/stdout.txt
             fi
           fi
     - store_test_results:
@@ -4322,6 +4330,8 @@ jobs:
               echo "** done env"
               mkdir -p /tmp/results/dtests
 
+              tests_arg=$(echo ${REPEATED_DTESTS} | sed -e "s/,/ /g")
+
               stop_on_failure_arg=""
               if ${REPEATED_DTESTS_STOP_ON_FAILURE}; then
                 stop_on_failure_arg="-x"
@@ -4338,7 +4348,7 @@ jobs:
               fi
 
               # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir ${REPEATED_DTESTS} | tee /tmp/dtest/stdout.txt
+              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir $tests_arg | tee /tmp/dtest/stdout.txt
             fi
           fi
     - store_test_results:
