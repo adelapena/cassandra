@@ -273,9 +273,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_j8_jvm_dtests
           - j8_build
+    - start_j8_jvm_dtests_vnode:
+        type: approval
     - j8_jvm_dtests_vnode:
         requires:
-          - start_j8_jvm_dtests
+          - start_j8_jvm_dtests_vnode
           - j8_build
     - start_j8_jvm_dtests_repeat:
         type: approval
@@ -426,11 +428,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
           - start_j11_dtests_vnode
           - j8_build
     # Java 8 upgrade tests
-    - start_upgrade_tests:
+    - start_upgrade_dtests:
         type: approval
-    - j8_upgradetests-no-vnodes:
+    - j8_upgrade_dtests:
         requires:
-          - start_upgrade_tests
+          - start_upgrade_dtests
           - j8_build
     # Java 8 cqlsh dtests
     - start_j8_cqlsh_tests:
@@ -511,11 +513,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
           - start_j11_dtests_vnode_repeat
           - j8_build
     # Repeated Python upgrade dtest
-    - start_repeated_upgrade_dtests:
+    - start_j8_upgrade_dtests_repeat:
         type: approval
-    - repeated_upgrade_dtests:
+    - j8_upgrade_dtests_repeat:
         requires:
-            - start_repeated_upgrade_dtests
+            - start_j8_upgrade_dtests_repeat
             - j8_build
 
 j8_pre-commit_jobs: &j8_pre-commit_jobs
@@ -623,23 +625,41 @@ j8_pre-commit_jobs: &j8_pre-commit_jobs
     - j8_dtests:
         requires:
           - j8_build
+    - j8_dtests_repeat:
+        requires:
+          - j8_build
     - j8_dtests_vnode:
+        requires:
+          - j8_build
+    - j8_dtests_vnode_repeat:
         requires:
           - j8_build
     # Java 11 dtests
     - j11_dtests:
         requires:
           - j8_build
+    - j11_dtests_repeat:
+        requires:
+          - j8_build
     - j11_dtests_vnode:
         requires:
           - j8_build
-    # Java 8 upgrade tests (on request)
-    - start_upgrade_tests:
-        type: approval
-    - j8_upgradetests-no-vnodes:
+    - j11_dtests_vnode_repeat:
         requires:
           - j8_build
-          - start_upgrade_tests
+    # Java 8 upgrade tests (on request)
+    - start_upgrade_dtests:
+        type: approval
+    - j8_upgrade_dtests:
+        requires:
+          - j8_build
+          - start_upgrade_dtests
+    - start_upgrade_dtests_repeat:
+        type: approval
+    - j8_upgrade_dtests_repeat:
+        requires:
+          - j8_build
+          - start_upgrade_dtests
     # Java 8 cqlsh dtests
     - j8_cqlsh-dtests-py3-with-vnodes:
         requires:
@@ -679,39 +699,6 @@ j8_pre-commit_jobs: &j8_pre-commit_jobs
     - j11_repeated_utest:
         requires:
           - start_j11_repeated_utest
-          - j8_build
-    # Java 8 repeated dtest (on request)
-    - start_j8_dtests_repeat:
-        type: approval
-    - j8_dtests_repeat:
-        requires:
-          - start_j8_dtests_repeat
-          - j8_build
-    - start_j8_dtests_vnode_repeat:
-        type: approval
-    - j8_dtests_vnode_repeat:
-        requires:
-          - start_j8_dtests_vnode_repeat
-          - j8_build
-    # Java 11 repeated dtest (on request)
-    - start_j11_dtests_repeat:
-        type: approval
-    - j11_dtests_repeat:
-        requires:
-          - start_j11_dtests_repeat
-          - j8_build
-    - start_j11_dtests_vnode_repeat:
-        type: approval
-    - j11_dtests_vnode_repeat:
-        requires:
-          - start_j11_dtests_vnode_repeat
-          - j8_build
-    # Repeated Python upgrade dtest (on request)
-    - start_repeated_upgrade_dtests:
-        type: approval
-    - repeated_upgrade_dtests:
-        requires:
-          - start_repeated_upgrade_dtests
           - j8_build
 
 j11_with_dtests_jobs: &j11_with_dtests_jobs
@@ -1167,7 +1154,7 @@ jobs:
         file_tag: j11_without_vnodes
         pytest_extra_args: '--skip-resource-intensive-tests'
 
-  j8_upgradetests-no-vnodes:
+  j8_upgrade_dtests:
     <<: *j8_par_executor
     steps:
       - attach_workspace:
@@ -1503,7 +1490,7 @@ jobs:
           count: ${REPEATED_DTESTS_COUNT}
           stop_on_failure: ${REPEATED_DTESTS_STOP_ON_FAILURE}
 
-  repeated_upgrade_dtests:
+  j8_upgrade_dtests_repeat:
     <<: *j8_repeated_upgrade_dtest_executor
     steps:
       - attach_workspace:

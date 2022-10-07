@@ -161,7 +161,7 @@
 @@ -1162,7 +1186,7 @@
          pytest_extra_args: '--skip-resource-intensive-tests'
  
-   j8_upgradetests-no-vnodes:
+   j8_upgrade_dtests:
 -    <<: *j8_par_executor
 +    <<: *j8_very_large_par_executor
      steps:
