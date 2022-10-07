@@ -283,9 +283,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_j8_jvm_dtests_repeat
           - j8_build
+    - start_j8_jvm_dtests_vnode_repeat:
+        type: approval
     - j8_jvm_dtests_vnode_repeat:
         requires:
-          - start_j8_jvm_dtests_repeat
+          - start_j8_jvm_dtests_vnode_repeat
           - j8_build
     - start_j8_simulator_dtests:
         type: approval
@@ -502,9 +504,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_j11_dtests_repeat
           - j8_build
+    - start_j11_dtests_vnode_repeat:
+        type: approval
     - j11_dtests_vnode_repeat:
         requires:
-          - start_j11_dtests_repeat
+          - start_j11_dtests_vnode_repeat
           - j8_build
     # Repeated Python upgrade dtest
     - start_repeated_upgrade_dtests:
@@ -746,9 +750,11 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
         requires:
           - start_j11_jvm_dtests_repeat
           - j11_build
+    - start_j11_jvm_dtests_vnode_repeat:
+        type: approval
     - j11_jvm_dtests_vnode_repeat:
         requires:
-          - start_j11_jvm_dtests_repeat
+          - start_j11_jvm_dtests_vnode_repeat
           - j11_build
     - start_j11_cqlshlib_tests:
         type: approval

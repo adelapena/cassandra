@@ -6090,9 +6090,11 @@ workflows:
         requires:
         - start_j8_jvm_dtests_repeat
         - j8_build
+    - start_j8_jvm_dtests_vnode_repeat:
+        type: approval
     - j8_jvm_dtests_vnode_repeat:
         requires:
-        - start_j8_jvm_dtests_repeat
+        - start_j8_jvm_dtests_vnode_repeat
         - j8_build
     - start_j8_simulator_dtests:
         type: approval
@@ -6298,9 +6300,11 @@ workflows:
         requires:
         - start_j11_dtests_repeat
         - j8_build
+    - start_j11_dtests_vnode_repeat:
+        type: approval
     - j11_dtests_vnode_repeat:
         requires:
-        - start_j11_dtests_repeat
+        - start_j11_dtests_vnode_repeat
         - j8_build
     - start_repeated_upgrade_dtests:
         type: approval
@@ -6525,9 +6529,11 @@ workflows:
         requires:
         - start_j11_jvm_dtests_repeat
         - j11_build
+    - start_j11_jvm_dtests_vnode_repeat:
+        type: approval
     - j11_jvm_dtests_vnode_repeat:
         requires:
-        - start_j11_jvm_dtests_repeat
+        - start_j11_jvm_dtests_vnode_repeat
         - j11_build
     - start_j11_cqlshlib_tests:
         type: approval
