@@ -400,25 +400,29 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
     # Java 8 dtests
     - start_j8_dtests:
         type: approval
-    - j8_dtests-with-vnodes:
+    - j8_dtests:
         requires:
           - start_j8_dtests
           - j8_build
-    - j8_dtests-no-vnodes:
+    - start_j8_dtests_vnode:
+        type: approval
+    - j8_dtests_vnode:
         requires:
-          - start_j8_dtests
+          - start_j8_dtests_vnode
           - j8_build
     # Java 11 dtests
     - start_j11_dtests:
         type: approval
-    - j11_dtests-with-vnodes:
+    - j11_dtests:
         requires:
         - start_j11_dtests
         - j8_build
-    - j11_dtests-no-vnodes:
+    - start_j11_dtests_vnode:
+        type: approval
+    - j11_dtests_vnode:
         requires:
-        - start_j11_dtests
-        - j8_build
+          - start_j11_dtests_vnode
+          - j8_build
     # Java 8 upgrade tests
     - start_upgrade_tests:
         type: approval
@@ -485,11 +489,11 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
         requires:
           - start_j8_dtests_repeat
           - j8_build
-    - start_j8_dtests_repeat_vnode:
+    - start_j8_dtests_vnode_repeat:
         type: approval
     - j8_dtests_vnode_repeat:
         requires:
-          - start_j8_dtests_repeat_vnode
+          - start_j8_dtests_vnode_repeat
           - j8_build
     # Java 11 repeated dtest
     - start_j11_dtests_repeat:
@@ -612,17 +616,17 @@ j8_pre-commit_jobs: &j8_pre-commit_jobs
         requires:
           - j8_dtest_jars_build
     # Java 8 dtests
-    - j8_dtests-with-vnodes:
+    - j8_dtests:
         requires:
           - j8_build
-    - j8_dtests-no-vnodes:
+    - j8_dtests_vnode:
         requires:
           - j8_build
     # Java 11 dtests
-    - j11_dtests-with-vnodes:
+    - j11_dtests:
         requires:
           - j8_build
-    - j11_dtests-no-vnodes:
+    - j11_dtests_vnode:
         requires:
           - j8_build
     # Java 8 upgrade tests (on request)
@@ -679,9 +683,11 @@ j8_pre-commit_jobs: &j8_pre-commit_jobs
         requires:
           - start_j8_dtests_repeat
           - j8_build
+    - start_j8_dtests_vnode_repeat:
+        type: approval
     - j8_dtests_vnode_repeat:
         requires:
-          - start_j8_dtests_repeat
+          - start_j8_dtests_vnode_repeat
           - j8_build
     # Java 11 repeated dtest (on request)
     - start_j11_dtests_repeat:
@@ -690,9 +696,11 @@ j8_pre-commit_jobs: &j8_pre-commit_jobs
         requires:
           - start_j11_dtests_repeat
           - j8_build
+    - start_j11_dtests_vnode_repeat:
+        type: approval
     - j11_dtests_vnode_repeat:
         requires:
-          - start_j11_dtests_repeat
+          - start_j11_dtests_vnode_repeat
           - j8_build
     # Repeated Python upgrade dtest (on request)
     - start_repeated_upgrade_dtests:
@@ -751,13 +759,15 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
     # Java 11 dtests
     - start_j11_dtests:
         type: approval
-    - j11_dtests-with-vnodes:
+    - j11_dtests:
         requires:
           - start_j11_dtests
           - j11_build
-    - j11_dtests-no-vnodes:
+    - start_j11_dtests_vnode:
+        type: approval
+    - j11_dtests_vnode:
         requires:
-          - start_j11_dtests
+          - start_j11_dtests_vnode
           - j11_build
     - start_j11_cqlsh_tests:
         type: approval
@@ -791,9 +801,11 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
         requires:
           - start_j11_dtests_repeat
           - j11_build
+    - start_j11_dtests_vnode_repeat:
+        type: approval
     - j11_dtests_vnode_repeat:
         requires:
-          - start_j11_dtests_repeat
+          - start_j11_dtests_vnode_repeat
           - j11_build
 
 j11_pre-commit_jobs: &j11_pre-commit_jobs
@@ -827,10 +839,10 @@ j11_pre-commit_jobs: &j11_pre-commit_jobs
     - j11_cqlshlib_tests:
         requires:
           - j11_build
-    - j11_dtests-with-vnodes:
+    - j11_dtests_vnode:
         requires:
           - j11_build
-    - j11_dtests-no-vnodes:
+    - j11_dtests:
         requires:
           - j11_build
     - j11_cqlsh-dtests-py3-with-vnodes:
@@ -859,9 +871,11 @@ j11_pre-commit_jobs: &j11_pre-commit_jobs
         requires:
           - start_j11_dtests_repeat
           - j11_build
+    - start_j11_dtests_vnode_repeat:
+        type: approval
     - j11_dtests_vnode_repeat:
         requires:
-          - start_j11_dtests_repeat
+          - start_j11_dtests_vnode_repeat
           - j11_build
 
 workflows:
@@ -1089,7 +1103,7 @@ jobs:
       - run_parallel_junit_tests:
           target: testclasslist-system-keyspace-directory
 
-  j8_dtests-with-vnodes:
+  j8_dtests_vnode:
     <<: *j8_par_executor
     steps:
       - attach_workspace:
@@ -1103,7 +1117,7 @@ jobs:
           file_tag: j8_with_vnodes
           pytest_extra_args: '--use-vnodes --num-tokens=16 --skip-resource-intensive-tests'
 
-  j11_dtests-with-vnodes:
+  j11_dtests_vnode:
     <<: *j11_par_executor
     steps:
     - attach_workspace:
@@ -1118,7 +1132,7 @@ jobs:
         file_tag: j11_with_vnodes
         pytest_extra_args: '--use-vnodes --num-tokens=16 --skip-resource-intensive-tests'
 
-  j8_dtests-no-vnodes:
+  j8_dtests:
     <<: *j8_par_executor
     steps:
       - attach_workspace:
@@ -1132,7 +1146,7 @@ jobs:
           file_tag: j8_without_vnodes
           pytest_extra_args: '--skip-resource-intensive-tests'
 
-  j11_dtests-no-vnodes:
+  j11_dtests:
     <<: *j11_par_executor
     steps:
     - attach_workspace:
