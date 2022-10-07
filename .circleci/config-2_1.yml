@@ -2002,19 +2002,16 @@ commands:
             echo "Fork point: ${fork_point}"
             diff=$(git --no-pager diff --name-only --diff-filter=AMR ${fork_point} ${directory})
             echo "Diff files: ${diff}"
-            
-            diff_test_files=$( git --no-pager diff --name-only --diff-filter=AMR ${fork_point} ${directory} | grep "Test\\.java" )
-            echo "Diff test files: ${diff_test_files}"
-            
-            diff_sedded=$( git --no-pager diff --name-only --diff-filter=AMR ${fork_point} ${directory} | grep "Test\\.java" | sed -e "s/\\.java//" | sed -e "s,^${directory},," )
-            echo "Diff sedded: ${diff_sedded}"            
-            
-            detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR ${fork_point} ${directory} \
-                           | grep Test\\.java \
-                           | sed -e "s/\\.java//" \
-                           | sed -e "s,^${directory},," \
-                           | tr  '/' '.' \
-                           | grep <<parameters.package>> )
+            if [[ $diff == "" ]]; then
+              detected_tests=""
+            else
+              detected_tests=$( echo $diff \
+                              | grep "Test\\.java" \
+                              | sed -e "s/\\.java//" \
+                              | sed -e "s,^${directory},," \
+                              | tr  '/' '.' \
+                              | grep <<parameters.package>> )
+            fi
             echo "Automatically detected classes: ${detected_tests}"
             
             # Put manually specified tests and automatically detected tests together, removing duplicates
