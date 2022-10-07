@@ -479,28 +479,28 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
           - start_j11_repeated_utest
           - j8_build
     # Java 8 repeated dtest
-    - start_j8_repeated_dtests:
+    - start_j8_dtests_repeat:
         type: approval
-    - j8_repeated_dtests:
+    - j8_dtests_repeat:
         requires:
-          - start_j8_repeated_dtests
+          - start_j8_dtests_repeat
           - j8_build
-    - start_j8_repeated_dtests_vnode:
+    - start_j8_dtests_repeat_vnode:
         type: approval
-    - j8_repeated_dtests_vnode:
+    - j8_dtests_vnode_repeat:
         requires:
-          - start_j8_repeated_dtests_vnode
+          - start_j8_dtests_repeat_vnode
           - j8_build
     # Java 11 repeated dtest
-    - start_j11_repeated_dtests:
+    - start_j11_dtests_repeat:
         type: approval
-    - j11_repeated_dtests:
+    - j11_dtests_repeat:
         requires:
-          - start_j11_repeated_dtests
+          - start_j11_dtests_repeat
           - j8_build
-    - j11_repeated_dtests_vnode:
+    - j11_dtests_vnode_repeat:
         requires:
-          - start_j11_repeated_dtests
+          - start_j11_dtests_repeat
           - j8_build
     # Repeated Python upgrade dtest
     - start_repeated_upgrade_dtests:
@@ -673,26 +673,26 @@ j8_pre-commit_jobs: &j8_pre-commit_jobs
           - start_j11_repeated_utest
           - j8_build
     # Java 8 repeated dtest (on request)
-    - start_j8_repeated_dtests:
+    - start_j8_dtests_repeat:
         type: approval
-    - j8_repeated_dtests:
+    - j8_dtests_repeat:
         requires:
-          - start_j8_repeated_dtests
+          - start_j8_dtests_repeat
           - j8_build
-    - j8_repeated_dtests_vnode:
+    - j8_dtests_vnode_repeat:
         requires:
-          - start_j8_repeated_dtests
+          - start_j8_dtests_repeat
           - j8_build
     # Java 11 repeated dtest (on request)
-    - start_j11_repeated_dtests:
+    - start_j11_dtests_repeat:
         type: approval
-    - j11_repeated_dtests:
+    - j11_dtests_repeat:
         requires:
-          - start_j11_repeated_dtests
+          - start_j11_dtests_repeat
           - j8_build
-    - j11_repeated_dtests_vnode:
+    - j11_dtests_vnode_repeat:
         requires:
-          - start_j11_repeated_dtests
+          - start_j11_dtests_repeat
           - j8_build
     # Repeated Python upgrade dtest (on request)
     - start_repeated_upgrade_dtests:
@@ -785,15 +785,15 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
           - start_j11_repeated_utest
           - j11_build
     # Java 11 repeated dtest
-    - start_j11_repeated_dtests:
+    - start_j11_dtests_repeat:
         type: approval
-    - j11_repeated_dtests:
+    - j11_dtests_repeat:
         requires:
-          - start_j11_repeated_dtests
+          - start_j11_dtests_repeat
           - j11_build
-    - j11_repeated_dtests_vnode:
+    - j11_dtests_vnode_repeat:
         requires:
-          - start_j11_repeated_dtests
+          - start_j11_dtests_repeat
           - j11_build
 
 j11_pre-commit_jobs: &j11_pre-commit_jobs
@@ -853,15 +853,15 @@ j11_pre-commit_jobs: &j11_pre-commit_jobs
           - start_j11_repeated_utest
           - j11_build
     # Java 11 repeated dtest (on request)
-    - start_j11_repeated_dtests:
+    - start_j11_dtests_repeat:
         type: approval
-    - j11_repeated_dtests:
+    - j11_dtests_repeat:
         requires:
-          - start_j11_repeated_dtests
+          - start_j11_dtests_repeat
           - j11_build
-    - j11_repeated_dtests_vnode:
+    - j11_dtests_vnode_repeat:
         requires:
-          - start_j11_repeated_dtests
+          - start_j11_dtests_repeat
           - j11_build
 
 workflows:
@@ -1425,7 +1425,7 @@ jobs:
           count: ${REPEATED_UTEST_COUNT}
           stop_on_failure: ${REPEATED_UTEST_STOP_ON_FAILURE}
 
-  j8_repeated_dtests:
+  j8_dtests_repeat:
     <<: *j8_repeated_dtest_executor
     steps:
       - attach_workspace:
@@ -1439,7 +1439,7 @@ jobs:
           count: ${REPEATED_DTESTS_COUNT}
           stop_on_failure: ${REPEATED_DTESTS_STOP_ON_FAILURE}
 
-  j8_repeated_dtests_vnode:
+  j8_dtests_vnode_repeat:
     <<: *j8_repeated_dtest_executor
     steps:
       - attach_workspace:
@@ -1453,7 +1453,7 @@ jobs:
           count: ${REPEATED_DTESTS_COUNT}
           stop_on_failure: ${REPEATED_DTESTS_STOP_ON_FAILURE}
 
-  j11_repeated_dtests:
+  j11_dtests_repeat:
     <<: *j11_repeated_dtest_executor
     steps:
       - attach_workspace:
@@ -1468,7 +1468,7 @@ jobs:
           count: ${REPEATED_DTESTS_COUNT}
           stop_on_failure: ${REPEATED_DTESTS_STOP_ON_FAILURE}
 
-  j11_repeated_dtests_vnode:
+  j11_dtests_vnode_repeat:
     <<: *j11_repeated_dtest_executor
     steps:
       - attach_workspace:

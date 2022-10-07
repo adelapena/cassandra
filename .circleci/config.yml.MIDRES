@@ -251,6 +251,172 @@ jobs:
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
+  j11_dtests_vnode_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11:latest
+    resource_class: large
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 25
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Clone Cassandra dtest Repository (via git)
+        command: |
+          git clone --single-branch --branch $DTEST_BRANCH --depth 1 $DTEST_REPO ~/cassandra-dtest
+    - run:
+        name: Configure virtualenv and python Dependencies
+        command: |
+          # note, this should be super quick as all dependencies should be pre-installed in the docker image
+          # if additional dependencies were added to requirmeents.txt and the docker image hasn't been updated
+          # we'd have to install it here at runtime -- which will make things slow, so do yourself a favor and
+          # rebuild the docker image! (it automatically pulls the latest requirements.txt on build)
+          source ~/env3.6/bin/activate
+          export PATH=$JAVA_HOME/bin:$PATH
+          pip3 install --exists-action w --upgrade -r ~/cassandra-dtest/requirements.txt
+          pip3 uninstall -y cqlsh
+          pip3 freeze
+    - run:
+        name: Run repeated Python dtest
+        no_output_timeout: 15m
+        command: |
+          if [ "${REPEATED_DTESTS}" == "<nil>" ]; then
+            echo "Repeated dtest name hasn't been defined, exiting without running any test"
+          elif [ "${REPEATED_DTESTS_COUNT}" == "<nil>" ]; then
+            echo "Repeated dtest count hasn't been defined, exiting without running any test"
+          elif [ "${REPEATED_DTESTS_COUNT}" -le 0 ]; then
+            echo "Repeated dtest count is lesser or equals than zero, exiting without running any test"
+          else
+
+            # Calculate the number of test iterations to be run by the current parallel runner.
+            # Since we are running the same test multiple times there is no need to use `circleci tests split`.
+            count=$((${REPEATED_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+            if (($CIRCLE_NODE_INDEX < (${REPEATED_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+              count=$((count+1))
+            fi
+
+            if (($count <= 0)); then
+              echo "No tests to run in this runner"
+            else
+              echo "Running ${REPEATED_DTESTS} $count times"
+
+              source ~/env3.6/bin/activate
+              export PATH=$JAVA_HOME/bin:$PATH
+
+              java -version
+              cd ~/cassandra-dtest
+              mkdir -p /tmp/dtest
+
+              echo "env: $(env)"
+              echo "** done env"
+              mkdir -p /tmp/results/dtests
+
+              stop_on_failure_arg=""
+              if ${REPEATED_DTESTS_STOP_ON_FAILURE}; then
+                stop_on_failure_arg="-x"
+              fi
+
+              vnodes_args=""
+              if true; then
+                vnodes_args="--use-vnodes --num-tokens=16"
+              fi
+
+              upgrade_arg=""
+              if false; then
+                upgrade_arg="--execute-upgrade-tests"
+              fi
+
+              # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
+              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir ${REPEATED_DTESTS} | tee /tmp/dtest/stdout.txt
+            fi
+          fi
+    - store_test_results:
+        path: /tmp/results
+    - store_artifacts:
+        path: /tmp/dtest
+        destination: dtest
+    - store_artifacts:
+        path: ~/cassandra-dtest/logs
+        destination: dtest_logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_TESTS_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - CASSANDRA_USE_JDK11: true
   utests_stress_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
@@ -1660,9 +1826,112 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
-  j8_repeated_dtests:
+  utests_system_keyspace_directory_repeat:
     docker:
-    - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
+    - image: apache/cassandra-testing-ubuntu2004-java11:latest
+    resource_class: medium
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 25
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
+    - run:
+        name: Repeatedly run new or modifed JUnit tests
+        no_output_timeout: 15m
+        command: "set -x\nexport PATH=$JAVA_HOME/bin:$PATH\ntime mv ~/cassandra /tmp\ncd /tmp/cassandra\nif [ -d ~/dtest_jars ]; then\n  cp ~/dtest_jars/dtest* /tmp/cassandra/build/\nfi\n\n# Calculate the number of test iterations to be run by the current parallel runner.\ncount=$((${REPEATED_UTESTS_COUNT} / CIRCLE_NODE_TOTAL))\nif (($CIRCLE_NODE_INDEX < (${REPEATED_UTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then\n  count=$((count+1))\nfi\n\n# Split the manually specified tests\nmanual_tests=$(echo ${REPEATED_UTESTS} | sed -e \"s/<nil>//\" | sed -e \"s/ //\" | tr \",\" \"\\n\")\necho Manually specified tests: $manual_tests\n\n# Find out what tests classes are new or modified compared to the base Apache branch.\ndirectory=test/unit/\ndetected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \\\n              | grep Test\\\\.java \\\n              | sed -e \"s/\\\\.java//\" \\\n              | sed -e \"s,^${directory},,\" \\\n              | tr  '/' '.' \\\n              | grep org.apache.cassandra )\necho Automatically detected classes: $detected_tests\n\n# Put manually specified tests and automatically detected tests together, removing duplicates\ntests=$(echo $manual_tests $detected_tests | tr \" \" \"\\n\" | sort -n | uniq -u)\necho All tests: $tests\n\n# Prepare the JVM dtests vnodes argument, which is optional.\nvnodes=false\nvnodes_args=\"\"\nif [ \"$vnodes\" = true ] ; then\n  vnodes_args=\"-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'\"\nfi\n\n# Run each new or modified test class as many times as requested.\nexit_code=\"$?\"\nfor test in $tests; do\n\n    # Split class and method names from the test name\n    if [[ $test =~ \"#\" ]]; then\n      class=${test%\"#\"*}\n      method=${test#*\"#\"}\n    else\n      class=$test\n      method=\"\"\n    fi\n\n    # Prepare the -Dtest.name argument.\n    # It can be the fully qualified class name or the short class name, depending on the target.\n    if [[ $target == \"test\" || \\\n          $target == \"test-cdc\" || \\\n          $target == \"test-compression\" || \\\n          $target == \"test-system-keyspace-directory\" || \\\n          $target == \"fqltool-test\" || \\\n          $target == \"long-test\" || \\\n          $target == \"stress-test\" || \\\n          $target == \"test-simulator-dtest\" ]]; then\n      name_arg=\"-Dtest.name=${class##*.}\"\n    else\n      name_arg=\"-Dtest.name=$class\"\n    fi\n\n    # Prepare the -Dtest.methods argument, which is optional\n    if [ $method == \"\" ]; then\n      methods_arg=\"\"\n    else\n      methods_arg=\"-Dtest.methods=$method\"\n    fi\n\n    for i in $(seq -w 1 $count); do\n      echo \"Running test $test, iteration $i of $count\"\n\n      # run the test\n      status=\"passes\"\n      if !( set -o pipefail && \\\n            ant test-system-keyspace-directory $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \\\n            tee stdout.txt \\\n          ); then\n        status=\"fails\"\n        exit_code=1\n      fi\n\n      # move the stdout output file\n      dest=/tmp/results/diff/stdout/${status}/${i}\n      mkdir -p $dest\n      mv stdout.txt $dest/${test}.txt\n\n      # move the XML output files\n      source=build/test/output\n      dest=/tmp/results/diff/output/${status}/${i}\n      mkdir -p $dest\n      if [[ -d $source && -n \"$(ls $source)\" ]]; then\n        mv $source/* $dest/\n      fi\n\n      # move the log files\n      source=build/test/logs\n      dest=/tmp/results/diff/logs/${status}/${i}\n      mkdir -p $dest\n      if [[ -d $source && -n \"$(ls $source)\" ]]; then\n        mv $source/* $dest/\n      fi\n      \n      # maybe stop iterations on test failure\n      if [[ ${REPEATED_UTESTS_STOP_ON_FAILURE} = true ]] && (( $exit_code > 0 )); then\n        break\n      fi\n    done\ndone\n(exit ${exit_code})\n"
+    - store_test_results:
+        path: /tmp/results/diff/output
+    - store_artifacts:
+        path: /tmp/results/diff/stdout
+        destination: stdout
+    - store_artifacts:
+        path: /tmp/results/diff/output
+        destination: junitxml
+    - store_artifacts:
+        path: /tmp/results/diff/logs
+        destination: logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_TESTS_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - CASSANDRA_USE_JDK11: true
+  j11_dtests_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11:latest
     resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
@@ -1670,6 +1939,28 @@ jobs:
     steps:
     - attach_workspace:
         at: /home/cassandra
+    - run:
+        name: Log Environment Information
+        command: |
+          echo '*** id ***'
+          id
+          echo '*** cat /proc/cpuinfo ***'
+          cat /proc/cpuinfo
+          echo '*** free -m ***'
+          free -m
+          echo '*** df -m ***'
+          df -m
+          echo '*** ifconfig -a ***'
+          ifconfig -a
+          echo '*** uname -a ***'
+          uname -a
+          echo '*** mount ***'
+          mount
+          echo '*** env ***'
+          env
+          echo '*** java ***'
+          which java
+          java -version
     - run:
         name: Clone Cassandra dtest Repository (via git)
         command: |
@@ -1748,108 +2039,6 @@ jobs:
     - store_artifacts:
         path: ~/cassandra-dtest/logs
         destination: dtest_logs
-    environment:
-    - ANT_HOME: /usr/share/ant
-    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
-    - LANG: en_US.UTF-8
-    - KEEP_TEST_DIR: true
-    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
-    - PYTHONIOENCODING: utf-8
-    - PYTHONUNBUFFERED: true
-    - CASS_DRIVER_NO_EXTENSIONS: true
-    - CASS_DRIVER_NO_CYTHON: true
-    - CASSANDRA_SKIP_SYNC: true
-    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
-    - CASSANDRA_BRANCH: trunk
-    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
-    - CCM_MAX_HEAP_SIZE: 1024M
-    - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_FQLTOOL: null
-    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_FQLTOOL_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_STRESS: null
-    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_STRESS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_SIMULATOR_DTESTS: null
-    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_SIMULATOR_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_JVM_UPGRADE_DTESTS: null
-    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_DTESTS: null
-    - REPEATED_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UPGRADE_DTESTS: null
-    - REPEATED_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
-    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
-  utests_system_keyspace_directory_repeat:
-    docker:
-    - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
-    working_directory: ~/
-    shell: /bin/bash -eo pipefail -l
-    parallelism: 25
-    steps:
-    - attach_workspace:
-        at: /home/cassandra
-    - run:
-        name: Log Environment Information
-        command: |
-          echo '*** id ***'
-          id
-          echo '*** cat /proc/cpuinfo ***'
-          cat /proc/cpuinfo
-          echo '*** free -m ***'
-          free -m
-          echo '*** df -m ***'
-          df -m
-          echo '*** ifconfig -a ***'
-          ifconfig -a
-          echo '*** uname -a ***'
-          uname -a
-          echo '*** mount ***'
-          mount
-          echo '*** env ***'
-          env
-          echo '*** java ***'
-          which java
-          java -version
-    - run:
-        name: Repeatedly run new or modifed JUnit tests
-        no_output_timeout: 15m
-        command: "set -x\nexport PATH=$JAVA_HOME/bin:$PATH\ntime mv ~/cassandra /tmp\ncd /tmp/cassandra\nif [ -d ~/dtest_jars ]; then\n  cp ~/dtest_jars/dtest* /tmp/cassandra/build/\nfi\n\n# Calculate the number of test iterations to be run by the current parallel runner.\ncount=$((${REPEATED_UTESTS_COUNT} / CIRCLE_NODE_TOTAL))\nif (($CIRCLE_NODE_INDEX < (${REPEATED_UTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then\n  count=$((count+1))\nfi\n\n# Split the manually specified tests\nmanual_tests=$(echo ${REPEATED_UTESTS} | sed -e \"s/<nil>//\" | sed -e \"s/ //\" | tr \",\" \"\\n\")\necho Manually specified tests: $manual_tests\n\n# Find out what tests classes are new or modified compared to the base Apache branch.\ndirectory=test/unit/\ndetected_tests=$(git --no-pager diff --name-only --diff-filter=AMR apache/$CASSANDRA_BRANCH ${directory} \\\n              | grep Test\\\\.java \\\n              | sed -e \"s/\\\\.java//\" \\\n              | sed -e \"s,^${directory},,\" \\\n              | tr  '/' '.' \\\n              | grep org.apache.cassandra )\necho Automatically detected classes: $detected_tests\n\n# Put manually specified tests and automatically detected tests together, removing duplicates\ntests=$(echo $manual_tests $detected_tests | tr \" \" \"\\n\" | sort -n | uniq -u)\necho All tests: $tests\n\n# Prepare the JVM dtests vnodes argument, which is optional.\nvnodes=false\nvnodes_args=\"\"\nif [ \"$vnodes\" = true ] ; then\n  vnodes_args=\"-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16'\"\nfi\n\n# Run each new or modified test class as many times as requested.\nexit_code=\"$?\"\nfor test in $tests; do\n\n    # Split class and method names from the test name\n    if [[ $test =~ \"#\" ]]; then\n      class=${test%\"#\"*}\n      method=${test#*\"#\"}\n    else\n      class=$test\n      method=\"\"\n    fi\n\n    # Prepare the -Dtest.name argument.\n    # It can be the fully qualified class name or the short class name, depending on the target.\n    if [[ $target == \"test\" || \\\n          $target == \"test-cdc\" || \\\n          $target == \"test-compression\" || \\\n          $target == \"test-system-keyspace-directory\" || \\\n          $target == \"fqltool-test\" || \\\n          $target == \"long-test\" || \\\n          $target == \"stress-test\" || \\\n          $target == \"test-simulator-dtest\" ]]; then\n      name_arg=\"-Dtest.name=${class##*.}\"\n    else\n      name_arg=\"-Dtest.name=$class\"\n    fi\n\n    # Prepare the -Dtest.methods argument, which is optional\n    if [ $method == \"\" ]; then\n      methods_arg=\"\"\n    else\n      methods_arg=\"-Dtest.methods=$method\"\n    fi\n\n    for i in $(seq -w 1 $count); do\n      echo \"Running test $test, iteration $i of $count\"\n\n      # run the test\n      status=\"passes\"\n      if !( set -o pipefail && \\\n            ant test-system-keyspace-directory $name_arg $methods_arg $vnodes_args -Dno-build-test=true | \\\n            tee stdout.txt \\\n          ); then\n        status=\"fails\"\n        exit_code=1\n      fi\n\n      # move the stdout output file\n      dest=/tmp/results/diff/stdout/${status}/${i}\n      mkdir -p $dest\n      mv stdout.txt $dest/${test}.txt\n\n      # move the XML output files\n      source=build/test/output\n      dest=/tmp/results/diff/output/${status}/${i}\n      mkdir -p $dest\n      if [[ -d $source && -n \"$(ls $source)\" ]]; then\n        mv $source/* $dest/\n      fi\n\n      # move the log files\n      source=build/test/logs\n      dest=/tmp/results/diff/logs/${status}/${i}\n      mkdir -p $dest\n      if [[ -d $source && -n \"$(ls $source)\" ]]; then\n        mv $source/* $dest/\n      fi\n      \n      # maybe stop iterations on test failure\n      if [[ ${REPEATED_UTESTS_STOP_ON_FAILURE} = true ]] && (( $exit_code > 0 )); then\n        break\n      fi\n    done\ndone\n(exit ${exit_code})\n"
-    - store_test_results:
-        path: /tmp/results/diff/output
-    - store_artifacts:
-        path: /tmp/results/diff/stdout
-        destination: stdout
-    - store_artifacts:
-        path: /tmp/results/diff/output
-        destination: junitxml
-    - store_artifacts:
-        path: /tmp/results/diff/logs
-        destination: logs
     environment:
     - ANT_HOME: /usr/share/ant
     - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -2272,6 +2461,149 @@ jobs:
     - store_artifacts:
         path: ~/cassandra-dtest/logs
         destination: dtest_j8_without_vnodes_logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_TESTS_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+  j8_dtests_vnode_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
+    resource_class: large
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 25
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Clone Cassandra dtest Repository (via git)
+        command: |
+          git clone --single-branch --branch $DTEST_BRANCH --depth 1 $DTEST_REPO ~/cassandra-dtest
+    - run:
+        name: Configure virtualenv and python Dependencies
+        command: |
+          # note, this should be super quick as all dependencies should be pre-installed in the docker image
+          # if additional dependencies were added to requirmeents.txt and the docker image hasn't been updated
+          # we'd have to install it here at runtime -- which will make things slow, so do yourself a favor and
+          # rebuild the docker image! (it automatically pulls the latest requirements.txt on build)
+          source ~/env3.6/bin/activate
+          export PATH=$JAVA_HOME/bin:$PATH
+          pip3 install --exists-action w --upgrade -r ~/cassandra-dtest/requirements.txt
+          pip3 uninstall -y cqlsh
+          pip3 freeze
+    - run:
+        name: Run repeated Python dtest
+        no_output_timeout: 15m
+        command: |
+          if [ "${REPEATED_DTESTS}" == "<nil>" ]; then
+            echo "Repeated dtest name hasn't been defined, exiting without running any test"
+          elif [ "${REPEATED_DTESTS_COUNT}" == "<nil>" ]; then
+            echo "Repeated dtest count hasn't been defined, exiting without running any test"
+          elif [ "${REPEATED_DTESTS_COUNT}" -le 0 ]; then
+            echo "Repeated dtest count is lesser or equals than zero, exiting without running any test"
+          else
+
+            # Calculate the number of test iterations to be run by the current parallel runner.
+            # Since we are running the same test multiple times there is no need to use `circleci tests split`.
+            count=$((${REPEATED_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+            if (($CIRCLE_NODE_INDEX < (${REPEATED_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+              count=$((count+1))
+            fi
+
+            if (($count <= 0)); then
+              echo "No tests to run in this runner"
+            else
+              echo "Running ${REPEATED_DTESTS} $count times"
+
+              source ~/env3.6/bin/activate
+              export PATH=$JAVA_HOME/bin:$PATH
+
+              java -version
+              cd ~/cassandra-dtest
+              mkdir -p /tmp/dtest
+
+              echo "env: $(env)"
+              echo "** done env"
+              mkdir -p /tmp/results/dtests
+
+              stop_on_failure_arg=""
+              if ${REPEATED_DTESTS_STOP_ON_FAILURE}; then
+                stop_on_failure_arg="-x"
+              fi
+
+              vnodes_args=""
+              if true; then
+                vnodes_args="--use-vnodes --num-tokens=16"
+              fi
+
+              upgrade_arg=""
+              if false; then
+                upgrade_arg="--execute-upgrade-tests"
+              fi
+
+              # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
+              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir ${REPEATED_DTESTS} | tee /tmp/dtest/stdout.txt
+            fi
+          fi
+    - store_test_results:
+        path: /tmp/results
+    - store_artifacts:
+        path: /tmp/dtest
+        destination: dtest
+    - store_artifacts:
+        path: ~/cassandra-dtest/logs
+        destination: dtest_logs
     environment:
     - ANT_HOME: /usr/share/ant
     - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
@@ -2816,172 +3148,6 @@ jobs:
     - REPEATED_UTEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
-  j11_repeated_dtests:
-    docker:
-    - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: large
-    working_directory: ~/
-    shell: /bin/bash -eo pipefail -l
-    parallelism: 25
-    steps:
-    - attach_workspace:
-        at: /home/cassandra
-    - run:
-        name: Log Environment Information
-        command: |
-          echo '*** id ***'
-          id
-          echo '*** cat /proc/cpuinfo ***'
-          cat /proc/cpuinfo
-          echo '*** free -m ***'
-          free -m
-          echo '*** df -m ***'
-          df -m
-          echo '*** ifconfig -a ***'
-          ifconfig -a
-          echo '*** uname -a ***'
-          uname -a
-          echo '*** mount ***'
-          mount
-          echo '*** env ***'
-          env
-          echo '*** java ***'
-          which java
-          java -version
-    - run:
-        name: Clone Cassandra dtest Repository (via git)
-        command: |
-          git clone --single-branch --branch $DTEST_BRANCH --depth 1 $DTEST_REPO ~/cassandra-dtest
-    - run:
-        name: Configure virtualenv and python Dependencies
-        command: |
-          # note, this should be super quick as all dependencies should be pre-installed in the docker image
-          # if additional dependencies were added to requirmeents.txt and the docker image hasn't been updated
-          # we'd have to install it here at runtime -- which will make things slow, so do yourself a favor and
-          # rebuild the docker image! (it automatically pulls the latest requirements.txt on build)
-          source ~/env3.6/bin/activate
-          export PATH=$JAVA_HOME/bin:$PATH
-          pip3 install --exists-action w --upgrade -r ~/cassandra-dtest/requirements.txt
-          pip3 uninstall -y cqlsh
-          pip3 freeze
-    - run:
-        name: Run repeated Python dtest
-        no_output_timeout: 15m
-        command: |
-          if [ "${REPEATED_DTESTS}" == "<nil>" ]; then
-            echo "Repeated dtest name hasn't been defined, exiting without running any test"
-          elif [ "${REPEATED_DTESTS_COUNT}" == "<nil>" ]; then
-            echo "Repeated dtest count hasn't been defined, exiting without running any test"
-          elif [ "${REPEATED_DTESTS_COUNT}" -le 0 ]; then
-            echo "Repeated dtest count is lesser or equals than zero, exiting without running any test"
-          else
-
-            # Calculate the number of test iterations to be run by the current parallel runner.
-            # Since we are running the same test multiple times there is no need to use `circleci tests split`.
-            count=$((${REPEATED_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
-            if (($CIRCLE_NODE_INDEX < (${REPEATED_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
-              count=$((count+1))
-            fi
-
-            if (($count <= 0)); then
-              echo "No tests to run in this runner"
-            else
-              echo "Running ${REPEATED_DTESTS} $count times"
-
-              source ~/env3.6/bin/activate
-              export PATH=$JAVA_HOME/bin:$PATH
-
-              java -version
-              cd ~/cassandra-dtest
-              mkdir -p /tmp/dtest
-
-              echo "env: $(env)"
-              echo "** done env"
-              mkdir -p /tmp/results/dtests
-
-              stop_on_failure_arg=""
-              if ${REPEATED_DTESTS_STOP_ON_FAILURE}; then
-                stop_on_failure_arg="-x"
-              fi
-
-              vnodes_args=""
-              if false; then
-                vnodes_args="--use-vnodes --num-tokens=16"
-              fi
-
-              upgrade_arg=""
-              if false; then
-                upgrade_arg="--execute-upgrade-tests"
-              fi
-
-              # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir ${REPEATED_DTESTS} | tee /tmp/dtest/stdout.txt
-            fi
-          fi
-    - store_test_results:
-        path: /tmp/results
-    - store_artifacts:
-        path: /tmp/dtest
-        destination: dtest
-    - store_artifacts:
-        path: ~/cassandra-dtest/logs
-        destination: dtest_logs
-    environment:
-    - ANT_HOME: /usr/share/ant
-    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
-    - LANG: en_US.UTF-8
-    - KEEP_TEST_DIR: true
-    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
-    - PYTHONIOENCODING: utf-8
-    - PYTHONUNBUFFERED: true
-    - CASS_DRIVER_NO_EXTENSIONS: true
-    - CASS_DRIVER_NO_CYTHON: true
-    - CASSANDRA_SKIP_SYNC: true
-    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
-    - CASSANDRA_BRANCH: trunk
-    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
-    - CCM_MAX_HEAP_SIZE: 1024M
-    - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_FQLTOOL: null
-    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_FQLTOOL_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_STRESS: null
-    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_STRESS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_SIMULATOR_DTESTS: null
-    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_SIMULATOR_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_JVM_UPGRADE_DTESTS: null
-    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_DTESTS: null
-    - REPEATED_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UPGRADE_DTESTS: null
-    - REPEATED_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-    - CASSANDRA_USE_JDK11: true
   j8_unit_tests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
@@ -3470,172 +3636,6 @@ jobs:
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
-  j11_repeated_dtests_vnode:
-    docker:
-    - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: large
-    working_directory: ~/
-    shell: /bin/bash -eo pipefail -l
-    parallelism: 25
-    steps:
-    - attach_workspace:
-        at: /home/cassandra
-    - run:
-        name: Log Environment Information
-        command: |
-          echo '*** id ***'
-          id
-          echo '*** cat /proc/cpuinfo ***'
-          cat /proc/cpuinfo
-          echo '*** free -m ***'
-          free -m
-          echo '*** df -m ***'
-          df -m
-          echo '*** ifconfig -a ***'
-          ifconfig -a
-          echo '*** uname -a ***'
-          uname -a
-          echo '*** mount ***'
-          mount
-          echo '*** env ***'
-          env
-          echo '*** java ***'
-          which java
-          java -version
-    - run:
-        name: Clone Cassandra dtest Repository (via git)
-        command: |
-          git clone --single-branch --branch $DTEST_BRANCH --depth 1 $DTEST_REPO ~/cassandra-dtest
-    - run:
-        name: Configure virtualenv and python Dependencies
-        command: |
-          # note, this should be super quick as all dependencies should be pre-installed in the docker image
-          # if additional dependencies were added to requirmeents.txt and the docker image hasn't been updated
-          # we'd have to install it here at runtime -- which will make things slow, so do yourself a favor and
-          # rebuild the docker image! (it automatically pulls the latest requirements.txt on build)
-          source ~/env3.6/bin/activate
-          export PATH=$JAVA_HOME/bin:$PATH
-          pip3 install --exists-action w --upgrade -r ~/cassandra-dtest/requirements.txt
-          pip3 uninstall -y cqlsh
-          pip3 freeze
-    - run:
-        name: Run repeated Python dtest
-        no_output_timeout: 15m
-        command: |
-          if [ "${REPEATED_DTESTS}" == "<nil>" ]; then
-            echo "Repeated dtest name hasn't been defined, exiting without running any test"
-          elif [ "${REPEATED_DTESTS_COUNT}" == "<nil>" ]; then
-            echo "Repeated dtest count hasn't been defined, exiting without running any test"
-          elif [ "${REPEATED_DTESTS_COUNT}" -le 0 ]; then
-            echo "Repeated dtest count is lesser or equals than zero, exiting without running any test"
-          else
-
-            # Calculate the number of test iterations to be run by the current parallel runner.
-            # Since we are running the same test multiple times there is no need to use `circleci tests split`.
-            count=$((${REPEATED_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
-            if (($CIRCLE_NODE_INDEX < (${REPEATED_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
-              count=$((count+1))
-            fi
-
-            if (($count <= 0)); then
-              echo "No tests to run in this runner"
-            else
-              echo "Running ${REPEATED_DTESTS} $count times"
-
-              source ~/env3.6/bin/activate
-              export PATH=$JAVA_HOME/bin:$PATH
-
-              java -version
-              cd ~/cassandra-dtest
-              mkdir -p /tmp/dtest
-
-              echo "env: $(env)"
-              echo "** done env"
-              mkdir -p /tmp/results/dtests
-
-              stop_on_failure_arg=""
-              if ${REPEATED_DTESTS_STOP_ON_FAILURE}; then
-                stop_on_failure_arg="-x"
-              fi
-
-              vnodes_args=""
-              if true; then
-                vnodes_args="--use-vnodes --num-tokens=16"
-              fi
-
-              upgrade_arg=""
-              if false; then
-                upgrade_arg="--execute-upgrade-tests"
-              fi
-
-              # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir ${REPEATED_DTESTS} | tee /tmp/dtest/stdout.txt
-            fi
-          fi
-    - store_test_results:
-        path: /tmp/results
-    - store_artifacts:
-        path: /tmp/dtest
-        destination: dtest
-    - store_artifacts:
-        path: ~/cassandra-dtest/logs
-        destination: dtest_logs
-    environment:
-    - ANT_HOME: /usr/share/ant
-    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
-    - LANG: en_US.UTF-8
-    - KEEP_TEST_DIR: true
-    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
-    - PYTHONIOENCODING: utf-8
-    - PYTHONUNBUFFERED: true
-    - CASS_DRIVER_NO_EXTENSIONS: true
-    - CASS_DRIVER_NO_CYTHON: true
-    - CASSANDRA_SKIP_SYNC: true
-    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
-    - CASSANDRA_BRANCH: trunk
-    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
-    - CCM_MAX_HEAP_SIZE: 1024M
-    - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_FQLTOOL: null
-    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_FQLTOOL_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_STRESS: null
-    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_STRESS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_SIMULATOR_DTESTS: null
-    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_SIMULATOR_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_JVM_UPGRADE_DTESTS: null
-    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_DTESTS: null
-    - REPEATED_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UPGRADE_DTESTS: null
-    - REPEATED_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-    - CASSANDRA_USE_JDK11: true
   j11_cqlshlib_tests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
@@ -4021,6 +4021,149 @@ jobs:
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
+  j8_dtests_repeat:
+    docker:
+    - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
+    resource_class: large
+    working_directory: ~/
+    shell: /bin/bash -eo pipefail -l
+    parallelism: 25
+    steps:
+    - attach_workspace:
+        at: /home/cassandra
+    - run:
+        name: Clone Cassandra dtest Repository (via git)
+        command: |
+          git clone --single-branch --branch $DTEST_BRANCH --depth 1 $DTEST_REPO ~/cassandra-dtest
+    - run:
+        name: Configure virtualenv and python Dependencies
+        command: |
+          # note, this should be super quick as all dependencies should be pre-installed in the docker image
+          # if additional dependencies were added to requirmeents.txt and the docker image hasn't been updated
+          # we'd have to install it here at runtime -- which will make things slow, so do yourself a favor and
+          # rebuild the docker image! (it automatically pulls the latest requirements.txt on build)
+          source ~/env3.6/bin/activate
+          export PATH=$JAVA_HOME/bin:$PATH
+          pip3 install --exists-action w --upgrade -r ~/cassandra-dtest/requirements.txt
+          pip3 uninstall -y cqlsh
+          pip3 freeze
+    - run:
+        name: Run repeated Python dtest
+        no_output_timeout: 15m
+        command: |
+          if [ "${REPEATED_DTESTS}" == "<nil>" ]; then
+            echo "Repeated dtest name hasn't been defined, exiting without running any test"
+          elif [ "${REPEATED_DTESTS_COUNT}" == "<nil>" ]; then
+            echo "Repeated dtest count hasn't been defined, exiting without running any test"
+          elif [ "${REPEATED_DTESTS_COUNT}" -le 0 ]; then
+            echo "Repeated dtest count is lesser or equals than zero, exiting without running any test"
+          else
+
+            # Calculate the number of test iterations to be run by the current parallel runner.
+            # Since we are running the same test multiple times there is no need to use `circleci tests split`.
+            count=$((${REPEATED_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
+            if (($CIRCLE_NODE_INDEX < (${REPEATED_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
+              count=$((count+1))
+            fi
+
+            if (($count <= 0)); then
+              echo "No tests to run in this runner"
+            else
+              echo "Running ${REPEATED_DTESTS} $count times"
+
+              source ~/env3.6/bin/activate
+              export PATH=$JAVA_HOME/bin:$PATH
+
+              java -version
+              cd ~/cassandra-dtest
+              mkdir -p /tmp/dtest
+
+              echo "env: $(env)"
+              echo "** done env"
+              mkdir -p /tmp/results/dtests
+
+              stop_on_failure_arg=""
+              if ${REPEATED_DTESTS_STOP_ON_FAILURE}; then
+                stop_on_failure_arg="-x"
+              fi
+
+              vnodes_args=""
+              if false; then
+                vnodes_args="--use-vnodes --num-tokens=16"
+              fi
+
+              upgrade_arg=""
+              if false; then
+                upgrade_arg="--execute-upgrade-tests"
+              fi
+
+              # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
+              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir ${REPEATED_DTESTS} | tee /tmp/dtest/stdout.txt
+            fi
+          fi
+    - store_test_results:
+        path: /tmp/results
+    - store_artifacts:
+        path: /tmp/dtest
+        destination: dtest
+    - store_artifacts:
+        path: ~/cassandra-dtest/logs
+        destination: dtest_logs
+    environment:
+    - ANT_HOME: /usr/share/ant
+    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - LANG: en_US.UTF-8
+    - KEEP_TEST_DIR: true
+    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
+    - PYTHONIOENCODING: utf-8
+    - PYTHONUNBUFFERED: true
+    - CASS_DRIVER_NO_EXTENSIONS: true
+    - CASS_DRIVER_NO_CYTHON: true
+    - CASSANDRA_SKIP_SYNC: true
+    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
+    - CASSANDRA_BRANCH: trunk
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
+    - CCM_MAX_HEAP_SIZE: 1024M
+    - CCM_HEAP_NEWSIZE: 256M
+    - REPEATED_TESTS_COUNT: 500
+    - REPEATED_TESTS_STOP_ON_FAILURE: false
+    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_FQLTOOL_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_LONG_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTESTS_STRESS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_SIMULATOR_DTESTS: null
+    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_SIMULATOR_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_JVM_UPGRADE_DTESTS: null
+    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_JVM_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - REPEATED_UTEST_TARGET: testsome
+    - REPEATED_UTEST_CLASS: null
+    - REPEATED_UTEST_METHODS: null
+    - REPEATED_UTEST_VNODES: false
+    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    - REPEATED_UTEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_dtests-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
@@ -5050,149 +5193,6 @@ jobs:
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - CASSANDRA_USE_JDK11: true
-  j8_repeated_dtests_vnode:
-    docker:
-    - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: large
-    working_directory: ~/
-    shell: /bin/bash -eo pipefail -l
-    parallelism: 25
-    steps:
-    - attach_workspace:
-        at: /home/cassandra
-    - run:
-        name: Clone Cassandra dtest Repository (via git)
-        command: |
-          git clone --single-branch --branch $DTEST_BRANCH --depth 1 $DTEST_REPO ~/cassandra-dtest
-    - run:
-        name: Configure virtualenv and python Dependencies
-        command: |
-          # note, this should be super quick as all dependencies should be pre-installed in the docker image
-          # if additional dependencies were added to requirmeents.txt and the docker image hasn't been updated
-          # we'd have to install it here at runtime -- which will make things slow, so do yourself a favor and
-          # rebuild the docker image! (it automatically pulls the latest requirements.txt on build)
-          source ~/env3.6/bin/activate
-          export PATH=$JAVA_HOME/bin:$PATH
-          pip3 install --exists-action w --upgrade -r ~/cassandra-dtest/requirements.txt
-          pip3 uninstall -y cqlsh
-          pip3 freeze
-    - run:
-        name: Run repeated Python dtest
-        no_output_timeout: 15m
-        command: |
-          if [ "${REPEATED_DTESTS}" == "<nil>" ]; then
-            echo "Repeated dtest name hasn't been defined, exiting without running any test"
-          elif [ "${REPEATED_DTESTS_COUNT}" == "<nil>" ]; then
-            echo "Repeated dtest count hasn't been defined, exiting without running any test"
-          elif [ "${REPEATED_DTESTS_COUNT}" -le 0 ]; then
-            echo "Repeated dtest count is lesser or equals than zero, exiting without running any test"
-          else
-
-            # Calculate the number of test iterations to be run by the current parallel runner.
-            # Since we are running the same test multiple times there is no need to use `circleci tests split`.
-            count=$((${REPEATED_DTESTS_COUNT} / CIRCLE_NODE_TOTAL))
-            if (($CIRCLE_NODE_INDEX < (${REPEATED_DTESTS_COUNT} % CIRCLE_NODE_TOTAL))); then
-              count=$((count+1))
-            fi
-
-            if (($count <= 0)); then
-              echo "No tests to run in this runner"
-            else
-              echo "Running ${REPEATED_DTESTS} $count times"
-
-              source ~/env3.6/bin/activate
-              export PATH=$JAVA_HOME/bin:$PATH
-
-              java -version
-              cd ~/cassandra-dtest
-              mkdir -p /tmp/dtest
-
-              echo "env: $(env)"
-              echo "** done env"
-              mkdir -p /tmp/results/dtests
-
-              stop_on_failure_arg=""
-              if ${REPEATED_DTESTS_STOP_ON_FAILURE}; then
-                stop_on_failure_arg="-x"
-              fi
-
-              vnodes_args=""
-              if true; then
-                vnodes_args="--use-vnodes --num-tokens=16"
-              fi
-
-              upgrade_arg=""
-              if false; then
-                upgrade_arg="--execute-upgrade-tests"
-              fi
-
-              # we need the "set -o pipefail" here so that the exit code that circleci will actually use is from pytest and not the exit code from tee
-              set -o pipefail && cd ~/cassandra-dtest && pytest $vnodes_args --count=$count $stop_on_failure_arg $upgrade_arg --log-cli-level=DEBUG --junit-xml=/tmp/results/dtests/pytest_result.xml -s --cassandra-dir=/home/cassandra/cassandra --keep-test-dir ${REPEATED_DTESTS} | tee /tmp/dtest/stdout.txt
-            fi
-          fi
-    - store_test_results:
-        path: /tmp/results
-    - store_artifacts:
-        path: /tmp/dtest
-        destination: dtest
-    - store_artifacts:
-        path: ~/cassandra-dtest/logs
-        destination: dtest_logs
-    environment:
-    - ANT_HOME: /usr/share/ant
-    - JAVA11_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-    - JAVA8_HOME: /usr/lib/jvm/java-8-openjdk-amd64
-    - LANG: en_US.UTF-8
-    - KEEP_TEST_DIR: true
-    - DEFAULT_DIR: /home/cassandra/cassandra-dtest
-    - PYTHONIOENCODING: utf-8
-    - PYTHONUNBUFFERED: true
-    - CASS_DRIVER_NO_EXTENSIONS: true
-    - CASS_DRIVER_NO_CYTHON: true
-    - CASSANDRA_SKIP_SYNC: true
-    - CASSANDRA_REPO: https://github.com/apache/cassandra.git
-    - CASSANDRA_BRANCH: trunk
-    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
-    - DTEST_BRANCH: trunk
-    - CCM_MAX_HEAP_SIZE: 1024M
-    - CCM_HEAP_NEWSIZE: 256M
-    - REPEATED_TESTS_COUNT: 500
-    - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
-    - REPEATED_UTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_FQLTOOL: null
-    - REPEATED_UTESTS_FQLTOOL_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_FQLTOOL_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_LONG: null
-    - REPEATED_UTESTS_LONG_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_LONG_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTESTS_STRESS: null
-    - REPEATED_UTESTS_STRESS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTESTS_STRESS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_SIMULATOR_DTESTS: null
-    - REPEATED_SIMULATOR_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_SIMULATOR_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_JVM_DTESTS: null
-    - REPEATED_JVM_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_JVM_UPGRADE_DTESTS: null
-    - REPEATED_JVM_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_JVM_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_DTESTS: null
-    - REPEATED_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UPGRADE_DTESTS: null
-    - REPEATED_UPGRADE_DTESTS_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - REPEATED_UTEST_TARGET: testsome
-    - REPEATED_UTEST_CLASS: null
-    - REPEATED_UTEST_METHODS: null
-    - REPEATED_UTEST_VNODES: false
-    - REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
-    - REPEATED_UTEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
-    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
-    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   utests_system_keyspace_directory:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
@@ -6276,27 +6276,27 @@ workflows:
         requires:
         - start_j11_repeated_utest
         - j8_build
-    - start_j8_repeated_dtests:
+    - start_j8_dtests_repeat:
         type: approval
-    - j8_repeated_dtests:
+    - j8_dtests_repeat:
         requires:
-        - start_j8_repeated_dtests
+        - start_j8_dtests_repeat
         - j8_build
-    - start_j8_repeated_dtests_vnode:
+    - start_j8_dtests_repeat_vnode:
         type: approval
-    - j8_repeated_dtests_vnode:
+    - j8_dtests_vnode_repeat:
         requires:
-        - start_j8_repeated_dtests_vnode
+        - start_j8_dtests_repeat_vnode
         - j8_build
-    - start_j11_repeated_dtests:
+    - start_j11_dtests_repeat:
         type: approval
-    - j11_repeated_dtests:
+    - j11_dtests_repeat:
         requires:
-        - start_j11_repeated_dtests
+        - start_j11_dtests_repeat
         - j8_build
-    - j11_repeated_dtests_vnode:
+    - j11_dtests_vnode_repeat:
         requires:
-        - start_j11_repeated_dtests
+        - start_j11_dtests_repeat
         - j8_build
     - start_repeated_upgrade_dtests:
         type: approval
@@ -6456,25 +6456,25 @@ workflows:
         requires:
         - start_j11_repeated_utest
         - j8_build
-    - start_j8_repeated_dtests:
+    - start_j8_dtests_repeat:
         type: approval
-    - j8_repeated_dtests:
+    - j8_dtests_repeat:
         requires:
-        - start_j8_repeated_dtests
+        - start_j8_dtests_repeat
         - j8_build
-    - j8_repeated_dtests_vnode:
+    - j8_dtests_vnode_repeat:
         requires:
-        - start_j8_repeated_dtests
+        - start_j8_dtests_repeat
         - j8_build
-    - start_j11_repeated_dtests:
+    - start_j11_dtests_repeat:
         type: approval
-    - j11_repeated_dtests:
+    - j11_dtests_repeat:
         requires:
-        - start_j11_repeated_dtests
+        - start_j11_dtests_repeat
         - j8_build
-    - j11_repeated_dtests_vnode:
+    - j11_dtests_vnode_repeat:
         requires:
-        - start_j11_repeated_dtests
+        - start_j11_dtests_repeat
         - j8_build
     - start_repeated_upgrade_dtests:
         type: approval
@@ -6561,15 +6561,15 @@ workflows:
         requires:
         - start_j11_repeated_utest
         - j11_build
-    - start_j11_repeated_dtests:
+    - start_j11_dtests_repeat:
         type: approval
-    - j11_repeated_dtests:
+    - j11_dtests_repeat:
         requires:
-        - start_j11_repeated_dtests
+        - start_j11_dtests_repeat
         - j11_build
-    - j11_repeated_dtests_vnode:
+    - j11_dtests_vnode_repeat:
         requires:
-        - start_j11_repeated_dtests
+        - start_j11_dtests_repeat
         - j11_build
   java11_pre-commit_tests:
     jobs:
@@ -6626,13 +6626,13 @@ workflows:
         requires:
         - start_j11_repeated_utest
         - j11_build
-    - start_j11_repeated_dtests:
+    - start_j11_dtests_repeat:
         type: approval
-    - j11_repeated_dtests:
+    - j11_dtests_repeat:
         requires:
-        - start_j11_repeated_dtests
+        - start_j11_dtests_repeat
         - j11_build
-    - j11_repeated_dtests_vnode:
+    - j11_dtests_vnode_repeat:
         requires:
-        - start_j11_repeated_dtests
+        - start_j11_dtests_repeat
         - j11_build
