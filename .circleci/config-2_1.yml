@@ -145,29 +145,29 @@ default_env_vars: &default_env_vars
     REPEATED_UPGRADE_DTESTS_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
 
     # The Ant test target to run, for example:
-    # REPEATED_UTEST_TARGET: testsome
-    # REPEATED_UTEST_TARGET: test-jvm-dtest-some
-    # REPEATED_UTEST_TARGET: test-cdc
-    # REPEATED_UTEST_TARGET: test-compression
-    # REPEATED_UTEST_TARGET: test-system-keyspace-directory
-    REPEATED_UTEST_TARGET: testsome
+    # REPEATED_ANT_TEST_TARGET: testsome
+    # REPEATED_ANT_TEST_TARGET: test-jvm-dtest-some
+    # REPEATED_ANT_TEST_TARGET: test-cdc
+    # REPEATED_ANT_TEST_TARGET: test-compression
+    # REPEATED_ANT_TEST_TARGET: test-system-keyspace-directory
+    REPEATED_ANT_TEST_TARGET: testsome
     # The name of JUnit class to be run multiple times, for example:
-    # REPEATED_UTEST_CLASS: org.apache.cassandra.cql3.ViewTest
-    # REPEATED_UTEST_CLASS: org.apache.cassandra.distributed.test.PagingTest
-    REPEATED_UTEST_CLASS:
-    # The optional specific methods within REPEATED_UTEST_CLASS to be run, for example:
-    # REPEATED_UTEST_METHODS: testCompoundPartitionKey
-    # REPEATED_UTEST_METHODS: testCompoundPartitionKey,testStaticTable
+    # REPEATED_ANT_TEST_CLASS: org.apache.cassandra.cql3.ViewTest
+    # REPEATED_ANT_TEST_CLASS: org.apache.cassandra.distributed.test.PagingTest
+    REPEATED_ANT_TEST_CLASS:
+    # The optional specific methods within REPEATED_ANT_TEST_CLASS to be run, for example:
+    # REPEATED_ANT_TEST_METHODS: testCompoundPartitionKey
+    # REPEATED_ANT_TEST_METHODS: testCompoundPartitionKey,testStaticTable
     # Please note that some Ant targets will ignore the -Dtest.methods argument produced by this.
-    REPEATED_UTEST_METHODS:
+    REPEATED_ANT_TEST_METHODS:
     # Whether the test iteration should use vnodes for JVM dtests (-Dtest.jvm.args='-Dcassandra.dtest.num_tokens=16').
     # This will only be applied as a default to JVM dtests that don't provide their own initial tokens or token count,
     # in the same way that it's done for *_jvm_dtests_vnode jobs. Ant targets other than JVM dtests will ignore this.
-    REPEATED_UTEST_VNODES: false
+    REPEATED_ANT_TEST_VNODES: false
     # The number of times that the repeated JUnit test should be run.
-    REPEATED_UTEST_COUNT: REPEATED_TESTS_COUNT
+    REPEATED_ANT_TEST_COUNT: REPEATED_TESTS_COUNT
     # Whether the test iteration should stop on the first failure.
-    REPEATED_UTEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
+    REPEATED_ANT_TEST_STOP_ON_FAILURE: REPEATED_TESTS_STOP_ON_FAILURE
 
 j8_par_executor: &j8_par_executor
   executor:
@@ -473,18 +473,18 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
           - start_j11_cqlsh_tests
           - j8_build
     # Java 8 repeated utest
-    - start_j8_repeated_utest:
+    - start_j8_repeated_ant_test:
         type: approval
-    - j8_repeated_utest:
+    - j8_repeated_ant_test:
         requires:
-          - start_j8_repeated_utest
+          - start_j8_repeated_ant_test
           - j8_build
     # Java 11 repeated utest
-    - start_j11_repeated_utest:
+    - start_j11_repeated_ant_test:
         type: approval
-    - j11_repeated_utest:
+    - j11_repeated_ant_test:
         requires:
-          - start_j11_repeated_utest
+          - start_j11_repeated_ant_test
           - j8_build
     # Java 8 repeated dtest
     - start_j8_dtests_repeat:
@@ -765,11 +765,11 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
           - start_j11_cqlsh_tests
           - j11_build
     # Java 11 repeated utest
-    - start_j11_repeated_utest:
+    - start_j11_repeated_ant_test:
         type: approval
-    - j11_repeated_utest:
+    - j11_repeated_ant_test:
         requires:
-          - start_j11_repeated_utest
+          - start_j11_repeated_ant_test
           - j11_build
     # Java 11 repeated dtest
     - start_j11_dtests_repeat:
@@ -1374,33 +1374,33 @@ jobs:
       - log_environment
       - run_jvm_dtests_vnode_repeat
 
-  j8_repeated_utest:
+  j8_repeated_ant_test:
     <<: *j8_repeated_utest_executor
     steps:
       - attach_workspace:
           at: /home/cassandra
       - log_environment
       - run_repeated_utest:
-          target: ${REPEATED_UTEST_TARGET}
-          class: ${REPEATED_UTEST_CLASS}
-          methods: ${REPEATED_UTEST_METHODS}
-          vnodes: ${REPEATED_UTEST_VNODES}
-          count: ${REPEATED_UTEST_COUNT}
-          stop_on_failure: ${REPEATED_UTEST_STOP_ON_FAILURE}
+          target: ${REPEATED_ANT_TEST_TARGET}
+          class: ${REPEATED_ANT_TEST_CLASS}
+          methods: ${REPEATED_ANT_TEST_METHODS}
+          vnodes: ${REPEATED_ANT_TEST_VNODES}
+          count: ${REPEATED_ANT_TEST_COUNT}
+          stop_on_failure: ${REPEATED_ANT_TEST_STOP_ON_FAILURE}
 
-  j11_repeated_utest:
+  j11_repeated_ant_test:
     <<: *j11_repeated_utest_executor
     steps:
       - attach_workspace:
           at: /home/cassandra
       - log_environment
       - run_repeated_utest:
-          target: ${REPEATED_UTEST_TARGET}
-          class: ${REPEATED_UTEST_CLASS}
-          methods: ${REPEATED_UTEST_METHODS}
-          vnodes: ${REPEATED_UTEST_VNODES}
-          count: ${REPEATED_UTEST_COUNT}
-          stop_on_failure: ${REPEATED_UTEST_STOP_ON_FAILURE}
+          target: ${REPEATED_ANT_TEST_TARGET}
+          class: ${REPEATED_ANT_TEST_CLASS}
+          methods: ${REPEATED_ANT_TEST_METHODS}
+          vnodes: ${REPEATED_ANT_TEST_VNODES}
+          count: ${REPEATED_ANT_TEST_COUNT}
+          stop_on_failure: ${REPEATED_ANT_TEST_STOP_ON_FAILURE}
 
   j8_dtests_repeat:
     <<: *j8_repeated_dtest_executor
