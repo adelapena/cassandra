@@ -2003,10 +2003,10 @@ commands:
             diff=$(git --no-pager diff --name-only --diff-filter=AMR ${fork_point} ${directory})
             echo "Diff files: ${diff}"
             
-            diff-test-files=$(git --no-pager diff --name-only --diff-filter=AMR ${fork_point} ${directory} | grep Test\\.java)
-            echo "Diff test files: ${diff-test-files}"
+            diff_test_files=$( git --no-pager diff --name-only --diff-filter=AMR ${fork_point} ${directory} | grep "Test\\.java" )
+            echo "Diff test files: ${diff_test_files}"
             
-            diff_sedded=$(git --no-pager diff --name-only --diff-filter=AMR ${fork_point} ${directory}  | grep Test\\.java | sed -e "s/\\.java//" | sed -e "s,^${directory},,")
+            diff_sedded=$( git --no-pager diff --name-only --diff-filter=AMR ${fork_point} ${directory} | grep "Test\\.java" | sed -e "s/\\.java//" | sed -e "s,^${directory},," )
             echo "Diff sedded: ${diff_sedded}"            
             
             detected_tests=$(git --no-pager diff --name-only --diff-filter=AMR ${fork_point} ${directory} \
