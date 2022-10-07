@@ -437,38 +437,38 @@ j8_with_dtests_jobs: &j8_with_dtests_jobs
     # Java 8 cqlsh dtests
     - start_j8_cqlsh_tests:
         type: approval
-    - j8_cqlsh-dtests-py3-with-vnodes:
-        requires:
-        - start_j8_cqlsh_tests
-        - j8_build
-    - j8_cqlsh-dtests-py38-with-vnodes:
-        requires:
-        - start_j8_cqlsh_tests
-        - j8_build
-    - j8_cqlsh-dtests-py3-no-vnodes:
-        requires:
-        - start_j8_cqlsh_tests
-        - j8_build
-    - j8_cqlsh-dtests-py38-no-vnodes:
+    - j8_cqlsh_dtests_py3:
         requires:
           - start_j8_cqlsh_tests
           - j8_build
+    - j8_cqlsh_dtests_py3_vnode:
+        requires:
+          - start_j8_cqlsh_tests
+          - j8_build
+    - j8_cqlsh_dtests_py38:
+        requires:
+          - start_j8_cqlsh_tests
+          - j8_build
+    - j8_cqlsh_dtests_py38_vnode:
+        requires:
+        - start_j8_cqlsh_tests
+        - j8_build
     # Java 11 cqlsh dtests
     - start_j11_cqlsh_tests:
         type: approval
-    - j11_cqlsh-dtests-py3-with-vnodes:
+    - j11_cqlsh_dtests_py3:
+        requires:
+          - start_j11_cqlsh_tests
+          - j8_build
+    - j11_cqlsh_dtests_py3_vnode:
         requires:
         - start_j11_cqlsh_tests
         - j8_build
-    - j11_cqlsh-dtests-py38-with-vnodes:
+    - j11_cqlsh_dtests_py38:
         requires:
           - start_j11_cqlsh_tests
           - j8_build
-    - j11_cqlsh-dtests-py3-no-vnodes:
-        requires:
-          - start_j11_cqlsh_tests
-          - j8_build
-    - j11_cqlsh-dtests-py38-no-vnodes:
+    - j11_cqlsh_dtests_py38_vnode:
         requires:
           - start_j11_cqlsh_tests
           - j8_build
@@ -659,29 +659,29 @@ j8_pre-commit_jobs: &j8_pre-commit_jobs
           - j8_build
           - start_upgrade_dtests
     # Java 8 cqlsh dtests
-    - j8_cqlsh-dtests-py3-with-vnodes:
+    - j8_cqlsh_dtests_py3:
         requires:
           - j8_build
-    - j8_cqlsh-dtests-py38-with-vnodes:
+    - j8_cqlsh_dtests_py3_vnode:
         requires:
           - j8_build
-    - j8_cqlsh-dtests-py3-no-vnodes:
+    - j8_cqlsh_dtests_py38:
         requires:
           - j8_build
-    - j8_cqlsh-dtests-py38-no-vnodes:
+    - j8_cqlsh_dtests_py38_vnode:
         requires:
           - j8_build
     # Java 11 cqlsh dtests
-    - j11_cqlsh-dtests-py3-with-vnodes:
+    - j11_cqlsh_dtests_py3:
         requires:
           - j8_build
-    - j11_cqlsh-dtests-py38-with-vnodes:
+    - j11_cqlsh_dtests_py3_vnode:
         requires:
           - j8_build
-    - j11_cqlsh-dtests-py3-no-vnodes:
+    - j11_cqlsh_dtests_py38:
         requires:
           - j8_build
-    - j11_cqlsh-dtests-py38-no-vnodes:
+    - j11_cqlsh_dtests_py38_vnode:
         requires:
           - j8_build
 
@@ -748,19 +748,19 @@ j11_with_dtests_jobs: &j11_with_dtests_jobs
           - j11_build
     - start_j11_cqlsh_tests:
         type: approval
-    - j11_cqlsh-dtests-py3-with-vnodes:
+    - j11_cqlsh_dtests_py3:
         requires:
           - start_j11_cqlsh_tests
           - j11_build
-    - j11_cqlsh-dtests-py38-with-vnodes:
+    - j11_cqlsh_dtests_py3_vnode:
         requires:
           - start_j11_cqlsh_tests
           - j11_build
-    - j11_cqlsh-dtests-py3-no-vnodes:
+    - j11_cqlsh_dtests_py38:
         requires:
           - start_j11_cqlsh_tests
           - j11_build
-    - j11_cqlsh-dtests-py38-no-vnodes:
+    - j11_cqlsh_dtests_py38_vnode:
         requires:
           - start_j11_cqlsh_tests
           - j11_build
@@ -828,16 +828,16 @@ j11_pre-commit_jobs: &j11_pre-commit_jobs
     - j11_dtests_vnode_repeat:
         requires:
           - j11_build
-    - j11_cqlsh-dtests-py3-with-vnodes:
+    - j11_cqlsh_dtests_py3:
         requires:
           - j11_build
-    - j11_cqlsh-dtests-py38-with-vnodes:
+    - j11_cqlsh_dtests_py3_vnode:
         requires:
           - j11_build
-    - j11_cqlsh-dtests-py3-no-vnodes:
+    - j11_cqlsh_dtests_py38:
         requires:
           - j11_build
-    - j11_cqlsh-dtests-py38-no-vnodes:
+    - j11_cqlsh_dtests_py38_vnode:
         requires:
           - j11_build
 
@@ -1138,7 +1138,7 @@ jobs:
           file_tag: j8_upgradetests_without_vnodes
           pytest_extra_args: '--execute-upgrade-tests-only --upgrade-target-version-only --upgrade-version-selection all'
 
-  j8_cqlsh-dtests-py3-with-vnodes:
+  j8_cqlsh_dtests_py3_vnode:
     <<: *j8_par_executor
     steps:
       - attach_workspace:
@@ -1153,7 +1153,7 @@ jobs:
           pytest_extra_args: '--use-vnodes --num-tokens=16 --skip-resource-intensive-tests'
           extra_env_args: 'CQLSH_PYTHON=/usr/bin/python3.6'
 
-  j8_cqlsh-dtests-py38-with-vnodes:
+  j8_cqlsh_dtests_py38_vnode:
     <<: *j8_par_executor
     steps:
       - attach_workspace:
@@ -1171,7 +1171,7 @@ jobs:
           extra_env_args: 'CQLSH_PYTHON=/usr/bin/python3.8'
           python_version: '3.8'
 
-  j8_cqlsh-dtests-py3-no-vnodes:
+  j8_cqlsh_dtests_py3:
     <<: *j8_par_executor
     steps:
       - attach_workspace:
@@ -1186,7 +1186,7 @@ jobs:
           pytest_extra_args: '--skip-resource-intensive-tests'
           extra_env_args: 'CQLSH_PYTHON=/usr/bin/python3.6'
 
-  j8_cqlsh-dtests-py38-no-vnodes:
+  j8_cqlsh_dtests_py38:
     <<: *j8_par_executor
     steps:
       - attach_workspace:
@@ -1204,7 +1204,7 @@ jobs:
           extra_env_args: 'CQLSH_PYTHON=/usr/bin/python3.8'
           python_version: '3.8'
 
-  j11_cqlsh-dtests-py3-with-vnodes:
+  j11_cqlsh_dtests_py3_vnode:
     <<: *j11_par_executor
     steps:
       - attach_workspace:
@@ -1219,7 +1219,7 @@ jobs:
           pytest_extra_args: '--use-vnodes --num-tokens=16 --skip-resource-intensive-tests'
           extra_env_args: 'CQLSH_PYTHON=/usr/bin/python3.6'
 
-  j11_cqlsh-dtests-py38-with-vnodes:
+  j11_cqlsh_dtests_py38_vnode:
     <<: *j11_par_executor
     steps:
       - attach_workspace:
@@ -1237,7 +1237,7 @@ jobs:
           extra_env_args: 'CQLSH_PYTHON=/usr/bin/python3.8'
           python_version: '3.8'
 
-  j11_cqlsh-dtests-py3-no-vnodes:
+  j11_cqlsh_dtests_py3:
     <<: *j11_par_executor
     steps:
       - attach_workspace:
@@ -1252,7 +1252,7 @@ jobs:
           pytest_extra_args: '--skip-resource-intensive-tests'
           extra_env_args: 'CQLSH_PYTHON=/usr/bin/python3.6'
 
-  j11_cqlsh-dtests-py38-no-vnodes:
+  j11_cqlsh_dtests_py38:
     <<: *j11_par_executor
     steps:
       - attach_workspace:
