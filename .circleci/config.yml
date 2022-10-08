@@ -3924,7 +3924,7 @@ jobs:
           git remote add apache $CASSANDRA_REPO
           git fetch apache $CASSANDRA_BRANCH
           set +e
-          git merge-base --fork-point apache/$CASSANDRA_BRANCH
+          echo "Fork point: $(git merge-base --fork-point apache/$CASSANDRA_BRANCH)"
           cd ..
     - run:
         name: Build Cassandra
@@ -5023,7 +5023,7 @@ jobs:
           git remote add apache $CASSANDRA_REPO
           git fetch apache $CASSANDRA_BRANCH
           set +e
-          git merge-base --fork-point apache/$CASSANDRA_BRANCH
+          echo "Fork point: $(git merge-base --fork-point apache/$CASSANDRA_BRANCH)"
           cd ..
     - run:
         name: Build Cassandra
