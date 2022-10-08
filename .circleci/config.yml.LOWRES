@@ -3923,7 +3923,6 @@ jobs:
           cd ~/cassandra
           git remote add apache $CASSANDRA_REPO
           git fetch apache $CASSANDRA_BRANCH
-          git merge-base --fork-point apache/$CASSANDRA_BRANCH
           cd ..
     - run:
         name: Build Cassandra
@@ -5021,7 +5020,6 @@ jobs:
           cd ~/cassandra
           git remote add apache $CASSANDRA_REPO
           git fetch apache $CASSANDRA_BRANCH
-          git merge-base --fork-point apache/$CASSANDRA_BRANCH
           cd ..
     - run:
         name: Build Cassandra
