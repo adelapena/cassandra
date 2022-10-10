@@ -3929,6 +3929,8 @@ jobs:
           # echo "Cancel URL: "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel"
           # curl -X POST "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel" -H "Circle-Token: ${CIRCLE_TOKEN}"
 
+          echo CIRCLE_JOB: $CIRCLE_JOB
+          echo CIRCLE_WORKFLOW_JOB_ID: $CIRCLE_WORKFLOW_JOB_ID
           curl -X POST "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${CIRCLE_WORKFLOW_JOB_ID}/cancel" -H "Circle-Token: ${CIRCLE_TOKEN}"
     - run:
         name: Build Cassandra
@@ -5032,6 +5034,8 @@ jobs:
           # echo "Cancel URL: "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel"
           # curl -X POST "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel" -H "Circle-Token: ${CIRCLE_TOKEN}"
 
+          echo CIRCLE_JOB: $CIRCLE_JOB
+          echo CIRCLE_WORKFLOW_JOB_ID: $CIRCLE_WORKFLOW_JOB_ID
           curl -X POST "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${CIRCLE_WORKFLOW_JOB_ID}/cancel" -H "Circle-Token: ${CIRCLE_TOKEN}"
     - run:
         name: Build Cassandra
