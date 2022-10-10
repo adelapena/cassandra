@@ -3924,10 +3924,12 @@ jobs:
           git remote add apache $CASSANDRA_REPO
           git fetch apache $CASSANDRA_BRANCH
           cd ..
-          job_number=$(curl -sG "https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}/job?circle-token=${CIRCLE_TOKEN}" | jq '.items[]|select(.name == "j8_dtests_repeat")|.job_number')
-          echo Job number: ${job_number}
-          echo "Cancel URL: "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel"
-          curl -X POST "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel" -H "Circle-Token: ${CIRCLE_TOKEN}"
+          # job_number=$(curl -sG "https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}/job?circle-token=${CIRCLE_TOKEN}" | jq '.items[]|select(.name == "j8_dtests_repeat")|.job_number')
+          # echo Job number: ${job_number}
+          # echo "Cancel URL: "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel"
+          # curl -X POST "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel" -H "Circle-Token: ${CIRCLE_TOKEN}"
+
+          curl -X POST "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${CIRCLE_WORKFLOW_JOB_ID}/cancel" -H "Circle-Token: ${CIRCLE_TOKEN}"
     - run:
         name: Build Cassandra
         command: |
@@ -5025,10 +5027,12 @@ jobs:
           git remote add apache $CASSANDRA_REPO
           git fetch apache $CASSANDRA_BRANCH
           cd ..
-          job_number=$(curl -sG "https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}/job?circle-token=${CIRCLE_TOKEN}" | jq '.items[]|select(.name == "j8_dtests_repeat")|.job_number')
-          echo Job number: ${job_number}
-          echo "Cancel URL: "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel"
-          curl -X POST "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel" -H "Circle-Token: ${CIRCLE_TOKEN}"
+          # job_number=$(curl -sG "https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}/job?circle-token=${CIRCLE_TOKEN}" | jq '.items[]|select(.name == "j8_dtests_repeat")|.job_number')
+          # echo Job number: ${job_number}
+          # echo "Cancel URL: "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel"
+          # curl -X POST "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${job_number}/cancel" -H "Circle-Token: ${CIRCLE_TOKEN}"
+
+          curl -X POST "https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${CIRCLE_WORKFLOW_JOB_ID}/cancel" -H "Circle-Token: ${CIRCLE_TOKEN}"
     - run:
         name: Build Cassandra
         command: |
