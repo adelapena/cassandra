@@ -244,7 +244,7 @@ if $has_env_vars; then
   unset IFS
 fi
 
-# prepare the version of $sed
+# prepare the version of $sed, making sure we have a version that supports the -z flag
 sed=sed
 echo "a" | sed -z "s/a//" > /dev/null 2>&1 || { sed=gsed; }
 echo "a" | $sed -z "s/a//" > /dev/null 2>&1 || { "Need a version of sed or gsed that supports -z"; exit 1; }
@@ -290,7 +290,7 @@ if [[ $env_vars != *"REPEATED_JVM_DTESTS="* ]]; then
   $sed  -i.bak '/- j11_jvm_dtests_vnode_repeat:/,/- j11_build/d' .circleci/config.yml
 fi
 if [[ $env_vars != *"REPEATED_JVM_UPGRADE_DTESTS="* ]]; then
-  $sed  -i.bak '/- start_jvm_upgrade_dtest_repeat:/,/approval/d' .circleci/config.yml
+  $sed  -i.bak '/- start_jvm_upgrade_dtests_repeat:/,/approval/d' .circleci/config.yml
   $sed  -i.bak '/- j8_jvm_upgrade_dtests_repeat:/,/- j8_dtest_jars_build/d' .circleci/config.yml
 fi
 if [[ $env_vars != *"REPEATED_DTESTS="* ]]; then

@@ -6094,17 +6094,17 @@ workflows:
         requires:
         - j8_build
         - start_j8_dtest_jars_build
-    - start_jvm_upgrade_dtest:
+    - start_jvm_upgrade_dtests:
         type: approval
     - j8_jvm_upgrade_dtests:
         requires:
-        - start_jvm_upgrade_dtest
+        - start_jvm_upgrade_dtests
         - j8_dtest_jars_build
-    - start_jvm_upgrade_dtest_repeat:
+    - start_jvm_upgrade_dtests_repeat:
         type: approval
     - j8_jvm_upgrade_dtests_repeat:
         requires:
-        - start_jvm_upgrade_dtest_repeat
+        - start_jvm_upgrade_dtests_repeat
         - j8_dtest_jars_build
     - start_j8_dtests:
         type: approval
