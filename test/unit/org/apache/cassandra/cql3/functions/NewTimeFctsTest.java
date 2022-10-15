@@ -37,8 +37,7 @@ import org.joda.time.format.DateTimeFormat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-// Modified
-public class TimeFctsTest
+public class NewTimeFctsTest
 {
     @Test
     public void testMinTimeUuid()

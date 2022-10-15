@@ -31,6 +31,7 @@ import org.apache.cassandra.distributed.shared.Versions;
 
 import static org.junit.Assert.fail;
 
+// modified
 public class MixedModeReadRepairTest extends UpgradeTestBase
 {
     @Test

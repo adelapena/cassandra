@@ -48,6 +48,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.apache.cassandra.Util.dk;
 import static org.apache.cassandra.utils.ByteBufferUtil.bytes;
 
+// Modified
 public class HintsWriteThenReadTest
 {
     private static final String KEYSPACE = "hints_write_then_read_test";
