@@ -29,6 +29,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Test;
 
+// Modified
 public class CastFctsTest extends CQLTester
 {
     @Test
