@@ -21,10 +21,10 @@ jobs:
   j8_jvm_upgrade_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 1
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -110,21 +110,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -138,7 +138,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -289,21 +289,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -314,10 +314,10 @@ jobs:
   j8_cqlsh-dtests-py2-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -389,21 +389,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -414,10 +414,10 @@ jobs:
   j11_dtests_vnode_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -540,21 +540,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -569,7 +569,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -720,21 +720,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -748,7 +748,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -834,21 +834,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -860,10 +860,10 @@ jobs:
   j8_cqlsh_dtests_py3:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -935,21 +935,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -960,10 +960,10 @@ jobs:
   j11_cqlsh_dtests_py38:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1035,21 +1035,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -1064,7 +1064,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1219,21 +1219,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -1245,10 +1245,10 @@ jobs:
   j8_cqlsh_dtests_py3_vnode:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1320,21 +1320,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -1345,10 +1345,10 @@ jobs:
   j11_cqlsh_dtests_py3:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1420,21 +1420,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -1449,7 +1449,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1600,21 +1600,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -1628,7 +1628,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1779,21 +1779,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -1804,10 +1804,10 @@ jobs:
   j8_cqlsh-dtests-py2-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1879,21 +1879,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -1904,10 +1904,10 @@ jobs:
   j8_upgrade_dtests_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2008,21 +2008,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -2033,10 +2033,10 @@ jobs:
   j11_cqlsh-dtests-py2-with-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2108,21 +2108,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -2137,7 +2137,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2288,21 +2288,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -2313,10 +2313,10 @@ jobs:
   j11_dtests_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2439,21 +2439,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -2465,10 +2465,10 @@ jobs:
   j8_cqlsh_dtests_py38:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2540,21 +2540,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -2565,10 +2565,10 @@ jobs:
   j8_dtests_vnode_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2669,21 +2669,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -2694,10 +2694,10 @@ jobs:
   j11_cqlsh_dtests_py3_vnode:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2769,21 +2769,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -2798,7 +2798,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2949,21 +2949,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -2974,10 +2974,10 @@ jobs:
   j8_upgrade_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: xlarge
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 100
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3030,21 +3030,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -3055,10 +3055,10 @@ jobs:
   j8_jvm_upgrade_dtests_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3209,21 +3209,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -3234,10 +3234,10 @@ jobs:
   j11_cqlsh_dtests_py38_vnode:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3309,21 +3309,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -3338,7 +3338,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3489,21 +3489,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -3558,21 +3558,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -3586,7 +3586,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3672,21 +3672,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -3700,7 +3700,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 1
+    parallelism: 10
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3786,21 +3786,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -3890,21 +3890,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -3916,10 +3916,10 @@ jobs:
   j8_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -3972,21 +3972,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -3997,10 +3997,10 @@ jobs:
   j11_cqlsh-dtests-py2-no-vnodes:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4072,21 +4072,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -4098,10 +4098,10 @@ jobs:
   j8_dtests_vnode:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4154,21 +4154,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -4213,21 +4213,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -4242,7 +4242,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4393,21 +4393,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -4418,10 +4418,10 @@ jobs:
   j11_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4496,21 +4496,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -4525,7 +4525,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4680,21 +4680,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -4705,10 +4705,10 @@ jobs:
   j8_dtests_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4809,21 +4809,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -4834,10 +4834,10 @@ jobs:
   j8_jvm_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 1
+    parallelism: 10
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -4923,21 +4923,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -5026,21 +5026,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -5051,10 +5051,10 @@ jobs:
   j8_cqlsh_dtests_py38_vnode:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -5126,21 +5126,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -5194,21 +5194,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -5222,7 +5222,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -5373,21 +5373,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -5402,7 +5402,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -5488,21 +5488,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -5547,21 +5547,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -5615,21 +5615,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -5640,10 +5640,10 @@ jobs:
   j11_dtests_vnode:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11:latest
-    resource_class: medium
+    resource_class: large
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 50
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -5718,21 +5718,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -5747,7 +5747,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 25
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -5833,21 +5833,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -5933,21 +5933,21 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.TimeFctsTest,org.apache.cassandra.cql3.functions.RenamedCastFctsTest,org.apache.cassandra.cql3.DurationTest#testAddTo,org.apache.cassandra.cql3.validation.entities.DateTypeTest
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_FQLTOOL: null
+    - REPEATED_UTESTS_FQLTOOL: org.apache.cassandra.fqltool.RenamedFQLCompareTest,org.apache.cassandra.fqltool.NewFQLReplayTest,org.apache.cassandra.fqltool.FQLReplayTest
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
-    - REPEATED_UTESTS_LONG: null
+    - REPEATED_UTESTS_LONG: org.apache.cassandra.db.commitlog.RenamedCommitLogStressTest,org.apache.cassandra.db.commitlog.PeriodicCommitLogStressTest,org.apache.cassandra.db.commitlog.NewBatchCommitLogStressTest,org.apache.cassandra.db.commitlog.GroupCommitLogStressTest,org.apache.cassandra.db.commitlog.BatchCommitLogStressTest,org.apache.cassandra.io.sstable.CQLSSTableWriterLongTest#testWideRow
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: null
+    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.settings.OptionReplicationTest,org.apache.cassandra.stress.settings.NewOptionReplicationTest,org.apache.cassandra.stress.generate.RenamedDistributionSequenceTest
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: null
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.RenamedGroupByTest,org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.AlterTest#getAndSetCompressionParametersTest
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: cfid_test.py,pending_range_test.py::TestPendingRangeMovements::test_pending_range
     - REPEATED_DTESTS_COUNT: 500
-    - REPEATED_UPGRADE_DTESTS: null
+    - REPEATED_UPGRADE_DTESTS: upgrade_tests/paging_test.py::TestPagingWithDeletionsNodes2RF1_Upgrade_indev_4_0_x_To_indev_trunk
     - REPEATED_UPGRADE_DTESTS_COUNT: 25
     - REPEATED_ANT_TEST_TARGET: testsome
     - REPEATED_ANT_TEST_CLASS: null
@@ -5970,11 +5970,23 @@ workflows:
         requires:
         - start_j8_unit_tests
         - j8_build
+    - start_j8_unit_tests_repeat:
+        type: approval
+    - j8_unit_tests_repeat:
+        requires:
+        - start_j8_unit_tests_repeat
+        - j8_build
     - start_j8_jvm_dtests:
         type: approval
     - j8_jvm_dtests:
         requires:
         - start_j8_jvm_dtests
+        - j8_build
+    - start_j8_jvm_dtests_repeat:
+        type: approval
+    - j8_jvm_dtests_repeat:
+        requires:
+        - start_j8_jvm_dtests_repeat
         - j8_build
     - start_j8_cqlshlib_tests:
         type: approval
@@ -5988,11 +6000,23 @@ workflows:
         requires:
         - start_j11_unit_tests
         - j8_build
+    - start_j11_unit_tests_repeat:
+        type: approval
+    - j11_unit_tests_repeat:
+        requires:
+        - start_j11_unit_tests_repeat
+        - j8_build
     - start_utests_long:
         type: approval
     - utests_long:
         requires:
         - start_utests_long
+        - j8_build
+    - start_utests_long_repeat:
+        type: approval
+    - utests_long_repeat:
+        requires:
+        - start_utests_long_repeat
         - j8_build
     - start_utests_compression:
         type: approval
@@ -6000,11 +6024,23 @@ workflows:
         requires:
         - start_utests_compression
         - j8_build
+    - start_utests_compression_repeat:
+        type: approval
+    - utests_compression_repeat:
+        requires:
+        - start_utests_compression_repeat
+        - j8_build
     - start_utests_stress:
         type: approval
     - utests_stress:
         requires:
         - start_utests_stress
+        - j8_build
+    - start_utests_stress_repeat:
+        type: approval
+    - utests_stress_repeat:
+        requires:
+        - start_utests_stress_repeat
         - j8_build
     - start_utests_fqltool:
         type: approval
@@ -6012,11 +6048,23 @@ workflows:
         requires:
         - start_utests_fqltool
         - j8_build
+    - start_utests_fqltool_repeat:
+        type: approval
+    - utests_fqltool_repeat:
+        requires:
+        - start_utests_fqltool_repeat
+        - j8_build
     - start_utests_system_keyspace_directory:
         type: approval
     - utests_system_keyspace_directory:
         requires:
         - start_utests_system_keyspace_directory
+        - j8_build
+    - start_utests_system_keyspace_directory_repeat:
+        type: approval
+    - utests_system_keyspace_directory_repeat:
+        requires:
+        - start_utests_system_keyspace_directory_repeat
         - j8_build
     - start_j8_dtest_jars_build:
         type: approval
@@ -6036,11 +6084,23 @@ workflows:
         requires:
         - start_j8_dtests
         - j8_build
+    - start_j8_dtests_repeat:
+        type: approval
+    - j8_dtests_repeat:
+        requires:
+        - start_j8_dtests_repeat
+        - j8_build
     - start_j8_dtests_vnode:
         type: approval
     - j8_dtests_vnode:
         requires:
         - start_j8_dtests_vnode
+        - j8_build
+    - start_j8_dtests_vnode_repeat:
+        type: approval
+    - j8_dtests_vnode_repeat:
+        requires:
+        - start_j8_dtests_vnode_repeat
         - j8_build
     - start_j11_dtests:
         type: approval
@@ -6048,17 +6108,35 @@ workflows:
         requires:
         - start_j11_dtests
         - j8_build
+    - start_j11_dtests_repeat:
+        type: approval
+    - j11_dtests_repeat:
+        requires:
+        - start_j11_dtests_repeat
+        - j8_build
     - start_j11_dtests_vnode:
         type: approval
     - j11_dtests_vnode:
         requires:
         - start_j11_dtests_vnode
         - j8_build
+    - start_j11_dtests_vnode_repeat:
+        type: approval
+    - j11_dtests_vnode_repeat:
+        requires:
+        - start_j11_dtests_vnode_repeat
+        - j8_build
     - start_upgrade_tests:
         type: approval
     - j8_upgrade_dtests:
         requires:
         - start_upgrade_tests
+        - j8_build
+    - start_j8_upgrade_dtests_repeat:
+        type: approval
+    - j8_upgrade_dtests_repeat:
+        requires:
+        - start_j8_upgrade_dtests_repeat
         - j8_build
     - start_j8_cqlsh_tests:
         type: approval
@@ -6122,7 +6200,13 @@ workflows:
     - j8_unit_tests:
         requires:
         - j8_build
+    - j8_unit_tests_repeat:
+        requires:
+        - j8_build
     - j8_jvm_dtests:
+        requires:
+        - j8_build
+    - j8_jvm_dtests_repeat:
         requires:
         - j8_build
     - j8_cqlshlib_tests:
@@ -6131,9 +6215,16 @@ workflows:
     - j11_unit_tests:
         requires:
         - j8_build
+    - j11_unit_tests_repeat:
+        requires:
+        - j8_build
     - start_utests_long:
         type: approval
     - utests_long:
+        requires:
+        - start_utests_long
+        - j8_build
+    - utests_long_repeat:
         requires:
         - start_utests_long
         - j8_build
@@ -6143,9 +6234,17 @@ workflows:
         requires:
         - start_utests_compression
         - j8_build
+    - utests_compression_repeat:
+        requires:
+        - start_utests_compression
+        - j8_build
     - start_utests_stress:
         type: approval
     - utests_stress:
+        requires:
+        - start_utests_stress
+        - j8_build
+    - utests_stress_repeat:
         requires:
         - start_utests_stress
         - j8_build
@@ -6155,7 +6254,14 @@ workflows:
         requires:
         - start_utests_fqltool
         - j8_build
+    - utests_fqltool_repeat:
+        requires:
+        - start_utests_fqltool
+        - j8_build
     - utests_system_keyspace_directory:
+        requires:
+        - j8_build
+    - utests_system_keyspace_directory_repeat:
         requires:
         - j8_build
     - start_jvm_upgrade_dtests:
@@ -6170,18 +6276,34 @@ workflows:
     - j8_dtests:
         requires:
         - j8_build
+    - j8_dtests_repeat:
+        requires:
+        - j8_build
     - j8_dtests_vnode:
+        requires:
+        - j8_build
+    - j8_dtests_vnode_repeat:
         requires:
         - j8_build
     - j11_dtests:
         requires:
         - j8_build
+    - j11_dtests_repeat:
+        requires:
+        - j8_build
     - j11_dtests_vnode:
+        requires:
+        - j8_build
+    - j11_dtests_vnode_repeat:
         requires:
         - j8_build
     - start_upgrade_tests:
         type: approval
     - j8_upgrade_dtests:
+        requires:
+        - j8_build
+        - start_upgrade_tests
+    - j8_upgrade_dtests_repeat:
         requires:
         - j8_build
         - start_upgrade_tests
@@ -6234,11 +6356,23 @@ workflows:
         requires:
         - start_j11_unit_tests
         - j11_build
+    - start_j11_unit_tests_repeat:
+        type: approval
+    - j11_unit_tests_repeat:
+        requires:
+        - start_j11_unit_tests_repeat
+        - j11_build
     - start_j11_jvm_dtests:
         type: approval
     - j11_jvm_dtests:
         requires:
         - start_j11_jvm_dtests
+        - j11_build
+    - start_j11_jvm_dtests_repeat:
+        type: approval
+    - j11_jvm_dtests_repeat:
+        requires:
+        - start_j11_jvm_dtests_repeat
         - j11_build
     - start_j11_cqlshlib_tests:
         type: approval
@@ -6257,6 +6391,18 @@ workflows:
     - j11_dtests_vnode:
         requires:
         - start_j11_dtests_vnode
+        - j11_build
+    - start_j11_dtests_repeat:
+        type: approval
+    - j11_dtests_repeat:
+        requires:
+        - start_j11_dtests_repeat
+        - j11_build
+    - start_j11_dtests_vnode_repeat:
+        type: approval
+    - j11_dtests_vnode_repeat:
+        requires:
+        - start_j11_dtests_vnode_repeat
         - j11_build
     - start_j11_cqlsh_tests:
         type: approval
@@ -6294,7 +6440,13 @@ workflows:
     - j11_unit_tests:
         requires:
         - j11_build
+    - j11_unit_tests_repeat:
+        requires:
+        - j11_build
     - j11_jvm_dtests:
+        requires:
+        - j11_build
+    - j11_jvm_dtests_repeat:
         requires:
         - j11_build
     - j11_cqlshlib_tests:
@@ -6309,7 +6461,13 @@ workflows:
     - j11_dtests:
         requires:
         - j11_build
+    - j11_dtests_repeat:
+        requires:
+        - j11_build
     - j11_dtests_vnode:
+        requires:
+        - j11_build
+    - j11_dtests_vnode_repeat:
         requires:
         - j11_build
     - j11_cqlsh-dtests-py2-with-vnodes:
