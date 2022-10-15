@@ -16,20 +16,22 @@
  * limitations under the License.
  */
 
-package org.apache.cassandra.stress.settings;
+package org.apache.cassandra.db.commitlog;
 
-import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-import static org.junit.Assert.*;
+import org.apache.cassandra.config.Config;
+import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.config.ParameterizedClass;
+import org.apache.cassandra.security.EncryptionContext;
 
-// modified
-public class OptionReplicationTest
+@RunWith(Parameterized.class)
+public class NewBatchCommitLogStressTest extends RenamedCommitLogStressTest
 {
-    @Test
-    public void defaultsToReplicationFactorOfOne() throws Exception
+    public NewBatchCommitLogStressTest(ParameterizedClass commitLogCompression, EncryptionContext encryptionContext)
     {
-        OptionReplication defaults = new OptionReplication();
-        assertEquals(ImmutableMap.of("replication_factor", "1"), defaults.getOptions());
+        super(commitLogCompression, encryptionContext);
+        DatabaseDescriptor.setCommitLogSync(Config.CommitLogSync.batch);
     }
 }

@@ -32,7 +32,7 @@ import org.apache.cassandra.utils.UUIDGen;
 
 import org.junit.Test;
 
-public class CastFctsTest extends CQLTester
+public class RenamedCastFctsTest extends CQLTester
 {
     @Test
     public void testInvalidQueries() throws Throwable
