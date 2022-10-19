@@ -197,9 +197,9 @@ public abstract class Lists
         }
 
         @Override
-        public AbstractType<?> getExactTypeIfKnown(String keyspace)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
         {
-            return getExactListTypeIfKnown(elements, p -> p.getExactTypeIfKnown(keyspace));
+            return getExactListTypeIfKnown(elements, p -> p.getExactTypeIfKnown(keyspace, receiver));
         }
 
         @Override

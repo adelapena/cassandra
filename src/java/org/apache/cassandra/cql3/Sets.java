@@ -198,9 +198,9 @@ public abstract class Sets
         }
 
         @Override
-        public AbstractType<?> getExactTypeIfKnown(String keyspace)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
         {
-            return getExactSetTypeIfKnown(elements, p -> p.getExactTypeIfKnown(keyspace));
+            return getExactSetTypeIfKnown(elements, p -> p.getExactTypeIfKnown(keyspace, receiver));
         }
 
         @Override

@@ -220,9 +220,9 @@ public abstract class Maps
         }
 
         @Override
-        public AbstractType<?> getExactTypeIfKnown(String keyspace)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
         {
-            return getExactMapTypeIfKnown(entries, p -> p.getExactTypeIfKnown(keyspace));
+            return getExactMapTypeIfKnown(entries, p -> p.getExactTypeIfKnown(keyspace, receiver));
         }
 
         @Override

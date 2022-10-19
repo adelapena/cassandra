@@ -121,12 +121,12 @@ public class Tuples
         }
 
         @Override
-        public AbstractType<?> getExactTypeIfKnown(String keyspace)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
         {
             List<AbstractType<?>> types = new ArrayList<>(elements.size());
             for (Term.Raw term : elements)
             {
-                AbstractType<?> type = term.getExactTypeIfKnown(keyspace);
+                AbstractType<?> type = term.getExactTypeIfKnown(keyspace, receiver);
                 if (type == null)
                     return null;
                 types.add(type);
@@ -325,7 +325,7 @@ public class Tuples
             return new ColumnSpecification(receivers.get(0).ksName, receivers.get(0).cfName, identifier, type);
         }
 
-        public AbstractType<?> getExactTypeIfKnown(String keyspace)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
         {
             return null;
         }
@@ -369,7 +369,7 @@ public class Tuples
             return new ColumnSpecification(receivers.get(0).ksName, receivers.get(0).cfName, identifier, ListType.getInstance(type, false));
         }
 
-        public AbstractType<?> getExactTypeIfKnown(String keyspace)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
         {
             return null;
         }

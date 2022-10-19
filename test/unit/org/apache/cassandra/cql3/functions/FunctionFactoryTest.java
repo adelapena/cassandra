@@ -34,17 +34,21 @@ import org.apache.cassandra.cql3.CQLTester;
 import org.apache.cassandra.cql3.Duration;
 import org.apache.cassandra.cql3.UntypedResultSet;
 import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.transport.ProtocolVersion;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.cassandra.utils.TimeUUID;
 
-public class FunctionFactoriesTest extends CQLTester
+public class FunctionFactoryTest extends CQLTester
 {
-    /** A function that just returns its only argument without any changes. */
-    private static final FunctionFactory IDENTITY = new FunctionFactory("identity", FunctionFactory.anyType(true))
+    /**
+     * A function that just returns its only argument without any changes.
+     * Calls to this function will try to infer the type of its argument, if missing, from the function's receiver.
+     */
+    private static final FunctionFactory IDENTITY = new FunctionFactory("identity", FunctionParameter.anyType(true))
     {
         @Override
-        protected Function getOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType)
+        protected NativeFunction doGetOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType)
         {
             return new NativeScalarFunction(name.name, argTypes.get(0), argTypes.get(0))
             {
@@ -52,6 +56,30 @@ public class FunctionFactoriesTest extends CQLTester
                 public ByteBuffer execute(ProtocolVersion protocol, List<ByteBuffer> parameters)
                 {
                     return parameters.get(0);
+                }
+            };
+        }
+    };
+
+    /**
+     * A function that returns the string representation of its only argument.
+     * Calls to this function won't try to infer the type of its argument, if missing, from the function's receiver.
+     */
+    private static final FunctionFactory TO_STRING = new FunctionFactory("tostring", FunctionParameter.anyType(false))
+    {
+        @Override
+        protected NativeFunction doGetOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType)
+        {
+            return new NativeScalarFunction(name.name, UTF8Type.instance, argTypes.get(0))
+            {
+                @Override
+                public ByteBuffer execute(ProtocolVersion protocol, List<ByteBuffer> parameters)
+                {
+                    ByteBuffer value = parameters.get(0);
+                    if (value == null)
+                        return null;
+
+                    return UTF8Type.instance.decompose(argTypes.get(0).compose(value).toString());
                 }
             };
         }
@@ -69,7 +97,8 @@ public class FunctionFactoriesTest extends CQLTester
     @BeforeClass
     public static void beforeClass()
     {
-        FunctionFactories.instance.add(IDENTITY);
+        NativeFunctions.instance.add(IDENTITY);
+        NativeFunctions.instance.add(TO_STRING);
     }
 
     @Test
@@ -347,6 +376,25 @@ public class FunctionFactoriesTest extends CQLTester
         testLiteral('(' + udt + "){x: 10}", tuple(10));
     }
 
+    @Test
+    public void testNestedCalls() throws Throwable
+    {
+        createTable("CREATE TABLE %s (k int PRIMARY KEY, v int, t text)");
+
+        // Test function that infers parameter type from receiver type
+        execute("INSERT INTO %s (k, v) VALUES (1, identity(identity(2)))");
+        assertRows(execute("SELECT v FROM %s WHERE k = 1"), row(2));
+        execute("INSERT INTO %s (k, v) VALUES (1, identity(identity((int) ?)))", 3);
+        assertRows(execute("SELECT v FROM %s WHERE k = 1"), row(3));
+        assertRows(execute("SELECT identity(identity(v)) FROM %s WHERE k = 1"), row(3));
+
+        // Test function that does not infer parameter type from receiver type
+        execute("INSERT INTO %s (k, t) VALUES (1, tostring(tostring(4)))");
+        assertRows(execute("SELECT t FROM %s WHERE k = 1"), row("4"));
+        execute("INSERT INTO %s (k, t) VALUES (1, tostring(tostring((int) ?)))", 5);
+        assertRows(execute("SELECT tostring(tostring(t)) FROM %s WHERE k = 1"), row("5"));
+    }
+
     private void testLiteral(Object literal) throws Throwable
     {
         testLiteral(literal, literal);
@@ -360,7 +408,7 @@ public class FunctionFactoriesTest extends CQLTester
 
     private void testLiteralFails(Object functionArgs) throws Throwable
     {
-        assertInvalidMessage("Cannot infer type for argument " + functionArgs,
+        assertInvalidMessage("Cannot infer type of argument " + functionArgs,
                              String.format("SELECT %s(%s) FROM %%s", IDENTITY.name(), functionArgs));
     }
 }
