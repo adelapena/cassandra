@@ -29,7 +29,6 @@ import com.google.common.collect.Iterables;
 
 import org.apache.commons.lang3.text.StrBuilder;
 
-import org.apache.cassandra.cql3.functions.FunctionFactories;
 import org.apache.cassandra.schema.ColumnMetadata;
 import org.apache.cassandra.schema.Schema;
 import org.apache.cassandra.schema.TableMetadata;
@@ -66,10 +65,7 @@ abstract class AbstractFunctionSelector<T extends Function> extends Selector
                 argTypes.add(readType(metadata, in));
             }
 
-            // search first in the dynamic function factories, then in the static functions stored in the schema
-            Optional<Function> optional = FunctionFactories.instance.getFunction(name, name.keyspace, argTypes, null);
-            if (!optional.isPresent())
-                optional = Schema.instance.findFunction(name, argTypes);
+            Optional<Function> optional = Schema.instance.findFunction(name, argTypes);
 
             if (!optional.isPresent())
                 throw new IOException(String.format("Unknown serialized function %s(%s)",
@@ -108,7 +104,7 @@ abstract class AbstractFunctionSelector<T extends Function> extends Selector
 
         protected abstract Selector newFunctionSelector(Function function, List<Selector> argSelectors);
     };
-    
+
     protected final T fun;
 
     /**

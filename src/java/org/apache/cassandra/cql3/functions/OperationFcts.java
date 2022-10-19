@@ -18,10 +18,9 @@
 package org.apache.cassandra.cql3.functions;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+import org.apache.cassandra.schema.NativeFunctions;
 import org.apache.cassandra.schema.SchemaConstants;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.exceptions.OperationExecutionException;
@@ -219,10 +218,8 @@ public final class OperationFcts
      */
     public static final String NEGATION_FUNCTION_NAME = "_negate";
 
-    public static Collection<Function> all()
+    public static void addFunctionsTo(NativeFunctions functions)
     {
-        List<Function> functions = new ArrayList<>();
-
         final NumberType<?>[] numericTypes = new NumberType[] { ByteType.instance,
                                                                 ShortType.instance,
                                                                 Int32Type.instance,
@@ -251,11 +248,9 @@ public final class OperationFcts
         }
 
         addStringConcatenations(functions);
-
-        return functions;
     }
 
-    private static void addStringConcatenations(List<Function> functions)
+    private static void addStringConcatenations(NativeFunctions functions)
     {
         functions.add(new StringOperationFunction(UTF8Type.instance, UTF8Type.instance, OPERATION.ADDITION, UTF8Type.instance));
         functions.add(new StringOperationFunction(AsciiType.instance, AsciiType.instance, OPERATION.ADDITION, AsciiType.instance));

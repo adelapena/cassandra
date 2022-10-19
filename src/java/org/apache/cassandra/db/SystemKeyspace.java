@@ -60,6 +60,8 @@ import org.apache.cassandra.cql3.UntypedResultSet;
 import org.apache.cassandra.cql3.functions.AggregateFcts;
 import org.apache.cassandra.cql3.functions.BytesConversionFcts;
 import org.apache.cassandra.cql3.functions.CastFcts;
+import org.apache.cassandra.cql3.functions.TokenFct;
+import org.apache.cassandra.schema.NativeFunctions;
 import org.apache.cassandra.cql3.functions.OperationFcts;
 import org.apache.cassandra.cql3.functions.TimeFcts;
 import org.apache.cassandra.cql3.functions.UuidFcts;
@@ -93,7 +95,7 @@ import org.apache.cassandra.metrics.RestorableMeter;
 import org.apache.cassandra.metrics.TopPartitionTracker;
 import org.apache.cassandra.net.MessagingService;
 import org.apache.cassandra.schema.CompactionParams;
-import org.apache.cassandra.schema.Functions;
+import org.apache.cassandra.schema.UserFunctions;
 import org.apache.cassandra.schema.KeyspaceMetadata;
 import org.apache.cassandra.schema.KeyspaceParams;
 import org.apache.cassandra.schema.Schema;
@@ -506,6 +508,18 @@ public final class SystemKeyspace
               + "PRIMARY KEY ((keyspace_name)))")
         .build();
 
+    public static final NativeFunctions nativeFunctions = new NativeFunctions();
+    static
+    {
+        TokenFct.addFunctionsTo(nativeFunctions);
+        CastFcts.addFunctionsTo(nativeFunctions);
+        UuidFcts.addFunctionsTo(nativeFunctions);
+        TimeFcts.addFunctionsTo(nativeFunctions);
+        OperationFcts.addFunctionsTo(nativeFunctions);
+        AggregateFcts.addFunctionsTo(nativeFunctions);
+        BytesConversionFcts.addFunctionsTo(nativeFunctions);
+    }
+
     private static TableMetadata.Builder parse(String table, String description, String cql)
     {
         return CreateTableStatement.parse(format(cql, table), SchemaConstants.SYSTEM_KEYSPACE_NAME)
@@ -517,7 +531,7 @@ public final class SystemKeyspace
 
     public static KeyspaceMetadata metadata()
     {
-        return KeyspaceMetadata.create(SchemaConstants.SYSTEM_KEYSPACE_NAME, KeyspaceParams.local(), tables(), Views.none(), Types.none(), functions());
+        return KeyspaceMetadata.create(SchemaConstants.SYSTEM_KEYSPACE_NAME, KeyspaceParams.local(), tables(), Views.none(), Types.none(), UserFunctions.none());
     }
 
     private static Tables tables()
@@ -545,18 +559,6 @@ public final class SystemKeyspace
                          PreparedStatements,
                          Repairs,
                          TopPartitions);
-    }
-
-    private static Functions functions()
-    {
-        return Functions.builder()
-                        .add(UuidFcts.all())
-                        .add(TimeFcts.all())
-                        .add(BytesConversionFcts.all())
-                        .add(AggregateFcts.all())
-                        .add(CastFcts.all())
-                        .add(OperationFcts.all())
-                        .build();
     }
 
     private static volatile Map<TableId, Pair<CommitLogPosition, Long>> truncationRecords;

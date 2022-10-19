@@ -33,7 +33,7 @@ import org.apache.cassandra.auth.Permission;
 import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.cql3.functions.*;
 import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.schema.Functions.FunctionsDiff;
+import org.apache.cassandra.schema.UserFunctions.FunctionsDiff;
 import org.apache.cassandra.schema.KeyspaceMetadata;
 import org.apache.cassandra.schema.Keyspaces;
 import org.apache.cassandra.schema.Keyspaces.KeyspacesDiff;
@@ -115,7 +115,7 @@ public final class CreateAggregateStatement extends AlterSchemaStatement
         List<AbstractType<?>> stateFunctionArguments = Lists.newArrayList(concat(singleton(stateType), argumentTypes));
 
         Function stateFunction =
-            keyspace.functions
+            keyspace.userFunctions
                     .find(stateFunctionName, stateFunctionArguments)
                     .orElseThrow(() -> ire("State function %s doesn't exist", stateFunctionString()));
 
@@ -137,7 +137,7 @@ public final class CreateAggregateStatement extends AlterSchemaStatement
 
         if (null != finalFunctionName)
         {
-            finalFunction = keyspace.functions.find(finalFunctionName, singletonList(stateType)).orElse(null);
+            finalFunction = keyspace.userFunctions.find(finalFunctionName, singletonList(stateType)).orElse(null);
             if (null == finalFunction)
                 throw ire("Final function %s doesn't exist", finalFunctionString());
 
@@ -196,7 +196,7 @@ public final class CreateAggregateStatement extends AlterSchemaStatement
                             (ScalarFunction) finalFunction,
                             initialValue);
 
-        Function existingAggregate = keyspace.functions.find(aggregate.name(), argumentTypes).orElse(null);
+        Function existingAggregate = keyspace.userFunctions.find(aggregate.name(), argumentTypes).orElse(null);
         if (null != existingAggregate)
         {
             if (!existingAggregate.isAggregate())
@@ -217,7 +217,7 @@ public final class CreateAggregateStatement extends AlterSchemaStatement
             }
         }
 
-        return schema.withAddedOrUpdated(keyspace.withSwapped(keyspace.functions.withAddedOrUpdated(aggregate)));
+        return schema.withAddedOrUpdated(keyspace.withSwapped(keyspace.userFunctions.withAddedOrUpdated(aggregate)));
     }
 
     SchemaChange schemaChangeEvent(KeyspacesDiff diff)

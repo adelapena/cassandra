@@ -31,6 +31,7 @@ import org.apache.cassandra.cql3.CQLStatement;
 import org.apache.cassandra.cql3.functions.Function;
 import org.apache.cassandra.cql3.functions.FunctionName;
 import org.apache.cassandra.cql3.functions.UDAggregate;
+import org.apache.cassandra.cql3.functions.UserFunction;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.schema.*;
 import org.apache.cassandra.schema.Keyspaces.KeyspacesDiff;
@@ -80,7 +81,7 @@ public final class DropAggregateStatement extends AlterSchemaStatement
             throw ire("Aggregate '%s' doesn't exist", name);
         }
 
-        Collection<Function> aggregates = keyspace.functions.get(new FunctionName(keyspaceName, aggregateName));
+        Collection<UserFunction> aggregates = keyspace.userFunctions.get(new FunctionName(keyspaceName, aggregateName));
         if (aggregates.size() > 1 && !argumentsSpeficied)
         {
             throw ire("'DROP AGGREGATE %s' matches multiple function definitions; " +
@@ -97,9 +98,9 @@ public final class DropAggregateStatement extends AlterSchemaStatement
 
         List<AbstractType<?>> argumentTypes = prepareArgumentTypes(keyspace.types);
 
-        Predicate<Function> filter = Functions.Filter.UDA;
+        Predicate<UserFunction> filter = UserFunctions.Filter.UDA;
         if (argumentsSpeficied)
-            filter = filter.and(f -> Functions.typesMatch(f.argTypes(), argumentTypes));
+            filter = filter.and(f -> f.typesMatch(argumentTypes));
 
         Function aggregate = aggregates.stream().filter(filter).findAny().orElse(null);
         if (null == aggregate)
@@ -110,12 +111,12 @@ public final class DropAggregateStatement extends AlterSchemaStatement
             throw ire("Aggregate '%s' doesn't exist", name);
         }
 
-        return schema.withAddedOrUpdated(keyspace.withSwapped(keyspace.functions.without(aggregate)));
+        return schema.withAddedOrUpdated(keyspace.withSwapped(keyspace.userFunctions.without(aggregate)));
     }
 
     SchemaChange schemaChangeEvent(KeyspacesDiff diff)
     {
-        Functions dropped = diff.altered.get(0).udas.dropped;
+        UserFunctions dropped = diff.altered.get(0).udas.dropped;
         assert dropped.size() == 1;
         return SchemaChange.forAggregate(Change.DROPPED, (UDAggregate) dropped.iterator().next());
     }
@@ -126,9 +127,9 @@ public final class DropAggregateStatement extends AlterSchemaStatement
         if (null == keyspace)
             return;
 
-        Stream<Function> functions = keyspace.functions.get(new FunctionName(keyspaceName, aggregateName)).stream();
+        Stream<UserFunction> functions = keyspace.userFunctions.get(new FunctionName(keyspaceName, aggregateName)).stream();
         if (argumentsSpeficied)
-            functions = functions.filter(f -> Functions.typesMatch(f.argTypes(), prepareArgumentTypes(keyspace.types)));
+            functions = functions.filter(f -> f.typesMatch(prepareArgumentTypes(keyspace.types)));
 
         functions.forEach(f -> client.ensurePermission(Permission.DROP, FunctionResource.function(f)));
     }
