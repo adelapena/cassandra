@@ -20,12 +20,15 @@ package org.apache.cassandra.cql3.functions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 import org.apache.cassandra.cql3.AbstractMarker;
 import org.apache.cassandra.cql3.AssignmentTestable;
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.cql3.ColumnSpecification;
+import org.apache.cassandra.db.SystemKeyspace;
 import org.apache.cassandra.schema.Schema;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.exceptions.InvalidRequestException;
@@ -38,11 +41,6 @@ public final class FunctionResolver
     private FunctionResolver()
     {
     }
-
-    // We special case the token function because that's the only function whose argument types actually
-    // depend on the table on which the function is called. Because it's the sole exception, it's easier
-    // to handle it as a special case.
-    private static final FunctionName TOKEN_FUNCTION_NAME = FunctionName.nativeFunction("token");
 
     public static ColumnSpecification makeArgSpec(String receiverKs, String receiverCf, Function fun, int i)
     {
@@ -60,8 +58,8 @@ public final class FunctionResolver
      * @param receiverCf the receiver's table
      * @param receiverType if the receiver type is known (during inserts, for example), this should be the type of
      *                     the receiver
-     * @throws InvalidRequestException
      */
+    @Nullable
     public static Function get(String keyspace,
                                FunctionName name,
                                List<? extends AssignmentTestable> providedArgs,
@@ -70,14 +68,7 @@ public final class FunctionResolver
                                AbstractType<?> receiverType)
     throws InvalidRequestException
     {
-        // Search first in the dynamic function factories
-        Optional<Function> function = FunctionFactories.instance.getFunction(name, keyspace, providedArgs, receiverType);
-        if (function.isPresent())
-            return function.get();
-
-        // If the dynamic function factories weren't able to provide a function for the provided signature,
-        // then search for static functions matching the signature.
-        Collection<Function> candidates = collectCandidates(keyspace, name, receiverKs, receiverCf, receiverType);
+        Collection<Function> candidates = collectCandidates(keyspace, name, receiverKs, receiverCf, providedArgs, receiverType);
 
         if (candidates.isEmpty())
             return null;
@@ -97,12 +88,10 @@ public final class FunctionResolver
                                                           FunctionName name,
                                                           String receiverKs,
                                                           String receiverCf,
+                                                          List<? extends AssignmentTestable> providedArgs,
                                                           AbstractType<?> receiverType)
     {
         Collection<Function> candidates = new ArrayList<>();
-
-        if (name.equalsNativeFunction(TOKEN_FUNCTION_NAME))
-            candidates.add(new TokenFct(Schema.instance.getTableMetadata(receiverKs, receiverCf)));
 
         // The toJson() function can accept any type of argument, so instances of it are not pre-declared.  Instead,
         // we create new instances as needed while handling selectors (which is the only place that toJson() is supported,
@@ -118,18 +107,26 @@ public final class FunctionResolver
             candidates.add(FromJsonFct.getInstance(receiverType));
         }
 
-        if (!name.hasKeyspace())
+        if (name.hasKeyspace())
         {
-            // function name not fully qualified
-            // add 'SYSTEM' (native) candidates
-            candidates.addAll(Schema.instance.getFunctions(name.asNativeFunction()));
-            // add 'current keyspace' candidates
-            candidates.addAll(Schema.instance.getFunctions(new FunctionName(keyspace, name.name)));
+            // function name is fully qualified (keyspace + name)
+            candidates.addAll(Schema.instance.getUserFunctions(name));
+            candidates.addAll(SystemKeyspace.nativeFunctions.getFunctions(name));
+            candidates.addAll(SystemKeyspace.nativeFunctions.getFactories(name).stream()
+                                            .map(f -> f.getOrCreateFunction(providedArgs, receiverType, receiverKs, receiverCf))
+                                            .collect(Collectors.toList()));
         }
         else
         {
-            // function name is fully qualified (keyspace + name)
-            candidates.addAll(Schema.instance.getFunctions(name));
+            // function name is not fully qualified
+            // add 'current keyspace' candidates
+            candidates.addAll(Schema.instance.getUserFunctions(new FunctionName(keyspace, name.name)));
+            // add 'SYSTEM' (native) candidates
+            FunctionName nativeName = name.asNativeFunction();
+            candidates.addAll(SystemKeyspace.nativeFunctions.getFunctions(nativeName));
+            candidates.addAll(SystemKeyspace.nativeFunctions.getFactories(nativeName).stream()
+                                            .map(f -> f.getOrCreateFunction(providedArgs, receiverType, receiverKs, receiverCf))
+                                            .collect(Collectors.toList()));
         }
 
         return candidates;

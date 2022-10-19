@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.apache.cassandra.cql3.CQLTester;
 import org.apache.cassandra.cql3.Duration;
 import org.apache.cassandra.cql3.UntypedResultSet;
+import org.apache.cassandra.db.SystemKeyspace;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.transport.ProtocolVersion;
 import org.apache.cassandra.utils.ByteBufferUtil;
@@ -44,7 +45,7 @@ public class FunctionFactoriesTest extends CQLTester
     private static final FunctionFactory IDENTITY = new FunctionFactory("identity", FunctionFactory.anyType(true))
     {
         @Override
-        protected Function getOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType)
+        protected NativeFunction doGetOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType)
         {
             return new NativeScalarFunction(name.name, argTypes.get(0), argTypes.get(0))
             {
@@ -69,7 +70,7 @@ public class FunctionFactoriesTest extends CQLTester
     @BeforeClass
     public static void beforeClass()
     {
-        FunctionFactories.instance.add(IDENTITY);
+        SystemKeyspace.nativeFunctions.add(IDENTITY);
     }
 
     @Test

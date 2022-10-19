@@ -463,13 +463,13 @@ public class Schema implements SchemaProvider
     /* Function helpers */
 
     /**
-     * Get all function overloads with the specified name
+     * Get all user-defined function overloads with the specified name.
      *
      * @param name fully qualified function name
      * @return an empty list if the keyspace or the function name are not found;
-     *         a non-empty collection of {@link Function} otherwise
+     *         a non-empty collection of {@link UserFunction} otherwise
      */
-    public Collection<Function> getFunctions(FunctionName name)
+    public Collection<UserFunction> getUserFunctions(FunctionName name)
     {
         if (!name.hasKeyspace())
             throw new IllegalArgumentException(String.format("Function name must be fully qualified: got %s", name));
@@ -477,11 +477,11 @@ public class Schema implements SchemaProvider
         KeyspaceMetadata ksm = getKeyspaceMetadata(name.keyspace);
         return ksm == null
                ? Collections.emptyList()
-               : ksm.functions.get(name);
+               : ksm.userFunctions.get(name);
     }
 
     /**
-     * Find the function with the specified name
+     * Find the function with the specified name and arguments.
      *
      * @param name     fully qualified function name
      * @param argTypes function argument types
@@ -493,10 +493,13 @@ public class Schema implements SchemaProvider
         if (!name.hasKeyspace())
             throw new IllegalArgumentException(String.format("Function name must be fully quallified: got %s", name));
 
+        if (name.keyspace.equals(SchemaConstants.SYSTEM_KEYSPACE_NAME))
+            return SystemKeyspace.nativeFunctions.find(name, argTypes).map(f -> f);
+
         KeyspaceMetadata ksm = getKeyspaceMetadata(name.keyspace);
         return ksm == null
                ? Optional.empty()
-               : ksm.functions.find(name, argTypes);
+               : ksm.userFunctions.find(name, argTypes).map(f -> f);
     }
 
     /* Version control */

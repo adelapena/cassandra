@@ -34,7 +34,7 @@ import org.apache.cassandra.cql3.functions.Function;
 import org.apache.cassandra.cql3.functions.FunctionName;
 import org.apache.cassandra.cql3.functions.UDFunction;
 import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.schema.Functions.FunctionsDiff;
+import org.apache.cassandra.schema.UserFunctions.FunctionsDiff;
 import org.apache.cassandra.schema.KeyspaceMetadata;
 import org.apache.cassandra.schema.Keyspaces;
 import org.apache.cassandra.schema.Keyspaces.KeyspacesDiff;
@@ -119,7 +119,7 @@ public final class CreateFunctionStatement extends AlterSchemaStatement
                               language,
                               body);
 
-        Function existingFunction = keyspace.functions.find(function.name(), argumentTypes).orElse(null);
+        Function existingFunction = keyspace.userFunctions.find(function.name(), argumentTypes).orElse(null);
         if (null != existingFunction)
         {
             if (existingFunction.isAggregate())
@@ -149,7 +149,7 @@ public final class CreateFunctionStatement extends AlterSchemaStatement
             // TODO: update dependent aggregates
         }
 
-        return schema.withAddedOrUpdated(keyspace.withSwapped(keyspace.functions.withAddedOrUpdated(function)));
+        return schema.withAddedOrUpdated(keyspace.withSwapped(keyspace.userFunctions.withAddedOrUpdated(function)));
     }
 
     SchemaChange schemaChangeEvent(KeyspacesDiff diff)

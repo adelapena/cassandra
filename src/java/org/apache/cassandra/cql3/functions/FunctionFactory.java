@@ -29,6 +29,7 @@ import org.apache.cassandra.cql3.AssignmentTestable;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.BytesType;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.schema.SchemaConstants;
 
 /**
  * Class for dynamically building different overloads of a CQL {@link Function} according to specific function calls.
@@ -66,12 +67,16 @@ public abstract class FunctionFactory
     /**
      * Returns a function with a signature compatible with the specified function call.
      *
-     * @param keyspace the current keyspace
      * @param args the arguments in the function call for which the function is going to be built
      * @param receiverType the expected return type of the function call for which the function is going to be built
+     * @param receiverKs the name of the recevier keyspace
+     * @param receiverCf the name of the recevier table
      * @return a function with a signature compatible with the specified function call
      */
-    public Function getOrCreateFunction(String keyspace, List<? extends AssignmentTestable> args, AbstractType<?> receiverType)
+    public NativeFunction getOrCreateFunction(List<? extends AssignmentTestable> args,
+                                              AbstractType<?> receiverType,
+                                              String receiverKs,
+                                              String receiverCf)
     {
         // validate the number of arguments
         if (args.size() != parameters.size())
@@ -82,14 +87,14 @@ public abstract class FunctionFactory
         for (int i = 0; i < args.size(); i++)
         {
             AssignmentTestable arg = args.get(i);
-            AbstractType<?> type = parameters.get(i).inferType(keyspace, arg, receiverType);
+            AbstractType<?> type = parameters.get(i).inferType(SchemaConstants.SYSTEM_KEYSPACE_NAME, arg, receiverType);
             if (type == null)
                 throw new InvalidRequestException("Cannot infer type for argument " + arg);
             type = type.udfType();
             types.add(type);
         }
 
-        return getOrCreateFunction(types, receiverType);
+        return doGetOrCreateFunction(types, receiverType);
     }
 
     /**
@@ -99,7 +104,7 @@ public abstract class FunctionFactory
      * @param receiverType the expected return type of the function
      * @return a function compatible with the specified signature
      */
-    protected abstract Function getOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType);
+    protected abstract NativeFunction doGetOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType);
 
     @Override
     public String toString()
