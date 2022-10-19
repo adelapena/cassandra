@@ -192,7 +192,7 @@ public abstract class UserTypes
             return testUserTypeAssignment(receiver, entries);
         }
 
-        public AbstractType<?> getExactTypeIfKnown(String keyspace)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
         {
             return null;
         }
