@@ -28,7 +28,6 @@ import org.apache.cassandra.cql3.AbstractMarker;
 import org.apache.cassandra.cql3.AssignmentTestable;
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.cql3.ColumnSpecification;
-import org.apache.cassandra.db.SystemKeyspace;
 import org.apache.cassandra.schema.Schema;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.exceptions.InvalidRequestException;
@@ -111,8 +110,8 @@ public final class FunctionResolver
         {
             // function name is fully qualified (keyspace + name)
             candidates.addAll(Schema.instance.getUserFunctions(name));
-            candidates.addAll(SystemKeyspace.nativeFunctions.getFunctions(name));
-            candidates.addAll(SystemKeyspace.nativeFunctions.getFactories(name).stream()
+            candidates.addAll(NativeFunctions.instance.getFunctions(name));
+            candidates.addAll(NativeFunctions.instance.getFactories(name).stream()
                                             .map(f -> f.getOrCreateFunction(providedArgs, receiverType, receiverKs, receiverCf))
                                             .collect(Collectors.toList()));
         }
@@ -123,8 +122,8 @@ public final class FunctionResolver
             candidates.addAll(Schema.instance.getUserFunctions(new FunctionName(keyspace, name.name)));
             // add 'SYSTEM' (native) candidates
             FunctionName nativeName = name.asNativeFunction();
-            candidates.addAll(SystemKeyspace.nativeFunctions.getFunctions(nativeName));
-            candidates.addAll(SystemKeyspace.nativeFunctions.getFactories(nativeName).stream()
+            candidates.addAll(NativeFunctions.instance.getFunctions(nativeName));
+            candidates.addAll(NativeFunctions.instance.getFactories(nativeName).stream()
                                             .map(f -> f.getOrCreateFunction(providedArgs, receiverType, receiverKs, receiverCf))
                                             .collect(Collectors.toList()));
         }

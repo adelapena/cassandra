@@ -33,13 +33,12 @@ import org.junit.Test;
 import org.apache.cassandra.cql3.CQLTester;
 import org.apache.cassandra.cql3.Duration;
 import org.apache.cassandra.cql3.UntypedResultSet;
-import org.apache.cassandra.db.SystemKeyspace;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.transport.ProtocolVersion;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.cassandra.utils.TimeUUID;
 
-public class FunctionFactoriesTest extends CQLTester
+public class FunctionFactoryTest extends CQLTester
 {
     /** A function that just returns its only argument without any changes. */
     private static final FunctionFactory IDENTITY = new FunctionFactory("identity", FunctionParameter.anyType(true))
@@ -70,7 +69,7 @@ public class FunctionFactoriesTest extends CQLTester
     @BeforeClass
     public static void beforeClass()
     {
-        SystemKeyspace.nativeFunctions.add(IDENTITY);
+        NativeFunctions.instance.add(IDENTITY);
     }
 
     @Test

@@ -28,7 +28,6 @@ import org.apache.cassandra.auth.FunctionResource;
 import org.apache.cassandra.auth.Permission;
 import org.apache.cassandra.cql3.CQL3Type;
 import org.apache.cassandra.cql3.CQLStatement;
-import org.apache.cassandra.cql3.functions.Function;
 import org.apache.cassandra.cql3.functions.FunctionName;
 import org.apache.cassandra.cql3.functions.UDAggregate;
 import org.apache.cassandra.cql3.functions.UserFunction;
@@ -102,7 +101,7 @@ public final class DropAggregateStatement extends AlterSchemaStatement
         if (argumentsSpeficied)
             filter = filter.and(f -> f.typesMatch(argumentTypes));
 
-        Function aggregate = aggregates.stream().filter(filter).findAny().orElse(null);
+        UserFunction aggregate = aggregates.stream().filter(filter).findAny().orElse(null);
         if (null == aggregate)
         {
             if (ifExists)

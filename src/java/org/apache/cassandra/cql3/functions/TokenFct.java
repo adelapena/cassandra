@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.apache.cassandra.cql3.AssignmentTestable;
 import org.apache.cassandra.schema.ColumnMetadata;
-import org.apache.cassandra.schema.NativeFunctions;
 import org.apache.cassandra.schema.Schema;
 import org.apache.cassandra.schema.TableMetadata;
 import org.apache.cassandra.db.CBuilder;

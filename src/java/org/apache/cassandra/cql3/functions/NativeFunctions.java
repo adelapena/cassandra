@@ -16,19 +16,12 @@
  * limitations under the License.
  */
 
-package org.apache.cassandra.schema;
+package org.apache.cassandra.cql3.functions;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-
-import org.apache.cassandra.cql3.functions.FunctionFactory;
-import org.apache.cassandra.cql3.functions.FunctionName;
-import org.apache.cassandra.cql3.functions.NativeFunction;
-import org.apache.cassandra.db.marshal.AbstractType;
 
 /**
  * A container of native functions. It stores both pre-built function overloads ({@link NativeFunction}) and
@@ -36,6 +29,19 @@ import org.apache.cassandra.db.marshal.AbstractType;
  */
 public class NativeFunctions
 {
+    public static NativeFunctions instance = new NativeFunctions()
+    {
+        {
+            TokenFct.addFunctionsTo(this);
+            CastFcts.addFunctionsTo(this);
+            UuidFcts.addFunctionsTo(this);
+            TimeFcts.addFunctionsTo(this);
+            OperationFcts.addFunctionsTo(this);
+            AggregateFcts.addFunctionsTo(this);
+            BytesConversionFcts.addFunctionsTo(this);
+        }
+    };
+
     /** Pre-built function overloads. */
     private final Multimap<FunctionName, NativeFunction> functions = HashMultimap.create();
 
@@ -78,23 +84,5 @@ public class NativeFunctions
     public Collection<FunctionFactory> getFactories(FunctionName name)
     {
         return factories.get(name);
-    }
-
-    /**
-     * Returns the function with the specified name and exact signature if it exists, searching in both the pre-built
-     * functions and the dynamic function factories.
-     *
-     * @param name the name of the searched function
-     * @param argTypes the types of the function arguments
-     * @return the function with the specified name and signature if it exists, {@link Optional#empty()} otherwise
-     */
-    public Optional<NativeFunction> find(FunctionName name, List<AbstractType<?>> argTypes)
-    {
-        Optional<NativeFunction> fun = functions.get(name).stream().filter(f -> f.typesMatch(argTypes)).findAny();
-
-        if (fun.isPresent())
-            return fun;
-
-        return factories.get(name).stream().map(f -> f.getOrCreateFunction(argTypes, null, null, null)).findAny();
     }
 }

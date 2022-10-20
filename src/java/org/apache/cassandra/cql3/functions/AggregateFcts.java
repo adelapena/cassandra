@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.exceptions.InvalidRequestException;
-import org.apache.cassandra.schema.NativeFunctions;
 import org.apache.cassandra.transport.ProtocolVersion;
 
 /**

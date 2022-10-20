@@ -1179,7 +1179,7 @@ public final class SchemaKeyspace
          * TODO: find a way to get rid of Schema.instance dependency; evaluate if the opimisation below makes a difference
          * in the first place. Remove if it isn't.
          */
-        Function existing = Schema.instance.findFunction(name, argTypes).orElse(null);
+        UserFunction existing = Schema.instance.findUserFunction(name, argTypes).orElse(null);
         if (existing instanceof UDFunction)
         {
             // This check prevents duplicate compilation of effectively the same UDF.

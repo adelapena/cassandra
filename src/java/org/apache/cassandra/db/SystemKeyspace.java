@@ -57,14 +57,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.QueryProcessor;
 import org.apache.cassandra.cql3.UntypedResultSet;
-import org.apache.cassandra.cql3.functions.AggregateFcts;
-import org.apache.cassandra.cql3.functions.BytesConversionFcts;
-import org.apache.cassandra.cql3.functions.CastFcts;
-import org.apache.cassandra.cql3.functions.TokenFct;
-import org.apache.cassandra.schema.NativeFunctions;
-import org.apache.cassandra.cql3.functions.OperationFcts;
-import org.apache.cassandra.cql3.functions.TimeFcts;
-import org.apache.cassandra.cql3.functions.UuidFcts;
 import org.apache.cassandra.cql3.statements.schema.CreateTableStatement;
 import org.apache.cassandra.db.commitlog.CommitLogPosition;
 import org.apache.cassandra.db.compaction.CompactionHistoryTabularData;
@@ -507,18 +499,6 @@ public final class SystemKeyspace
               + "ranges set<blob>,"
               + "PRIMARY KEY ((keyspace_name)))")
         .build();
-
-    public static final NativeFunctions nativeFunctions = new NativeFunctions();
-    static
-    {
-        TokenFct.addFunctionsTo(nativeFunctions);
-        CastFcts.addFunctionsTo(nativeFunctions);
-        UuidFcts.addFunctionsTo(nativeFunctions);
-        TimeFcts.addFunctionsTo(nativeFunctions);
-        OperationFcts.addFunctionsTo(nativeFunctions);
-        AggregateFcts.addFunctionsTo(nativeFunctions);
-        BytesConversionFcts.addFunctionsTo(nativeFunctions);
-    }
 
     private static TableMetadata.Builder parse(String table, String description, String cql)
     {

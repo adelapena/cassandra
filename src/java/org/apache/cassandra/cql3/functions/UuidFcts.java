@@ -21,7 +21,6 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 import org.apache.cassandra.db.marshal.UUIDType;
-import org.apache.cassandra.schema.NativeFunctions;
 import org.apache.cassandra.serializers.UUIDSerializer;
 import org.apache.cassandra.transport.ProtocolVersion;
 

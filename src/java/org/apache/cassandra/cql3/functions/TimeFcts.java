@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.cql3.Duration;
 import org.apache.cassandra.db.marshal.*;
-import org.apache.cassandra.schema.NativeFunctions;
 import org.apache.cassandra.transport.ProtocolVersion;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.cassandra.utils.TimeUUID;

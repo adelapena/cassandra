@@ -29,9 +29,9 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 
+import org.apache.cassandra.cql3.functions.UserFunction;
 import org.apache.cassandra.schema.Schema;
 import org.apache.cassandra.cql3.CQL3Type;
-import org.apache.cassandra.cql3.functions.Function;
 import org.apache.cassandra.cql3.functions.FunctionName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.TypeParser;
@@ -135,7 +135,7 @@ public class FunctionResource implements IResource
         return new FunctionResource(keyspace, name, argTypes);
     }
 
-    public static FunctionResource function(Function function)
+    public static FunctionResource function(UserFunction function)
     {
         return new FunctionResource(function.name().keyspace, function.name().name, function.argTypes());
     }
@@ -261,7 +261,7 @@ public class FunctionResource implements IResource
             case KEYSPACE:
                 return Schema.instance.getKeyspaces().contains(keyspace);
             case FUNCTION:
-                return Schema.instance.findFunction(getFunctionName(), argTypes).isPresent();
+                return Schema.instance.findUserFunction(getFunctionName(), argTypes).isPresent();
         }
         throw new AssertionError();
     }
@@ -275,7 +275,7 @@ public class FunctionResource implements IResource
                 return COLLECTION_LEVEL_PERMISSIONS;
             case FUNCTION:
             {
-                Optional<Function> function = Schema.instance.findFunction(getFunctionName(), argTypes);
+                Optional<UserFunction> function = Schema.instance.findUserFunction(getFunctionName(), argTypes);
                 assert function.isPresent() : "Unable to find function object for resource " + toString();
                 return function.get().isAggregate() ? AGGREGATE_FUNCTION_PERMISSIONS : SCALAR_FUNCTION_PERMISSIONS;
             }

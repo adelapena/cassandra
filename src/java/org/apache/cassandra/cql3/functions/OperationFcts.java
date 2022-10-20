@@ -20,7 +20,6 @@ package org.apache.cassandra.cql3.functions;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.cassandra.schema.NativeFunctions;
 import org.apache.cassandra.schema.SchemaConstants;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.exceptions.OperationExecutionException;

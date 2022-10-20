@@ -28,7 +28,9 @@ import org.apache.cassandra.auth.FunctionResource;
 import org.apache.cassandra.auth.Permission;
 import org.apache.cassandra.cql3.CQL3Type;
 import org.apache.cassandra.cql3.CQLStatement;
-import org.apache.cassandra.cql3.functions.*;
+import org.apache.cassandra.cql3.functions.FunctionName;
+import org.apache.cassandra.cql3.functions.UDFunction;
+import org.apache.cassandra.cql3.functions.UserFunction;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.schema.*;
 import org.apache.cassandra.schema.Keyspaces.KeyspacesDiff;
@@ -100,7 +102,7 @@ public final class DropFunctionStatement extends AlterSchemaStatement
         if (argumentsSpeficied)
             filter = filter.and(f -> f.typesMatch(argumentTypes));
 
-        Function function = functions.stream().filter(filter).findAny().orElse(null);
+        UserFunction function = functions.stream().filter(filter).findAny().orElse(null);
         if (null == function)
         {
             if (ifExists)

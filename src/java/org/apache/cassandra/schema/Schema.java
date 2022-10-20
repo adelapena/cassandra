@@ -488,18 +488,13 @@ public class Schema implements SchemaProvider
      * @return an empty {@link Optional} if the keyspace or the function name are not found;
      *         a non-empty optional of {@link Function} otherwise
      */
-    public Optional<Function> findFunction(FunctionName name, List<AbstractType<?>> argTypes)
+    public Optional<UserFunction> findUserFunction(FunctionName name, List<AbstractType<?>> argTypes)
     {
         if (!name.hasKeyspace())
             throw new IllegalArgumentException(String.format("Function name must be fully quallified: got %s", name));
 
-        if (name.keyspace.equals(SchemaConstants.SYSTEM_KEYSPACE_NAME))
-            return SystemKeyspace.nativeFunctions.find(name, argTypes).map(f -> f);
-
-        KeyspaceMetadata ksm = getKeyspaceMetadata(name.keyspace);
-        return ksm == null
-               ? Optional.empty()
-               : ksm.userFunctions.find(name, argTypes).map(f -> f);
+        return Optional.ofNullable(getKeyspaceMetadata(name.keyspace))
+                       .flatMap(ksm -> ksm.userFunctions.find(name, argTypes));
     }
 
     /* Version control */

@@ -42,7 +42,6 @@ import org.apache.cassandra.db.marshal.TimeUUIDType;
 import org.apache.cassandra.db.marshal.TimestampType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.marshal.UUIDType;
-import org.apache.cassandra.schema.NativeFunctions;
 import org.apache.cassandra.transport.ProtocolVersion;
 
 import static org.apache.cassandra.cql3.functions.TimeFcts.*;
