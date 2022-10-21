@@ -36,6 +36,7 @@ import org.apache.cassandra.cql3.functions.FunctionName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.TypeParser;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.schema.SchemaConstants;
 
 /**
  * IResource implementation representing functions.
@@ -254,6 +255,7 @@ public class FunctionResource implements IResource
 
     public boolean exists()
     {
+        validate();
         switch (level)
         {
             case ROOT:
@@ -268,6 +270,7 @@ public class FunctionResource implements IResource
 
     public Set<Permission> applicablePermissions()
     {
+        validate();
         switch (level)
         {
             case ROOT:
@@ -281,6 +284,12 @@ public class FunctionResource implements IResource
             }
         }
         throw new AssertionError();
+    }
+
+    private void validate()
+    {
+        if (SchemaConstants.SYSTEM_KEYSPACE_NAME.equals(keyspace))
+            throw new InvalidRequestException("Altering permissions on builtin functions is not supported");
     }
 
     public int compareTo(FunctionResource o)
