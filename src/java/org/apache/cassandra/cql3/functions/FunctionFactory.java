@@ -87,7 +87,9 @@ public abstract class FunctionFactory
             FunctionParameter parameter = parameters.get(i);
             AbstractType<?> type = parameter.inferType(SchemaConstants.SYSTEM_KEYSPACE_NAME, arg, receiverType);
             if (type == null)
-                throw new InvalidRequestException("Cannot infer type for argument " + arg);
+                throw new InvalidRequestException(String.format("Cannot infer type of argument %s in call to " +
+                                                                "function %s: use type casts to disambiguate",
+                                                                arg, this));
             parameter.validateType(name, arg, type);
             type = type.udfType();
             types.add(type);

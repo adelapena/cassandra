@@ -36,6 +36,8 @@ public class NativeFunctions
             CastFcts.addFunctionsTo(this);
             UuidFcts.addFunctionsTo(this);
             TimeFcts.addFunctionsTo(this);
+            ToJsonFct.addFunctionsTo(this);
+            FromJsonFct.addFunctionsTo(this);
             OperationFcts.addFunctionsTo(this);
             AggregateFcts.addFunctionsTo(this);
             CollectionFcts.addFunctionsTo(this);
@@ -85,5 +87,16 @@ public class NativeFunctions
     public Collection<FunctionFactory> getFactories(FunctionName name)
     {
         return factories.get(name);
+    }
+
+    /**
+     * Returns whether there is a function factory with the specified name.
+     *
+     * @param name a function name
+     * @return {@code true} if there is a factory with the specified name, {@code false} otherwise
+     */
+    public boolean hasFactory(FunctionName name)
+    {
+        return factories.containsKey(name);
     }
 }

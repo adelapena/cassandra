@@ -360,7 +360,7 @@ public class FunctionFactoryTest extends CQLTester
 
     private void testLiteralFails(Object functionArgs) throws Throwable
     {
-        assertInvalidMessage("Cannot infer type for argument " + functionArgs,
+        assertInvalidMessage("Cannot infer type of argument " + functionArgs,
                              String.format("SELECT %s(%s) FROM %%s", IDENTITY.name(), functionArgs));
     }
 }

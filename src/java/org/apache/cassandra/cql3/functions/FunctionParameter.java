@@ -31,6 +31,7 @@ import org.apache.cassandra.db.marshal.SetType;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 
 import static java.lang.String.format;
+import static org.apache.cassandra.cql3.AssignmentTestable.TestResult.NOT_ASSIGNABLE;
 
 /**
  * Generic, loose definition of a function parameter, able to infer the specific data type of the parameter in the
@@ -55,6 +56,38 @@ public interface FunctionParameter
     void validateType(FunctionName name, AssignmentTestable arg, AbstractType<?> argType);
 
     /**
+     * @param type the accepted data type
+     * @return a function parameter definition that accepts values of a specific data type
+     */
+    public static FunctionParameter fixed(AbstractType<?> type)
+    {
+        return new FunctionParameter()
+        {
+            @Override
+            public AbstractType<?> inferType(String keyspace, AssignmentTestable arg, AbstractType<?> receiverType)
+            {
+                AbstractType<?> inferred = arg.getCompatibleTypeIfKnown(keyspace, receiverType);
+                return inferred != null ? inferred : type;
+            }
+
+            @Override
+            public void validateType(FunctionName name, AssignmentTestable arg, AbstractType<?> argType)
+            {
+                if (argType.testAssignment(type) == NOT_ASSIGNABLE)
+                    throw new InvalidRequestException(format("Function %s requires an argument of type %s, " +
+                                                             "but found argument %s of type %s",
+                                                             name, type, arg, argType.asCQL3Type()));
+            }
+
+            @Override
+            public String toString()
+            {
+                return type.toString();
+            }
+        };
+    }
+
+    /**
      * @param inferFromReceiver whether the parameter should try to use the function receiver to infer its data type
      * @return a function parameter definition that accepts columns of any data type
      */
@@ -66,11 +99,7 @@ public interface FunctionParameter
             public AbstractType<?> inferType(String keyspace, AssignmentTestable arg, AbstractType<?> receiverType)
             {
                 AbstractType<?> type = arg.getCompatibleTypeIfKnown(keyspace, receiverType);
-
-                if (type == null)
-                    type = inferFromReceiver ? receiverType : BytesType.instance;
-
-                return type;
+                return type == null && inferFromReceiver ? receiverType : type;
             }
 
             @Override

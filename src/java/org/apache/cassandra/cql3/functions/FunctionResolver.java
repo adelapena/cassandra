@@ -92,20 +92,6 @@ public final class FunctionResolver
     {
         Collection<Function> candidates = new ArrayList<>();
 
-        // The toJson() function can accept any type of argument, so instances of it are not pre-declared.  Instead,
-        // we create new instances as needed while handling selectors (which is the only place that toJson() is supported,
-        // due to needing to know the argument types in advance).
-        if (name.equalsNativeFunction(ToJsonFct.NAME))
-            throw new InvalidRequestException("toJson() may only be used within the selection clause of SELECT statements");
-
-        // Similarly, we can only use fromJson when we know the receiver type (such as inserts)
-        if (name.equalsNativeFunction(FromJsonFct.NAME))
-        {
-            if (receiverType == null)
-                throw new InvalidRequestException("fromJson() cannot be used in the selection clause of a SELECT statement");
-            candidates.add(FromJsonFct.getInstance(receiverType));
-        }
-
         if (name.hasKeyspace())
         {
             // function name is fully qualified (keyspace + name)
@@ -257,7 +243,7 @@ public final class FunctionResolver
         if (providedArgs.size() != fun.argTypes().size())
             return AssignmentTestable.TestResult.NOT_ASSIGNABLE;
 
-        // It's an exact match if all are exact match, but is not assignable as soon as any is non assignable.
+        // It's an exact match if all are exact match, but is not assignable as soon as any is not assignable.
         AssignmentTestable.TestResult res = AssignmentTestable.TestResult.EXACT_MATCH;
         for (int i = 0; i < providedArgs.size(); i++)
         {
