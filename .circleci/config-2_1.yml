@@ -199,7 +199,7 @@ separate_jobs: &separate_jobs
         requires:
           - start_j8_jvm_dtests_repeat
           - build
-    # specialized unit tests (all run using Java 8)
+    # specialized unit tests (all run on request)
     - start_utests_long:
         type: approval
     - utests_long:
@@ -211,6 +211,18 @@ separate_jobs: &separate_jobs
     - utests_long_repeat:
         requires:
           - start_utests_long_repeat
+          - build
+    - start_utests_cdc:
+        type: approval
+    - utests_cdc:
+        requires:
+          - start_utests_cdc
+          - build
+    - start_utests_cdc_repeat:
+        type: approval
+    - utests_cdc_repeat:
+        requires:
+          - start_utests_cdc_repeat
           - build
     - start_utests_compression:
         type: approval
@@ -320,7 +332,7 @@ pre-commit_jobs: &pre-commit_jobs
     - j8_jvm_dtests_repeat:
         requires:
           - build
-    # specialized unit tests (all run on request using Java 8)
+    # specialized unit tests (all run on request)
     - start_utests_long:
         type: approval
     - utests_long:
@@ -330,6 +342,16 @@ pre-commit_jobs: &pre-commit_jobs
     - utests_long_repeat:
         requires:
           - start_utests_long
+          - build
+    - start_utests_cdc:
+        type: approval
+    - utests_cdc:
+        requires:
+          - start_utests_cdc
+          - build
+    - utests_cdc_repeat:
+        requires:
+          - start_utests_cdc
           - build
     - start_utests_compression:
         type: approval
@@ -481,6 +503,16 @@ jobs:
       - run_junit_tests:
           target: long-test
 
+  utests_cdc:
+    <<: *j8_par_executor
+    steps:
+      - attach_workspace:
+          at: /home/cassandra
+      - create_junit_containers
+      - log_environment
+      - run_parallel_junit_tests:
+          target: testclasslist-cdc
+
   utests_compression:
     <<: *j8_par_executor
     steps:
@@ -551,6 +583,14 @@ jobs:
           at: /home/cassandra
       - log_environment
       - run_unit_tests_repeat
+
+  utests_cdc_repeat:
+    <<: *j8_repeated_utest_executor
+    steps:
+      - attach_workspace:
+          at: /home/cassandra
+      - log_environment
+      - run_utests_cdc_repeat
 
   utests_compression_repeat:
     <<: *j8_repeated_utest_executor
@@ -980,6 +1020,14 @@ commands:
     steps:
       - run_repeated_utests:
           target: testsome
+          tests: ${REPEATED_UTESTS}
+          count: ${REPEATED_UTESTS_COUNT}
+          stop_on_failure: ${REPEATED_TESTS_STOP_ON_FAILURE}
+
+  run_utests_cdc_repeat:
+    steps:
+      - run_repeated_utests:
+          target: test-cdc
           tests: ${REPEATED_UTESTS}
           count: ${REPEATED_UTESTS_COUNT}
           stop_on_failure: ${REPEATED_TESTS_STOP_ON_FAILURE}
