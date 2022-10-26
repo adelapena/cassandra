@@ -41,9 +41,9 @@ import org.apache.cassandra.tools.Util;
 
 import static org.psjava.util.AssertStatus.assertTrue;
 
-public class FQLCompareTest
+public class RenamedFQLCompareTest
 {
-    public FQLCompareTest()
+    public RenamedFQLCompareTest()
     {
         Util.initDatabaseDescriptor();
     }

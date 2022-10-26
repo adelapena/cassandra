@@ -16,20 +16,27 @@
  * limitations under the License.
  */
 
-package org.apache.cassandra.stress.settings;
+package org.apache.cassandra.simulator.test;
 
-import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import org.apache.cassandra.simulator.paxos.PaxosSimulationRunner;
 
-// modified
-public class OptionReplicationTest
+public class NewShortPaxosSimulationTest
 {
     @Test
-    public void defaultsToReplicationFactorOfOne() throws Exception
+    public void simulationTest() throws IOException
     {
-        OptionReplication defaults = new OptionReplication();
-        assertEquals(ImmutableMap.of("replication_factor", "1"), defaults.getOptions());
+        PaxosSimulationRunner.main(new String[] { "run", "-n", "3..6", "-t", "1000", "-c", "2", "--cluster-action-limit", "2", "-s", "30" });
+    }
+
+    @Test
+    @Ignore("fails due to OOM DirectMemory - unclear why")
+    public void selfReconcileTest() throws IOException
+    {
+        PaxosSimulationRunner.main(new String[] { "reconcile", "-n", "3..6", "-t", "1000", "-c", "2", "--cluster-action-limit", "2", "-s", "30", "--with-self" });
     }
 }
