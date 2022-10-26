@@ -29,6 +29,7 @@ import static org.apache.cassandra.distributed.test.ReadDigestConsistencyTest.CR
 import static org.apache.cassandra.distributed.test.ReadDigestConsistencyTest.insertData;
 import static org.apache.cassandra.distributed.test.ReadDigestConsistencyTest.testDigestConsistency;
 
+// Modified
 public class MixedModeReadTest extends UpgradeTestBase
 {
     @Test

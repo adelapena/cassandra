@@ -31,6 +31,7 @@ import org.apache.cassandra.service.StorageService;
 
 import org.apache.cassandra.utils.FBUtilities;
 
+// Modified
 public class DynamicEndpointSnitchLongTest
 {
     static
@@ -105,4 +106,3 @@ public class DynamicEndpointSnitchLongTest
         }
     }
 }
-
