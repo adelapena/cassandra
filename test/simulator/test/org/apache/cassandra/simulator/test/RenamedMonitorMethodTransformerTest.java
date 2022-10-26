@@ -28,8 +28,9 @@ import org.apache.cassandra.concurrent.ExecutorFactory;
 import org.apache.cassandra.concurrent.ExecutorPlus;
 import org.apache.cassandra.distributed.api.IIsolatedExecutor;
 
+// modified
 // A simple demonstration of manipulating the order of JVM level events using the simulation framework
-public class MonitorMethodTransformerTest extends SimulationTestBase
+public class RenamedMonitorMethodTransformerTest extends SimulationTestBase
 {
     @Test
     public void testSynchronizedMethod()

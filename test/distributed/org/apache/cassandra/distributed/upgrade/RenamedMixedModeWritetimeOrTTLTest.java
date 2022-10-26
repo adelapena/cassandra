@@ -37,7 +37,7 @@ import static org.apache.cassandra.distributed.shared.AssertUtils.row;
  * {@code writetime} and {@code ttl} on multi-cell columns is not supported in coordinator nodes < 4.2.
  * {@code maxwritetime} is not supported in coordinator nodes < 4.2.
  */
-public class MixedModeWritetimeOrTTLTest extends UpgradeTestBase
+public class RenamedMixedModeWritetimeOrTTLTest extends UpgradeTestBase
 {
     @Test
     public void testWritetimeOrTTLDuringUpgrade() throws Throwable

@@ -16,18 +16,22 @@
  * limitations under the License.
  */
 
-package org.apache.cassandra.distributed.upgrade;
+package org.apache.cassandra.db.commitlog;
 
-import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-/**
- * {@link MixedModeConsistencyTestBase} for upgrades from v30.
- */
-public class MixedModeConsistencyV30Test extends MixedModeConsistencyTestBase
+import org.apache.cassandra.config.Config;
+import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.config.ParameterizedClass;
+import org.apache.cassandra.security.EncryptionContext;
+
+@RunWith(Parameterized.class)
+public class NewBatchCommitLogStressTest extends RenamedCommitLogStressTest
 {
-    @Test
-    public void testConsistency() throws Throwable
+    public NewBatchCommitLogStressTest(ParameterizedClass commitLogCompression, EncryptionContext encryptionContext)
     {
-        testConsistency(v30);
+        super(commitLogCompression, encryptionContext);
+        DatabaseDescriptor.setCommitLogSync(Config.CommitLogSync.batch);
     }
 }

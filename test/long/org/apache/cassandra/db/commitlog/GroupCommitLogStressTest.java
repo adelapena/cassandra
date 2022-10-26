@@ -26,8 +26,9 @@ import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.config.ParameterizedClass;
 import org.apache.cassandra.security.EncryptionContext;
 
+// modified
 @RunWith(Parameterized.class)
-public class GroupCommitLogStressTest extends CommitLogStressTest
+public class GroupCommitLogStressTest extends RenamedCommitLogStressTest
 {
     public GroupCommitLogStressTest(ParameterizedClass commitLogCompression, EncryptionContext encryptionContext)
     {
