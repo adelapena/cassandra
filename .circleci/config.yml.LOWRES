@@ -183,6 +183,14 @@ jobs:
           tests=$(echo ${REPEATED_UTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=test-compression
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -210,7 +218,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -235,7 +243,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -243,7 +251,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -358,6 +366,14 @@ jobs:
           tests=$(echo ${REPEATED_UTESTS_STRESS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=stress-test-some
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -385,7 +401,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -410,7 +426,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -418,7 +434,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -533,6 +549,14 @@ jobs:
           tests=$(echo ${REPEATED_UTESTS_LONG} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=long-testsome
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -560,7 +584,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -585,7 +609,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -593,7 +617,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -708,6 +732,14 @@ jobs:
           tests=$(echo ${REPEATED_UTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=testsome
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -735,7 +767,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -760,7 +792,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -768,7 +800,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -1351,6 +1383,14 @@ jobs:
           tests=$(echo ${REPEATED_JVM_UPGRADE_DTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=test-jvm-dtest-some
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -1378,7 +1418,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -1403,7 +1443,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -1411,7 +1451,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -1967,6 +2007,14 @@ jobs:
           tests=$(echo ${REPEATED_JVM_DTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=test-jvm-dtest-some
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -1994,7 +2042,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -2019,7 +2067,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -2027,7 +2075,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -2446,6 +2494,14 @@ jobs:
           tests=$(echo ${REPEATED_UTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=test-cdc
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -2473,7 +2529,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -2498,7 +2554,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -2506,7 +2562,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then

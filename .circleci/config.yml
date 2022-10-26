@@ -21,10 +21,10 @@ jobs:
   j8_jvm_upgrade_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: large
+    resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 4
+    parallelism: 1
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -109,15 +109,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -135,7 +135,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -183,6 +183,14 @@ jobs:
           tests=$(echo ${REPEATED_UTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=test-compression
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -210,7 +218,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -235,7 +243,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -243,7 +251,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -284,15 +292,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -310,7 +318,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -358,6 +366,14 @@ jobs:
           tests=$(echo ${REPEATED_UTESTS_STRESS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=stress-test-some
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -385,7 +401,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -410,7 +426,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -418,7 +434,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -459,15 +475,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -485,7 +501,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -533,6 +549,14 @@ jobs:
           tests=$(echo ${REPEATED_UTESTS_LONG} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=long-testsome
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -560,7 +584,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -585,7 +609,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -593,7 +617,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -634,15 +658,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -660,7 +684,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -708,6 +732,14 @@ jobs:
           tests=$(echo ${REPEATED_UTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=testsome
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -735,7 +767,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -760,7 +792,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -768,7 +800,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -809,15 +841,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -832,10 +864,10 @@ jobs:
   j8_upgrade_dtests_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: xlarge
+    resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -934,15 +966,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -1034,15 +1066,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -1057,10 +1089,10 @@ jobs:
   j8_dtests_vnode_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: large
+    resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1159,15 +1191,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -1182,10 +1214,10 @@ jobs:
   j8_upgrade_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: xlarge
+    resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 100
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1277,15 +1309,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -1300,10 +1332,10 @@ jobs:
   j8_jvm_upgrade_dtests_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: large
+    resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1351,6 +1383,14 @@ jobs:
           tests=$(echo ${REPEATED_JVM_UPGRADE_DTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=test-jvm-dtest-some
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -1378,7 +1418,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -1403,7 +1443,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -1411,7 +1451,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -1452,15 +1492,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -1478,7 +1518,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1563,15 +1603,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -1628,15 +1668,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -1654,7 +1694,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1739,15 +1779,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -1762,10 +1802,10 @@ jobs:
   j8_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: large
+    resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 50
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1816,15 +1856,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -1839,10 +1879,10 @@ jobs:
   j8_dtests_vnode:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: large
+    resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 50
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1893,15 +1933,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -1919,7 +1959,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -1967,6 +2007,14 @@ jobs:
           tests=$(echo ${REPEATED_JVM_DTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=test-jvm-dtest-some
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -1994,7 +2042,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -2019,7 +2067,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -2027,7 +2075,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -2068,15 +2116,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -2094,7 +2142,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2247,15 +2295,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -2270,10 +2318,10 @@ jobs:
   j8_dtests_repeat:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: large
+    resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2372,15 +2420,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -2398,7 +2446,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2446,6 +2494,14 @@ jobs:
           tests=$(echo ${REPEATED_UTESTS} | sed -e "s/<nil>//" | sed -e "s/ //" | tr "," "\n" | tr " " "\n" | sort -n | uniq -u)
           echo "Tests to be repeated: ${tests}"
 
+          target=test-cdc
+          testtag=""
+          if [[ $target == "test-cdc" ]]; then
+            testtag="cdc"
+          elif [[ $target == "test-compression" ]]; then
+            testtag="compression"
+          fi
+
           # Run each test class as many times as requested.
           exit_code="$?"
           for test in $tests; do
@@ -2473,7 +2529,7 @@ jobs:
               fi
 
               # Prepare the -Dtest.methods argument, which is optional
-              if [ $method == "" ]; then
+              if [[ $method == "" ]]; then
                 methods_arg=""
               else
                 methods_arg="-Dtest.methods=$method"
@@ -2498,7 +2554,7 @@ jobs:
                 mv stdout.txt $dest/${test}.txt
 
                 # move the XML output files
-                source=build/test/output
+                source=build/test/output/${testtag}
                 dest=/tmp/results/repeated_utests/output/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -2506,7 +2562,7 @@ jobs:
                 fi
 
                 # move the log files
-                source=build/test/logs
+                source=build/test/logs/${testtag}
                 dest=/tmp/results/repeated_utests/logs/${status}/${i}
                 mkdir -p $dest
                 if [[ -d $source && -n "$(ls $source)" ]]; then
@@ -2547,15 +2603,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -2570,10 +2626,10 @@ jobs:
   j8_jvm_dtests:
     docker:
     - image: apache/cassandra-testing-ubuntu2004-java11-w-dependencies:latest
-    resource_class: large
+    resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 10
+    parallelism: 1
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2658,15 +2714,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -2723,15 +2779,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -2749,7 +2805,7 @@ jobs:
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
-    parallelism: 25
+    parallelism: 4
     steps:
     - attach_workspace:
         at: /home/cassandra
@@ -2834,15 +2890,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -2931,15 +2987,15 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.cql3.functions.NewTimeFctsTest,org.apache.cassandra.cql3.functions.CastFctsTest
+    - REPEATED_UTESTS: null
     - REPEATED_UTESTS_COUNT: 500
-    - REPEATED_UTESTS_LONG: org.apache.cassandra.repair.NewCompactionValidationTest,org.apache.cassandra.locator.DynamicEndpointSnitchLongTest
+    - REPEATED_UTESTS_LONG: null
     - REPEATED_UTESTS_LONG_COUNT: 100
-    - REPEATED_UTESTS_STRESS: org.apache.cassandra.stress.util.NewMultiResultLoggerTest
+    - REPEATED_UTESTS_STRESS: null
     - REPEATED_UTESTS_STRESS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.NewBooleanTest,org.apache.cassandra.distributed.test.MetricsTest
+    - REPEATED_JVM_DTESTS: null
     - REPEATED_JVM_DTESTS_COUNT: 500
-    - REPEATED_JVM_UPGRADE_DTESTS: org.apache.cassandra.distributed.upgrade.NewPagingTest,org.apache.cassandra.distributed.upgrade.MixedModeReadTest
+    - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
     - REPEATED_DTESTS_COUNT: 500
@@ -2966,23 +3022,11 @@ workflows:
         requires:
         - start_j8_unit_tests
         - build
-    - start_j8_unit_tests_repeat:
-        type: approval
-    - j8_unit_tests_repeat:
-        requires:
-        - start_j8_unit_tests_repeat
-        - build
     - start_j8_jvm_dtests:
         type: approval
     - j8_jvm_dtests:
         requires:
         - start_j8_jvm_dtests
-        - build
-    - start_j8_jvm_dtests_repeat:
-        type: approval
-    - j8_jvm_dtests_repeat:
-        requires:
-        - start_j8_jvm_dtests_repeat
         - build
     - start_utests_long:
         type: approval
@@ -2990,23 +3034,11 @@ workflows:
         requires:
         - start_utests_long
         - build
-    - start_utests_long_repeat:
-        type: approval
-    - utests_long_repeat:
-        requires:
-        - start_utests_long_repeat
-        - build
     - start_utests_cdc:
         type: approval
     - utests_cdc:
         requires:
         - start_utests_cdc
-        - build
-    - start_utests_cdc_repeat:
-        type: approval
-    - utests_cdc_repeat:
-        requires:
-        - start_utests_cdc_repeat
         - build
     - start_utests_compression:
         type: approval
@@ -3014,23 +3046,11 @@ workflows:
         requires:
         - start_utests_compression
         - build
-    - start_utests_compression_repeat:
-        type: approval
-    - utests_compression_repeat:
-        requires:
-        - start_utests_compression_repeat
-        - build
     - start_utests_stress:
         type: approval
     - utests_stress:
         requires:
         - start_utests_stress
-        - build
-    - start_utests_stress_repeat:
-        type: approval
-    - utests_stress_repeat:
-        requires:
-        - start_utests_stress_repeat
         - build
     - start_j8_dtest_jars_build:
         type: approval
@@ -3043,12 +3063,6 @@ workflows:
     - j8_jvm_upgrade_dtests:
         requires:
         - start_jvm_upgrade_dtests
-        - j8_dtest_jars_build
-    - start_jvm_upgrade_dtests_repeat:
-        type: approval
-    - j8_jvm_upgrade_dtests_repeat:
-        requires:
-        - start_jvm_upgrade_dtests_repeat
         - j8_dtest_jars_build
     - start_j8_dtests:
         type: approval
@@ -3078,22 +3092,12 @@ workflows:
     - j8_unit_tests:
         requires:
         - build
-    - j8_unit_tests_repeat:
-        requires:
-        - build
     - j8_jvm_dtests:
-        requires:
-        - build
-    - j8_jvm_dtests_repeat:
         requires:
         - build
     - start_utests_long:
         type: approval
     - utests_long:
-        requires:
-        - start_utests_long
-        - build
-    - utests_long_repeat:
         requires:
         - start_utests_long
         - build
@@ -3103,27 +3107,15 @@ workflows:
         requires:
         - start_utests_cdc
         - build
-    - utests_cdc_repeat:
-        requires:
-        - start_utests_cdc
-        - build
     - start_utests_compression:
         type: approval
     - utests_compression:
         requires:
         - start_utests_compression
         - build
-    - utests_compression_repeat:
-        requires:
-        - start_utests_compression
-        - build
     - start_utests_stress:
         type: approval
     - utests_stress:
-        requires:
-        - start_utests_stress
-        - build
-    - utests_stress_repeat:
         requires:
         - start_utests_stress
         - build
@@ -3134,9 +3126,6 @@ workflows:
         - build
         - start_jvm_upgrade_dtests
     - j8_jvm_upgrade_dtests:
-        requires:
-        - j8_dtest_jars_build
-    - j8_jvm_upgrade_dtests_repeat:
         requires:
         - j8_dtest_jars_build
     - j8_dtests:
