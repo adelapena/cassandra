@@ -37,6 +37,7 @@ import org.apache.cassandra.utils.concurrent.CountDownLatch;
 import static org.apache.cassandra.simulator.cluster.ClusterActions.InitialConfiguration.initializeAll;
 import static org.apache.cassandra.simulator.cluster.ClusterActions.Options.noActions;
 
+// modified
 public class TrivialSimulationTest extends SimulationTestBase
 {
     @Test

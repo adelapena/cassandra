@@ -60,7 +60,7 @@ import org.apache.cassandra.security.EncryptionContextGenerator;
 import static org.apache.cassandra.utils.Clock.Global.currentTimeMillis;
 
 @Ignore
-public abstract class CommitLogStressTest
+public abstract class RenamedCommitLogStressTest
 {
     static
     {
@@ -94,7 +94,7 @@ public abstract class CommitLogStressTest
     private boolean discardedRun = false;
     private CommitLogPosition discardedPos;
 
-    public CommitLogStressTest(ParameterizedClass commitLogCompression, EncryptionContext encryptionContext)
+    public RenamedCommitLogStressTest(ParameterizedClass commitLogCompression, EncryptionContext encryptionContext)
     {
         DatabaseDescriptor.setCommitLogCompression(commitLogCompression);
         DatabaseDescriptor.setEncryptionContext(encryptionContext);
