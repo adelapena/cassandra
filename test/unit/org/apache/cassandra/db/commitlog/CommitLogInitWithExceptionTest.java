@@ -24,6 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.apache.cassandra.CassandraIsolatedJunit4ClassRunner;
+import org.apache.cassandra.Util;
 import org.apache.cassandra.config.Config;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.utils.JVMStabilityInspector;
@@ -81,16 +82,8 @@ public class CommitLogInitWithExceptionTest
 
         Assert.assertFalse(initThread.isAlive());
 
-        try
-        {
-            Thread.sleep(1000); // Wait for COMMIT-LOG-ALLOCATOR exit
-        }
-        catch (InterruptedException e)
-        {
-            Assert.fail();
-        }
-
-        Assert.assertEquals(Thread.State.TERMINATED, CommitLog.instance.segmentManager.managerThread.getState()); // exit successfully
+        // Wait for COMMIT-LOG-ALLOCATOR exit
+        Util.spinAssertEquals(Thread.State.TERMINATED, () -> CommitLog.instance.segmentManager.managerThread.getState(), 10);
     }
 
     private static class MockCommitLogSegmentMgr extends CommitLogSegmentManagerStandard {
