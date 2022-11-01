@@ -19,11 +19,14 @@
 package org.apache.cassandra.db.commitlog;
 
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.apache.cassandra.CassandraIsolatedJunit4ClassRunner;
+import org.apache.cassandra.Util;
 import org.apache.cassandra.config.Config;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.utils.JVMStabilityInspector;
@@ -83,14 +86,12 @@ public class CommitLogInitWithExceptionTest
 
         try
         {
-            Thread.sleep(1000); // Wait for COMMIT-LOG-ALLOCATOR exit
+            CommitLog.instance.segmentManager.executor.awaitTermination(10, TimeUnit.SECONDS);
         }
         catch (InterruptedException e)
         {
             Assert.fail();
         }
-
-        Assert.assertTrue(CommitLog.instance.segmentManager.executor.isTerminated()); // exit successfully
     }
 
     private static class MockCommitLogSegmentMgr extends CommitLogSegmentManagerStandard {
