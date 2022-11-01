@@ -1367,6 +1367,10 @@
       </jar>
   </target>
 
+  <target name="maybe-build-test" unless="no-build-test">
+    <antcall target="build-test"/>
+  </target>
+
   <target name="build-test" depends="_main-jar,stress-build,fqltool-build,resolver-dist-lib" unless="no-build-test"
           description="Compile test classes">
     <antcall target="_build-test"/>
@@ -1629,7 +1633,7 @@
     ant testsome -Dtest.name=org.apache.cassandra.service.StorageServiceServerTest
     ant testsome -Dtest.name=org.apache.cassandra.service.StorageServiceServerTest -Dtest.methods=testRegularMode,testGetAllRangesEmpty
   -->
-  <target name="testsome" depends="build-test" description="Execute specific unit tests" >
+  <target name="testsome" depends="maybe-build-test" description="Execute specific unit tests" >
     <testmacro inputdir="${test.unit.src}" timeout="${test.timeout}">
       <test unless:blank="${test.methods}" name="${test.name}" methods="${test.methods}" outfile="build/test/output/TEST-${test.name}-${test.methods}"/>
       <test if:blank="${test.methods}" name="${test.name}" outfile="build/test/output/TEST-${test.name}"/>
