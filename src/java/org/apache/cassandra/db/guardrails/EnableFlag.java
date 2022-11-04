@@ -39,14 +39,15 @@ public class EnableFlag extends Guardrail
      * Creates a new {@link EnableFlag} guardrail.
      *
      * @param name        the identifying name of the guardrail
+     * @param reason      the optional description of the reason for guarding the operation
      * @param enabled     a {@link ClientState}-based supplier of boolean indicating whether the feature guarded by this
      *                    guardrail is enabled.
      * @param featureName The feature that is guarded by this guardrail (for reporting in error messages), {@link
      *                    EnableFlag#ensureEnabled(String, ClientState)} can specify a different {@code featureName}.
      */
-    public EnableFlag(String name, Predicate<ClientState> enabled, String featureName)
+    public EnableFlag(String name, @Nullable String reason, Predicate<ClientState> enabled, String featureName)
     {
-        super(name);
+        super(name, reason);
         this.enabled = enabled;
         this.featureName = featureName;
     }
