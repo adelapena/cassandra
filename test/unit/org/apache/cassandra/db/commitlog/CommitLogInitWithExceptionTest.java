@@ -72,7 +72,7 @@ public class CommitLogInitWithExceptionTest
         initThread.setName("initThread");
         initThread.start();
 
-        Util.spinAssertEquals(true, killed::isSignalled, 10);
+        Util.spinAssertEquals(true, killed::isSignalled, 120);
     }
 
     private static class MockCommitLogSegmentMgr extends CommitLogSegmentManagerStandard {
