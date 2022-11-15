@@ -136,12 +136,11 @@ public abstract class Lists
     }
 
     public static <T> ListType<?> getPreferredCompatibleType(List<T> items,
-                                                             AbstractType<?> receiver,
                                                              java.util.function.Function<T, AbstractType<?>> mapper)
     {
         Set<AbstractType<?>> types = items.stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toSet());
         AbstractType<?> type = AssignmentTestable.getCompatibleTypeIfKnown(types);
-        return type == null ? null : ListType.getInstance(type, receiver != null && receiver.isMultiCell());
+        return type == null ? null : ListType.getInstance(type, false);
     }
 
     public static class Literal extends Term.Raw
@@ -197,15 +196,15 @@ public abstract class Lists
         }
 
         @Override
-        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace)
         {
-            return getExactListTypeIfKnown(elements, p -> p.getExactTypeIfKnown(keyspace, receiver));
+            return getExactListTypeIfKnown(elements, p -> p.getExactTypeIfKnown(keyspace));
         }
 
         @Override
-        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
         {
-            return Lists.getPreferredCompatibleType(elements, receiver, p -> p.getCompatibleTypeIfKnown(keyspace, receiver));
+            return Lists.getPreferredCompatibleType(elements, p -> p.getCompatibleTypeIfKnown(keyspace));
         }
 
         public String getText()

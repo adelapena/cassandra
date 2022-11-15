@@ -183,7 +183,7 @@ public class Json
             return TestResult.NOT_ASSIGNABLE;
         }
 
-        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace)
         {
             return null;
         }
@@ -222,7 +222,7 @@ public class Json
             return TestResult.WEAKLY_ASSIGNABLE;
         }
 
-        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace)
         {
             return null;
         }

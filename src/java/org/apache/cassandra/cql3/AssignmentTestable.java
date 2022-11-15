@@ -41,7 +41,7 @@ public interface AssignmentTestable
      * won't necessarely be the exact type, but one that is compatible with it.
      */
     @Nullable
-    public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver);
+    public AbstractType<?> getCompatibleTypeIfKnown(String keyspace);
 
     /**
      * @return A data type that can represent all the specified types, or {@code null} if there isn't one.

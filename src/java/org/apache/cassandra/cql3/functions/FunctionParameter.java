@@ -49,7 +49,7 @@ public interface FunctionParameter
     @Nullable
     default AbstractType<?> inferType(String keyspace, AssignmentTestable arg, @Nullable AbstractType<?> receiverType)
     {
-        return arg.getCompatibleTypeIfKnown(keyspace, receiverType);
+        return arg.getCompatibleTypeIfKnown(keyspace);
     }
 
     void validateType(FunctionName name, AssignmentTestable arg, AbstractType<?> argType);
@@ -65,7 +65,7 @@ public interface FunctionParameter
             @Override
             public AbstractType<?> inferType(String keyspace, AssignmentTestable arg, AbstractType<?> receiverType)
             {
-                AbstractType<?> inferred = arg.getCompatibleTypeIfKnown(keyspace, receiverType);
+                AbstractType<?> inferred = arg.getCompatibleTypeIfKnown(keyspace);
                 return inferred != null ? inferred : type;
             }
 
@@ -97,7 +97,7 @@ public interface FunctionParameter
             @Override
             public AbstractType<?> inferType(String keyspace, AssignmentTestable arg, AbstractType<?> receiverType)
             {
-                AbstractType<?> type = arg.getCompatibleTypeIfKnown(keyspace, receiverType);
+                AbstractType<?> type = arg.getCompatibleTypeIfKnown(keyspace);
                 return type == null && inferFromReceiver ? receiverType : type;
             }
 
