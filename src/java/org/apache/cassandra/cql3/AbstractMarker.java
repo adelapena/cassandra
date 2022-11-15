@@ -95,7 +95,7 @@ public abstract class AbstractMarker extends Term.NonTerminal
             return AssignmentTestable.TestResult.WEAKLY_ASSIGNABLE;
         }
 
-        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace)
         {
             return null;
         }

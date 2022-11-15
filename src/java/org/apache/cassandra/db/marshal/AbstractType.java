@@ -711,7 +711,7 @@ public abstract class AbstractType<T> implements Comparator<ByteBuffer>, Assignm
     }
 
     @Override
-    public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+    public AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
     {
         return this;
     }

@@ -146,7 +146,6 @@ public abstract class Maps
     }
 
     public static <T> MapType<?, ?> getPreferredCompatibleType(List<Pair<T, T>> entries,
-                                                               AbstractType<?> receiver,
                                                                java.util.function.Function<T, AbstractType<?>> mapper)
     {
         Set<AbstractType<?>> keyTypes = entries.stream().map(Pair::left).map(mapper).filter(Objects::nonNull).collect(Collectors.toSet());
@@ -159,7 +158,7 @@ public abstract class Maps
         if (valueType == null)
             return null;
 
-        return  MapType.getInstance(keyType, valueType, receiver != null && receiver.isMultiCell());
+        return  MapType.getInstance(keyType, valueType, false);
     }
 
     public static class Literal extends Term.Raw
@@ -220,15 +219,15 @@ public abstract class Maps
         }
 
         @Override
-        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace)
         {
-            return getExactMapTypeIfKnown(entries, p -> p.getExactTypeIfKnown(keyspace, receiver));
+            return getExactMapTypeIfKnown(entries, p -> p.getExactTypeIfKnown(keyspace));
         }
 
         @Override
-        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
         {
-            return Maps.getPreferredCompatibleType(entries, receiver, p -> p.getCompatibleTypeIfKnown(keyspace, receiver));
+            return Maps.getPreferredCompatibleType(entries, p -> p.getCompatibleTypeIfKnown(keyspace));
         }
 
         public String getText()

@@ -118,7 +118,7 @@ public abstract class AbstractFunction implements Function
     }
 
     @Override
-    public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+    public AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
     {
         return returnType();
     }

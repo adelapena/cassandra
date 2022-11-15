@@ -91,7 +91,7 @@ public interface Selectable extends AssignmentTestable
     }
 
     @Override
-    public default AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+    public default AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
     {
         return getExactTypeIfKnown(keyspace);
     }
@@ -193,13 +193,13 @@ public interface Selectable extends AssignmentTestable
         @Override
         public AbstractType<?> getExactTypeIfKnown(String keyspace)
         {
-            return rawTerm.getExactTypeIfKnown(keyspace, null);
+            return rawTerm.getExactTypeIfKnown(keyspace);
         }
 
         @Override
-        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
         {
-            return rawTerm.getCompatibleTypeIfKnown(keyspace, receiver);
+            return rawTerm.getCompatibleTypeIfKnown(keyspace);
         }
 
         @Override
@@ -679,14 +679,14 @@ public interface Selectable extends AssignmentTestable
         }
 
         @Override
-        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
         {
             // If there is only one element we cannot know if it is an element between parentheses or a tuple
             // with only one element. By consequence, we need to force the user to specify the type.
             if (selectables.size() == 1)
                 return null;
 
-            return Tuples.getExactTupleTypeIfKnown(selectables, p -> p.getCompatibleTypeIfKnown(keyspace, receiver));
+            return Tuples.getExactTupleTypeIfKnown(selectables, p -> p.getCompatibleTypeIfKnown(keyspace));
         }
 
         @Override
@@ -775,9 +775,9 @@ public interface Selectable extends AssignmentTestable
         }
 
         @Override
-        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
         {
-            return Lists.getPreferredCompatibleType(selectables, receiver, p -> p.getCompatibleTypeIfKnown(keyspace, receiver));
+            return Lists.getPreferredCompatibleType(selectables, p -> p.getCompatibleTypeIfKnown(keyspace));
         }
 
         @Override
@@ -874,9 +874,9 @@ public interface Selectable extends AssignmentTestable
         }
 
         @Override
-        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
         {
-            return Sets.getPreferredCompatibleType(selectables, receiver, p -> p.getCompatibleTypeIfKnown(keyspace, receiver));
+            return Sets.getPreferredCompatibleType(selectables, p -> p.getCompatibleTypeIfKnown(keyspace));
         }
 
         @Override
@@ -1016,7 +1016,7 @@ public interface Selectable extends AssignmentTestable
         }
 
         @Override
-        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
         {
             // Let's force the user to specify the type.
             return null;

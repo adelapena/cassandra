@@ -223,11 +223,11 @@ public class FunctionCall extends Term.NonTerminal
         }
 
         @Override
-        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace)
         {
             try
             {
-                Function fun = FunctionResolver.get(keyspace, name, terms, null, null, receiver);
+                Function fun = FunctionResolver.get(keyspace, name, terms, null, null, null);
                 return fun == null ? null : fun.returnType();
             }
             catch (InvalidRequestException e)

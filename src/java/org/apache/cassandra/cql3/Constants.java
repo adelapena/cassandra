@@ -152,7 +152,7 @@ public abstract class Constants
             return "";
         }
 
-        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace)
         {
             return null;
         }
@@ -185,7 +185,7 @@ public abstract class Constants
             return "NULL";
         }
 
-        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace)
         {
             return null;
         }
@@ -381,7 +381,7 @@ public abstract class Constants
             return AssignmentTestable.TestResult.NOT_ASSIGNABLE;
         }
 
-        public AbstractType<?> getExactTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getExactTypeIfKnown(String keyspace)
         {
             // Most constant are valid for more than one type (the extreme example being integer constants, which can
             // be use for any numerical type, including date, time, ...) so they don't have an exact type. And in fact,
@@ -392,7 +392,7 @@ public abstract class Constants
         }
 
         @Override
-        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace, AbstractType<?> receiver)
+        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
         {
             return preferedType;
         }
