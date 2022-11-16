@@ -29,6 +29,7 @@ import org.apache.cassandra.db.marshal.ByteBufferAccessor;
 import org.apache.cassandra.db.marshal.ValueAccessor;
 import org.apache.cassandra.db.marshal.ValueComparators;
 import org.apache.cassandra.transport.ProtocolVersion;
+import org.apache.cassandra.utils.ByteBufferUtil;
 
 public class SetSerializer<T> extends AbstractMapSerializer<Set<T>>
 {
@@ -179,5 +180,37 @@ public class SetSerializer<T> extends AbstractMapSerializer<Set<T>>
         {
             throw new MarshalException("Not enough bytes to read a set");
         }
+    }
+
+    @Override
+    public ByteBuffer min(ByteBuffer input, ProtocolVersion version, Comparator<ByteBuffer> comparator)
+    {
+        ByteBuffer min = ByteBufferUtil.UNSET_BYTE_BUFFER;
+        try
+        {
+            int n = readCollectionSize(input, ByteBufferAccessor.instance, version);
+            int offset = sizeOfCollectionSize(n, version);
+
+            for (int i = 0; i < n; i++)
+            {
+                ByteBuffer value = readValue(input, ByteBufferAccessor.instance, offset, version);
+                offset += sizeOfValue(value, ByteBufferAccessor.instance, version);
+
+                if (min == ByteBufferUtil.UNSET_BYTE_BUFFER || comparator.compare(min, value) > 0)
+                    min = value;
+            }
+
+            return min;
+        }
+        catch (BufferUnderflowException | IndexOutOfBoundsException e)
+        {
+            throw new MarshalException("Not enough bytes to read a set");
+        }
+    }
+
+    @Override
+    public ByteBuffer max(ByteBuffer input, ProtocolVersion version, Comparator<ByteBuffer> comparator)
+    {
+        return min(input, version, comparator.reversed());
     }
 }

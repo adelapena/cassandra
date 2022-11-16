@@ -243,4 +243,16 @@ public class ListType<T> extends CollectionType<List<T>>
     {
         return setOrListToJsonString(buffer, elements, protocolVersion);
     }
+
+    @Override
+    public ByteBuffer min(ByteBuffer collection, ProtocolVersion protocolVersion)
+    {
+        return serializer.min(collection, protocolVersion, getElementsType());
+    }
+
+    @Override
+    public ByteBuffer max(ByteBuffer collection, ProtocolVersion protocolVersion)
+    {
+        return serializer.max(collection, protocolVersion, getElementsType());
+    }
 }
