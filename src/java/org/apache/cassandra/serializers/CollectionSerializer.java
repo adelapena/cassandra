@@ -21,6 +21,7 @@ package org.apache.cassandra.serializers;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.google.common.collect.Range;
 
@@ -224,4 +225,6 @@ public abstract class CollectionSerializer<T> extends TypeSerializer<T>
         ByteBufferUtil.copyBytes(input, startPos, output, sizeLen, bodyLen);
         return output;
     }
+
+    public abstract void forEach(ByteBuffer input, ProtocolVersion version, Consumer<ByteBuffer> action);
 }
