@@ -230,6 +230,9 @@ public class CollectionFcts
 
     /**
      * Returns a native scalar function for getting the sum of the elements in a numeric collection.
+     * </p>
+     * The value returned by the function is of the same type as elements of its input collection, so there is a risk
+     * of overflow if the sum of the values exceeds the maximum value that the type can represent.
      *
      * @param name      the name of the function
      * @param inputType the type of the collection argument accepted by the returned function
@@ -270,6 +273,10 @@ public class CollectionFcts
 
     /**
      * Returns a native scalar function for getting the average of the elements in a numeric collection.
+     * </p>
+     * The average of an empty collection returns zero. The value returned by the function is of the same type as the
+     * elements of its input collection, so if those don't have a decimal part then the returned average won't have a
+     * decimal part either.
      *
      * @param name      the name of the function
      * @param inputType the type of the collection argument accepted by the returned function
