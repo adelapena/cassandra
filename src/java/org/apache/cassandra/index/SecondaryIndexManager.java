@@ -1175,7 +1175,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         return selected;
     }
 
-    private static String commaSeparated(Collection<Index> indexes)
+    private static String commaSeparated(Collection<? extends Index> indexes)
     {
         return indexes.stream().map(i -> i.getIndexMetadata().name).collect(Collectors.joining(","));
     }

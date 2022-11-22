@@ -4662,18 +4662,13 @@ public class DatabaseDescriptor
         }
     }
 
-    public static boolean getClientRequestSizeMetricsEnabled()
+    public static int getSAISegmentWriteBufferSpace()
     {
-        return conf.client_request_size_metrics_enabled;
+        return conf.sai_options.segment_write_buffer_space_mb;
     }
 
-    public static void setClientRequestSizeMetricsEnabled(boolean enabled)
+    public static void setSAISegmentWriteBufferSpace(int bufferSpace)
     {
-        conf.client_request_size_metrics_enabled = enabled;
-    }
-
-    public static Map<String, Supplier<SSTableFormat<?, ?>>> getSSTableFormatFactories()
-    {
-        return Objects.requireNonNull(sstableFormatFactories, "Forgot to initialize DatabaseDescriptor?");
+        conf.sai_options.segment_write_buffer_space_mb = bufferSpace;
     }
 }

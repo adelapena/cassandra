@@ -39,13 +39,13 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
     private final TableQueryMetrics queryMetrics;
     private final RowFilter postIndexFilter;
     private final RowFilter filterOperation;
-    private final Set<Index> indexes;
+    private final Set<StorageAttachedIndex> indexes;
 
     private StorageAttachedIndexQueryPlan(ColumnFamilyStore cfs,
                                           TableQueryMetrics queryMetrics,
                                           RowFilter postIndexFilter,
                                           RowFilter filterOperation,
-                                          ImmutableSet<Index> indexes)
+                                          ImmutableSet<StorageAttachedIndex> indexes)
     {
         this.cfs = cfs;
         this.queryMetrics = queryMetrics;
@@ -57,10 +57,10 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
     @Nullable
     public static StorageAttachedIndexQueryPlan create(ColumnFamilyStore cfs,
                                                        TableQueryMetrics queryMetrics,
-                                                       Set<Index> indexes,
+                                                       Set<StorageAttachedIndex> indexes,
                                                        RowFilter rowFilter)
     {
-        ImmutableSet.Builder<Index> selectedIndexesBuilder = ImmutableSet.builder();
+        ImmutableSet.Builder<StorageAttachedIndex> selectedIndexesBuilder = ImmutableSet.builder();
 
         for (RowFilter.Expression expression : rowFilter)
         {
@@ -69,7 +69,7 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
             if (expression.isUserDefined())
                 continue;
 
-            for (Index index : indexes)
+            for (StorageAttachedIndex index : indexes)
             {
                 if (index.supportsExpression(expression.column(), expression.operator()))
                 {
@@ -78,7 +78,7 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
             }
         }
 
-        ImmutableSet<Index> selectedIndexes = selectedIndexesBuilder.build();
+        ImmutableSet<StorageAttachedIndex> selectedIndexes = selectedIndexesBuilder.build();
         if (selectedIndexes.isEmpty())
             return null;
 
@@ -94,7 +94,7 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
     @Override
     public Set<Index> getIndexes()
     {
-        return indexes;
+        return ImmutableSet.copyOf(indexes);
     }
 
     @Override

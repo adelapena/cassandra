@@ -192,7 +192,6 @@ public class KeyRangeConcatIteratorTest extends AbstractKeyRangeIteratorTester
         IntStream.range(10, 20).forEach(value -> builder.add(build(value)));
 
         KeyRangeIterator keyIterator = builder.build();
-
         assertEquals(10L, keyIterator.getMinimum().token().getLongValue());
         assertEquals(19L, keyIterator.getMaximum().token().getLongValue());
         assertTrue(keyIterator.hasNext());

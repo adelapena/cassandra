@@ -17,7 +17,9 @@
  */
 package org.apache.cassandra.index.sai.metrics;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
+import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Timer;
 import org.apache.cassandra.index.sai.IndexContext;
 
@@ -26,15 +28,34 @@ import static org.apache.cassandra.metrics.CassandraMetricsRegistry.Metrics;
 public class IndexMetrics extends AbstractMetrics
 {
     public final Timer memtableIndexWriteLatency;
-    public final Gauge<Long> liveMemtableIndexWriteCount;
-    public final Gauge<Long> memtableIndexBytes;
+
+    public final Counter memtableIndexFlushCount;
+    public final Counter compactionCount;
+    public final Counter memtableIndexFlushErrors;
+    public final Counter segmentFlushErrors;
+
+    public final Histogram memtableFlushCellsPerSecond;
+    public final Histogram segmentsPerCompaction;
+    public final Histogram compactionSegmentCellsPerSecond;
+    public final Histogram compactionSegmentBytesPerSecond;
 
     public IndexMetrics(IndexContext context)
     {
         super(context.getKeyspace(), context.getTable(), context.getIndexName(), "IndexMetrics");
 
         memtableIndexWriteLatency = Metrics.timer(createMetricName("MemtableIndexWriteLatency"));
-        liveMemtableIndexWriteCount = Metrics.register(createMetricName("LiveMemtableIndexWriteCount"), context::liveMemtableWriteCount);
-        memtableIndexBytes = Metrics.register(createMetricName("MemtableIndexBytes"), context::estimatedMemIndexMemoryUsed);
+        compactionSegmentCellsPerSecond = Metrics.histogram(createMetricName("CompactionSegmentCellsPerSecond"), false);
+        compactionSegmentBytesPerSecond = Metrics.histogram(createMetricName("CompactionSegmentBytesPerSecond"), false);
+        memtableFlushCellsPerSecond = Metrics.histogram(createMetricName("MemtableIndexFlushCellsPerSecond"), false);
+        segmentsPerCompaction = Metrics.histogram(createMetricName("SegmentsPerCompaction"), false);
+        memtableIndexFlushCount = Metrics.counter(createMetricName("MemtableIndexFlushCount"));
+        compactionCount = Metrics.counter(createMetricName("CompactionCount"));
+        memtableIndexFlushErrors = Metrics.counter(createMetricName("MemtableIndexFlushErrors"));
+        segmentFlushErrors = Metrics.counter(createMetricName("CompactionSegmentFlushErrors"));
+        Metrics.register(createMetricName("SSTableCellCount"), (Gauge<Long>) context::getCellCount);
+        Metrics.register(createMetricName("LiveMemtableIndexWriteCount"), (Gauge<Long>) context::liveMemtableWriteCount);
+        Metrics.register(createMetricName("MemtableIndexBytes"), (Gauge<Long>) context::estimatedMemIndexMemoryUsed);
+        Metrics.register(createMetricName("DiskUsedBytes"), (Gauge<Long>) context::diskUsage);
+        Metrics.register(createMetricName("IndexFileCacheBytes"), (Gauge<Long>) context::indexFileCacheSize);
     }
 }

@@ -18,11 +18,14 @@
 
 package org.apache.cassandra.index.sai;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.exceptions.QueryCancelledException;
+import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.utils.Clock;
 
 /**
@@ -40,10 +43,22 @@ public class QueryContext
 
     public final long executionQuotaNano;
 
+    public long sstablesHit = 0;
+    public long segmentsHit = 0;
     public long partitionsRead = 0;
     public long rowsFiltered = 0;
 
+    public long trieSegmentsHit = 0;
+
+    public long triePostingsSkips = 0;
+    public long triePostingsDecodes = 0;
+
+    public long tokenSkippingCacheHits = 0;
+    public long tokenSkippingLookups = 0;
+
     public long queryTimeouts = 0;
+
+    private final Map<SSTableReader, SSTableQueryContext> sstableQueryContexts = new HashMap<>();
 
     public QueryContext(ReadCommand readCommand, long executionQuotaMs)
     {
@@ -55,6 +70,16 @@ public class QueryContext
     public long totalQueryTimeNs()
     {
         return Clock.Global.nanoTime() - queryStartTimeNanos;
+    }
+
+    public void incSstablesHit()
+    {
+        sstablesHit++;
+    }
+
+    public SSTableQueryContext getSSTableQueryContext(SSTableReader reader)
+    {
+        return sstableQueryContexts.computeIfAbsent(reader, k -> new SSTableQueryContext(this));
     }
 
     public void checkpoint()

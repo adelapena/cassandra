@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -126,11 +125,6 @@ public class OperationTest extends IndexingSchemaLoader
                                                null,
                                                new QueryContext(command, DatabaseDescriptor.getRangeRpcTimeout(TimeUnit.MILLISECONDS)),
                                                null);
-    }
-
-    @After
-    public void afterTest()
-    {
     }
 
     @Test

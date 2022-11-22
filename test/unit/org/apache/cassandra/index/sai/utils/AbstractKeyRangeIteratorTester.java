@@ -114,11 +114,6 @@ public class AbstractKeyRangeIteratorTester extends SAIRandomizedTester
         return build(builder, tokensA, false, tokensB, true);
     }
 
-    protected KeyRangeIterator build(BiFunction<KeyRangeIterator, KeyRangeIterator, KeyRangeIterator> builder, long[] tokensA, long[] tokensB)
-    {
-        return build(builder, tokensA, false, tokensB, false);
-    }
-
     protected KeyRangeIterator build(BiFunction<KeyRangeIterator, KeyRangeIterator, KeyRangeIterator> builder,
                                      long[] tokensA,
                                      boolean onErrorA,

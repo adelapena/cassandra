@@ -103,11 +103,6 @@ public class KeyRangeConcatIterator extends KeyRangeIterator
         return new Builder(size);
     }
 
-    public static KeyRangeIterator build(List<KeyRangeIterator> keys)
-    {
-        return new Builder(keys.size()).add(keys).build();
-    }
-
     @VisibleForTesting
     public static class Builder extends KeyRangeIterator.Builder
     {

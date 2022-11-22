@@ -30,22 +30,10 @@ import static org.apache.cassandra.index.sai.cql.types.IndexingTypeSupport.NUMBE
 
 public abstract class QuerySet extends SAITester
 {
-    final DataSet<?> dataset;
-
-    QuerySet(DataSet<?> dataset)
-    {
-        this.dataset = dataset;
-    }
-
     public abstract void runQueries(SAITester tester, Object[][] allRows) throws Throwable;
 
     public static class NumericQuerySet extends QuerySet
     {
-        NumericQuerySet(DataSet<?> dataset)
-        {
-            super(dataset);
-        }
-
         @Override
         public void runQueries(SAITester tester, Object[][] allRows) throws Throwable
         {
@@ -98,11 +86,6 @@ public abstract class QuerySet extends SAITester
 
     public static class BooleanQuerySet extends QuerySet
     {
-        BooleanQuerySet(DataSet<?> dataSet)
-        {
-            super(dataSet);
-        }
-
         @Override
         public void runQueries(SAITester tester, Object[][] allRows) throws Throwable
         {
@@ -127,11 +110,6 @@ public abstract class QuerySet extends SAITester
 
     public static class LiteralQuerySet extends QuerySet
     {
-        LiteralQuerySet(DataSet<?> dataSet)
-        {
-            super(dataSet);
-        }
-
         @Override
         public void runQueries(SAITester tester, Object[][] allRows) throws Throwable
         {
@@ -145,11 +123,10 @@ public abstract class QuerySet extends SAITester
 
     public static class CollectionQuerySet extends QuerySet
     {
-        protected DataSet<?> elementDataSet;
+        protected final DataSet<?> elementDataSet;
 
-        public CollectionQuerySet(DataSet<?> dataSet, DataSet<?> elementDataSet)
+        public CollectionQuerySet(DataSet<?> elementDataSet)
         {
-            super(dataSet);
             this.elementDataSet = elementDataSet;
         }
 
@@ -198,11 +175,6 @@ public abstract class QuerySet extends SAITester
 
     public static class FrozenCollectionQuerySet extends QuerySet
     {
-        public FrozenCollectionQuerySet(DataSet<?> dataset)
-        {
-            super(dataset);
-        }
-
         @Override
         public void runQueries(SAITester tester, Object[][] allRows) throws Throwable
         {
@@ -227,17 +199,13 @@ public abstract class QuerySet extends SAITester
 
     public static class FrozenTuple extends FrozenCollectionQuerySet
     {
-        public FrozenTuple(DataSet<?> dataset)
-        {
-            super(dataset);
-        }
     }
 
     public static class MapValuesQuerySet extends CollectionQuerySet
     {
-        public MapValuesQuerySet(DataSet<?> dataSet, DataSet<?> elementDataSet)
+        public MapValuesQuerySet(DataSet<?> elementDataSet)
         {
-            super(dataSet, elementDataSet);
+            super(elementDataSet);
         }
 
         @Override
@@ -265,7 +233,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).values().contains(value))
+                if (((Map)row[2]).containsValue(value))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -276,7 +244,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).values().contains(value1) && ((Map)row[2]).values().contains(value2))
+                if (((Map)row[2]).containsValue(value1) && ((Map)row[2]).containsValue(value2))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -285,9 +253,9 @@ public abstract class QuerySet extends SAITester
 
     public static class MapKeysQuerySet extends CollectionQuerySet
     {
-        public MapKeysQuerySet(DataSet<?> dataSet, DataSet<?> elementDataSet)
+        public MapKeysQuerySet(DataSet<?> elementDataSet)
         {
-            super(dataSet, elementDataSet);
+            super(elementDataSet);
         }
 
         @Override
@@ -315,7 +283,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).keySet().contains(value))
+                if (((Map)row[2]).containsKey(value))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -326,7 +294,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).keySet().contains(value1) && ((Map)row[2]).keySet().contains(value2))
+                if (((Map)row[2]).containsKey(value1) && ((Map)row[2]).containsKey(value2))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -335,9 +303,9 @@ public abstract class QuerySet extends SAITester
 
     public static class MapEntriesQuerySet extends CollectionQuerySet
     {
-        public MapEntriesQuerySet(DataSet<?> dataSet, DataSet<?> elementDataSet)
+        public MapEntriesQuerySet(DataSet<?> elementDataSet)
         {
-            super(dataSet, elementDataSet);
+            super(elementDataSet);
         }
 
         @Override
@@ -397,9 +365,9 @@ public abstract class QuerySet extends SAITester
 
     public static class MultiMapQuerySet extends CollectionQuerySet
     {
-        public MultiMapQuerySet(DataSet<?> dataSet, DataSet<?> elementDataSet)
+        public MultiMapQuerySet(DataSet<?> elementDataSet)
         {
-            super(dataSet, elementDataSet);
+            super(elementDataSet);
         }
 
         @Override
@@ -448,7 +416,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).keySet().contains(value))
+                if (((Map)row[2]).containsKey(value))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -459,7 +427,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).values().contains(value))
+                if (((Map)row[2]).containsValue(value))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -485,7 +453,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).keySet().contains(value1) && ((Map)row[2]).keySet().contains(value2))
+                if (((Map)row[2]).containsKey(value1) && ((Map)row[2]).containsKey(value2))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -496,7 +464,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).values().contains(value1) && ((Map)row[2]).values().contains(value2))
+                if (((Map)row[2]).containsValue(value1) && ((Map)row[2]).containsValue(value2))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});

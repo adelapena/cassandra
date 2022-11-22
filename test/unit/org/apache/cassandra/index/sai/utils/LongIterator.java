@@ -19,7 +19,6 @@ package org.apache.cassandra.index.sai.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.index.sai.SAITester;
@@ -33,7 +32,6 @@ public class LongIterator extends KeyRangeIterator
      * whether LongIterator should throw exception during iteration.
      */
     private boolean shouldThrow = false;
-    private final Random random = new Random();
 
     public static LongIterator newEmptyIterator()
     {
@@ -64,7 +62,7 @@ public class LongIterator extends KeyRangeIterator
     protected PrimaryKey computeNext()
     {
         // throws exception if it's last element or chosen 1 out of n
-        if (shouldThrow && (currentIdx >= keys.size() - 1 || random.nextInt(keys.size()) == 0))
+        if (shouldThrow && (currentIdx >= keys.size() - 1 || SAITester.getRandom().nextInt(keys.size()) == 0))
             throw new RuntimeException("injected exception");
 
         if (currentIdx >= keys.size())

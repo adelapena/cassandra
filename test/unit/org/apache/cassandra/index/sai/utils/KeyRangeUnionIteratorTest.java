@@ -28,6 +28,7 @@ import org.apache.cassandra.io.util.FileUtils;
 
 import static org.apache.cassandra.index.sai.utils.LongIterator.convert;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
 {
@@ -119,7 +120,7 @@ public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
                 for (int j = 0; j < part.length; j++)
                     part[j] = getRandom().nextLong();
 
-                // all of the parts have to be sorted to mimic SSTable
+                // all the parts have to be sorted to mimic SSTable
                 Arrays.sort(part);
 
                 values[i] = part;
@@ -217,7 +218,7 @@ public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
         builder = KeyRangeUnionIterator.builder(16);
         assertEquals(0L, builder.add((KeyRangeIterator) null).rangeCount());
         assertEquals(0L, builder.add((List<KeyRangeIterator>) null).getCount());
-        assertEquals(0L, builder.add(new LongIterator(new long[] {})).rangeCount());
+        assertEquals(0L, builder.add(LongIterator.newEmptyIterator()).rangeCount());
 
         KeyRangeIterator single = new LongIterator(new long[] { 1L, 2L, 3L });
         KeyRangeIterator range = KeyRangeIntersectionIterator.builder(16, Integer.MAX_VALUE).add(single).build();
@@ -296,7 +297,7 @@ public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
         assertEquals(5L, tokens.getCurrent().token().getLongValue());
         assertEquals(5L, tokens.next().token().getLongValue());
 
-        LongIterator empty = new LongIterator(new long[0]);
+        LongIterator empty = LongIterator.newEmptyIterator();
 
         Assert.assertNull(empty.skipTo(LongIterator.fromToken(3L)));
         Assert.assertFalse(empty.hasNext());
@@ -308,7 +309,7 @@ public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
         KeyRangeIterator range;
         // empty, then non-empty
         builder = KeyRangeUnionIterator.builder(16);
-        builder.add(new LongIterator(new long[] {}));
+        builder.add(LongIterator.newEmptyIterator());
         for (int i = 0; i < 10; i++)
             builder.add(new LongIterator(new long[] {i + 10}));
         range = builder.build();
@@ -318,7 +319,7 @@ public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
         assertEquals(10, range.getCount());
 
         builder = KeyRangeUnionIterator.builder(16);
-        builder.add(new LongIterator(new long[] {}));
+        builder.add(LongIterator.newEmptyIterator());
         builder.add(new LongIterator(new long[] {10}));
         range = builder.build();
         assertEquals(10L, range.getMinimum().token().getLongValue());
@@ -330,7 +331,7 @@ public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
         builder = KeyRangeUnionIterator.builder(16);
         for (int i = 0; i < 10; i++)
             builder.add(new LongIterator(new long[] {i + 10}));
-        builder.add(new LongIterator(new long[] {}));
+        builder.add(LongIterator.newEmptyIterator());
         range = builder.build();
         assertEquals(10, range.getMinimum().token().getLongValue());
         assertEquals(19, range.getMaximum().token().getLongValue());
@@ -339,7 +340,7 @@ public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
 
         builder = KeyRangeUnionIterator.builder(16);
         builder.add(new LongIterator(new long[] {10}));
-        builder.add(new LongIterator(new long[] {}));
+        builder.add(LongIterator.newEmptyIterator());
         range = builder.build();
         assertEquals(10L, range.getMinimum().token().getLongValue());
         assertEquals(10L, range.getMaximum().token().getLongValue());
@@ -348,10 +349,10 @@ public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
 
         // empty, then non-empty then empty again
         builder = KeyRangeUnionIterator.builder(16);
-        builder.add(new LongIterator(new long[] {}));
+        builder.add(LongIterator.newEmptyIterator());
         for (int i = 0; i < 10; i++)
             builder.add(new LongIterator(new long[] {i + 10}));
-        builder.add(new LongIterator(new long[] {}));
+        builder.add(LongIterator.newEmptyIterator());
         range = builder.build();
         assertEquals(10L, range.getMinimum().token().getLongValue());
         assertEquals(19L, range.getMaximum().token().getLongValue());
@@ -362,7 +363,7 @@ public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
         builder = KeyRangeUnionIterator.builder(16);
         for (int i = 0; i < 5; i++)
             builder.add(new LongIterator(new long[] {i + 10}));
-        builder.add(new LongIterator(new long[] {}));
+        builder.add(LongIterator.newEmptyIterator());
         for (int i = 5; i < 10; i++)
             builder.add(new LongIterator(new long[] {i + 10}));
         range = builder.build();
@@ -389,7 +390,7 @@ public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
 
         union = buildUnion(intersectionA, intersectionB);
         assertEquals(convert(2L, 3L, 7L, 8L), convert(union));
-        assertEquals(KeyRangeUnionIterator.class, union.getClass());
+        assertSame(KeyRangeUnionIterator.class, union.getClass());
 
         // union of one intersected intersection and one non-intersected intersection
         intersectionA = buildIntersection(arr(1L, 2L, 3L), arr(2L, 3L, 4L ));

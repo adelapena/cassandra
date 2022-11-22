@@ -45,10 +45,31 @@ public abstract class IndexingTypeSupport extends SAITester
 
     public enum Scenario
     {
-        MEMTABLE_QUERY
+        MEMTABLE_QUERY,
+        SSTABLE_QUERY,
+        MIXED_QUERY,
+        COMPACTED_QUERY,
+        POST_BUILD_QUERY
     }
 
-    protected static Collection<Object[]> generateParameters(DataSet<?> dataset)
+    protected static Collection<Object[]> generateLiteralParameters(DataSet<?> dataset)
+    {
+        return Arrays.asList(new Object[][]
+        {
+            { dataset, true, Scenario.MEMTABLE_QUERY },
+            { dataset, true, Scenario.SSTABLE_QUERY},
+            { dataset, true, Scenario.COMPACTED_QUERY},
+            { dataset, true, Scenario.MIXED_QUERY},
+            { dataset, true, Scenario.POST_BUILD_QUERY},
+            { dataset, false, Scenario.MEMTABLE_QUERY },
+            { dataset, false, Scenario.SSTABLE_QUERY},
+            { dataset, false, Scenario.COMPACTED_QUERY},
+            { dataset, false, Scenario.MIXED_QUERY},
+            { dataset, false, Scenario.POST_BUILD_QUERY}
+        });
+    }
+
+    protected static Collection<Object[]> generateNumericParameters(DataSet<?> dataset)
     {
         return Arrays.asList(new Object[][]
         {

@@ -121,7 +121,7 @@ public class IndexingSchemaLoader extends SchemaLoader
         Indexes.Builder indexes = Indexes.builder();
         for (String indexedColumn : indexedColumns)
         {
-            indexes.add(IndexMetadata.fromSchemaMetadata(cfName + "_" + indexedColumn, IndexMetadata.Kind.CUSTOM, new HashMap<String, String>()
+            indexes.add(IndexMetadata.fromSchemaMetadata(cfName + '_' + indexedColumn, IndexMetadata.Kind.CUSTOM, new HashMap<String, String>()
             {{
                 put(IndexTarget.CUSTOM_INDEX_OPTION_NAME, StorageAttachedIndex.class.getName());
                 put(IndexTarget.TARGET_OPTION_NAME, indexedColumn);

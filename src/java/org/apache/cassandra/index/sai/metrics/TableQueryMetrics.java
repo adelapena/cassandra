@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Histogram;
+import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.schema.TableMetadata;
@@ -33,10 +34,14 @@ public class TableQueryMetrics extends AbstractMetrics
     public static final String TABLE_QUERY_METRIC_TYPE = "TableQueryMetrics";
 
     private final PerQueryMetrics perQueryMetrics;
+
     private final Counter totalQueryTimeouts;
     private final Counter totalPartitionReads;
     private final Counter totalRowsFiltered;
     private final Counter totalQueriesCompleted;
+
+    private final Meter tokenSkippingLookups;
+    private final Meter tokenSkippingCacheHits;
 
     public TableQueryMetrics(TableMetadata table)
     {
@@ -48,6 +53,9 @@ public class TableQueryMetrics extends AbstractMetrics
         totalRowsFiltered = Metrics.counter(createMetricName("TotalRowsFiltered"));
         totalQueriesCompleted = Metrics.counter(createMetricName("TotalQueriesCompleted"));
         totalQueryTimeouts = Metrics.counter(createMetricName("TotalQueryTimeouts"));
+
+        tokenSkippingLookups = Metrics.meter(createMetricName("Lookups", "TokenSkipping"));
+        tokenSkippingCacheHits = Metrics.meter(createMetricName("CacheHits", "TokenSkipping"));
     }
 
     public void record(QueryContext queryContext)
@@ -58,6 +66,12 @@ public class TableQueryMetrics extends AbstractMetrics
 
             totalQueryTimeouts.inc();
         }
+
+        long skippingLookups = queryContext.tokenSkippingLookups;
+        long skippingCacheHits = queryContext.tokenSkippingCacheHits;
+
+        tokenSkippingLookups.mark(skippingLookups);
+        tokenSkippingCacheHits.mark(skippingCacheHits);
 
         perQueryMetrics.record(queryContext);
     }
@@ -73,10 +87,18 @@ public class TableQueryMetrics extends AbstractMetrics
         private final Timer queryLatency;
 
         /**
-         * Global metrics for all indexes hit during the query.
+         * Global metrics for all indices hit during the query.
          */
+        private final Histogram sstablesHit;
+        private final Histogram segmentsHit;
         private final Histogram partitionReads;
         private final Histogram rowsFiltered;
+
+        /**
+         * Trie index posting lists metrics.
+         */
+        private final Histogram postingsSkips;
+        private final Histogram postingsDecodes;
 
         public PerQueryMetrics(TableMetadata table)
         {
@@ -84,8 +106,20 @@ public class TableQueryMetrics extends AbstractMetrics
 
             queryLatency = Metrics.timer(createMetricName("QueryLatency"));
 
+            sstablesHit = Metrics.histogram(createMetricName("SSTableIndexesHit"), false);
+            segmentsHit = Metrics.histogram(createMetricName("IndexSegmentsHit"), false);
+
+            postingsSkips = Metrics.histogram(createMetricName("PostingsSkips"), false);
+            postingsDecodes = Metrics.histogram(createMetricName("PostingsDecodes"), false);
+
             partitionReads = Metrics.histogram(createMetricName("PartitionReads"), false);
             rowsFiltered = Metrics.histogram(createMetricName("RowsFiltered"), false);
+        }
+
+        private void recordStringIndexCacheMetrics(QueryContext events)
+        {
+            postingsSkips.update(events.triePostingsSkips);
+            postingsDecodes.update(events.triePostingsDecodes);
         }
 
         public void record(QueryContext queryContext)
@@ -94,8 +128,13 @@ public class TableQueryMetrics extends AbstractMetrics
             queryLatency.update(totalQueryTimeNs, TimeUnit.NANOSECONDS);
             final long queryLatencyMicros = TimeUnit.NANOSECONDS.toMicros(totalQueryTimeNs);
 
+            final long ssTablesHit = queryContext.sstablesHit;
+            final long segmentsHit = queryContext.segmentsHit;
             final long partitionsRead = queryContext.partitionsRead;
             final long rowsFiltered = queryContext.rowsFiltered;
+
+            sstablesHit.update(ssTablesHit);
+            this.segmentsHit.update(segmentsHit);
 
             partitionReads.update(partitionsRead);
             totalPartitionReads.inc(partitionsRead);
@@ -105,11 +144,23 @@ public class TableQueryMetrics extends AbstractMetrics
 
             if (Tracing.isTracing())
             {
-                Tracing.trace("Index query accessed memtable indexes and took {} microseconds.",
+                Tracing.trace("Index query accessed memtable indexes, {}, and {}, post-filtered {} in {}, and took {} microseconds.",
+                              pluralize(ssTablesHit, "SSTable index", "es"), pluralize(segmentsHit, "segment", "s"),
+                              pluralize(rowsFiltered, "row", "s"), pluralize(partitionsRead, "partition", "s"),
                               queryLatencyMicros);
+            }
+
+            if (queryContext.trieSegmentsHit > 0)
+            {
+                recordStringIndexCacheMetrics(queryContext);
             }
 
             totalQueriesCompleted.inc();
         }
+    }
+
+    private String pluralize(long count, String root, String plural)
+    {
+        return count == 1 ? String.format("1 %s", root) : String.format("%d %s%s", count, root, plural);
     }
 }

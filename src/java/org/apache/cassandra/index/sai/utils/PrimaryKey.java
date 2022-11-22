@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import java.util.function.Supplier;
+
 import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.ClusteringComparator;
 import org.apache.cassandra.db.DecoratedKey;
@@ -36,24 +38,33 @@ import org.apache.cassandra.utils.bytecomparable.ByteSource;
 public class PrimaryKey implements Comparable<PrimaryKey>
 {
     private final Token token;
-    private final DecoratedKey partitionKey;
-    private final Clustering<?> clustering;
     private final ClusteringComparator clusteringComparator;
+    private Supplier<PrimaryKey> primaryKeySupplier;
+
+    private DecoratedKey partitionKey;
+    private Clustering<?> clustering;
 
     PrimaryKey(Token token)
     {
-        this(token, null, null, null);
+        this(token, null, null, null, null);
+    }
+
+    PrimaryKey(DecoratedKey partitionKey)
+    {
+        this(partitionKey.getToken(), partitionKey, null, null, null);
     }
 
     PrimaryKey(Token token,
                DecoratedKey partitionKey,
                Clustering<?> clustering,
-               ClusteringComparator clusteringComparator)
+               ClusteringComparator clusteringComparator,
+               Supplier<PrimaryKey> primaryKeySupplier)
     {
         this.token = token;
         this.partitionKey = partitionKey;
         this.clustering = clustering;
         this.clusteringComparator = clusteringComparator;
+        this.primaryKeySupplier = primaryKeySupplier;
     }
 
     /**
@@ -81,6 +92,7 @@ public class PrimaryKey implements Comparable<PrimaryKey>
      */
     public DecoratedKey partitionKey()
     {
+        loadDeferred();
         return partitionKey;
     }
 
@@ -89,6 +101,7 @@ public class PrimaryKey implements Comparable<PrimaryKey>
      */
     public Clustering<?> clustering()
     {
+        loadDeferred();
         return clustering;
     }
 
@@ -104,6 +117,7 @@ public class PrimaryKey implements Comparable<PrimaryKey>
      */
     public ByteSource asComparableBytes(ByteComparable.Version version)
     {
+        loadDeferred();
         ByteSource tokenComparable = token.asComparableBytes(version);
         if (partitionKey == null)
             return ByteSource.withTerminator(version == ByteComparable.Version.LEGACY ? ByteSource.END_OF_STREAM
@@ -114,7 +128,8 @@ public class PrimaryKey implements Comparable<PrimaryKey>
         ByteSource keyComparable = ByteSource.of(partitionKey.getKey(), version);
         // It is important that the ClusteringComparator.asBytesComparable method is used
         // to maintain the correct clustering sort order
-        ByteSource clusteringComparable = clusteringComparator.size() == 0 ||
+        ByteSource clusteringComparable = clusteringComparator == null ||
+                                          clusteringComparator.size() == 0 ||
                                           clustering == null ||
                                           clustering.isEmpty() ? null
                                                                : clusteringComparator.asByteComparable(clustering)
@@ -134,7 +149,7 @@ public class PrimaryKey implements Comparable<PrimaryKey>
         // If the tokens don't match then we don't need to compare any more of the key.
         // Otherwise, if it's partition key is null or the other partition key is null
         // then one or both of the keys are token only so we can only compare tokens
-        if ((cmp != 0) || (partitionKey == null) || o.partitionKey() == null)
+        if ((cmp != 0) || (primaryKeySupplier == null && partitionKey == null) || o.partitionKey() == null)
             return cmp;
 
         // Next compare the partition keys. If they are not equal or
@@ -183,5 +198,16 @@ public class PrimaryKey implements Comparable<PrimaryKey>
                              clustering == null ? null : Arrays.stream(clustering.getBufferArray())
                                                                .map(ByteBufferUtil::bytesToHex)
                                                                .collect(Collectors.joining(",")));
+    }
+
+    private void loadDeferred()
+    {
+        if (primaryKeySupplier != null && partitionKey == null)
+        {
+            PrimaryKey deferredPrimaryKey = primaryKeySupplier.get();
+            this.partitionKey = deferredPrimaryKey.partitionKey();
+            this.clustering = deferredPrimaryKey.clustering();
+            primaryKeySupplier = null;
+        }
     }
 }

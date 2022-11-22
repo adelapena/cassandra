@@ -18,6 +18,8 @@
 
 package org.apache.cassandra.index.sai.utils;
 
+import java.util.function.Supplier;
+
 import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.ClusteringComparator;
 import org.apache.cassandra.db.DecoratedKey;
@@ -46,12 +48,22 @@ public class PrimaryKeyFactory
         return new PrimaryKey(token);
     }
 
+    public PrimaryKey createPartitionKeyOnly(DecoratedKey partitionKey)
+    {
+        return new PrimaryKey(partitionKey);
+    }
+
     /**
      * Creates a {@link PrimaryKey} that is fully represented by partition key
      * and clustering.
      */
     public PrimaryKey create(DecoratedKey partitionKey, Clustering<?> clustering)
     {
-        return new PrimaryKey(partitionKey.getToken(), partitionKey, clustering, clusteringComparator);
+        return new PrimaryKey(partitionKey.getToken(), partitionKey, clustering, clusteringComparator, null);
+    }
+
+    public PrimaryKey createDeferred(Token token, Supplier<PrimaryKey> primaryKeySupplier)
+    {
+        return new PrimaryKey(token, null, null, clusteringComparator, primaryKeySupplier);
     }
 }
