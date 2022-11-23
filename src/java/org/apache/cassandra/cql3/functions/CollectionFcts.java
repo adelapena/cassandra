@@ -52,7 +52,7 @@ public class CollectionFcts
             @Override
             protected NativeFunction doGetOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType)
             {
-                return makeMapKeysFunction(name().name, (MapType<?, ?>) argTypes.get(0));
+                return makeMapKeysFunction(name.name, (MapType<?, ?>) argTypes.get(0));
             }
         });
 
@@ -61,7 +61,7 @@ public class CollectionFcts
             @Override
             protected NativeFunction doGetOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType)
             {
-                return makeMapValuesFunction(name().name, (MapType<?, ?>) argTypes.get(0));
+                return makeMapValuesFunction(name.name, (MapType<?, ?>) argTypes.get(0));
             }
         });
 
@@ -70,7 +70,7 @@ public class CollectionFcts
             @Override
             protected NativeFunction doGetOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType)
             {
-                return makeCollectionCountFunction(name().name, (CollectionType<?>) argTypes.get(0));
+                return makeCollectionCountFunction(name.name, (CollectionType<?>) argTypes.get(0));
             }
         });
 
