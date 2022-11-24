@@ -20,7 +20,6 @@ package org.apache.cassandra.cql3.validation.entities;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Tests for CQL's {@code WRITETIME}, {@code MAXWRITETIME} and {@code TTL} selection functions.
+ * Tests for CQL's {@code WRITETIME} and {@code TTL} selection functions.
  */
 public class WritetimeOrTTLTest extends CQLTester
 {
@@ -1065,8 +1064,6 @@ public class WritetimeOrTTLTest extends CQLTester
         assertRows("SELECT writetime(v) FROM %s", row(10L), row(1L));
         assertRows("SELECT min(writetime(v)) FROM %s", row(1L));
         assertRows("SELECT max(writetime(v)) FROM %s", row(10L));
-        assertRows("SELECT min(maxwritetime(v)) FROM %s", row(1L));
-        assertRows("SELECT max(maxwritetime(v)) FROM %s", row(10L));
 
         // Frozen collection
         assertRows("SELECT min(fs) FROM %s", row(set(1, 2, 3)));
@@ -1074,8 +1071,6 @@ public class WritetimeOrTTLTest extends CQLTester
         assertRows("SELECT writetime(fs) FROM %s", row(10L), row(1L));
         assertRows("SELECT min(writetime(fs)) FROM %s", row(1L));
         assertRows("SELECT max(writetime(fs)) FROM %s", row(10L));
-        assertRows("SELECT min(maxwritetime(fs)) FROM %s", row(1L));
-        assertRows("SELECT max(maxwritetime(fs)) FROM %s", row(10L));
 
         // Multi-cell collection
         assertRows("SELECT min(s) FROM %s", row(set(1, 2, 3)));
@@ -1083,8 +1078,8 @@ public class WritetimeOrTTLTest extends CQLTester
         assertRows("SELECT writetime(s) FROM %s", row(list(10L, 20L, 20L)), row(list(1L, 2L, 2L)));
         assertRows("SELECT min(writetime(s)) FROM %s", row(list(1L, 2L, 2L)));
         assertRows("SELECT max(writetime(s)) FROM %s", row(list(10L, 20L, 20L)));
-        assertRows("SELECT min(maxwritetime(s)) FROM %s", row(2L));
-        assertRows("SELECT max(maxwritetime(s)) FROM %s", row(20L));
+        assertRows("SELECT min(collection_max(writetime(s))) FROM %s", row(2L));
+        assertRows("SELECT max(collection_max(writetime(s))) FROM %s", row(20L));
     }
 
     private static List<Integer> ttls(Integer... a)
@@ -1120,13 +1115,6 @@ public class WritetimeOrTTLTest extends CQLTester
         // Verify write time
         assertRows(format("SELECT WRITETIME(%s) FROM %%s %s", column, where), row(timestamp));
 
-        // Verify max write time
-        assertRows(format("SELECT MAXWRITETIME(%s) FROM %%s %s", column, where), row(timestamp));
-
-        // Verify write time and max write time together
-        assertRows(format("SELECT WRITETIME(%s), MAXWRITETIME(%s) FROM %%s %s", column, column, where),
-                   row(timestamp, timestamp));
-
         // Verify ttl
         UntypedResultSet rs = execute(format("SELECT TTL(%s) FROM %%s %s", column, where));
         assertRowCount(rs, 1);
@@ -1149,14 +1137,6 @@ public class WritetimeOrTTLTest extends CQLTester
 
         // Verify write time
         assertRows(format("SELECT WRITETIME(%s) FROM %%s %s", column, where), row(timestamps));
-
-        // Verify max write time
-        Long maxTimestamp = timestamps.stream().filter(Objects::nonNull).max(Long::compare).orElse(null);
-        assertRows(format("SELECT MAXWRITETIME(%s) FROM %%s %s", column, where), row(maxTimestamp));
-
-        // Verify write time and max write time together
-        assertRows(format("SELECT WRITETIME(%s), MAXWRITETIME(%s) FROM %%s %s", column, column, where),
-                   row(timestamps, maxTimestamp));
 
         // Verify ttl
         UntypedResultSet rs = execute(format("SELECT TTL(%s) FROM %%s %s", column, where));
@@ -1204,9 +1184,6 @@ public class WritetimeOrTTLTest extends CQLTester
         assertInvalidThrowMessage("Cannot use selection function writetime on PRIMARY KEY part " + column,
                                   InvalidRequestException.class,
                                   format("SELECT WRITETIME(%s) FROM %%s", column));
-        assertInvalidThrowMessage("Cannot use selection function maxwritetime on PRIMARY KEY part " + column,
-                                  InvalidRequestException.class,
-                                  format("SELECT MAXWRITETIME(%s) FROM %%s", column));
         assertInvalidThrowMessage("Cannot use selection function ttl on PRIMARY KEY part " + column,
                                   InvalidRequestException.class,
                                   format("SELECT TTL(%s) FROM %%s", column));
@@ -1220,9 +1197,6 @@ public class WritetimeOrTTLTest extends CQLTester
                                   format("SELECT WRITETIME(%s) FROM %%s", column));
         assertInvalidThrowMessage(message,
                                   InvalidRequestException.class,
-                                  format("SELECT MAXWRITETIME(%s) FROM %%s", column));
-        assertInvalidThrowMessage(message,
-                                  InvalidRequestException.class,
                                   format("SELECT TTL(%s) FROM %%s", column));
     }
 
@@ -1232,9 +1206,6 @@ public class WritetimeOrTTLTest extends CQLTester
         assertInvalidThrowMessage(message,
                                   InvalidRequestException.class,
                                   format("SELECT WRITETIME(%s) FROM %%s", column));
-        assertInvalidThrowMessage(message,
-                                  InvalidRequestException.class,
-                                  format("SELECT MAXWRITETIME(%s) FROM %%s", column));
         assertInvalidThrowMessage(message,
                                   InvalidRequestException.class,
                                   format("SELECT TTL(%s) FROM %%s", column));
