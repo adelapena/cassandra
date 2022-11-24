@@ -324,14 +324,13 @@ public class CollectionFcts
         {
             return ((ListType<?>) type).getElementsType();
         }
-        else if (type.kind == CollectionType.Kind.SET)
+
+        if (type.kind == CollectionType.Kind.SET)
         {
             return ((SetType<?>) type).getElementsType();
         }
-        else
-        {
-            throw new AssertionError("Cannot get the element type of: " + type);
-        }
+
+        throw new AssertionError("Cannot get the element type of: " + type);
     }
 
     /**

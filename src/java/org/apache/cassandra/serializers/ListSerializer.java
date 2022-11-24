@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.google.common.collect.Range;
@@ -255,34 +254,5 @@ public class ListSerializer<T> extends CollectionSerializer<List<T>>
                                                         AbstractType<?> comparator)
     {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void forEach(ByteBuffer input, ProtocolVersion version, Consumer<ByteBuffer> action)
-    {
-        try
-        {
-            int s = readCollectionSize(input, ByteBufferAccessor.instance, ProtocolVersion.V3);
-            int offset = sizeOfCollectionSize(s, ProtocolVersion.V3);
-
-            for (int i = 0; i < s; i++)
-            {
-                int size = ByteBufferAccessor.instance.getInt(input, offset);
-                if (size < 0)
-                    continue;
-
-                offset += TypeSizes.INT_SIZE;
-
-                ByteBuffer value = ByteBufferAccessor.instance.slice(input, offset, size);
-
-                action.accept(value);
-
-                offset += size;
-            }
-        }
-        catch (BufferUnderflowException e)
-        {
-            throw new MarshalException("Not enough bytes to read a list");
-        }
     }
 }

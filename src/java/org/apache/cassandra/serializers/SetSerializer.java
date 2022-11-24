@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Consumer;
 
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.ByteBufferAccessor;
@@ -175,28 +174,6 @@ public class SetSerializer<T> extends AbstractMapSerializer<Set<T>>
                 // else, we're before the element so continue
             }
             return null;
-        }
-        catch (BufferUnderflowException | IndexOutOfBoundsException e)
-        {
-            throw new MarshalException("Not enough bytes to read a set");
-        }
-    }
-
-    @Override
-    public void forEach(ByteBuffer input, ProtocolVersion version, Consumer<ByteBuffer> action)
-    {
-        try
-        {
-            int n = readCollectionSize(input, ByteBufferAccessor.instance, version);
-            int offset = sizeOfCollectionSize(n, version);
-
-            for (int i = 0; i < n; i++)
-            {
-                ByteBuffer value = readValue(input, ByteBufferAccessor.instance, offset, version);
-                offset += sizeOfValue(value, ByteBufferAccessor.instance, version);
-
-                action.accept(value);
-            }
         }
         catch (BufferUnderflowException | IndexOutOfBoundsException e)
         {

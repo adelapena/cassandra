@@ -18,6 +18,7 @@
 
 package org.apache.cassandra.serializers;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
@@ -226,5 +227,24 @@ public abstract class CollectionSerializer<T> extends TypeSerializer<T>
         return output;
     }
 
-    public abstract void forEach(ByteBuffer input, ProtocolVersion version, Consumer<ByteBuffer> action);
+    public void forEach(ByteBuffer input, ProtocolVersion version, Consumer<ByteBuffer> action)
+    {
+        try
+        {
+            int collectionSize = readCollectionSize(input, ByteBufferAccessor.instance, version);
+            int offset = sizeOfCollectionSize(collectionSize, version);
+
+            for (int i = 0; i < collectionSize; i++)
+            {
+                ByteBuffer value = readValue(input, ByteBufferAccessor.instance, offset, version);
+                offset += sizeOfValue(value, ByteBufferAccessor.instance, version);
+
+                action.accept(value);
+            }
+        }
+        catch (BufferUnderflowException | IndexOutOfBoundsException e)
+        {
+            throw new MarshalException("Not enough bytes to read a set");
+        }
+    }
 }
