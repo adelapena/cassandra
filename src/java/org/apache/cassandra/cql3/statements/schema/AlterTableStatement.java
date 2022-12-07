@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 
@@ -40,6 +42,7 @@ import org.apache.cassandra.cql3.CQL3Type;
 import org.apache.cassandra.cql3.CQLStatement;
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.cql3.QualifiedName;
+import org.apache.cassandra.cql3.functions.masking.ColumnMask;
 import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.guardrails.Guardrails;
 import org.apache.cassandra.db.marshal.AbstractType;
@@ -159,6 +162,129 @@ public abstract class AlterTableStatement extends AlterSchemaStatement
     }
 
     /**
+     * ALTER TABLE [IF EXISTS] <table> ALTER [IF EXISTS] <column> MASKED WITH <newMask>
+     */
+    public static class MaskColumn extends AlterTableStatement
+    {
+        private final ColumnIdentifier columnName;
+        private final ColumnMask.Raw mask;
+        private final boolean ifColumnExists;
+
+        MaskColumn(String keyspaceName,
+                   String tableName,
+                   ColumnIdentifier columnName,
+                   ColumnMask.Raw mask,
+                   boolean ifTableExists,
+                   boolean ifColumnExists)
+        {
+            super(keyspaceName, tableName, ifTableExists);
+            this.columnName = columnName;
+            this.mask = mask;
+            this.ifColumnExists = ifColumnExists;
+        }
+
+        @Override
+        public void validate(ClientState state)
+        {
+            super.validate(state);
+            validateMasking("add data masking function to columns");
+        }
+
+        @Override
+        public KeyspaceMetadata apply(KeyspaceMetadata keyspace, TableMetadata table)
+        {
+            ColumnMetadata column = table.getColumn(columnName);
+
+            if (column == null)
+            {
+                if (!ifColumnExists)
+                    throw ire("Column with name '%s' doesn't exist on table '%s'", columnName, tableName);
+
+                return keyspace;
+            }
+
+            ColumnMask columnMask = mask.prepare(keyspace.name, table.name, columnName, column.type);
+
+            TableMetadata.Builder tableBuilder = table.unbuild();
+            tableBuilder.alterColumnMask(columnName, columnMask);
+            TableMetadata newTable = tableBuilder.build();
+            newTable.validate();
+
+            // Update any reference on materialized views, so the mask is consistent among the base table and its views.
+            Views.Builder viewsBuilder = keyspace.views.unbuild();
+            for (ViewMetadata view : keyspace.views.forTable(table.id))
+            {
+                if (view.includes(columnName))
+                {
+                    viewsBuilder.put(viewsBuilder.get(view.name()).withNewColumnMask(columnName, columnMask));
+                }
+            }
+
+            return keyspace.withSwapped(keyspace.tables.withSwapped(newTable))
+                           .withSwapped(viewsBuilder.build());
+        }
+    }
+
+    /**
+     * ALTER TABLE [IF EXISTS] <table> ALTER [IF EXISTS] <column> WITHOUT MASK
+     */
+    public static class UnmaskColumn extends AlterTableStatement
+    {
+        private final ColumnIdentifier columnName;
+        private final boolean ifColumnExists;
+
+        UnmaskColumn(String keyspaceName,
+                     String tableName,
+                     ColumnIdentifier columnName,
+                     boolean ifTableExists,
+                     boolean ifColumnExists)
+        {
+            super(keyspaceName, tableName, ifTableExists);
+            this.columnName = columnName;
+            this.ifColumnExists = ifColumnExists;
+        }
+
+        @Override
+        public void validate(ClientState state)
+        {
+            super.validate(state);
+            validateMasking("remove masking function from column");
+        }
+
+        @Override
+        public KeyspaceMetadata apply(KeyspaceMetadata keyspace, TableMetadata table)
+        {
+            ColumnMetadata column = table.getColumn(columnName);
+
+            if (column == null)
+            {
+                if (!ifColumnExists)
+                    throw ire("Column with name '%s' doesn't exist on table '%s'", columnName, tableName);
+
+                return keyspace;
+            }
+
+            TableMetadata.Builder tableBuilder = table.unbuild();
+            tableBuilder.alterColumnMask(columnName, null);
+            TableMetadata newTable = tableBuilder.build();
+            newTable.validate();
+
+            // Update any reference on materialized views, so the mask is consistent among the base table and its views.
+            Views.Builder viewsBuilder = keyspace.views.unbuild();
+            for (ViewMetadata view : keyspace.views.forTable(table.id))
+            {
+                if (view.includes(columnName))
+                {
+                    viewsBuilder.put(viewsBuilder.get(view.name()).withNewColumnMask(columnName, null));
+                }
+            }
+
+            return keyspace.withSwapped(keyspace.tables.withSwapped(newTable))
+                           .withSwapped(viewsBuilder.build());
+        }
+    }
+
+    /**
      * ALTER TABLE [IF EXISTS] <table> ADD [IF NOT EXISTS] <column> <newtype>
      * ALTER TABLE [IF EXISTS] <table> ADD [IF NOT EXISTS] (<column> <newtype>, <column1> <newtype1>, ... <columnn> <newtypen>)
      */
@@ -169,12 +295,15 @@ public abstract class AlterTableStatement extends AlterSchemaStatement
             private final ColumnIdentifier name;
             private final CQL3Type.Raw type;
             private final boolean isStatic;
+            @Nullable
+            private final ColumnMask.Raw mask;
 
-            Column(ColumnIdentifier name, CQL3Type.Raw type, boolean isStatic)
+            Column(ColumnIdentifier name, CQL3Type.Raw type, boolean isStatic, @Nullable ColumnMask.Raw mask)
             {
                 this.name = name;
                 this.type = type;
                 this.isStatic = isStatic;
+                this.mask = mask;
             }
         }
 
@@ -192,6 +321,9 @@ public abstract class AlterTableStatement extends AlterSchemaStatement
         public void validate(ClientState state)
         {
             super.validate(state);
+
+            if (newColumns.stream().anyMatch(c -> c.mask != null))
+                validateMasking("add column with masking function");
         }
 
         public KeyspaceMetadata apply(KeyspaceMetadata keyspace, TableMetadata table)
@@ -220,6 +352,7 @@ public abstract class AlterTableStatement extends AlterSchemaStatement
             ColumnIdentifier name = column.name;
             AbstractType<?> type = column.type.prepare(keyspaceName, keyspace.types).getType();
             boolean isStatic = column.isStatic;
+            ColumnMask mask = column.mask == null ? null : column.mask.prepare(keyspaceName, tableName, name, type);
 
             if (null != tableBuilder.getColumn(name)) {
                 if (!ifColumnNotExists)
@@ -260,9 +393,9 @@ public abstract class AlterTableStatement extends AlterSchemaStatement
             }
 
             if (isStatic)
-                tableBuilder.addStaticColumn(name, type);
+                tableBuilder.addStaticColumn(name, type, mask);
             else
-                tableBuilder.addRegularColumn(name, type);
+                tableBuilder.addRegularColumn(name, type, mask);
 
             if (!isStatic)
             {
@@ -270,7 +403,8 @@ public abstract class AlterTableStatement extends AlterSchemaStatement
                 {
                     if (view.includeAllColumns)
                     {
-                        ColumnMetadata viewColumn = ColumnMetadata.regularColumn(view.metadata, name.bytes, type);
+                        ColumnMetadata viewColumn = ColumnMetadata.regularColumn(view.metadata, name.bytes, type)
+                                                                  .withNewMask(mask);
                         viewsBuilder.put(viewsBuilder.get(view.name()).withAddedRegularColumn(viewColumn));
                     }
                 }
@@ -582,7 +716,14 @@ public abstract class AlterTableStatement extends AlterSchemaStatement
     {
         private enum Kind
         {
-            ALTER_COLUMN, ADD_COLUMNS, DROP_COLUMNS, RENAME_COLUMNS, ALTER_OPTIONS, DROP_COMPACT_STORAGE
+            ALTER_COLUMN,
+            MASK_COLUMN,
+            UNMASK_COLUMN,
+            ADD_COLUMNS,
+            DROP_COLUMNS,
+            RENAME_COLUMNS,
+            ALTER_OPTIONS,
+            DROP_COMPACT_STORAGE
         }
 
         private final QualifiedName name;
@@ -594,6 +735,13 @@ public abstract class AlterTableStatement extends AlterSchemaStatement
 
         // ADD
         private final List<AddColumns.Column> addedColumns = new ArrayList<>();
+
+        // ALTER MASK
+        private ColumnIdentifier maskedColumn = null;
+        private ColumnMask.Raw maskedColumnMask = null;
+
+        // WITHOUT MASK
+        private ColumnIdentifier unmaskedColumn = null;
 
         // DROP
         private final Set<ColumnIdentifier> droppedColumns = new HashSet<>();
@@ -619,6 +767,8 @@ public abstract class AlterTableStatement extends AlterSchemaStatement
             switch (kind)
             {
                 case          ALTER_COLUMN: return new AlterColumn(keyspaceName, tableName, ifTableExists);
+                case           MASK_COLUMN: return new MaskColumn(keyspaceName, tableName, maskedColumn, maskedColumnMask, ifTableExists, ifColumnExists);
+                case         UNMASK_COLUMN: return new UnmaskColumn(keyspaceName, tableName, unmaskedColumn, ifTableExists, ifColumnExists);
                 case           ADD_COLUMNS: return new AddColumns(keyspaceName, tableName, addedColumns, ifTableExists, ifColumnNotExists);
                 case          DROP_COLUMNS: return new DropColumns(keyspaceName, tableName, droppedColumns, ifTableExists, ifColumnExists, timestamp);
                 case        RENAME_COLUMNS: return new RenameColumns(keyspaceName, tableName, renamedColumns, ifTableExists, ifColumnExists);
@@ -634,10 +784,23 @@ public abstract class AlterTableStatement extends AlterSchemaStatement
             kind = Kind.ALTER_COLUMN;
         }
 
-        public void add(ColumnIdentifier name, CQL3Type.Raw type, boolean isStatic)
+        public void mask(ColumnIdentifier name, ColumnMask.Raw mask)
+        {
+            kind = Kind.MASK_COLUMN;
+            maskedColumn = name;
+            maskedColumnMask = mask;
+        }
+
+        public void unmask(ColumnIdentifier name)
+        {
+            kind = Kind.UNMASK_COLUMN;
+            unmaskedColumn = name;
+        }
+
+        public void add(ColumnIdentifier name, CQL3Type.Raw type, boolean isStatic, @Nullable ColumnMask.Raw mask)
         {
             kind = Kind.ADD_COLUMNS;
-            addedColumns.add(new AddColumns.Column(name, type, isStatic));
+            addedColumns.add(new AddColumns.Column(name, type, isStatic, mask));
         }
 
         public void drop(ColumnIdentifier name)

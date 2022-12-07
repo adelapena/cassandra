@@ -1155,6 +1155,11 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement
 
             if (selectables.isEmpty()) // wildcard query
             {
+                if (table.columns().stream().anyMatch(c -> c.getMask() != null))
+                {
+                    return Selection.wildcardWithMaskedColumns(table, boundNames, parameters.isJson, restrictions.returnStaticContentOnPartitionWithNoRows());
+                }
+
                 return hasGroupBy ? Selection.wildcardWithGroupBy(table, boundNames, parameters.isJson, restrictions.returnStaticContentOnPartitionWithNoRows())
                                   : Selection.wildcard(table, parameters.isJson, restrictions.returnStaticContentOnPartitionWithNoRows());
             }

@@ -23,11 +23,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 
 import org.apache.commons.lang3.text.StrBuilder;
 
+import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.cql3.functions.FunctionResolver;
 import org.apache.cassandra.schema.ColumnMetadata;
 import org.apache.cassandra.schema.TableMetadata;
@@ -111,7 +114,9 @@ abstract class AbstractFunctionSelector<T extends Function> extends Selector
     private final List<ByteBuffer> args;
     protected final List<Selector> argSelectors;
 
-    public static Factory newFactory(final Function fun, final SelectorFactories factories) throws InvalidRequestException
+    public static Factory newFactory(final Function fun,
+                                     final SelectorFactories factories,
+                                     @Nullable ColumnIdentifier maskedColumn) throws InvalidRequestException
     {
         if (fun.isAggregate())
         {
@@ -123,7 +128,7 @@ abstract class AbstractFunctionSelector<T extends Function> extends Selector
         {
             protected String getColumnName()
             {
-                return fun.columnName(factories.getColumnNames());
+                return maskedColumn == null ? fun.columnName(factories.getColumnNames()) : maskedColumn.toString();
             }
 
             protected AbstractType<?> getReturnType()

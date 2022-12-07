@@ -19,6 +19,7 @@ package org.apache.cassandra.cql3.selection;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
@@ -140,6 +141,26 @@ public abstract class Selection
     {
         return fromSelectors(table,
                              Lists.newArrayList(table.allColumnsInSelectOrder()),
+                             boundNames,
+                             Collections.emptySet(),
+                             Collections.emptySet(),
+                             true,
+                             isJson,
+                             returnStaticContentOnPartitionWithNoRows);
+    }
+
+    public static Selection wildcardWithMaskedColumns(TableMetadata table,
+                                                      VariableSpecifications boundNames,
+                                                      boolean isJson,
+                                                      boolean returnStaticContentOnPartitionWithNoRows)
+    {
+        List<Selectable> selectables = Lists.newArrayList(table.allColumnsInSelectOrder())
+                                            .stream()
+                                            .map(ColumnMetadata::asMaybeMaskedSelectable)
+                                            .collect(Collectors.toList());
+
+        return fromSelectors(table,
+                             selectables,
                              boundNames,
                              Collections.emptySet(),
                              Collections.emptySet(),

@@ -18,9 +18,12 @@
  */
 package org.apache.cassandra.cql3.selection;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.cql3.functions.*;
@@ -322,7 +325,7 @@ public interface Selectable extends AssignmentTestable
             @Override
             public WritetimeOrTTL prepare(TableMetadata table)
             {
-                return new WritetimeOrTTL(column.prepare(table), selected.prepare(table), kind);
+                return new WritetimeOrTTL((ColumnMetadata) column.prepare(table), selected.prepare(table), kind);
             }
         }
     }
@@ -332,10 +335,20 @@ public interface Selectable extends AssignmentTestable
         public final Function function;
         public final List<Selectable> args;
 
+        /** The name of the masked column this belongs to, or {@code null} if this is manually specified function. */
+        @Nullable
+        public final ColumnIdentifier maskedColumn;
+
         public WithFunction(Function function, List<Selectable> args)
+        {
+            this(function, args, null);
+        }
+
+        public WithFunction(Function function, List<Selectable> args, @Nullable ColumnIdentifier maskedColumn)
         {
             this.function = function;
             this.args = args;
+            this.maskedColumn = maskedColumn;
         }
 
         @Override
@@ -347,7 +360,7 @@ public interface Selectable extends AssignmentTestable
         public Selector.Factory newSelectorFactory(TableMetadata table, AbstractType<?> expectedType, List<ColumnMetadata> defs, VariableSpecifications boundNames)
         {
             SelectorFactories factories = SelectorFactories.createFactoriesAndCollectColumnDefinitions(args, function.argTypes(), table, defs, boundNames);
-            return AbstractFunctionSelector.newFactory(function, factories);
+            return AbstractFunctionSelector.newFactory(function, factories, maskedColumn);
         }
 
         @Override
@@ -462,7 +475,7 @@ public interface Selectable extends AssignmentTestable
                                                                     defs.get(0).name,
                                                                     type));
             }
-            return AbstractFunctionSelector.newFactory(fun, factories);
+            return AbstractFunctionSelector.newFactory(fun, factories, null);
         }
 
         public AbstractType<?> getExactTypeIfKnown(String keyspace)
@@ -1240,10 +1253,15 @@ public interface Selectable extends AssignmentTestable
             this.quoted = quoted;
         }
 
-        @Override
-        public ColumnMetadata prepare(TableMetadata cfm)
+        public ColumnMetadata columnMetadata(TableMetadata cfm)
         {
             return cfm.getExistingColumn(ColumnIdentifier.getInterned(text, quoted));
+        }
+
+        @Override
+        public Selectable prepare(TableMetadata cfm)
+        {
+            return columnMetadata(cfm).asMaybeMaskedSelectable();
         }
 
         public FieldIdentifier toFieldIdentifier()
@@ -1424,6 +1442,53 @@ public interface Selectable extends AssignmentTestable
             {
                 return String.format("%s[%s..%s]", selected, from == null ? "" : from, to == null ? "" : to);
             }
+        }
+    }
+
+    class WithConstant implements Selectable
+    {
+        private final AbstractType<?> type;
+        private final ByteBuffer value;
+
+        public WithConstant(AbstractType<?> type, ByteBuffer value)
+        {
+            this.type = type;
+            this.value = value;
+        }
+
+        @Override
+        public TestResult testAssignment(String keyspace, ColumnSpecification receiver)
+        {
+            return type.testAssignment(keyspace, receiver);
+        }
+
+        public Selector.Factory newSelectorFactory(TableMetadata table, AbstractType<?> expectedType, List<ColumnMetadata> defs, VariableSpecifications boundNames) throws InvalidRequestException
+        {
+            return TermSelector.newFactory(toString(), new Constants.Value(value), type);
+        }
+
+        @Override
+        public AbstractType<?> getExactTypeIfKnown(String keyspace)
+        {
+            return type;
+        }
+
+        @Override
+        public AbstractType<?> getCompatibleTypeIfKnown(String keyspace)
+        {
+            return type;
+        }
+
+        @Override
+        public boolean selectColumns(Predicate<ColumnMetadata> predicate)
+        {
+            return false;
+        }
+
+        @Override
+        public String toString()
+        {
+            return type.toCQLString(value);
         }
     }
 }
