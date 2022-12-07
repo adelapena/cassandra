@@ -71,6 +71,7 @@ K_FULL:        F U L L;
 K_INSERT:      I N S E R T;
 K_UPDATE:      U P D A T E;
 K_WITH:        W I T H;
+K_WITHOUT:     W I T H O U T;
 K_LIMIT:       L I M I T;
 K_PER:         P E R;
 K_PARTITION:   P A R T I T I O N;
@@ -217,6 +218,9 @@ K_JSON:        J S O N;
 K_DEFAULT:     D E F A U L T;
 K_UNSET:       U N S E T;
 K_LIKE:        L I K E;
+
+K_MASKED:      M A S K E D;
+K_MASK:        M A S K;
 
 // Case-insensitive alpha characters
 fragment A: ('a'|'A');

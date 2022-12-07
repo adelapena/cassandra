@@ -82,6 +82,8 @@ or not.
 |`LIST` |no
 |`LOGIN` |no
 |`MAP` |no
+|`MASK` |no
+|`MASKED` |no
 |`MODIFY` |yes
 |`NAN` |yes
 |`NOLOGIN` |no
@@ -138,6 +140,7 @@ or not.
 |`VARINT` |no
 |`WHERE` |yes
 |`WITH` |yes
+|`WITHOUT` |yes
 |`WRITETIME` |no
 |`MAXWRITETIME` |no
 |===
