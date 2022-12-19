@@ -18,11 +18,16 @@
 
 package org.apache.cassandra.cql3.functions.masking;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.ResultSet;
 import org.apache.cassandra.cql3.CQL3Type;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.schema.SchemaConstants;
 import org.assertj.core.api.Assertions;
 
 import static java.lang.String.format;
@@ -40,7 +45,7 @@ public class PartialMaskingFunctionTest extends MaskingFunctionTester
         // test both inner and outer masking...
         for (PartialMaskingFunction.Type masker : PartialMaskingFunction.Type.values())
         {
-            String functionName = "mask_" + masker.name();
+            String functionName = "mask_" + masker.name().toLowerCase();
 
             // ... with default padding
             assertRows(execute(format("SELECT %s(%s, 1, 2) FROM %%s", functionName, name)),
@@ -70,6 +75,14 @@ public class PartialMaskingFunctionTest extends MaskingFunctionTester
             // ... with null end
             assertRows(execute(format("SELECT %s(%s, 1, null) FROM %%s", functionName, name)),
                        row(masker.mask(valueAsText, 1, 0, PartialMaskingFunction.DEFAULT_PADDING_CHAR)));
+
+            // test result set metadata, it should always be of type text, regardless of the type of the column
+            ResultSet rs = executeNet(format("SELECT %s(%s, 1, 2) FROM %%s", functionName, name));
+            ColumnDefinitions definitions = rs.getColumnDefinitions();
+            Assert.assertEquals(1, definitions.size());
+            Assert.assertEquals(DataType.text(), definitions.getType(0));
+            Assert.assertEquals(format("%s.%s(%s, 1, 2)", SchemaConstants.SYSTEM_KEYSPACE_NAME, functionName, name),
+                                definitions.getName(0));
         }
     }
 

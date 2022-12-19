@@ -289,7 +289,7 @@ A number of functions allow to obscure the real contents of a column containing 
 |===
 |Function | Description
 
-| `mask_null(value)` | Replaces the first argument by `null`.
+| `mask_null(value)` | Replaces the first argument by a `null` column. The returned value is always an absent column, as it didn't exist, and not a not-null column representing a `null` value.
 
 Examples:
 

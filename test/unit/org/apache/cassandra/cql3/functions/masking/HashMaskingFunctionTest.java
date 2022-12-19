@@ -20,8 +20,15 @@ package org.apache.cassandra.cql3.functions.masking;
 
 import java.nio.ByteBuffer;
 
+import org.junit.Assert;
+import org.junit.BeforeClass;
+
+import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.ResultSet;
 import org.apache.cassandra.cql3.CQL3Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.schema.SchemaConstants;
 
 import static java.lang.String.format;
 
@@ -30,6 +37,12 @@ import static java.lang.String.format;
  */
 public class HashMaskingFunctionTest extends MaskingFunctionTester
 {
+    @BeforeClass
+    public static void beforeClass()
+    {
+        requireNetwork();
+    }
+
     @Override
     protected void testMaskingOnColumn(String name, CQL3Type type, Object value) throws Throwable
     {
@@ -58,6 +71,14 @@ public class HashMaskingFunctionTest extends MaskingFunctionTester
         assertInvalidThrowMessage("Hash algorithm not found",
                                   InvalidRequestException.class,
                                   format("SELECT mask_hash(%s, 'áéíóú') FROM %%s", name));
+
+        // test result set metadata, it should always be of type blob
+        ResultSet rs = executeNet(format("SELECT mask_hash(%s) FROM %%s", name));
+        ColumnDefinitions definitions = rs.getColumnDefinitions();
+        Assert.assertEquals(1, definitions.size());
+        Assert.assertEquals(DataType.blob(), definitions.getType(0));
+        Assert.assertEquals(format("%s.mask_hash(%s)", SchemaConstants.SYSTEM_KEYSPACE_NAME, name),
+                            definitions.getName(0));
     }
 
     private ByteBuffer serializedValue(CQL3Type type, Object value)

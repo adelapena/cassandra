@@ -75,7 +75,9 @@ public abstract class FunctionFactory
      * @param receiverType the expected return type of the function call for which the function is going to be built
      * @param receiverKs the name of the recevier keyspace
      * @param receiverCf the name of the recevier table
-     * @return a function with a signature compatible with the specified function call
+     * @return a function with a signature compatible with the specified function call, or {@code null} if the factory
+     * cannot create a function for the supplied arguments but there might be another factory with the same
+     * {@link #name()} able to do it.
      */
     @Nullable
     public NativeFunction getOrCreateFunction(List<? extends AssignmentTestable> args,
@@ -117,8 +119,10 @@ public abstract class FunctionFactory
      *
      * @param argTypes the types of the function arguments
      * @param receiverType the expected return type of the function
-     * @return a function compatible with the specified signature
+     * @return a function compatible with the specified signature, or {@code null} if this cannot create a function for
+     * the supplied arguments but there might be another factory with the same {@link #name()} able to do it.
      */
+    @Nullable
     protected abstract NativeFunction doGetOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType);
 
     @Override

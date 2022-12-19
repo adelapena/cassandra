@@ -29,7 +29,8 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.transport.ProtocolVersion;
 
 /**
- * A {@link MaskingFunction} that always returns a {@code null} of the same type as its single argument.
+ * A {@link MaskingFunction} that always returns a {@code null} column. The returned value is always an absent column,
+ * as it didn't exist, and not a not-null column representing a {@code null} value.
  * <p>
  * For example, given a text column named "username", {@code mask_null(username)} will always return {@code null},
  * independently of the actual value of that column.
