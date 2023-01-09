@@ -19,11 +19,23 @@
 package org.apache.cassandra.distributed.upgrade;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ProtocolVersion;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.SimpleStatement;
+import com.datastax.driver.core.Statement;
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
+
+import static org.apache.cassandra.distributed.api.Feature.GOSSIP;
+import static org.apache.cassandra.distributed.api.Feature.NATIVE_PROTOCOL;
+import static org.apache.cassandra.distributed.api.Feature.NETWORK;
+import static org.junit.Assert.assertEquals;
 
 public class CompactStoragePagingTest extends UpgradeTestBase
 {
@@ -51,5 +63,43 @@ public class CompactStoragePagingTest extends UpgradeTestBase
                 Assert.assertFalse(iter.hasNext());
             }
         }).run();
+    }
+
+    @Test
+    public void testPagingWithCompactStorageAndProtocolVersion() throws Throwable
+    {
+        new TestCase()
+        .nodes(2)
+        .nodesToUpgrade(1)
+        .upgradesFrom(v3X)
+        .withConfig(config -> config.with(GOSSIP, NETWORK, NATIVE_PROTOCOL))
+        .setup(c -> {
+            c.schemaChange(withKeyspace("CREATE TABLE %s.t (pk text, ck text, v text, PRIMARY KEY (pk, ck)) WITH COMPACT STORAGE"));
+            String insert = withKeyspace("INSERT INTO %s.t (pk, ck, v) VALUES (?, ?, ?)");
+            c.coordinator(1).execute(insert, ConsistencyLevel.ALL, "0", "01", "v");
+            c.coordinator(1).execute(insert, ConsistencyLevel.ALL, "0", "02", "v");
+        })
+        .runAfterNodeUpgrade((cluster, node) -> {
+            String query = withKeyspace("SELECT * FROM %s.t");
+            assertEquals(2, readWithProtocolVersion(query, ProtocolVersion.V5).size());
+            assertEquals(2, readWithProtocolVersion(query, ProtocolVersion.V4).size());
+            assertEquals(2, readWithProtocolVersion(query, ProtocolVersion.V3).size());
+        })
+        .run();
+    }
+
+    private static List<Row> readWithProtocolVersion(String query, ProtocolVersion protocolVersion)
+    {
+        Cluster.Builder builder = com.datastax.driver.core.Cluster.builder()
+                                                                  .addContactPoint("127.0.0.1")
+                                                                  .withProtocolVersion(protocolVersion);
+        try (com.datastax.driver.core.Cluster c = builder.build();
+             Session session = c.connect())
+        {
+            Statement stmt = new SimpleStatement(query);
+            stmt.setConsistencyLevel(com.datastax.driver.core.ConsistencyLevel.ALL);
+            stmt.setFetchSize(1);
+            return session.execute(stmt).all();
+        }
     }
 }
