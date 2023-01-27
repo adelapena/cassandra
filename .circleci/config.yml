@@ -124,7 +124,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -215,7 +215,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -281,7 +281,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -392,7 +392,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -548,7 +548,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -635,7 +635,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -754,7 +754,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -828,7 +828,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -919,7 +919,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -1030,7 +1030,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -1122,7 +1122,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -1241,7 +1241,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -1332,7 +1332,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -1451,7 +1451,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -1562,7 +1562,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -1672,7 +1672,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -1764,7 +1764,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -1961,7 +1961,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -2048,7 +2048,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -2183,7 +2183,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -2294,7 +2294,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -2404,7 +2404,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -2491,7 +2491,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -2583,7 +2583,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -2694,7 +2694,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -2804,7 +2804,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -2870,7 +2870,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -2989,7 +2989,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -3063,7 +3063,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -3183,7 +3183,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -3317,7 +3317,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -3451,7 +3451,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -3586,7 +3586,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -3705,7 +3705,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -3821,7 +3821,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -3940,7 +3940,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -4013,7 +4013,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -4105,7 +4105,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -4191,7 +4191,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -4306,7 +4306,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -4380,7 +4380,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -4491,7 +4491,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -4625,7 +4625,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -4716,7 +4716,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -4873,7 +4873,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -4965,7 +4965,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -5056,7 +5056,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -5175,7 +5175,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -5286,7 +5286,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -5396,7 +5396,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -5488,7 +5488,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -5598,7 +5598,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -5690,7 +5690,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -5809,7 +5809,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -5944,7 +5944,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -6064,7 +6064,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -6174,7 +6174,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -6265,7 +6265,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -6399,7 +6399,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -6509,7 +6509,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -6596,7 +6596,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -6704,7 +6704,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -6796,7 +6796,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -6906,7 +6906,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -6998,7 +6998,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -7090,7 +7090,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -7182,7 +7182,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -7293,7 +7293,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -7385,7 +7385,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -7471,7 +7471,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -7590,7 +7590,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -7709,7 +7709,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -7801,7 +7801,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -7910,7 +7910,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -7997,7 +7997,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -8083,7 +8083,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -8147,7 +8147,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -8239,7 +8239,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -8347,7 +8347,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -8544,7 +8544,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -8617,7 +8617,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -8736,7 +8736,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -8846,7 +8846,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -8980,7 +8980,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -9099,7 +9099,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -9207,7 +9207,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -9317,7 +9317,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -9408,7 +9408,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -9482,7 +9482,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -9546,7 +9546,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -9654,7 +9654,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -9746,7 +9746,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -9880,7 +9880,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -9971,7 +9971,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -10077,7 +10077,7 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_6924_dropping_cf
     - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
@@ -10339,6 +10339,12 @@ workflows:
         requires:
         - start_j8_dtests_offheap
         - j8_build
+    - start_j8_dtests_offheap_repeat:
+        type: approval
+    - j8_dtests_offheap_repeat:
+        requires:
+        - start_j8_dtests_offheap_repeat
+        - j8_build
     - start_j11_dtests:
         type: approval
     - j11_dtests:
@@ -10356,6 +10362,12 @@ workflows:
     - j11_dtests_offheap:
         requires:
         - start_j11_dtests_offheap
+        - j8_build
+    - start_j11_dtests_offheap_repeat:
+        type: approval
+    - j11_dtests_offheap_repeat:
+        requires:
+        - start_j11_dtests_offheap_repeat
         - j8_build
     - start_j8_dtests_large:
         type: approval
@@ -10466,6 +10478,30 @@ workflows:
     - j11_cqlsh_dtests_py311_offheap:
         requires:
         - start_j11_cqlsh_tests_offheap
+        - j8_build
+    - start_j8_dtests_repeat:
+        type: approval
+    - j8_dtests_repeat:
+        requires:
+        - start_j8_dtests_repeat
+        - j8_build
+    - start_j8_dtests_vnode_repeat:
+        type: approval
+    - j8_dtests_vnode_repeat:
+        requires:
+        - start_j8_dtests_vnode_repeat
+        - j8_build
+    - start_j11_dtests_repeat:
+        type: approval
+    - j11_dtests_repeat:
+        requires:
+        - start_j11_dtests_repeat
+        - j8_build
+    - start_j11_dtests_vnode_repeat:
+        type: approval
+    - j11_dtests_vnode_repeat:
+        requires:
+        - start_j11_dtests_vnode_repeat
         - j8_build
   java8_pre-commit_tests:
     jobs:
@@ -10625,7 +10661,13 @@ workflows:
     - j8_dtests:
         requires:
         - j8_build
+    - j8_dtests_repeat:
+        requires:
+        - j8_build
     - j8_dtests_vnode:
+        requires:
+        - j8_build
+    - j8_dtests_vnode_repeat:
         requires:
         - j8_build
     - start_j8_dtests_offheap:
@@ -10634,15 +10676,29 @@ workflows:
         requires:
         - start_j8_dtests_offheap
         - j8_build
+    - j8_dtests_offheap_repeat:
+        requires:
+        - start_j8_dtests_offheap
+        - j8_build
     - j11_dtests:
+        requires:
+        - j8_build
+    - j11_dtests_repeat:
         requires:
         - j8_build
     - j11_dtests_vnode:
         requires:
         - j8_build
+    - j11_dtests_vnode_repeat:
+        requires:
+        - j8_build
     - start_j11_dtests_offheap:
         type: approval
     - j11_dtests_offheap:
+        requires:
+        - start_j11_dtests_offheap
+        - j8_build
+    - j11_dtests_offheap_repeat:
         requires:
         - start_j11_dtests_offheap
         - j8_build
@@ -10807,6 +10863,12 @@ workflows:
         requires:
         - start_j11_dtests_offheap
         - j11_build
+    - start_j11_dtests_offheap_repeat:
+        type: approval
+    - j11_dtests_offheap_repeat:
+        requires:
+        - start_j11_dtests_offheap_repeat
+        - j11_build
     - start_j11_dtests_large:
         type: approval
     - j11_dtests_large:
@@ -10925,6 +10987,18 @@ workflows:
         requires:
         - start_j11_utests_system_keyspace_directory_repeat
         - j11_build
+    - start_j11_dtests_repeat:
+        type: approval
+    - j11_dtests_repeat:
+        requires:
+        - start_j11_dtests_repeat
+        - j11_build
+    - start_j11_dtests_vnode_repeat:
+        type: approval
+    - j11_dtests_vnode_repeat:
+        requires:
+        - start_j11_dtests_vnode_repeat
+        - j11_build
   java11_pre-commit_tests:
     jobs:
     - start_pre-commit_tests:
@@ -10956,7 +11030,13 @@ workflows:
     - j11_dtests:
         requires:
         - j11_build
+    - j11_dtests_repeat:
+        requires:
+        - j11_build
     - j11_dtests_vnode:
+        requires:
+        - j11_build
+    - j11_dtests_vnode_repeat:
         requires:
         - j11_build
     - start_j11_dtests_offheap:
@@ -10964,6 +11044,12 @@ workflows:
     - j11_dtests_offheap:
         requires:
         - start_j11_dtests_offheap
+        - j11_build
+    - start_j11_dtests_offheap_repeat:
+        type: approval
+    - j11_dtests_offheap_repeat:
+        requires:
+        - start_j11_dtests_offheap_repeat
         - j11_build
     - start_j11_dtests_large:
         type: approval
