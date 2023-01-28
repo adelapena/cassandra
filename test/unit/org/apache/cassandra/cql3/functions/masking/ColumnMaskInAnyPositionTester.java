@@ -19,8 +19,6 @@
 package org.apache.cassandra.cql3.functions.masking;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,12 +27,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.db.marshal.Int32Type;
-import org.apache.cassandra.db.marshal.UTF8Type;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 
 /**
  * {@link ColumnMaskTester} verifying that masks can be applied to columns in any position (partition key columns,
@@ -42,7 +36,7 @@ import static java.util.Collections.emptyList;
  * be udpated accordingly.
  */
 @RunWith(Parameterized.class)
-public class ColumnMaskInAnyPositionTest extends ColumnMaskTester
+public abstract class ColumnMaskInAnyPositionTester extends ColumnMaskTester
 {
     /** The column mask as expressed in CQL statements right after the {@code MASKED WITH} keywords. */
     @Parameterized.Parameter
@@ -59,32 +53,6 @@ public class ColumnMaskInAnyPositionTest extends ColumnMaskTester
     /** The serialized values of the tested masking function partial arguments. */
     @Parameterized.Parameter(3)
     public List<ByteBuffer> argumentValues;
-
-    @Parameterized.Parameters(name = "mask={0}, type={1}")
-    public static Collection<Object[]> options()
-    {
-        return Arrays.asList(new Object[][]{
-        { "DEFAULT", "int", emptyList(), emptyList() },
-        { "DEFAULT", "text", emptyList(), emptyList() },
-        { "DEFAULT", "frozen<list<uuid>>", emptyList(), emptyList() },
-        { "mask_default()", "int", emptyList(), emptyList() },
-        { "mask_default()", "text", emptyList(), emptyList() },
-        { "mask_default()", "frozen<list<uuid>>", emptyList(), emptyList() },
-        { "mask_null()", "frozen<list<uuid>>", emptyList(), emptyList() },
-        { "mask_inner(1, 2)", "text",
-          asList(Int32Type.instance, Int32Type.instance),
-          asList(Int32Type.instance.decompose(1), Int32Type.instance.decompose(2)) },
-        { "mask_outer(1, 2)", "text",
-          asList(Int32Type.instance, Int32Type.instance),
-          asList(Int32Type.instance.decompose(1), Int32Type.instance.decompose(2)) },
-        { "mask_inner(1, 2, '#')", "text",
-          asList(Int32Type.instance, Int32Type.instance, UTF8Type.instance),
-          asList(Int32Type.instance.decompose(1), Int32Type.instance.decompose(2), UTF8Type.instance.decompose("#")) },
-        { "mask_outer(1, 2, '#')", "text",
-          asList(Int32Type.instance, Int32Type.instance, UTF8Type.instance),
-          asList(Int32Type.instance.decompose(1), Int32Type.instance.decompose(2), UTF8Type.instance.decompose("#")) }
-        });
-    }
 
     @Test
     public void testCreateTableWithMaskedColumns() throws Throwable

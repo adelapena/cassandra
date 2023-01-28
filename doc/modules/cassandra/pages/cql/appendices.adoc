@@ -129,6 +129,7 @@ or not.
 |`TUPLE` |no
 |`TYPE` |no
 |`UNLOGGED` |yes
+|`UNMASK` |yes
 |`UPDATE` |yes
 |`USE` |yes
 |`USER` |no

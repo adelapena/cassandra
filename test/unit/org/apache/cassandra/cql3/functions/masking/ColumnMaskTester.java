@@ -19,9 +19,11 @@
 package org.apache.cassandra.cql3.functions.masking;
 
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 
 import org.apache.cassandra.cql3.CQLTester;
@@ -30,6 +32,7 @@ import org.apache.cassandra.cql3.UntypedResultSet;
 import org.apache.cassandra.cql3.functions.ScalarFunction;
 import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.cassandra.db.marshal.ReversedType;
 import org.apache.cassandra.schema.ColumnMetadata;
 import org.apache.cassandra.schema.KeyspaceMetadata;
 import org.apache.cassandra.schema.Schema;
@@ -44,15 +47,34 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Tests schema altering queries ({@code CREATE TABLE}, {@code ALTER TABLE}, etc.) that attach/dettach dynamic data
- * masking functions to column definitions.
+ * Tests table columns with attached dynamic data masking functions.
  */
 public class ColumnMaskTester extends CQLTester
 {
+    protected static final String USERNAME = "ddm_user";
+    protected static final String PASSWORD = "ddm_password";
+
     @BeforeClass
     public static void beforeClass()
     {
+        CQLTester.setUpClass();
+        requireAuthentication();
         requireNetwork();
+    }
+
+    @Before
+    public void before() throws Throwable
+    {
+        useSuperUser();
+        executeNet(format("CREATE USER IF NOT EXISTS %s WITH PASSWORD '%s'", USERNAME, PASSWORD));
+        executeNet(format("GRANT ALL ON KEYSPACE %s TO %s", KEYSPACE, USERNAME));
+        executeNet(format("REVOKE UNMASK ON KEYSPACE %s FROM %s", KEYSPACE, USERNAME));
+        useUser(USERNAME, PASSWORD);
+    }
+
+    protected void assertRowsNet(String query, Object[]... rows) throws Throwable
+    {
+        assertRowsNet(executeNet(query), rows);
     }
 
     protected void assertTableColumnsAreNotMasked(String... columns) throws Throwable
@@ -99,11 +121,14 @@ public class ColumnMaskTester extends CQLTester
         assertNotNull(tableMetadata);
         ColumnMetadata columnMetadata = tableMetadata.getColumn(ColumnIdentifier.getInterned(column, false));
         assertNotNull(columnMetadata);
+        AbstractType<?> columnType = columnMetadata.type;
 
         // Verify the column mask in the in-memory schema
         ColumnMask mask = getColumnMask(table, column);
         assertNotNull(mask);
-        assertThat(mask.partialArgumentTypes()).isEqualTo(partialArgumentTypes);
+        assertThat(mask.partialArgumentTypes()).isEqualTo(columnType.isReversed() && functionName.equals("mask_replace")
+                                                          ? Collections.singletonList(ReversedType.getInstance(partialArgumentTypes.get(0)))
+                                                          : partialArgumentTypes);
         assertThat(mask.partialArgumentValues).isEqualTo(partialArgumentValues);
 
         // Verify the function in the column mask
