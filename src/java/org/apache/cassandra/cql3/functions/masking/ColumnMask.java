@@ -60,6 +60,7 @@ import static org.apache.cassandra.cql3.statements.RequestValidations.invalidReq
  * <pre>
  *    CREATE TABLE %t (k int PRIMARY KEY, v int MASKED WITH mask_inner(1, 1);
  *    ALTER TABLE t ALTER v MASKED WITH mask_inner(2, 1);
+ *    ALTER TABLE t ALTER v DROP MASKED;
  * </pre>
  * Note that in the example above we are referencing the {@code mask_inner} function with two arguments. However, that
  * CQL function actually has three arguments. The first argument is always ommitted when attaching the function to a

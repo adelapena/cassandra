@@ -68,12 +68,12 @@ public class ColumnMaskTest extends ColumnMaskTester
         assertColumnIsMasked(table, "fm", "mask_null", emptyList(), emptyList());
 
         // Drop masks
-        alterTable("ALTER TABLE %s ALTER s WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER l WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER m WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER fs WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER fl WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER fm WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER s DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER l DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER m DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER fs DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER fl DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER fm DROP MASKED");
         assertTableColumnsAreNotMasked("s", "l", "m", "fs", "fl", "fm");
     }
 
@@ -91,7 +91,7 @@ public class ColumnMaskTest extends ColumnMaskTester
         assertColumnIsMasked(table, "v", "mask_null", emptyList(), emptyList());
 
         // Drop mask
-        alterTable("ALTER TABLE %s ALTER v WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER v DROP MASKED");
         assertTableColumnsAreNotMasked("v");
     }
 
@@ -108,16 +108,16 @@ public class ColumnMaskTest extends ColumnMaskTester
     public void testAlterTableRemoveMaskingFromNonExistingColumn() throws Throwable
     {
         String table = createTable("CREATE TABLE %s (k int PRIMARY KEY, v text)");
-        execute("ALTER TABLE %s ALTER IF EXISTS unknown WITHOUT MASK");
+        execute("ALTER TABLE %s ALTER IF EXISTS unknown DROP MASKED");
         assertInvalidMessage(format("Column with name 'unknown' doesn't exist on table '%s'", table),
-                             formatQuery("ALTER TABLE %s ALTER unknown WITHOUT MASK"));
+                             formatQuery("ALTER TABLE %s ALTER unknown DROP MASKED"));
     }
 
     @Test
     public void testAlterTableRemoveMaskFromUnmaskedColumn() throws Throwable
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, v text)");
-        execute("ALTER TABLE %s ALTER v WITHOUT MASK");
+        execute("ALTER TABLE %s ALTER v DROP MASKED");
         assertTableColumnsAreNotMasked("v");
     }
 
@@ -217,7 +217,7 @@ public class ColumnMaskTest extends ColumnMaskTester
             BoundStatement bound = prepared.bind(0);
             assertRowsNet(session.execute(bound), row("****"));
 
-            alterTable("ALTER TABLE %s ALTER v WITHOUT MASK");
+            alterTable("ALTER TABLE %s ALTER v DROP MASKED");
             assertRowsNet(session.execute(bound), row("sensitive"));
 
             alterTable("ALTER TABLE %s ALTER v MASKED WITH mask_replace('redacted')");
@@ -238,7 +238,7 @@ public class ColumnMaskTest extends ColumnMaskTester
         assertRows(execute(String.format("SELECT v FROM %s.%s WHERE v='sensitive'", KEYSPACE, view)), row("redacted"));
         assertEmpty(execute(String.format("SELECT v FROM %s.%s WHERE v='redacted'", KEYSPACE, view)));
 
-        alterTable("ALTER TABLE %s ALTER v WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER v DROP MASKED");
         assertRows(execute(String.format("SELECT v FROM %s.%s", KEYSPACE, view)), row("sensitive"));
         assertRows(execute(String.format("SELECT v FROM %s.%s WHERE v='sensitive'", KEYSPACE, view)), row("sensitive"));
         assertEmpty(execute(String.format("SELECT v FROM %s.%s WHERE v='redacted'", KEYSPACE, view)));
@@ -270,9 +270,9 @@ public class ColumnMaskTest extends ColumnMaskTester
         assertRows(execute(query), row(-1, -1, "redacted"), row(-1, -1, "redacted"));
 
         // again without masks
-        alterTable("ALTER TABLE %s ALTER k WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER c WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER v WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER k DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER c DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER v DROP MASKED");
         assertRows(execute(query), row(1, 0, "sensitive"), row(0, 0, "sensitive"));
     }
 
@@ -312,9 +312,9 @@ public class ColumnMaskTest extends ColumnMaskTester
         assertRowsWithPaging("SELECT * FROM %s WHERE k = 0 AND c = 1", row(-1, -1, "redacted"));
 
         // again without masks
-        alterTable("ALTER TABLE %s ALTER k WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER c WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER v WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER k DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER c DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER v DROP MASKED");
         assertRowsWithPaging("SELECT * FROM %s", row(1, 0, "sensitive"), row(0, 0, "sensitive"), row(0, 1, "sensitive"));
         assertRowsWithPaging("SELECT * FROM %s WHERE k = 1", row(1, 0, "sensitive"));
         assertRowsWithPaging("SELECT * FROM %s WHERE k = 0", row(0, 0, "sensitive"), row(0, 1, "sensitive"));

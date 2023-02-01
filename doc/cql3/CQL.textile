@@ -418,7 +418,7 @@ bc(syntax)..
 <instruction> ::= ADD (IF NOT EXISTS)? ( <identifier> <type> ( <column-mask> )?
                                        ( , <identifier> <type> ( <column-mask> )? )* )
                 | DROP  (IF EXISTS)? ( <identifier> ( , <identifier> )* )
-                | ALTER <identifier> ( <column-mask> | WITHOUT MASK )
+                | ALTER <identifier> ( <column-mask> | DROP MASKED )
                 | RENAME (IF EXISTS)? <identifier> to <identifier> (AND <identifier> to <identifier>)*
                 | DROP COMPACT STORAGE
                 | WITH  <option> ( AND <option> )*
@@ -2496,7 +2496,6 @@ CQL distinguishes between _reserved_ and _non-reserved_ keywords. Reserved keywo
 | @LIST@         | no  |
 | @LOGIN@        | no  |
 | @MAP@          | no  |
-| @MASK@         | no  |
 | @MASKED@       | no  |
 | @MATERIALIZED@ | yes |
 | @MBEAN@        | yes |
@@ -2561,7 +2560,6 @@ CQL distinguishes between _reserved_ and _non-reserved_ keywords. Reserved keywo
 | @VIEW@         | yes |
 | @WHERE@        | yes |
 | @WITH@         | yes |
-| @WITHOUT@      | yes |
 | @WRITETIME@    | yes |
 | @MAXWRITETIME@ | no  |
 

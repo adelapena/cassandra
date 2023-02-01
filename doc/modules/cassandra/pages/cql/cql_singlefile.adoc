@@ -3611,7 +3611,6 @@ or not.
 |`LIST` |no
 |`LOGIN` |no
 |`MAP` |no
-|`MASK` |no
 |`MASKED` |no
 |`MATERIALIZED` |yes
 |`MBEAN` |yes
@@ -3676,7 +3675,6 @@ or not.
 |`VIEW` |yes
 |`WHERE` |yes
 |`WITH` |yes
-|`WITHOUT` |yes
 |`WRITETIME` |no
 |===
 

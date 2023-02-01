@@ -181,27 +181,27 @@ public class ColumnMaskInAnyPositionTest extends ColumnMaskTester
         assertTableColumnsAreMasked("r1", "r2", "r4");
 
         // Unmask a masked column
-        alterTable("ALTER TABLE %s ALTER r1 WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER r2 WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER r1 DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER r2 DROP MASKED");
         assertTableColumnsAreMasked("r4");
         assertTableColumnsAreNotMasked("r1", "r2", "r3");
 
         // Mask and disable mask for primary key
         alterTable(format("ALTER TABLE %%s ALTER k MASKED WITH %s", mask));
         assertTableColumnsAreMasked("k");
-        alterTable("ALTER TABLE %s ALTER k WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER k DROP MASKED");
         assertTableColumnsAreNotMasked("k");
 
         // Mask and disable mask for clustering key
         alterTable(format("ALTER TABLE %%s ALTER c MASKED WITH %s", mask));
         assertTableColumnsAreMasked("c");
-        alterTable("ALTER TABLE %s ALTER c WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER c DROP MASKED");
         assertTableColumnsAreNotMasked("c");
 
         // Mask and disable mask for static column
         alterTable(format("ALTER TABLE %%s ALTER s MASKED WITH %s", mask));
         assertTableColumnsAreMasked("s");
-        alterTable("ALTER TABLE %s ALTER s WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER s DROP MASKED");
         assertTableColumnsAreNotMasked("s");
 
         // Add multiple masked columns within the same query
@@ -254,19 +254,19 @@ public class ColumnMaskInAnyPositionTest extends ColumnMaskTester
         assertViewColumnsAreMasked("k", "c", "r2");
 
         // Unmask a column that is part of the view
-        alterTable("ALTER TABLE %s ALTER r2 WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER r2 DROP MASKED");
         assertTableColumnsAreMasked("k", "c", "r1", "r3", "s1", "s2");
         assertTableColumnsAreNotMasked("r2");
         assertViewColumnsAreMasked("k", "c");
         assertViewColumnsAreNotMasked("r2");
 
         // Unmask the rest of the columns
-        alterTable("ALTER TABLE %s ALTER k WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER c WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER r1 WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER r3 WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER s1 WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER s2 WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER k DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER c DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER r1 DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER r3 DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER s1 DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER s2 DROP MASKED");
         assertTableColumnsAreNotMasked("k", "c", "r1", "r2", "r3", "s1", "s2");
         assertViewColumnsAreNotMasked("k", "c", "r2");
     }

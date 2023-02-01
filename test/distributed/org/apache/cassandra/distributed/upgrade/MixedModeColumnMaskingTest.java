@@ -65,7 +65,7 @@ public class MixedModeColumnMaskingTest extends UpgradeTestBase
 
                 // unmask existing column
                 assertFails(coordinator,
-                            "ALTER TABLE %s.t ALTER v WITHOUT MASK",
+                            "ALTER TABLE %s.t ALTER v DROP MASKED",
                             "Cannot remove masking function from column during rolling upgrade");
                 assertColumnValue(cluster, "t", "v", 7);
 
@@ -83,7 +83,7 @@ public class MixedModeColumnMaskingTest extends UpgradeTestBase
             assertColumnValue(cluster, "t2", "v", 0);
 
             // mask existing column
-            cluster.schemaChange(withKeyspace("ALTER TABLE %s.t2 ALTER v WITHOUT MASK"));
+            cluster.schemaChange(withKeyspace("ALTER TABLE %s.t2 ALTER v DROP MASKED"));
             assertColumnValue(cluster, "t2", "v", 7);
 
             // unmask existing column

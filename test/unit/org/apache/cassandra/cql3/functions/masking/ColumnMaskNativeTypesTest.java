@@ -78,10 +78,10 @@ public class ColumnMaskNativeTypesTest extends ColumnMaskTester
         assertColumnIsMasked(table, "s", "mask_null", emptyList(), emptyList());
 
         // Drop masks
-        alterTable("ALTER TABLE %s ALTER k WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER c WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER r WITHOUT MASK");
-        alterTable("ALTER TABLE %s ALTER s WITHOUT MASK");
+        alterTable("ALTER TABLE %s ALTER k DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER c DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER r DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER s DROP MASKED");
         assertTableColumnsAreNotMasked("k", "c", "r", "s");
     }
 }

@@ -940,7 +940,7 @@ alterKeyspaceStatement returns [AlterKeyspaceStatement.Raw stmt]
 /**
  * ALTER TABLE <table> ALTER <column> TYPE <newtype>;
  * ALTER TABLE [IF EXISTS] <table> ALTER [IF EXISTS] <column> MASKED WITH <maskFunction>);
- * ALTER TABLE [IF EXISTS] <table> ALTER [IF EXISTS] <column> WITHOUT MASK;
+ * ALTER TABLE [IF EXISTS] <table> ALTER [IF EXISTS] <column> DROP MASKED;
  * ALTER TABLE [IF EXISTS] <table> ADD [IF NOT EXISTS] <column> <newtype> <maskFunction>; | ALTER TABLE [IF EXISTS] <table> ADD [IF NOT EXISTS] (<column> <newtype> <maskFunction>, <column1> <newtype1>  <maskFunction1>..... <column n> <newtype n>  <maskFunction n>)
  * ALTER TABLE [IF EXISTS] <table> DROP [IF EXISTS] <column>; | ALTER TABLE [IF EXISTS] <table> DROP [IF EXISTS] ( <column>,<column1>.....<column n>)
  * ALTER TABLE [IF EXISTS] <table> RENAME [IF EXISTS] <column> TO <column>;
@@ -955,7 +955,7 @@ alterTableStatement returns [AlterTableStatement.Raw stmt]
 
       | K_ALTER ( K_IF K_EXISTS { $stmt.ifColumnExists(true); } )? id=cident
               ( mask=columnMask { $stmt.mask(id, mask); }
-              | K_WITHOUT K_MASK { $stmt.mask(id, null); } )
+              | K_DROP K_MASKED { $stmt.mask(id, null); } )
 
       | K_ADD ( K_IF K_NOT K_EXISTS { $stmt.ifColumnNotExists(true); } )?
               (        id=ident  v=comparatorType  b=isStaticColumn (m=columnMask)? { $stmt.add(id,  v,  b, m);  }
@@ -1957,6 +1957,5 @@ basic_unreserved_keyword returns [String str]
         | K_REPLACE
         | K_UNSET
         | K_MASKED
-        | K_MASK
         ) { $str = $k.text; }
     ;
