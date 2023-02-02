@@ -139,12 +139,21 @@ public final class SchemaKeyspace
               + "kind text,"
               + "position int,"
               + "type text,"
-              + "mask_keyspace text,"
-              + "mask_name text,"
-              + "mask_argument_types frozen<list<text>>,"
-              + "mask_argument_values frozen<list<blob>>,"
-              + "mask_argument_nulls frozen<list<boolean>>," // arguments that are null
               + "PRIMARY KEY ((keyspace_name), table_name, column_name))");
+
+    private static final TableMetadata ColumnMasks =
+    parse(COLUMN_MASKS,
+          "column dynamic data masks",
+          "CREATE TABLE %s ("
+          + "keyspace_name text,"
+          + "table_name text,"
+          + "column_name text,"
+          + "function_keyspace text,"
+          + "function_name text,"
+          + "function_argument_types frozen<list<text>>,"
+          + "function_argument_values frozen<list<blob>>,"
+          + "function_argument_nulls frozen<list<boolean>>," // arguments that are null
+          + "PRIMARY KEY ((keyspace_name), table_name, column_name))");
 
     private static final TableMetadata DroppedColumns =
         parse(DROPPED_COLUMNS,
@@ -252,7 +261,7 @@ public final class SchemaKeyspace
               + "PRIMARY KEY ((keyspace_name), aggregate_name, argument_types))");
 
     private static final List<TableMetadata> ALL_TABLE_METADATA =
-        ImmutableList.of(Keyspaces, Tables, Columns, Triggers, DroppedColumns, Views, Types, Functions, Aggregates, Indexes);
+        ImmutableList.of(Keyspaces, Tables, Columns, ColumnMasks, Triggers, DroppedColumns, Views, Types, Functions, Aggregates, Indexes);
 
     private static TableMetadata parse(String name, String description, String cql)
     {
@@ -697,7 +706,7 @@ public final class SchemaKeyspace
         if (type instanceof ReversedType)
             type = ((ReversedType<?>) type).baseType;
 
-        Row.SimpleBuilder rowBuilder = builder.update(Columns)
+        builder.update(Columns)
                .row(table.name, column.name.toString())
                .add("column_name_bytes", column.name.bytes)
                .add("kind", column.kind.toString().toLowerCase())
@@ -710,13 +719,10 @@ public final class SchemaKeyspace
         ColumnMask mask = column.getMask();
         if (ColumnMask.clusterSupportsMaskedColumns())
         {
+            Row.SimpleBuilder maskBuilder = builder.update(ColumnMasks).row(table.name, column.name.toString());
             if (mask == null)
             {
-                rowBuilder.delete("mask_keyspace")
-                          .delete("mask_name")
-                          .delete("mask_argument_types")
-                          .delete("mask_argument_values")
-                          .delete("mask_argument_nulls");
+                maskBuilder.delete();
             }
             else
             {
@@ -736,11 +742,11 @@ public final class SchemaKeyspace
                         values.set(i, ByteBufferUtil.EMPTY_BYTE_BUFFER);
                 }
 
-                rowBuilder.add("mask_keyspace", maskFunctionName.keyspace)
-                          .add("mask_name", maskFunctionName.name)
-                          .add("mask_argument_types", types)
-                          .add("mask_argument_values", values)
-                          .add("mask_argument_nulls", nulls);
+                maskBuilder.add("function_keyspace", maskFunctionName.keyspace)
+                           .add("function_name", maskFunctionName.name)
+                           .add("function_argument_types", types)
+                           .add("function_argument_values", values)
+                           .add("function_argument_nulls", nulls);
             }
         }
         else
@@ -1086,11 +1092,15 @@ public final class SchemaKeyspace
         ColumnIdentifier name = new ColumnIdentifier(row.getBytes("column_name_bytes"), row.getString("column_name"));
 
         ColumnMask mask = null;
-        if (row.has("mask_keyspace") && row.has("mask_name"))
+        String query = format("SELECT * FROM %s.%s WHERE keyspace_name = ? AND table_name = ? AND column_name = ?",
+                              SchemaConstants.SCHEMA_KEYSPACE_NAME, COLUMN_MASKS);
+        UntypedResultSet columnMasks = query(query, keyspace, table, name.toString());
+        if (!columnMasks.isEmpty())
         {
-            FunctionName functionName = new FunctionName(row.getString("mask_keyspace"), row.getString("mask_name"));
+            UntypedResultSet.Row maskRow = columnMasks.one();
+            FunctionName functionName = new FunctionName(maskRow.getString("function_keyspace"), maskRow.getString("function_name"));
 
-            List<String> partialArgumentTypes = row.getFrozenList("mask_argument_types", UTF8Type.instance);
+            List<String> partialArgumentTypes = maskRow.getFrozenList("function_argument_types", UTF8Type.instance);
             List<AbstractType<?>> argumentTypes = new ArrayList<>(1 + partialArgumentTypes.size());
             argumentTypes.add(type);
             for (String argumentType : partialArgumentTypes)
@@ -1108,8 +1118,8 @@ public final class SchemaKeyspace
 
             // Some arguments of the masking function can be null, but the CQL's list type that stores them doesn't
             // accept nulls, so we use a parallel list of booleans to store what arguments are null.
-            List<ByteBuffer> values = row.getFrozenList("mask_argument_values", BytesType.instance);
-            List<Boolean> nulls = row.getFrozenList("mask_argument_nulls", BooleanType.instance);
+            List<ByteBuffer> values = maskRow.getFrozenList("function_argument_values", BytesType.instance);
+            List<Boolean> nulls = maskRow.getFrozenList("function_argument_nulls", BooleanType.instance);
             for (int i = 0; i < values.size(); i++)
             {
                 if (nulls.get(i))

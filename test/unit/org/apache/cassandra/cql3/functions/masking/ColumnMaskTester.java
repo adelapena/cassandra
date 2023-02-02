@@ -33,7 +33,9 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.schema.ColumnMetadata;
 import org.apache.cassandra.schema.KeyspaceMetadata;
 import org.apache.cassandra.schema.Schema;
+import org.apache.cassandra.schema.SchemaConstants;
 import org.apache.cassandra.schema.SchemaKeyspace;
+import org.apache.cassandra.schema.SchemaKeyspaceTables;
 import org.apache.cassandra.schema.TableMetadata;
 
 import static java.lang.String.format;
@@ -76,16 +78,9 @@ public class ColumnMaskTester extends CQLTester
         ColumnMask mask = getColumnMask(table, column);
         assertNull(format("Mask for column '%s'", column), mask);
 
-        assertRows(execute("SELECT " +
-                           "  mask_keyspace, " +
-                           "  mask_name, " +
-                           "  mask_argument_types, " +
-                           "  mask_argument_values, " +
-                           "  mask_argument_nulls " +
-                           "FROM system_schema.columns " +
-                           "WHERE keyspace_name = ? AND table_name = ? AND column_name = ?",
-                           KEYSPACE, table, column),
-                   row(null, null, null, null, null));
+        assertRows(execute(format("SELECT * FROM %s.%s WHERE keyspace_name = ? AND table_name = ? AND column_name = ?",
+                                  SchemaConstants.SCHEMA_KEYSPACE_NAME, SchemaKeyspaceTables.COLUMN_MASKS),
+                           KEYSPACE, table, column));
     }
 
     protected void assertColumnIsMasked(String table,
