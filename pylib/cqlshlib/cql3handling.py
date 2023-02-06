@@ -1545,6 +1545,7 @@ syntax_rules += r'''
                | "DESCRIBE"
                | "EXECUTE"
                | "UNMASK"
+               | "SELECT_MASKED"
                ;
 
 <permissionExpr> ::= ( [newpermission]=<permission> "PERMISSION"? ( "," [newpermission]=<permission> "PERMISSION"? )* )
