@@ -420,6 +420,19 @@ public class TableMetadata implements SchemaElement
         return !staticColumns().isEmpty();
     }
 
+    /**
+     * @return {@code true} if the table has any masked column, {@code false} otherwise.
+     */
+    public boolean hasMaskedColumns()
+    {
+        for (ColumnMetadata column : columns.values())
+        {
+            if (column.isMasked())
+                return true;
+        }
+        return false;
+    }
+
     public void validate()
     {
         if (!isNameValid(keyspace))
