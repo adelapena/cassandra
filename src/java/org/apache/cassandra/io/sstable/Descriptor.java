@@ -74,6 +74,8 @@ public class Descriptor
     private final static String LEGACY_TMP_REGEX_STR = "^((.*)\\-(.*)\\-)?tmp(link)?\\-((?:l|k).)\\-(\\d)*\\-(.*)$";
     private final static Pattern LEGACY_TMP_REGEX = Pattern.compile(LEGACY_TMP_REGEX_STR);
 
+    public static final String EXTENSION = ".db";
+
     public static String TMP_EXT = ".tmp";
 
     public static final char FILENAME_SEPARATOR = '-';
@@ -237,7 +239,7 @@ public class Descriptor
     public static boolean isValidFile(File file)
     {
         String filename = file.name();
-        return filename.endsWith(".db") && !LEGACY_TMP_REGEX.matcher(filename).matches();
+        return filename.endsWith(EXTENSION) && !LEGACY_TMP_REGEX.matcher(filename).matches();
     }
 
     /**

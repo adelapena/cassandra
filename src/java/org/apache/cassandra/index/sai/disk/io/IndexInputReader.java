@@ -20,13 +20,17 @@ package org.apache.cassandra.index.sai.disk.io;
 
 import java.io.IOException;
 
-import org.apache.cassandra.io.compress.CorruptBlockException;
 import org.apache.cassandra.io.util.FileHandle;
 import org.apache.cassandra.io.util.RandomAccessReader;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.DataInput;
 import org.apache.lucene.store.IndexInput;
 
+/**
+ * This is a wrapper over a Cassandra {@link RandomAccessReader} that provides an {@link IndexInput}
+ * interface for Lucene classes that need {@link IndexInput}. This is an optimisation because the
+ * Lucene {@link DataInput} reads bytes one at a time whereas the {@link RandomAccessReader} is
+ * optimised to read multi-byte objects faster.
+ */
 public class IndexInputReader extends IndexInput
 {
     private final RandomAccessReader input;
@@ -65,14 +69,7 @@ public class IndexInputReader extends IndexInput
     @Override
     public void readBytes(byte[] bytes, int off, int len) throws IOException
     {
-        try
-        {
-            input.readFully(bytes, off, len);
-        }
-        catch (CorruptBlockException ex)
-        {
-            throw new CorruptIndexException(input.getPath(), "Corrupted block", ex);
-        }
+        input.readFully(bytes, off, len);
     }
 
     /**
@@ -82,14 +79,7 @@ public class IndexInputReader extends IndexInput
     @Override
     public short readShort() throws IOException
     {
-        try
-        {
-            return input.readShort();
-        }
-        catch (CorruptBlockException ex)
-        {
-            throw new CorruptIndexException(input.getPath(), "Corrupted block", ex);
-        }
+        return input.readShort();
     }
 
     /**
@@ -99,14 +89,7 @@ public class IndexInputReader extends IndexInput
     @Override
     public int readInt() throws IOException
     {
-        try
-        {
-            return input.readInt();
-        }
-        catch (CorruptBlockException ex)
-        {
-            throw new CorruptIndexException(input.getPath(), "Corrupted block", ex);
-        }
+        return input.readInt();
     }
 
     /**
@@ -116,14 +99,7 @@ public class IndexInputReader extends IndexInput
     @Override
     public long readLong() throws IOException
     {
-        try
-        {
-            return input.readLong();
-        }
-        catch (CorruptBlockException ex)
-        {
-            throw new CorruptIndexException(input.getPath(), "Corrupted block", ex);
-        }
+        return input.readLong();
     }
 
     @Override
@@ -158,32 +134,8 @@ public class IndexInputReader extends IndexInput
     }
 
     @Override
-    public IndexInput slice(String sliceDescription, long offset, long length) throws CorruptIndexException
+    public IndexInput slice(String sliceDescription, long offset, long length)
     {
-        if (offset < 0 || length < 0 || offset + length > input.length())
-        {
-            throw new CorruptIndexException("Invalid slice! Offset: " + offset + ", Length: " + length + ", Input Length: " + input.length(), this);
-        }
-
-        return new IndexInputReader(input, doOnClose)
-        {
-            @Override
-            public void seek(long position)
-            {
-                input.seek(position + offset);
-            }
-
-            @Override
-            public long getFilePointer()
-            {
-                return input.getFilePointer() - offset;
-            }
-
-            @Override
-            public long length()
-            {
-                return length;
-            }
-        };
+        throw new UnsupportedOperationException("Slice operations are not supported");
     }
 }

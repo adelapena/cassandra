@@ -22,9 +22,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 
+import com.google.common.primitives.Ints;
+
 import org.apache.cassandra.io.FSReadError;
 import org.apache.cassandra.io.FSWriteError;
-import org.apache.cassandra.utils.PageAware;
 import org.apache.cassandra.utils.SyncUtil;
 import org.apache.cassandra.utils.concurrent.Transactional;
 
@@ -272,17 +273,11 @@ public class SequentialWriter extends BufferedDataOutputStreamPlus implements Tr
     }
 
     @Override
-    public void padToPageBoundary() throws IOException
-    {
-        PageAware.pad(this);
-    }
-
-    @Override
     public int bytesLeftInPage()
     {
         long position = position();
         long bytesLeft = PageAware.pageLimit(position) - position;
-        return (int) bytesLeft;
+        return Ints.checkedCast(bytesLeft);
     }
 
     @Override

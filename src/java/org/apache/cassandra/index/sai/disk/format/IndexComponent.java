@@ -18,6 +18,9 @@
 
 package org.apache.cassandra.index.sai.disk.format;
 
+import org.apache.cassandra.index.sai.disk.v1.postings.PostingsWriter;
+import org.apache.cassandra.index.sai.disk.v1.trie.TrieTermsDictionaryWriter;
+
 /**
  * This is a definitive list of all the on-disk components for all versions
  */
@@ -25,79 +28,61 @@ public enum IndexComponent
 {
     /**
      * Stores per-index metadata.
-     *
-     * V1
      */
     META("Meta"),
+
     /**
-     * Term dictionary written by {@code TrieTermsDictionaryWriter} stores mappings of term and
+     * Term dictionary written by {@link TrieTermsDictionaryWriter} stores mappings of term and
      * file pointer to posting block on posting file.
-     *
-     * V1
      */
     TERMS_DATA("TermsData"),
+
     /**
-     * Stores postings written by {@code PostingsWriter}
-     *
-     * V1
+     * Stores postings written by {@link PostingsWriter}
      */
     POSTING_LISTS("PostingLists"),
+
     /**
      * If present indicates that the column index build completed successfully
-     *
-     * V1
      */
     COLUMN_COMPLETION_MARKER("ColumnComplete"),
+
 
     // per-sstable components
     /**
      * Partition key token value for rows including row tombstone and static row. (access key is rowId)
-     *
-     * V1
      */
     TOKEN_VALUES("TokenValues"),
-    /**
-     * Partition key offset in sstable data file for rows including row tombstone and static row. (access key is
-     * rowId)
-     *
-     * V1
-     */
-    OFFSETS_VALUES("OffsetsValues"),
+
     /**
      * An on-disk trie containing the primary keys used for looking up the rowId from a partition key
-     *
-     * V1
      */
     PRIMARY_KEY_TRIE("PrimaryKeyTrie"),
+
     /**
      * Prefix-compressed blocks of primary keys used for rowId to partition key lookups
-     *
-     * V1
      */
     PRIMARY_KEY_BLOCKS("PrimaryKeyBlocks"),
+
     /**
      * Encoded sequence of offsets to primary key blocks
-     *
-     * V1
      */
     PRIMARY_KEY_BLOCK_OFFSETS("PrimaryKeyBlockOffsets"),
+
     /**
      * Stores per-sstable metadata.
-     *
-     * V1
      */
     GROUP_META("GroupMeta"),
+
     /**
      * If present indicates that the per-sstable index build completed successfully
-     *
-     * V1
      */
     GROUP_COMPLETION_MARKER("GroupComplete");
 
-    public final String representation;
+    public final String name;
 
-    IndexComponent(String representation)
+    IndexComponent(String name)
     {
-        this.representation = representation;
+        this.name = name;
     }
 }

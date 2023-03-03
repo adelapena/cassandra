@@ -55,12 +55,6 @@ public class IncrementalTrieWriterSimple<VALUE>
     }
 
     @Override
-    public void close()
-    {
-        super.close();
-    }
-
-    @Override
     public void reset()
     {
         reset(new Node<>((byte) 0));

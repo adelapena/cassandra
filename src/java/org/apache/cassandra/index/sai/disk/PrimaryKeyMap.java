@@ -21,6 +21,8 @@ package org.apache.cassandra.index.sai.disk;
 import java.io.Closeable;
 import java.io.IOException;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.apache.cassandra.index.sai.SSTableQueryContext;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
 
@@ -28,12 +30,14 @@ import org.apache.cassandra.index.sai.utils.PrimaryKey;
  * A bidirectional map of {@link PrimaryKey} to row ID. Implementations of this interface
  * are not expected to be threadsafe.
  */
+@NotThreadSafe
 public interface PrimaryKeyMap extends Closeable
 {
     /**
      * A factory for creating {@link PrimaryKeyMap} instances. Implementations of this
      * interface are expected to be threadsafe.
      */
+    @NotThreadSafe
     interface Factory extends Closeable
     {
         /**

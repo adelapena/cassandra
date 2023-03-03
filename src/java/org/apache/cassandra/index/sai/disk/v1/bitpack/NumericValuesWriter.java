@@ -20,13 +20,15 @@ package org.apache.cassandra.index.sai.disk.v1.bitpack;
 import java.io.Closeable;
 import java.io.IOException;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.index.sai.disk.v1.MetadataWriter;
-import org.apache.cassandra.index.sai.utils.SAICodecUtils;
+import org.apache.cassandra.index.sai.disk.v1.SAICodecUtils;
 import org.apache.lucene.store.IndexOutput;
 
-
+@NotThreadSafe
 public class NumericValuesWriter implements Closeable
 {
     public static final int MONOTONIC_BLOCK_SIZE = 16384;
@@ -79,7 +81,7 @@ public class NumericValuesWriter implements Closeable
     {
         try (IndexOutput o = metadataWriter.builder(componentName))
         {
-            final long fp = writer.finish();
+            long fp = writer.finish();
             SAICodecUtils.writeFooter(output);
 
             NumericValuesMeta meta = new NumericValuesMeta(count, blockSize, fp);

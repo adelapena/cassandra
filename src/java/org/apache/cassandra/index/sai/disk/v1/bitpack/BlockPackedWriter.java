@@ -48,11 +48,11 @@ public class BlockPackedWriter extends AbstractBlockPackedWriter
             max = Math.max(values[i], max);
         }
 
-        final long delta = max - min;
+        long delta = max - min;
         int bitsRequired = delta == 0 ? 0 : DirectWriter.unsignedBitsRequired(delta);
 
-        final int token = (bitsRequired << BPV_SHIFT) | (min == 0 ? MIN_VALUE_EQUALS_0 : 0);
-        blockMetaWriter.writeByte((byte) token);
+        int shiftedBitsRequired = (bitsRequired << BPV_SHIFT) | (min == 0 ? MIN_VALUE_EQUALS_0 : 0);
+        blockMetaWriter.writeByte((byte) shiftedBitsRequired);
 
         if (min != 0)
         {

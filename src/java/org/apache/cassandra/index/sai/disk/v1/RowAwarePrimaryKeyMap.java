@@ -39,6 +39,7 @@ import org.apache.cassandra.index.sai.disk.v1.bitpack.BlockPackedReader;
 import org.apache.cassandra.index.sai.disk.v1.bitpack.NumericValuesMeta;
 import org.apache.cassandra.index.sai.disk.v1.sortedterms.SortedTermsMeta;
 import org.apache.cassandra.index.sai.disk.v1.sortedterms.SortedTermsReader;
+import org.apache.cassandra.index.sai.disk.v1.trie.TriePrefixSearcher;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
 import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
@@ -57,8 +58,8 @@ import org.apache.cassandra.utils.bytecomparable.ByteSourceInverse;
  *     <li>Block-packed structure for rowId to token lookups using {@link BlockPackedReader}.
  *     Uses component {@link IndexComponent#TOKEN_VALUES} </li>
  *     <li>A sorted-terms structure for rowId to {@link PrimaryKey} and {@link PrimaryKey} to rowId lookups using
- *     {@link SortedTermsReader}. Uses components {@link IndexComponent#PRIMARY_KEY_TRIE}, {@link IndexComponent#PRIMARY_KEY_BLOCKS},
- *     {@link IndexComponent#PRIMARY_KEY_BLOCK_OFFSETS}</li>
+ *     {@link SortedTermsReader} and {@link TriePrefixSearcher}. Uses components {@link IndexComponent#PRIMARY_KEY_TRIE},
+ *     {@link IndexComponent#PRIMARY_KEY_BLOCKS} and {@link IndexComponent#PRIMARY_KEY_BLOCK_OFFSETS}</li>
  * </ul>
  *
  * While the {@link RowAwarePrimaryKeyMapFactory} is threadsafe, individual instances of the {@link RowAwarePrimaryKeyMap}
@@ -72,10 +73,11 @@ public class RowAwarePrimaryKeyMap implements PrimaryKeyMap
     {
         private final LongArray.Factory tokenReaderFactory;
         private final SortedTermsReader sortedTermsReader;
-        private FileHandle token = null;
-        private FileHandle termsDataBlockOffsets = null;
-        private FileHandle termsData = null;
-        private FileHandle termsTrie = null;
+        private final SortedTermsMeta sortedTermsMeta;
+        private FileHandle tokensFile = null;
+        private FileHandle primaryKeyBlockOffsetsFile = null;
+        private FileHandle primaryKeyBlocksFile = null;
+        private FileHandle primaryKeyTrieFile = null;
         private final IPartitioner partitioner;
         private final ClusteringComparator clusteringComparator;
         private final PrimaryKeyFactory primaryKeyFactory;
@@ -86,22 +88,21 @@ public class RowAwarePrimaryKeyMap implements PrimaryKeyMap
             {
                 MetadataSource metadataSource = MetadataSource.loadGroupMetadata(indexDescriptor);
                 NumericValuesMeta tokensMeta = new NumericValuesMeta(metadataSource.get(indexDescriptor.componentName(IndexComponent.TOKEN_VALUES)));
-                SortedTermsMeta sortedTermsMeta = new SortedTermsMeta(metadataSource.get(indexDescriptor.componentName(IndexComponent.PRIMARY_KEY_BLOCKS)));
                 NumericValuesMeta blockOffsetsMeta = new NumericValuesMeta(metadataSource.get(indexDescriptor.componentName(IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS)));
-
-                token = indexDescriptor.createPerSSTableFileHandle(IndexComponent.TOKEN_VALUES);
-                this.tokenReaderFactory = new BlockPackedReader(token, tokensMeta);
-                this.termsDataBlockOffsets = indexDescriptor.createPerSSTableFileHandle(IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS);
-                this.termsData = indexDescriptor.createPerSSTableFileHandle(IndexComponent.PRIMARY_KEY_BLOCKS);
-                this.termsTrie = indexDescriptor.createPerSSTableFileHandle(IndexComponent.PRIMARY_KEY_TRIE);
-                this.sortedTermsReader = new SortedTermsReader(termsData, termsDataBlockOffsets, termsTrie, sortedTermsMeta, blockOffsetsMeta);
+                this.sortedTermsMeta = new SortedTermsMeta(metadataSource.get(indexDescriptor.componentName(IndexComponent.PRIMARY_KEY_BLOCKS)));
+                this.tokensFile = indexDescriptor.createPerSSTableFileHandle(IndexComponent.TOKEN_VALUES);
+                this.tokenReaderFactory = new BlockPackedReader(tokensFile, tokensMeta);
+                this.primaryKeyBlockOffsetsFile = indexDescriptor.createPerSSTableFileHandle(IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS);
+                this.primaryKeyBlocksFile = indexDescriptor.createPerSSTableFileHandle(IndexComponent.PRIMARY_KEY_BLOCKS);
+                this.primaryKeyTrieFile = indexDescriptor.createPerSSTableFileHandle(IndexComponent.PRIMARY_KEY_TRIE);
+                this.sortedTermsReader = new SortedTermsReader(primaryKeyBlocksFile, primaryKeyBlockOffsetsFile, sortedTermsMeta, blockOffsetsMeta);
                 this.partitioner = sstable.metadata().partitioner;
                 this.primaryKeyFactory = indexDescriptor.primaryKeyFactory;
                 this.clusteringComparator = indexDescriptor.clusteringComparator;
             }
             catch (Throwable t)
             {
-                throw Throwables.unchecked(Throwables.close(t, Arrays.asList(token, termsData, termsDataBlockOffsets, termsTrie)));
+                throw Throwables.unchecked(Throwables.close(t, Arrays.asList(tokensFile, primaryKeyBlocksFile, primaryKeyBlockOffsetsFile, primaryKeyTrieFile)));
             }
         }
 
@@ -109,10 +110,10 @@ public class RowAwarePrimaryKeyMap implements PrimaryKeyMap
         @SuppressWarnings({"resource", "RedundantSuppression"})
         public PrimaryKeyMap newPerSSTablePrimaryKeyMap(SSTableQueryContext context) throws IOException
         {
-            final LongArray rowIdToToken = new LongArray.DeferredLongArray(() -> tokenReaderFactory.openTokenReader(0, context));
+            LongArray rowIdToToken = new LongArray.DeferredLongArray(tokenReaderFactory::open);
             return new RowAwarePrimaryKeyMap(rowIdToToken,
-                                             sortedTermsReader,
-                                             sortedTermsReader.openCursor(context),
+                                             new TriePrefixSearcher(primaryKeyTrieFile.instantiateRebufferer(), sortedTermsMeta.trieFilePointer),
+                                             sortedTermsReader.openCursor(),
                                              partitioner,
                                              primaryKeyFactory,
                                              clusteringComparator);
@@ -121,12 +122,12 @@ public class RowAwarePrimaryKeyMap implements PrimaryKeyMap
         @Override
         public void close()
         {
-            FileUtils.closeQuietly(Arrays.asList(token, termsData, termsDataBlockOffsets, termsTrie));
+            FileUtils.closeQuietly(Arrays.asList(tokensFile, primaryKeyBlocksFile, primaryKeyBlockOffsetsFile, primaryKeyTrieFile));
         }
     }
 
     private final LongArray rowIdToToken;
-    private final SortedTermsReader sortedTermsReader;
+    private final TriePrefixSearcher triePrefixSearcher;
     private final SortedTermsReader.Cursor cursor;
     private final IPartitioner partitioner;
     private final PrimaryKeyFactory primaryKeyFactory;
@@ -134,14 +135,14 @@ public class RowAwarePrimaryKeyMap implements PrimaryKeyMap
     private final ByteBuffer tokenBuffer = ByteBuffer.allocate(Long.BYTES);
 
     private RowAwarePrimaryKeyMap(LongArray rowIdToToken,
-                                  SortedTermsReader sortedTermsReader,
+                                  TriePrefixSearcher triePrefixSearcher,
                                   SortedTermsReader.Cursor cursor,
                                   IPartitioner partitioner,
                                   PrimaryKeyFactory primaryKeyFactory,
                                   ClusteringComparator clusteringComparator)
     {
         this.rowIdToToken = rowIdToToken;
-        this.sortedTermsReader = sortedTermsReader;
+        this.triePrefixSearcher = triePrefixSearcher;
         this.cursor = cursor;
         this.partitioner = partitioner;
         this.primaryKeyFactory = primaryKeyFactory;
@@ -159,13 +160,13 @@ public class RowAwarePrimaryKeyMap implements PrimaryKeyMap
     @Override
     public long rowIdFromPrimaryKey(PrimaryKey key)
     {
-        return sortedTermsReader.getPointId(key::asComparableBytes);
+        return triePrefixSearcher.prefixSearch(key.asComparableBytes(ByteComparable.Version.OSS42));
     }
 
     @Override
     public void close()
     {
-        FileUtils.closeQuietly(Arrays.asList(cursor, rowIdToToken));
+        FileUtils.closeQuietly(Arrays.asList(triePrefixSearcher, cursor, rowIdToToken));
     }
 
     private PrimaryKey supplier(long sstableRowId)

@@ -45,7 +45,6 @@ import javax.management.AttributeNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import com.google.common.base.Predicates;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Assert;
@@ -53,7 +52,6 @@ import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +73,7 @@ import org.apache.cassandra.db.compaction.CompactionManager;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.index.Index;
+import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.index.sai.disk.format.Version;
@@ -249,6 +248,11 @@ public abstract class SAITester extends CQLTester
                                 IndexMetadata.fromSchemaMetadata(name, IndexMetadata.Kind.CUSTOM, null));
     }
 
+    protected StorageAttachedIndexGroup getCurrentIndexGroup()
+    {
+        return StorageAttachedIndexGroup.getIndexGroup(getCurrentColumnFamilyStore());
+    }
+
     protected void simulateNodeRestart()
     {
         simulateNodeRestart(true);
@@ -256,7 +260,7 @@ public abstract class SAITester extends CQLTester
 
     protected void simulateNodeRestart(boolean wait)
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         cfs.indexManager.listIndexes().forEach(index -> ((StorageAttachedIndexGroup)cfs.indexManager.getIndexGroup(index)).reset());
         cfs.indexManager.listIndexes().forEach(cfs.indexManager::buildIndex);
         cfs.indexManager.executePreJoinTasksBlocking(true);
@@ -268,8 +272,7 @@ public abstract class SAITester extends CQLTester
 
     protected void corruptIndexComponent(IndexComponent indexComponent, CorruptionType corruptionType) throws Exception
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
-
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         for (SSTableReader sstable : cfs.getLiveSSTables())
         {
             File file = IndexDescriptor.create(sstable).fileFor(indexComponent);
@@ -279,8 +282,7 @@ public abstract class SAITester extends CQLTester
 
     protected void corruptIndexComponent(IndexComponent indexComponent, IndexContext indexContext, CorruptionType corruptionType) throws Exception
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
-
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         for (SSTableReader sstable : cfs.getLiveSSTables())
         {
             File file = IndexDescriptor.create(sstable).fileFor(indexComponent, indexContext);
@@ -300,7 +302,7 @@ public abstract class SAITester extends CQLTester
 
     protected boolean indexNeedsFullRebuild(String index)
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         return cfs.indexManager.needsFullRebuild(index);
     }
 
@@ -328,7 +330,7 @@ public abstract class SAITester extends CQLTester
 
     protected boolean verifyChecksum(IndexContext context)
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
 
         for (SSTableReader sstable : cfs.getLiveSSTables())
         {
@@ -378,7 +380,7 @@ public abstract class SAITester extends CQLTester
 
     public void waitForCompactions()
     {
-        waitForAssert(() -> assertFalse(CompactionManager.instance.isCompacting(ColumnFamilyStore.all(), Predicates.alwaysTrue())), 10, TimeUnit.SECONDS);
+        waitForAssert(() -> assertFalse(CompactionManager.instance.isCompacting(ColumnFamilyStore.all(), ssTableReader -> true)), 10, TimeUnit.SECONDS);
     }
 
     protected void waitForCompactionsFinished()
@@ -456,26 +458,23 @@ public abstract class SAITester extends CQLTester
 
     protected long totalDiskSpaceUsed()
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         return cfs.metric.totalDiskSpaceUsed.getCount();
     }
 
     protected long indexDiskSpaceUse()
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
-        return Objects.requireNonNull(StorageAttachedIndexGroup.getIndexGroup(cfs)).totalDiskUsage();
+        return getCurrentIndexGroup().totalDiskUsage();
     }
 
     protected int getOpenIndexFiles()
     {
-        ColumnFamilyStore cfs = Schema.instance.getKeyspaceInstance(KEYSPACE).getColumnFamilyStore(currentTable());
-        return StorageAttachedIndexGroup.getIndexGroup(cfs).openIndexFiles();
+        return getCurrentIndexGroup().openIndexFiles();
     }
 
     protected long getDiskUsage()
     {
-        ColumnFamilyStore cfs = Schema.instance.getKeyspaceInstance(KEYSPACE).getColumnFamilyStore(currentTable());
-        return StorageAttachedIndexGroup.getIndexGroup(cfs).diskUsage();
+        return getCurrentIndexGroup().diskUsage();
     }
 
     protected void verifyNoIndexFiles()
@@ -534,8 +533,8 @@ public abstract class SAITester extends CQLTester
 
     protected void verifySSTableIndexes(String indexName, int sstableContextCount, int sstableIndexCount)
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
-        StorageAttachedIndexGroup indexGroup = StorageAttachedIndexGroup.getIndexGroup(cfs);
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
+        StorageAttachedIndexGroup indexGroup = getCurrentIndexGroup();
         int contextCount = indexGroup.sstableContextManager().size();
         assertEquals("Expected " + sstableContextCount +" SSTableContexts, but got " + contextCount, sstableContextCount, contextCount);
 
@@ -553,7 +552,7 @@ public abstract class SAITester extends CQLTester
 
     protected Set<File> indexFiles()
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         Set<Component> components = cfs.indexManager.listIndexGroups()
                                                     .stream()
                                                     .filter(g -> g instanceof StorageAttachedIndexGroup)
@@ -604,6 +603,7 @@ public abstract class SAITester extends CQLTester
 
     public void compact(String keyspace, String table)
     {
+
         ColumnFamilyStore store = Keyspace.open(keyspace).getColumnFamilyStore(table);
         if (store != null)
             store.forceMajorCompaction();
@@ -611,7 +611,7 @@ public abstract class SAITester extends CQLTester
 
     protected void truncate(boolean snapshot)
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         if (snapshot)
             cfs.truncateBlocking();
         else
@@ -625,13 +625,12 @@ public abstract class SAITester extends CQLTester
 
     protected void reloadSSTableIndex()
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
-        StorageAttachedIndexGroup.getIndexGroup(cfs).unsafeReload();
+        getCurrentIndexGroup().unsafeReload();
     }
 
     protected void runInitializationTask() throws Exception
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         for (Index i : cfs.indexManager.listIndexes())
         {
             assert i instanceof StorageAttachedIndex;
@@ -647,14 +646,14 @@ public abstract class SAITester extends CQLTester
 
     protected int snapshot(String snapshotName)
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         TableSnapshot snapshot = cfs.snapshot(snapshotName);
         return snapshot.getDirectories().size();
     }
 
     protected void restoreSnapshot(String snapshot)
     {
-        ColumnFamilyStore cfs = Keyspace.open(KEYSPACE).getColumnFamilyStore(currentTable());
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         Directories.SSTableLister lister = cfs.getDirectories().sstableLister(Directories.OnTxnErr.IGNORE).snapshots(snapshot);
         restore(cfs, lister);
     }
@@ -736,7 +735,7 @@ public abstract class SAITester extends CQLTester
         ColumnFamilyStore cfs = Objects.requireNonNull(Schema.instance.getKeyspaceInstance(KEYSPACE)).getColumnFamilyStore(table);
         for (SSTable sstable : cfs.getLiveSSTables())
         {
-            Set<Component> components = sstable.components;
+            Set<Component> components = sstable.getComponents();
             StorageAttachedIndexGroup group = StorageAttachedIndexGroup.getIndexGroup(cfs);
             Set<Component> ndiComponents = group == null ? Collections.emptySet() : group.getComponents();
 

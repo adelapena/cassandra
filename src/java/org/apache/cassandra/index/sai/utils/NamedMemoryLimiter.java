@@ -57,23 +57,23 @@ public final class NamedMemoryLimiter
     {
         if (logger.isTraceEnabled())
             logger.trace("[{}]: Incrementing tracked memory usage by {} bytes from current usage of {}...", scope, bytes, currentBytesUsed());
-        return this.bytesUsed.addAndGet(bytes);
+        return bytesUsed.addAndGet(bytes);
     }
 
     public long decrement(long bytes)
     {
         if (logger.isTraceEnabled())
             logger.trace("[{}]: Decrementing tracked memory usage by {} bytes from current usage of {}...", scope, bytes, currentBytesUsed());
-        return this.bytesUsed.addAndGet(-bytes);
+        return bytesUsed.addAndGet(-bytes);
     }
 
     public long currentBytesUsed()
     {
-        return this.bytesUsed.get();
+        return bytesUsed.get();
     }
     
     public long limitBytes()
     {
-        return this.limitBytes;
+        return limitBytes;
     }
 }

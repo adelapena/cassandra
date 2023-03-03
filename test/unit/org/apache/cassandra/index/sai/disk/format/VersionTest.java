@@ -36,7 +36,7 @@ public class VersionTest
     @Test
     public void supportedVersionsWillParse()
     {
-        assertEquals(Version.BA, Version.parse("ba"));
+        assertEquals(Version.AA, Version.parse("aa"));
     }
 
     @Test

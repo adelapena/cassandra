@@ -262,6 +262,7 @@ public class NodeStartupTest extends SAITester
         Assert.assertEquals(deletedPerIndex, deletedPerIndexCounter.get());
     }
 
+    @SuppressWarnings("unused")
     public void populateIndexableRows()
     {
         try
@@ -279,6 +280,7 @@ public class NodeStartupTest extends SAITester
         }
     }
 
+    @SuppressWarnings("unused")
     public void populateNonIndexableRows()
     {
         try
@@ -296,6 +298,7 @@ public class NodeStartupTest extends SAITester
         }
     }
 
+    @SuppressWarnings("unused")
     public void populateTombstones()
     {
         try
@@ -342,10 +345,10 @@ public class NodeStartupTest extends SAITester
                 remove(IndexComponent.COLUMN_COMPLETION_MARKER, indexContext);
                 break;
             case PER_SSTABLE_CORRUPT:
-                corrupt(IndexComponent.GROUP_META);
+                corrupt();
                 break;
             case PER_COLUMN_CORRUPT:
-                corrupt(IndexComponent.META, indexContext);
+                corrupt(indexContext);
                 break;
         }
     }
@@ -376,11 +379,11 @@ public class NodeStartupTest extends SAITester
         }
     }
 
-    private void corrupt(IndexComponent component)
+    private void corrupt()
     {
         try
         {
-            corruptIndexComponent(component, CorruptionType.TRUNCATED_HEADER);
+            corruptIndexComponent(IndexComponent.GROUP_META, CorruptionType.TRUNCATED_HEADER);
         }
         catch (Exception e)
         {
@@ -389,11 +392,11 @@ public class NodeStartupTest extends SAITester
         }
     }
 
-    private void corrupt(IndexComponent component, IndexContext indexContext)
+    private void corrupt(IndexContext indexContext)
     {
         try
         {
-            corruptIndexComponent(component, indexContext, CorruptionType.TRUNCATED_HEADER);
+            corruptIndexComponent(IndexComponent.META, indexContext, CorruptionType.TRUNCATED_HEADER);
         }
         catch (Exception e)
         {

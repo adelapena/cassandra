@@ -68,21 +68,25 @@ public abstract class AbstractMemtable implements Memtable
         this.minTimestamp = new AtomicLong(minTimestamp);
     }
 
+    @Override
     public TableMetadata metadata()
     {
         return metadata.get();
     }
 
+    @Override
     public long operationCount()
     {
         return currentOperations.get();
     }
 
+    @Override
     public long getMinTimestamp()
     {
         return minTimestamp.get() != EncodingStats.NO_STATS.minTimestamp ? minTimestamp.get() : NO_MIN_TIMESTAMP;
     }
 
+    @Override
     public int getMinLocalDeletionTime()
     {
         return minLocalDeletionTime.get();
@@ -122,11 +126,13 @@ public abstract class AbstractMemtable implements Memtable
         return statsCollector.get();
     }
 
+    @Override
     public LifecycleTransaction getFlushTransaction()
     {
         return flushTransaction.get();
     }
 
+    @Override
     public LifecycleTransaction setFlushTransaction(LifecycleTransaction flushTransaction)
     {
         return this.flushTransaction.getAndSet(flushTransaction);
@@ -217,26 +223,31 @@ public abstract class AbstractMemtable implements Memtable
 
     protected abstract class AbstractFlushablePartitionSet<P extends Partition> implements FlushablePartitionSet<P>
     {
+        @Override
         public long dataSize()
         {
             return getLiveDataSize();
         }
 
+        @Override
         public CommitLogPosition commitLogLowerBound()
         {
             return AbstractMemtable.this.getCommitLogLowerBound();
         }
 
+        @Override
         public LastCommitLogPosition commitLogUpperBound()
         {
             return AbstractMemtable.this.getFinalCommitLogUpperBound();
         }
 
+        @Override
         public EncodingStats encodingStats()
         {
             return AbstractMemtable.this.encodingStats();
         }
 
+        @Override
         public RegularAndStaticColumns columns()
         {
             return AbstractMemtable.this.columns();

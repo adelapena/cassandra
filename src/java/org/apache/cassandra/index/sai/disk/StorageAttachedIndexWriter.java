@@ -18,11 +18,11 @@
 package org.apache.cassandra.index.sai.disk;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
@@ -36,25 +36,25 @@ import org.apache.cassandra.db.rows.Unfiltered;
 import org.apache.cassandra.db.tries.InMemoryTrie;
 import org.apache.cassandra.index.sai.StorageAttachedIndex;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
-import org.apache.cassandra.index.sai.memory.RowMapping;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
-import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
 import org.apache.cassandra.io.sstable.format.SSTableFlushObserver;
+import org.apache.cassandra.utils.Throwables;
 
 /**
  * Writes all on-disk index structures attached to a given SSTable.
  */
+@NotThreadSafe
 public class StorageAttachedIndexWriter implements SSTableFlushObserver
 {
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(StorageAttachedIndexWriter.class);
 
     private final IndexDescriptor indexDescriptor;
-    private final PrimaryKeyFactory primaryKeyFactory;
     private final Collection<StorageAttachedIndex> indexes;
     private final Collection<PerIndexWriter> perIndexWriters;
     private final PerSSTableWriter perSSTableWriter;
     private final Stopwatch stopwatch = Stopwatch.createUnstarted();
     private final RowMapping rowMapping;
+    private final boolean propagateErrors;
 
     private DecoratedKey currentKey;
     private boolean tokenOffsetWriterCompleted = false;
@@ -62,22 +62,32 @@ public class StorageAttachedIndexWriter implements SSTableFlushObserver
 
     private long sstableRowId = 0;
 
-    public StorageAttachedIndexWriter(IndexDescriptor indexDescriptor,
-                                      Collection<StorageAttachedIndex> indexes,
-                                      LifecycleNewTracker lifecycleNewTracker) throws IOException
+    public static StorageAttachedIndexWriter createFlushObserverWriter(IndexDescriptor indexDescriptor,
+                                                                       Collection<StorageAttachedIndex> indexes,
+                                                                       LifecycleNewTracker lifecycleNewTracker) throws IOException
     {
-        this(indexDescriptor, indexes, lifecycleNewTracker, false);
+        return new StorageAttachedIndexWriter(indexDescriptor, indexes, lifecycleNewTracker, false, false);
+
     }
 
-    public StorageAttachedIndexWriter(IndexDescriptor indexDescriptor,
-                                      Collection<StorageAttachedIndex> indexes,
-                                      LifecycleNewTracker lifecycleNewTracker,
-                                      boolean perIndexComponentsOnly) throws IOException
+    public static StorageAttachedIndexWriter createBuilderWriter(IndexDescriptor indexDescriptor,
+                                                                 Collection<StorageAttachedIndex> indexes,
+                                                                 LifecycleNewTracker lifecycleNewTracker,
+                                                                 boolean perIndexComponentsOnly) throws IOException
+    {
+        return new StorageAttachedIndexWriter(indexDescriptor, indexes, lifecycleNewTracker, perIndexComponentsOnly, true);
+    }
+
+    private StorageAttachedIndexWriter(IndexDescriptor indexDescriptor,
+                                       Collection<StorageAttachedIndex> indexes,
+                                       LifecycleNewTracker lifecycleNewTracker,
+                                       boolean perIndexComponentsOnly,
+                                       boolean propagateErrors) throws IOException
     {
         this.indexDescriptor = indexDescriptor;
-        this.primaryKeyFactory = indexDescriptor.primaryKeyFactory;
         this.indexes = indexes;
         this.rowMapping = RowMapping.create(lifecycleNewTracker.opType());
+        this.propagateErrors = propagateErrors;
         this.perIndexWriters = indexes.stream().map(index -> indexDescriptor.newPerIndexWriter(index,
                                                                                                lifecycleNewTracker,
                                                                                                rowMapping))
@@ -92,7 +102,7 @@ public class StorageAttachedIndexWriter implements SSTableFlushObserver
     @Override
     public void begin()
     {
-        logger.debug(indexDescriptor.logMessage("Starting partition iteration for storage attached index flush for SSTable {}..."), indexDescriptor.descriptor);
+        logger.debug(indexDescriptor.logMessage("Starting partition iteration for storage-attached index flush for SSTable {}..."), indexDescriptor.sstableDescriptor);
         stopwatch.start();
     }
 
@@ -157,8 +167,7 @@ public class StorageAttachedIndexWriter implements SSTableFlushObserver
         long start = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
         logger.debug(indexDescriptor.logMessage("Completed partition iteration for index flush for SSTable {}. Elapsed time: {} ms"),
-                     indexDescriptor.descriptor,
-                     start);
+                     indexDescriptor.sstableDescriptor, start);
 
         try
         {
@@ -168,9 +177,7 @@ public class StorageAttachedIndexWriter implements SSTableFlushObserver
             long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
             logger.debug(indexDescriptor.logMessage("Completed per-SSTable write for SSTable {}. Duration: {} ms. Total elapsed time: {} ms."),
-                         indexDescriptor.descriptor,
-                         elapsed - start,
-                         elapsed);
+                         indexDescriptor.sstableDescriptor, elapsed - start, elapsed);
 
             start = elapsed;
 
@@ -182,9 +189,7 @@ public class StorageAttachedIndexWriter implements SSTableFlushObserver
             }
             elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
             logger.debug(indexDescriptor.logMessage("Completed per-index writes for SSTable {}. Duration: {} ms. Total elapsed time: {} ms."),
-                         indexDescriptor.descriptor,
-                         elapsed - start,
-                         elapsed);
+                         indexDescriptor.sstableDescriptor, elapsed - start, elapsed);
         }
         catch (Throwable t)
         {
@@ -238,11 +243,16 @@ public class StorageAttachedIndexWriter implements SSTableFlushObserver
             // If the token/offset files have already been written successfully, they can be reused later. 
             perSSTableWriter.abort();
         }
+
+        // If the abort was from an index error and this is part of an index build operation then
+        // propagate the error up to the SecondaryIndexManager, so it can be correctly marked as failed.
+        if (fromIndex && propagateErrors)
+            throw Throwables.unchecked(accumulator);
     }
 
     private void addRow(Row row) throws IOException, InMemoryTrie.SpaceExhaustedException
     {
-        PrimaryKey primaryKey = primaryKeyFactory.create(currentKey, row.clustering());
+        PrimaryKey primaryKey = indexDescriptor.primaryKeyFactory.create(currentKey, row.clustering());
         perSSTableWriter.nextRow(primaryKey);
         rowMapping.add(primaryKey, sstableRowId);
 

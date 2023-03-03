@@ -32,16 +32,15 @@ import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.index.sai.SAITester;
-import org.apache.cassandra.index.sai.SSTableQueryContext;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.index.sai.disk.io.IndexOutputWriter;
 import org.apache.cassandra.index.sai.disk.v1.MetadataSource;
 import org.apache.cassandra.index.sai.disk.v1.MetadataWriter;
+import org.apache.cassandra.index.sai.disk.v1.SAICodecUtils;
 import org.apache.cassandra.index.sai.disk.v1.bitpack.NumericValuesMeta;
 import org.apache.cassandra.index.sai.disk.v1.bitpack.NumericValuesWriter;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
-import org.apache.cassandra.index.sai.utils.SAICodecUtils;
 import org.apache.cassandra.index.sai.utils.SAIRandomizedTester;
 import org.apache.cassandra.io.util.FileHandle;
 import org.apache.cassandra.utils.bytecomparable.ByteComparable;
@@ -54,7 +53,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public class SortedTermsTest extends SAIRandomizedTester
 {
@@ -138,47 +136,6 @@ public class SortedTermsTest extends SAIRandomizedTester
         assertTrue(validateComponent(indexDescriptor, IndexComponent.PRIMARY_KEY_BLOCKS, false));
         assertTrue(validateComponent(indexDescriptor, IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS, true));
         assertTrue(validateComponent(indexDescriptor, IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS, false));
-    }
-
-    @Test
-    public void testSeekToTerm() throws Exception
-    {
-        IndexDescriptor descriptor = newIndexDescriptor();
-
-        List<byte[]> terms = new ArrayList<>();
-        writeTerms(descriptor, terms);
-
-        // iterate on terms ascending
-        withSortedTermsReader(descriptor, reader ->
-        {
-            for (int x = 0; x < terms.size(); x++)
-            {
-                long pointId = reader.getPointId(ByteComparable.fixedLength(terms.get(x)));
-                assertEquals(x, pointId);
-            }
-        });
-
-        // iterate on terms descending
-        withSortedTermsReader(descriptor, reader ->
-        {
-            for (int x = terms.size() - 1; x >= 0; x--)
-            {
-                long pointId = reader.getPointId(ByteComparable.fixedLength(terms.get(x)));
-                assertEquals(x, pointId);
-            }
-        });
-
-        // iterate randomly
-        withSortedTermsReader(descriptor, reader ->
-        {
-            for (int x = 0; x < terms.size(); x++)
-            {
-                int target = nextInt(0, terms.size());
-
-                long pointId = reader.getPointId(ByteComparable.fixedLength(terms.get(target)));
-                assertEquals(target, pointId);
-            }
-        });
     }
 
     @Test
@@ -334,11 +291,10 @@ public class SortedTermsTest extends SAIRandomizedTester
         MetadataSource metadataSource = MetadataSource.loadGroupMetadata(indexDescriptor);
         NumericValuesMeta blockPointersMeta = new NumericValuesMeta(metadataSource.get(indexDescriptor.componentName(IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS)));
         SortedTermsMeta sortedTermsMeta = new SortedTermsMeta(metadataSource.get(indexDescriptor.componentName(IndexComponent.PRIMARY_KEY_BLOCKS)));
-        try (FileHandle trieHandle = indexDescriptor.createPerSSTableFileHandle(IndexComponent.PRIMARY_KEY_TRIE);
-             FileHandle termsData = indexDescriptor.createPerSSTableFileHandle(IndexComponent.PRIMARY_KEY_BLOCKS);
+        try (FileHandle termsData = indexDescriptor.createPerSSTableFileHandle(IndexComponent.PRIMARY_KEY_BLOCKS);
              FileHandle blockOffsets = indexDescriptor.createPerSSTableFileHandle(IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS))
         {
-            SortedTermsReader reader = new SortedTermsReader(termsData, blockOffsets, trieHandle, sortedTermsMeta, blockPointersMeta);
+            SortedTermsReader reader = new SortedTermsReader(termsData, blockOffsets, sortedTermsMeta, blockPointersMeta);
             testCode.accept(reader);
         }
     }
@@ -348,7 +304,7 @@ public class SortedTermsTest extends SAIRandomizedTester
     {
         withSortedTermsReader(descriptor, reader ->
         {
-            try (SortedTermsReader.Cursor cursor = reader.openCursor(mock(SSTableQueryContext.class)))
+            try (SortedTermsReader.Cursor cursor = reader.openCursor())
             {
                 testCode.accept(cursor);
             }
@@ -384,5 +340,4 @@ public class SortedTermsTest extends SAIRandomizedTester
                        clazz.isAssignableFrom(e.getClass()));
         }
     }
-
 }

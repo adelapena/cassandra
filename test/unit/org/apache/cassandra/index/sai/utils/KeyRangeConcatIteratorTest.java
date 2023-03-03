@@ -184,6 +184,7 @@ public class KeyRangeConcatIteratorTest extends AbstractKeyRangeIteratorTester
     }
 
     @Test
+    @SuppressWarnings("resource")
     public void testEmptyThenManyNonEmpty()
     {
         final KeyRangeIterator.Builder builder = getConcatBuilder();
@@ -199,6 +200,7 @@ public class KeyRangeConcatIteratorTest extends AbstractKeyRangeIteratorTester
     }
 
     @Test
+    @SuppressWarnings("resource")
     public void testEmptyThenSingleNonEmpty()
     {
         KeyRangeIterator.Builder builder = getConcatBuilder();
@@ -214,6 +216,7 @@ public class KeyRangeConcatIteratorTest extends AbstractKeyRangeIteratorTester
     }
 
     @Test
+    @SuppressWarnings("resource")
     public void testManyNonEmptyThenEmpty()
     {
         final KeyRangeIterator.Builder builder = getConcatBuilder();
@@ -229,6 +232,7 @@ public class KeyRangeConcatIteratorTest extends AbstractKeyRangeIteratorTester
     }
 
     @Test
+    @SuppressWarnings("resource")
     public void testSingleNonEmptyThenEmpty()
     {
         KeyRangeIterator.Builder builder = getConcatBuilder();
@@ -244,6 +248,7 @@ public class KeyRangeConcatIteratorTest extends AbstractKeyRangeIteratorTester
     }
 
     @Test
+    @SuppressWarnings("resource")
     public void testEmptyNonEmptyEmpty()
     {
         final KeyRangeIterator.Builder builder = getConcatBuilder();
@@ -260,6 +265,7 @@ public class KeyRangeConcatIteratorTest extends AbstractKeyRangeIteratorTester
     }
 
     @Test
+    @SuppressWarnings("resource")
     public void testNonEmptyEmptyNonEmpty()
     {
         final KeyRangeIterator.Builder builder = getConcatBuilder();

@@ -38,16 +38,16 @@ import org.apache.cassandra.schema.SchemaConstants;
 public class IndexesSystemViewTest extends SAITester
 {
     private static final String SELECT = String.format("SELECT %s, %s, %s, %s, %s, %s, %s FROM %s.%s WHERE %s = '%s'",
-                                                       IndexesSystemView.INDEX_NAME,
-                                                       IndexesSystemView.TABLE_NAME,
-                                                       IndexesSystemView.COLUMN_NAME,
-                                                       IndexesSystemView.IS_QUERYABLE,
-                                                       IndexesSystemView.IS_BUILDING,
-                                                       IndexesSystemView.IS_STRING,
-                                                       IndexesSystemView.ANALYZER,
+                                                       ColumnIndexesSystemView.INDEX_NAME,
+                                                       ColumnIndexesSystemView.TABLE_NAME,
+                                                       ColumnIndexesSystemView.COLUMN_NAME,
+                                                       ColumnIndexesSystemView.IS_QUERYABLE,
+                                                       ColumnIndexesSystemView.IS_BUILDING,
+                                                       ColumnIndexesSystemView.IS_STRING,
+                                                       ColumnIndexesSystemView.ANALYZER,
                                                        SchemaConstants.VIRTUAL_VIEWS,
-                                                       IndexesSystemView.NAME,
-                                                       IndexesSystemView.KEYSPACE_NAME,
+                                                       ColumnIndexesSystemView.NAME,
+                                                       ColumnIndexesSystemView.KEYSPACE_NAME,
                                                        KEYSPACE);
 
     private static final Injections.Barrier blockIndexBuild = Injections.newBarrier("block_index_build", 2, false)
@@ -59,7 +59,7 @@ public class IndexesSystemViewTest extends SAITester
     @BeforeClass
     public static void setup()
     {
-        VirtualKeyspaceRegistry.instance.register(new VirtualKeyspace(SchemaConstants.VIRTUAL_VIEWS, ImmutableList.of(new IndexesSystemView(SchemaConstants.VIRTUAL_VIEWS))));
+        VirtualKeyspaceRegistry.instance.register(new VirtualKeyspace(SchemaConstants.VIRTUAL_VIEWS, ImmutableList.of(new ColumnIndexesSystemView(SchemaConstants.VIRTUAL_VIEWS))));
 
         CQLTester.setUpClass();
     }

@@ -49,16 +49,16 @@ public class SSTableComponentsWriter implements PerSSTableWriter
         this.tokenWriter = new NumericValuesWriter(indexDescriptor.componentName(IndexComponent.TOKEN_VALUES),
                                                    indexDescriptor.openPerSSTableOutput(IndexComponent.TOKEN_VALUES),
                                                    metadataWriter, false);
-        IndexOutputWriter trieWriter = indexDescriptor.openPerSSTableOutput(IndexComponent.PRIMARY_KEY_TRIE);
-        IndexOutputWriter bytesWriter = indexDescriptor.openPerSSTableOutput(IndexComponent.PRIMARY_KEY_BLOCKS);
-        NumericValuesWriter blockFPWriter = new NumericValuesWriter(indexDescriptor.componentName(IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS),
+        IndexOutputWriter primaryKeyTrieWriter = indexDescriptor.openPerSSTableOutput(IndexComponent.PRIMARY_KEY_TRIE);
+        IndexOutputWriter primaryKeyBlocksWriter = indexDescriptor.openPerSSTableOutput(IndexComponent.PRIMARY_KEY_BLOCKS);
+        NumericValuesWriter primaryKeyBlockOffsetWriter = new NumericValuesWriter(indexDescriptor.componentName(IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS),
                                                      indexDescriptor.openPerSSTableOutput(IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS),
                                                      metadataWriter, true);
         this.sortedTermsWriter = new SortedTermsWriter(indexDescriptor.componentName(IndexComponent.PRIMARY_KEY_BLOCKS),
                                                        metadataWriter,
-                                                       bytesWriter,
-                                                       blockFPWriter,
-                                                       trieWriter);
+                                                       primaryKeyBlocksWriter,
+                                                       primaryKeyBlockOffsetWriter,
+                                                       primaryKeyTrieWriter);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class SSTableComponentsWriter implements PerSSTableWriter
     @Override
     public void abort()
     {
-        logger.debug(indexDescriptor.logMessage("Aborting per-SSTable index component writer for {}..."), indexDescriptor.descriptor);
+        logger.debug(indexDescriptor.logMessage("Aborting per-SSTable index component writer for {}..."), indexDescriptor.sstableDescriptor);
         indexDescriptor.deletePerSSTableIndexComponents();
     }
 }

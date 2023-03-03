@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
 
 /**
- * Writes all SSTable-attached index token and offset structures.
+ * Writes all SSTable-attached index files. The files written are version specific.
  */
 public interface PerSSTableWriter
 {

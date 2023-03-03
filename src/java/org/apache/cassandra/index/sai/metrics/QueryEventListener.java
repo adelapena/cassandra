@@ -24,11 +24,6 @@ import java.util.concurrent.TimeUnit;
  */
 public interface QueryEventListener
 {
-    /**
-     * Returns listener for trie index events.
-     */
-    TrieIndexEventListener trieIndexEventListener();
-
     interface TrieIndexEventListener
     {
         /**

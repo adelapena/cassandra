@@ -30,7 +30,7 @@ import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.index.sai.SAITester;
-import org.apache.cassandra.index.sai.disk.PostingList;
+import org.apache.cassandra.index.sai.postings.PostingList;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.io.compress.BufferType;
 import org.apache.cassandra.io.sstable.Descriptor;
@@ -58,7 +58,7 @@ public class SAIRandomizedTester extends SAITester
     public static TestRule classRules = RuleChain.outerRule(indexInputLeakDetector = new IndexInputLeakDetector())
                                                  .around(temporaryFolder = new TemporaryFolder());
 
-    public IndexDescriptor newIndexDescriptor() throws IOException
+    public static IndexDescriptor newIndexDescriptor() throws IOException
     {
         String keyspace = randomSimpleString(5, 13);
         String table = randomSimpleString(3, 17);

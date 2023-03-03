@@ -40,6 +40,7 @@ import com.datastax.driver.core.exceptions.ReadFailureException;
 import org.apache.cassandra.cql3.CQL3Type;
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.cql3.restrictions.IndexRestrictions;
+import org.apache.cassandra.cql3.statements.schema.CreateIndexStatement;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.SystemKeyspace;
@@ -56,7 +57,7 @@ import org.apache.cassandra.index.sai.StorageAttachedIndex;
 import org.apache.cassandra.index.sai.StorageAttachedIndexBuilder;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.Version;
-import org.apache.cassandra.index.sai.disk.v1.SegmentBuilder;
+import org.apache.cassandra.index.sai.disk.v1.segment.SegmentBuilder;
 import org.apache.cassandra.index.sai.disk.v1.bitpack.NumericValuesWriter;
 import org.apache.cassandra.index.sai.view.View;
 import org.apache.cassandra.inject.ActionBuilder;
@@ -85,7 +86,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
                                                                            .add(InvokePointBuilder.newInvokePoint().onClass(StorageAttachedIndex.class).onMethod("register"))
                                                                            .build();
 
-    private static final Injection failNDIInitialializaion = Injections.newCustom("fail_ndi_initialization")
+    private static final Injection failSAIInitialializaion = Injections.newCustom("fail_sai_initialization")
                                                                        .add(InvokePointBuilder.newInvokePoint().onClass(StorageAttachedIndexBuilder.class).onMethod("build"))
                                                                        .add(ActionBuilder.newActionBuilder().actions().doThrow(RuntimeException.class, Expression.quote("Injected failure!")))
                                                                        .build();
@@ -164,7 +165,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
         createTable("CREATE TABLE %s (id text PRIMARY KEY, val text)");
         assertThatThrownBy(() -> executeNet("CREATE CUSTOM INDEX ON %s(id) USING 'StorageAttachedIndex'"))
         .isInstanceOf(InvalidQueryException.class)
-        .hasMessageContaining("Cannot create secondary index on the only partition key column id");
+        .hasMessageContaining(String.format(CreateIndexStatement.ONLY_PARTITION_KEY, "id"));
     }
 
     @Test
@@ -250,8 +251,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
         assertThatThrownBy(() -> executeNet(String.format("CREATE CUSTOM INDEX ON %%s(\"%s\")" +
                                                           " USING 'StorageAttachedIndex'", invalidColumn)))
         .isInstanceOf(InvalidQueryException.class)
-        .hasMessage(String.format("Column '%s' is longer than the permissible name length of %d characters or" +
-                                  " contains non-alphanumeric-underscore characters", invalidColumn, SchemaConstants.NAME_LENGTH));
+        .hasMessage(String.format(CreateIndexStatement.INVALID_CUSTOM_INDEX_TARGET, invalidColumn, SchemaConstants.NAME_LENGTH));
     }
 
     @Test
@@ -298,8 +298,8 @@ public class StorageAttachedIndexDDLTest extends SAITester
     }
 
     /**
-     * Verify SASI can be created and queries with NDI dependencies.
-     * Not putting in {@link MixedIndexImplementationsTest} because it uses CQLTester which doesn't load NDI dependency.
+     * Verify SASI can be created and queries with SAI dependencies.
+     * Not putting in {@link MixedIndexImplementationsTest} because it uses CQLTester which doesn't load SAI dependency.
      */
     @Test
     public void shouldCreateSASI() throws Throwable
@@ -343,12 +343,12 @@ public class StorageAttachedIndexDDLTest extends SAITester
         // same name
         assertThatThrownBy(() -> executeNet("CREATE CUSTOM INDEX index_1 ON %s(v1) USING 'StorageAttachedIndex'"))
         .isInstanceOf(InvalidQueryException.class)
-        .hasMessageContaining("Index 'index_1' already exists");
+        .hasMessageContaining(String.format(CreateIndexStatement.INDEX_ALREADY_EXISTS, "index_1"));
 
         // different name, same option
         assertThatThrownBy(() -> executeNet("CREATE CUSTOM INDEX index_2 ON %s(v1) USING 'StorageAttachedIndex'"))
         .isInstanceOf(InvalidQueryException.class)
-        .hasMessageContaining("Index index_2 is a duplicate of existing index index_1");
+        .hasMessageContaining(String.format(CreateIndexStatement.INDEX_DUPLICATE_OF_EXISTING, "index_2", "index_1"));
 
         // different name, different option, same target.
         assertThatThrownBy(() -> executeNet("CREATE CUSTOM INDEX ON %s(v1) USING 'StorageAttachedIndex' WITH OPTIONS = { 'case_sensitive' : true }"))
@@ -401,8 +401,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
         ResultSet rows = executeNet("SELECT id FROM %s WHERE val = 'Camel'");
         assertEquals(1, rows.all().size());
 
-        assertEquals("Segment memory limiter should revert to zero.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertZeroSegmentBuilderUsage();
     }
 
     @Test
@@ -431,7 +430,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
             execute("INSERT INTO %s (id1, v1) VALUES ('" + i + "', '0')");
         flush();
 
-        Injections.inject(failNDIInitialializaion);
+        Injections.inject(failSAIInitialializaion);
         createIndex(String.format(CREATE_INDEX_TEMPLATE, "v1"));
         waitForAssert(() -> assertEquals(1, indexBuildCounter.get()));
         waitForCompactions();
@@ -465,8 +464,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
         verifyIndexFiles(literalIndexContext, 0);
         verifySSTableIndexes(literalIndexName, 0);
 
-        assertEquals("Segment memory limiter should revert to zero on drop.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertZeroSegmentBuilderUsage();
     }
 
     @Test
@@ -489,8 +487,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
         ResultSet rows = executeNet("SELECT id1 FROM %s WHERE v1='0'");
         assertEquals(2, rows.all().size());
 
-        assertEquals("Segment memory limiter should revert to zero.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertZeroSegmentBuilderUsage();
     }
 
     @Test
@@ -513,8 +510,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
         ResultSet rows = executeNet("SELECT id1 FROM %s WHERE v1='0'");
         assertEquals(2, rows.all().size());
 
-        assertEquals("Segment memory limiter should revert to zero.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertZeroSegmentBuilderUsage();
     }
 
     @Test
@@ -544,8 +540,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
         rows = executeNet("SELECT id1 FROM %s WHERE v1='0'");
         assertEquals(2, rows.all().size());
 
-        assertEquals("Segment memory limiter should revert to zero after compaction.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertZeroSegmentBuilderUsage();
     }
 
     @Test
@@ -594,8 +589,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
         // verify index-view-manager has been cleaned up
         verifySSTableIndexes(IndexMetadata.generateDefaultIndexName(currentTable(), V1_COLUMN_IDENTIFIER), 0);
 
-        assertEquals("Segment memory limiter should revert to zero after truncate.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertZeroSegmentBuilderUsage();
     }
 
     @Test
@@ -615,8 +609,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
             verifyRebuildCorruptedFiles(literalIndexName, corruptionType, true);
         }
 
-        assertEquals("Segment memory limiter should revert to zero following rebuild.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertZeroSegmentBuilderUsage();
     }
 
     private void verifyRebuildCorruptedFiles(String literalIndexName,
@@ -736,8 +729,9 @@ public class StorageAttachedIndexDDLTest extends SAITester
             // Only token/primary key files for the first SSTable in the compaction task should exist, while column-specific files are blown away:
             verifyIndexFiles(literalIndexContext, 2, 0, 0);
 
-            assertEquals("Segment memory limiter should revert to zero.", 0L, getSegmentBufferUsedBytes());
-            assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+            assertFalse(isIndexQueryable());
+
+            assertZeroSegmentBuilderUsage();
         }
         finally
         {
@@ -771,8 +765,9 @@ public class StorageAttachedIndexDDLTest extends SAITester
             // SSTable-level token/offset file(s) should be removed, while column-specific files never existed:
             verifyNoIndexFiles();
 
-            assertEquals("Segment memory limiter should revert to zero.", 0L, getSegmentBufferUsedBytes());
-            assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+            assertFalse(isIndexQueryable());
+
+            assertZeroSegmentBuilderUsage();
         }
         finally
         {
@@ -807,8 +802,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
         rows = executeNet("SELECT id1 FROM %s WHERE v1='0'");
         assertEquals(0, rows.all().size());
 
-        assertEquals("Segment memory limiter should revert to zero.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertZeroSegmentBuilderUsage();
     }
 
     @Test
@@ -880,8 +874,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
         rows = executeNet("SELECT id1 FROM %s WHERE v1='0'");
         assertEquals(0, rows.all().size());
 
-        assertEquals("Segment memory limiter should revert to zero.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertZeroSegmentBuilderUsage();
     }
 
     @Test
@@ -926,6 +919,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
     }
 
     @Test
+    @SuppressWarnings("BusyWait")
     public void nodetoolStopInitialIndexBuild() throws Throwable
     {
         createTable(CREATE_TABLE_TEMPLATE);
@@ -975,14 +969,13 @@ public class StorageAttachedIndexDDLTest extends SAITester
         for (Index i : cfs.indexManager.listIndexes())
         {
             StorageAttachedIndex index = (StorageAttachedIndex) i;
-            assertTrue(index.getIndexContext().getLiveMemtables().isEmpty());
+            assertEquals(0, index.getIndexContext().getMemtableIndexManager().size());
 
             View view = index.getIndexContext().getView();
             assertTrue("Expect index build stopped", view.getIndexes().isEmpty());
         }
 
-        assertEquals("Segment memory limiter should revert to zero on interrupted compactions.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertZeroSegmentBuilderUsage();
 
         // rebuild index
         ColumnFamilyStore.rebuildSecondaryIndex(KEYSPACE, currentTable(), literalIndexContext.getIndexName());
@@ -991,8 +984,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
         ResultSet rows = executeNet("SELECT id1 FROM %s WHERE v1='0'");
         assertEquals(num, rows.all().size());
 
-        assertEquals("Segment memory limiter should revert to zero following rebuild.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertZeroSegmentBuilderUsage();
 
         assertTrue(verifyChecksum(literalIndexContext));
     }
@@ -1078,5 +1070,11 @@ public class StorageAttachedIndexDDLTest extends SAITester
         assertEquals(singletonList(4L), toSize.apply(iterator.next()));
         assertEquals(singletonList(3L), toSize.apply(iterator.next()));
         assertEquals(Arrays.asList(2L, 1L), toSize.apply(iterator.next()));
+    }
+
+    private void assertZeroSegmentBuilderUsage() throws Exception
+    {
+        assertEquals("Segment memory limiter should revert to zero.", 0L, getSegmentBufferUsedBytes());
+        assertEquals("There should be no segment builders in progress.", 0, getColumnIndexBuildsInProgress());
     }
 }

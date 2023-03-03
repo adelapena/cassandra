@@ -346,12 +346,12 @@ public class CompressedSequentialWriter extends SequentialWriter
     }
 
     @Override
-    public void padToPageBoundary() throws IOException
+    public void padToPageBoundary()
     {
         if (buffer.position() == 0)
             return;
 
-        int padLength = buffer.remaining();
+        int padLength = bytesLeftInPage();
 
         // Flush as much as we have
         doFlush(0);

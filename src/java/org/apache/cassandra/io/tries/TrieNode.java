@@ -21,7 +21,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.cassandra.utils.SizedInts;
+import org.apache.cassandra.io.util.SizedInts;
 
 /**
  * Trie node types and manipulation mechanisms. The main purpose of this is to allow for handling tries directly as
@@ -49,10 +49,12 @@ import org.apache.cassandra.utils.SizedInts;
  * lowest bits of the position within the same page. To save one further byte, the single in-page versions using 4 or 12
  * bits cannot carry a payload.
  *
- * This class is effectively an enumeration; abstract class permits instances to extends each other and reuse code.
+ * This class is effectively an enumeration; abstract class permits instances to extend each other and reuse code.
  */
 public abstract class TrieNode
 {
+    public static int BYTE_VALUES = 1 << Byte.SIZE;
+
     // Consumption (read) methods
 
     /**
@@ -60,7 +62,7 @@ public abstract class TrieNode
      */
     public static TrieNode at(ByteBuffer src, int position)
     {
-        return values[(src.get(position) >> 4) & 0xF];
+        return TrieNodes.VALUES[(src.get(position) >> 4) & 0xF];
     }
 
     /** Returns the 4 payload flag bits. Node types that cannot carry a payload return 0. */
@@ -93,7 +95,7 @@ public abstract class TrieNode
      * This is always a negative number. Dense nodes use 0 to specify "no transition".
      *
      * @param childIndex must be >= 0 and < {@link #transitionRange(ByteBuffer, int)} - note that this is not validated
-     *                   and behaviour of this method is undefined for values outside of that range
+     *                   and behaviour of this method is undefined for values outside that range
      */
     abstract long transitionDelta(ByteBuffer src, int position, int childIndex);
     /**
@@ -105,7 +107,7 @@ public abstract class TrieNode
      * @param positionLong although it seems to be obvious, this argument must be "real", that is, each child must have
      *                     the calculated absolute position >= 0, otherwise the behaviour of this method is undefined
      * @param childIndex must be >= 0 and < {@link #transitionRange(ByteBuffer, int)} - note that this is not validated
-     *                   and behaviour of this method is undefined for values outside of that range
+     *                   and behaviour of this method is undefined for values outside that range
      */
     public long transition(ByteBuffer src, int position, long positionLong, int childIndex)
     {
@@ -139,24 +141,24 @@ public abstract class TrieNode
     {
         int c = node.childCount();
         if (c == 0)
-            return PAYLOAD_ONLY;
+            return PayloadOnly.PAYLOAD_ONLY;
 
         int bitsPerPointerIndex = 0;
         long delta = node.maxPositionDelta(nodePosition);
         assert delta < 0;
-        while (!singles[bitsPerPointerIndex].fits(-delta))
+        while (!TrieNodes.SINGLES[bitsPerPointerIndex].fits(-delta))
             ++bitsPerPointerIndex;
 
         if (c == 1)
         {
-            if (node.payload() != null && singles[bitsPerPointerIndex].bytesPerPointer == FRACTIONAL_BYTES)
+            if (node.payload() != null && TrieNodes.SINGLES[bitsPerPointerIndex].bytesPerPointer == FRACTIONAL_BYTES)
                 ++bitsPerPointerIndex; // next index will permit payload
 
-            return singles[bitsPerPointerIndex];
+            return TrieNodes.SINGLES[bitsPerPointerIndex];
         }
 
-        TrieNode sparse = sparses[bitsPerPointerIndex];
-        TrieNode dense = denses[bitsPerPointerIndex];
+        TrieNode sparse = TrieNodes.SPARSES[bitsPerPointerIndex];
+        TrieNode dense = TrieNodes.DENSES[bitsPerPointerIndex];
         return (sparse.sizeofNode(node) < dense.sizeofNode(node)) ? sparse : dense;
     }
 
@@ -182,9 +184,10 @@ public abstract class TrieNode
 
     int ordinal = -1;
 
-    static final PayloadOnly PAYLOAD_ONLY = new PayloadOnly();
     static class PayloadOnly extends TrieNode
     {
+        static final PayloadOnly PAYLOAD_ONLY = new PayloadOnly();
+
         // byte flags
         // var payload
         PayloadOnly()
@@ -256,13 +259,14 @@ public abstract class TrieNode
         {
             dest.writeByte((ordinal << 4) + (payloadBits & 0x0F));
         }
-    };
+    }
 
-    static final Single SINGLE_8 = new Single(1);
-    static final Single SINGLE_16 = new Single(2);
 
     static class Single extends TrieNode
     {
+        static final Single SINGLE_8 = new Single(1);
+        static final Single SINGLE_16 = new Single(2);
+
         // byte flags
         // byte transition
         // bytesPerPointer bytes transition target
@@ -338,12 +342,12 @@ public abstract class TrieNode
             dest.writeByte(node.transition(0));
             writeBytes(dest, -node.serializedPositionDelta(0, nodePosition));
         }
-    };
+    }
 
-
-    static final Single SINGLE_NOPAYLOAD_4 = new SingleNoPayload4();
     static class SingleNoPayload4 extends Single
     {
+        static final Single SINGLE_NOPAYLOAD_4 = new SingleNoPayload4();
+
         // 4-bit type ordinal
         // 4-bit target delta
         // byte transition
@@ -395,11 +399,12 @@ public abstract class TrieNode
         {
             return 2;
         }
-    };
+    }
 
-    static final Single SINGLE_NOPAYLOAD_12 = new SingleNoPayload12();
     static class SingleNoPayload12 extends Single
     {
+        static final Single SINGLE_NOPAYLOAD_12 = new SingleNoPayload12();
+
         // 4-bit type ordinal
         // 12-bit target delta
         // byte transition
@@ -467,14 +472,15 @@ public abstract class TrieNode
         {
             return 3;
         }
-    };
+    }
 
-    static final Sparse SPARSE_8 = new Sparse(1);
-    static final Sparse SPARSE_16 = new Sparse(2);
-    static final Sparse SPARSE_24 = new Sparse(3);
-    static final Sparse SPARSE_40 = new Sparse(5);
     static class Sparse extends TrieNode
     {
+        static final Sparse SPARSE_8 = new Sparse(1);
+        static final Sparse SPARSE_16 = new Sparse(2);
+        static final Sparse SPARSE_24 = new Sparse(3);
+        static final Sparse SPARSE_40 = new Sparse(5);
+
         // byte flags
         // byte count (<= 255)
         // count bytes transitions
@@ -571,7 +577,7 @@ public abstract class TrieNode
         {
             int childCount = node.childCount();
             assert childCount > 0;
-            assert childCount < 256;
+            assert childCount < BYTE_VALUES;
             dest.writeByte((ordinal << 4) + (payloadBits & 0x0F));
             dest.writeByte(childCount);
 
@@ -580,11 +586,12 @@ public abstract class TrieNode
             for (int i = 0; i < childCount; ++i)
                 writeBytes(dest, -node.serializedPositionDelta(i, nodePosition));
         }
-    };
+    }
 
-    static final Sparse12 SPARSE_12 = new Sparse12();
     static class Sparse12 extends Sparse
     {
+        static final Sparse12 SPARSE_12 = new Sparse12();
+
         // byte flags
         // byte count (<= 255)
         // count bytes transitions
@@ -618,7 +625,7 @@ public abstract class TrieNode
         public void serialize(DataOutput dest, SerializationNode<?> node, int payloadBits, long nodePosition) throws IOException
         {
             int childCount = node.childCount();
-            assert childCount < 256;
+            assert childCount < BYTE_VALUES;
             dest.writeByte((ordinal << 4) + (payloadBits & 0x0F));
             dest.writeByte(childCount);
 
@@ -648,14 +655,15 @@ public abstract class TrieNode
         {
             return 0 <= delta && delta <= 0xFFF;
         }
-    };
+    }
 
-    static final Dense DENSE_16 = new Dense(2);
-    static final Dense DENSE_24 = new Dense(3);
-    static final Dense DENSE_32 = new Dense(4);
-    static final Dense DENSE_40 = new Dense(5);
     static class Dense extends TrieNode
     {
+        static final Dense DENSE_16 = new Dense(2);
+        static final Dense DENSE_24 = new Dense(3);
+        static final Dense DENSE_32 = new Dense(4);
+        static final Dense DENSE_40 = new Dense(5);
+
         // byte flags
         // byte start
         // byte length-1
@@ -785,11 +793,12 @@ public abstract class TrieNode
                 ++l;
             }
         }
-    };
+    }
 
-    static final Dense12 DENSE_12 = new Dense12();
     static class Dense12 extends Dense
     {
+        static final Dense12 DENSE_12 = new Dense12();
+
         // byte flags
         // byte start
         // byte length-1
@@ -855,11 +864,12 @@ public abstract class TrieNode
         {
             return 0 <= delta && delta <= 0xFFF;
         }
-    };
+    }
 
-    static final LongDense LONG_DENSE = new LongDense();
     static class LongDense extends Dense
     {
+        static final LongDense LONG_DENSE = new LongDense();
+
         // byte flags
         // byte start
         // byte length-1
@@ -887,7 +897,7 @@ public abstract class TrieNode
         {
             return true;
         }
-    };
+    }
 
 
     static int read12Bits(ByteBuffer src, int base, int searchIndex)
@@ -939,30 +949,38 @@ public abstract class TrieNode
         return res;
     }
 
-    public static Object nodeTypeString(int ordinal)
+    static class TrieNodes
     {
-        return values[ordinal].toString();
-    }
+        // Catch-all
+        static final TrieNode[] VALUES;
+        // We can't fit all types * all sizes in 4 bits, so we use a selection. When we don't have a matching instance
+        // we just use something more general that can do its job.
+        // The arrays below must have corresponding types for all sizes specified by the singles row.
+        // Note: 12 bit sizes are important, because that size will fit any pointer within a page-packed branch.
+        static final TrieNode[] SINGLES;
+        static final TrieNode[] SPARSES;
+        static final TrieNode[] DENSES;
 
-    static final TrieNode[] values = new TrieNode[] { PAYLOAD_ONLY,
-                                                      SINGLE_NOPAYLOAD_4, SINGLE_8, SINGLE_NOPAYLOAD_12, SINGLE_16,
-                                                      SPARSE_8, SPARSE_12, SPARSE_16, SPARSE_24, SPARSE_40,
-                                                      DENSE_12, DENSE_16, DENSE_24, DENSE_32, DENSE_40,
-                                                      LONG_DENSE}; // Catch-all
-    // We can't fit all types * all sizes in 4 bits, so we use a selection. When we don't have a matching instance
-    // we just use something more general that can do its job.
-    // The arrays below must have corresponding types for all sizes specified by the singles row.
-    // Note: 12 bit sizes are important, because that size will fit any pointer within a page-packed branch.
-    static final TrieNode[] singles = new TrieNode[]{ SINGLE_NOPAYLOAD_4, SINGLE_8, SINGLE_NOPAYLOAD_12, SINGLE_16, DENSE_24, DENSE_32, DENSE_40, LONG_DENSE };
-    static final TrieNode[] sparses = new TrieNode[]{ SPARSE_8, SPARSE_8, SPARSE_12, SPARSE_16, SPARSE_24, SPARSE_40, SPARSE_40, LONG_DENSE };
-    static final TrieNode[] denses = new TrieNode[]{ DENSE_12, DENSE_12, DENSE_12, DENSE_16, DENSE_24, DENSE_32, DENSE_40, LONG_DENSE };
-    static
-    {
-        //noinspection ConstantConditions
-        assert sparses.length == singles.length && denses.length == singles.length && values.length <= 16;
-        for (int i = 0; i < values.length; ++i)
-            values[i].ordinal = i;
-    }
+        static
+        {
+            VALUES = new TrieNode[] { PayloadOnly.PAYLOAD_ONLY,
+                                      SingleNoPayload4.SINGLE_NOPAYLOAD_4, Single.SINGLE_8,
+                                      SingleNoPayload12.SINGLE_NOPAYLOAD_12, Single.SINGLE_16,
+                                      Sparse.SPARSE_8, Sparse12.SPARSE_12, Sparse.SPARSE_16, Sparse.SPARSE_24, Sparse.SPARSE_40,
+                                      Dense12.DENSE_12, Dense.DENSE_16, Dense.DENSE_24, Dense.DENSE_32, Dense.DENSE_40,
+                                      LongDense.LONG_DENSE}; // Catch-all
+            SINGLES = new TrieNode[]{ SingleNoPayload4.SINGLE_NOPAYLOAD_4, Single.SINGLE_8, SingleNoPayload12.SINGLE_NOPAYLOAD_12,
+                                      Single.SINGLE_16, Dense.DENSE_24, Dense.DENSE_32, Dense.DENSE_40, LongDense.LONG_DENSE };
+            SPARSES = new TrieNode[]{ Sparse.SPARSE_8, Sparse.SPARSE_8, Sparse12.SPARSE_12, Sparse.SPARSE_16,
+                                      Sparse.SPARSE_24, Sparse.SPARSE_40, Sparse.SPARSE_40, LongDense.LONG_DENSE };
+            DENSES  = new TrieNode[]{ Dense12.DENSE_12, Dense12.DENSE_12, Dense12.DENSE_12, Dense.DENSE_16,
+                                      Dense.DENSE_24, Dense.DENSE_32, Dense.DENSE_40, LongDense.LONG_DENSE };
 
-    public static final ByteBuffer EMPTY = ByteBuffer.wrap(new byte[] { (byte) (PAYLOAD_ONLY.ordinal << 4) } );
+
+            //noinspection ConstantConditions
+            assert SPARSES.length == SINGLES.length && DENSES.length == SINGLES.length && VALUES.length <= 16;
+            for (int i = 0; i < VALUES.length; ++i)
+                VALUES[i].ordinal = i;
+        }
+    }
 }

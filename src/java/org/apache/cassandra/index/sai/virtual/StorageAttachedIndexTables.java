@@ -30,8 +30,8 @@ public class StorageAttachedIndexTables
 
     public static Collection<VirtualTable> getAll(String keyspace)
     {
-        return Arrays.asList(new IndexesSystemView(keyspace),
+        return Arrays.asList(new ColumnIndexesSystemView(keyspace),
                              new SegmentsSystemView(keyspace),
-                             new SSTablesSystemView(keyspace));
+                             new SSTableIndexesSystemView(keyspace));
     }
 }

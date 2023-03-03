@@ -18,7 +18,6 @@
 package org.apache.cassandra.index.sai.disk.v1;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -32,13 +31,14 @@ import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.index.sai.IndexContext;
-import org.apache.cassandra.index.sai.disk.MemtableTermsIterator;
 import org.apache.cassandra.index.sai.disk.PerIndexWriter;
+import org.apache.cassandra.index.sai.disk.RowMapping;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
-import org.apache.cassandra.index.sai.disk.v1.trie.InvertedIndexWriter;
+import org.apache.cassandra.index.sai.disk.v1.segment.SegmentMetadata;
+import org.apache.cassandra.index.sai.disk.v1.trie.LiteralIndexWriter;
 import org.apache.cassandra.index.sai.memory.MemtableIndex;
-import org.apache.cassandra.index.sai.memory.RowMapping;
+import org.apache.cassandra.index.sai.memory.MemtableTermsIterator;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
 import org.apache.cassandra.index.sai.utils.TypeUtil;
 import org.apache.cassandra.utils.Pair;
@@ -50,7 +50,7 @@ import org.apache.cassandra.utils.bytecomparable.ByteComparable;
  */
 public class MemtableIndexWriter implements PerIndexWriter
 {
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MemtableIndexWriter.class);
 
     private final IndexDescriptor indexDescriptor;
     private final IndexContext indexContext;
@@ -81,20 +81,22 @@ public class MemtableIndexWriter implements PerIndexWriter
     @Override
     public void abort(Throwable cause)
     {
-        logger.warn(indexContext.logMessage("Aborting index memtable flush for {}..."), indexDescriptor.descriptor, cause);
+        logger.warn(indexContext.logMessage("Aborting index memtable flush for {}..."), indexDescriptor.sstableDescriptor, cause);
         indexDescriptor.deleteColumnIndex(indexContext);
     }
 
     @Override
     public void complete(Stopwatch stopwatch) throws IOException
     {
+        assert rowMapping.isComplete() : "Cannot complete the memtable index writer because the row mapping is not complete";
+
         long start = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
         try
         {
-            if (!rowMapping.hasRows() || (memtable == null) || memtable.isEmpty())
+            if (!rowMapping.hasRows() || memtable == null || memtable.isEmpty())
             {
-                logger.debug(indexContext.logMessage("No indexed rows to flush from SSTable {}."), indexDescriptor.descriptor);
+                logger.debug(indexContext.logMessage("No indexed rows to flush from SSTable {}."), indexDescriptor.sstableDescriptor);
                 // Write a completion marker even though we haven't written anything to the index,
                 // so we won't try to build the index again for the SSTable
                 indexDescriptor.createComponentOnDisk(IndexComponent.COLUMN_COMPLETION_MARKER, indexContext);
@@ -117,10 +119,7 @@ public class MemtableIndexWriter implements PerIndexWriter
                 long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
                 logger.debug(indexContext.logMessage("Completed flushing {} memtable index cells to SSTable {}. Duration: {} ms. Total elapsed: {} ms"),
-                             cellCount,
-                             indexDescriptor.descriptor,
-                             elapsed - start,
-                             elapsed);
+                             cellCount, indexDescriptor.sstableDescriptor, elapsed - start, elapsed);
 
                 indexContext.getIndexMetrics().memtableFlushCellsPerSecond.update((long) (cellCount * 1000.0 / Math.max(1, elapsed - start)));
             }
@@ -134,16 +133,19 @@ public class MemtableIndexWriter implements PerIndexWriter
         }
     }
 
-    private long flush(DecoratedKey minKey, DecoratedKey maxKey, AbstractType<?> termComparator, MemtableTermsIterator terms) throws IOException
+    private long flush(DecoratedKey minKey,
+                       DecoratedKey maxKey,
+                       AbstractType<?> termComparator,
+                       MemtableTermsIterator terms) throws IOException
     {
         long numRows = 0;
         SegmentMetadata.ComponentMetadataMap indexMetas = null;
 
         if (TypeUtil.isLiteral(termComparator))
         {
-            try (InvertedIndexWriter writer = new InvertedIndexWriter(indexDescriptor, indexContext, false))
+            try (LiteralIndexWriter writer = new LiteralIndexWriter(indexDescriptor, indexContext))
             {
-                indexMetas = writer.writeAll(terms);
+                indexMetas = writer.writeCompleteSegment(terms);
                 numRows = writer.getPostingsCount();
             }
         }

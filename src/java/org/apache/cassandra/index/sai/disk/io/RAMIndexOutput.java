@@ -19,17 +19,25 @@ package org.apache.cassandra.index.sai.disk.io;
 
 import java.io.IOException;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.apache.lucene.store.GrowableByteArrayDataOutput;
 import org.apache.lucene.store.IndexOutput;
+import org.apache.lucene.util.BytesRef;
 
-// Use in place of RAMOutputStream (which has monitor locks)
+/**
+ * A replacement for {@link org.apache.lucene.store.RAMOutputStream}
+ * that doesn't use monitor locks.
+ */
+@NotThreadSafe
 public class RAMIndexOutput extends IndexOutput
 {
-    protected final GrowableByteArrayDataOutput out;
+    private final GrowableByteArrayDataOutput out;
 
     public RAMIndexOutput(String name)
     {
         super("", name);
+        //TODO CASSANDRA-18280 to investigate the initial size allocation
         out = new GrowableByteArrayDataOutput(128);
     }
 
@@ -60,6 +68,11 @@ public class RAMIndexOutput extends IndexOutput
     public void writeTo(IndexOutput externalOut) throws IOException
     {
         externalOut.writeBytes(out.getBytes(), 0, out.getPosition());
+    }
+
+    public BytesRef getBytes()
+    {
+        return new BytesRef(out.getBytes(), 0, out.getPosition());
     }
 
     public void reset()

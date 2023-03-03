@@ -19,10 +19,10 @@ package org.apache.cassandra.index.sai.disk.v1.bitpack;
 
 import java.io.IOException;
 
+import org.apache.cassandra.index.sai.disk.io.IndexFileUtils;
 import org.apache.cassandra.index.sai.disk.io.IndexInputReader;
 import org.apache.cassandra.index.sai.disk.v1.LongArray;
-import org.apache.cassandra.index.sai.utils.IndexFileUtils;
-import org.apache.cassandra.index.sai.utils.SAICodecUtils;
+import org.apache.cassandra.index.sai.disk.v1.SAICodecUtils;
 import org.apache.cassandra.io.util.FileHandle;
 import org.apache.cassandra.io.util.RandomAccessReader;
 import org.apache.lucene.index.CorruptIndexException;
@@ -30,8 +30,8 @@ import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.util.packed.PackedInts;
 import org.apache.lucene.util.packed.PackedLongValues;
 
-import static org.apache.cassandra.index.sai.utils.SAICodecUtils.checkBlockSize;
-import static org.apache.cassandra.index.sai.utils.SAICodecUtils.numBlocks;
+import static org.apache.cassandra.index.sai.disk.v1.SAICodecUtils.checkBlockSize;
+import static org.apache.cassandra.index.sai.disk.v1.SAICodecUtils.numBlocks;
 
 /**
  * Provides non-blocking, random access to a stream written with {@link MonotonicBlockPackedWriter}.
@@ -89,7 +89,7 @@ public class MonotonicBlockPackedReader implements LongArray.Factory
     public LongArray open()
     {
         final IndexInput indexInput = IndexFileUtils.instance.openInput(file);
-        return new AbstractBlockPackedReader(indexInput, blockBitsPerValue, blockShift, blockMask, 0, valueCount)
+        return new AbstractBlockPackedReader(indexInput, blockBitsPerValue, blockShift, blockMask, valueCount)
         {
             @Override
             long delta(int block, int idx)
@@ -107,12 +107,6 @@ public class MonotonicBlockPackedReader implements LongArray.Factory
             protected long blockOffsetAt(int block)
             {
                 return blockOffsets.get(block);
-            }
-
-            @Override
-            public long findTokenRowID(long targetValue)
-            {
-               throw new UnsupportedOperationException();
             }
         };
     }

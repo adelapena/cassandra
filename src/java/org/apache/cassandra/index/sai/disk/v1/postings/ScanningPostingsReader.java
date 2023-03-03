@@ -20,14 +20,15 @@ package org.apache.cassandra.index.sai.disk.v1.postings;
 
 import java.io.IOException;
 
+import org.apache.cassandra.index.sai.postings.PostingList;
 import org.apache.cassandra.index.sai.metrics.QueryEventListener;
 import org.apache.lucene.store.IndexInput;
 
 /**
- * A subclass of the {@code PostingsReader} that does not allow the {@code PostingList} to be
+ * A subclass of the {@link PostingsReader} that does not allow the {@link PostingList} to be
  * advanced and does not support mapping row ids to primary keys.
  *
- * It is used during index mergers to sequentially scan the postings in order using {@code nextPosting}.
+ * It is used during index merges to sequentially scan the postings in order using {@link ::nextPosting}.
  */
 public class ScanningPostingsReader extends PostingsReader
 {

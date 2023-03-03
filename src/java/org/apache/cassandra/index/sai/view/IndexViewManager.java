@@ -25,13 +25,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.SSTableContext;
-import org.apache.cassandra.index.sai.SSTableIndex;
+import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.StorageAttachedIndexGroup;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.utils.Pair;
@@ -51,14 +50,8 @@ public class IndexViewManager
 
     public IndexViewManager(IndexContext context)
     {
-        this(context, Collections.emptySet());
-    }
-
-    @VisibleForTesting
-    IndexViewManager(IndexContext context, Collection<SSTableIndex> indices)
-    {
         this.context = context;
-        this.view.set(new View(context, indices));
+        this.view.set(new View(context, Collections.emptySet()));
     }
 
     public View getView()
@@ -75,16 +68,15 @@ public class IndexViewManager
      *
      * @return A set of SSTables which have attached to them invalid index components.
      */
-    public Set<SSTableContext> update(Collection<SSTableReader> oldSSTables, Collection<SSTableContext> newSSTableContexts, boolean validate)
+    public Collection<SSTableContext> update(Collection<SSTableReader> oldSSTables, Collection<SSTableContext> newSSTableContexts, boolean validate)
     {
         // Valid indexes on the left and invalid SSTable contexts on the right...
-        Pair<Set<SSTableIndex>, Set<SSTableContext>> indexes = context.getBuiltIndexes(newSSTableContexts, validate);
+        Pair<Collection<SSTableIndex>, Collection<SSTableContext>> indexes = context.getBuiltIndexes(newSSTableContexts, validate);
 
         View currentView, newView;
         Collection<SSTableIndex> newViewIndexes = new HashSet<>();
         Collection<SSTableIndex> releasableIndexes = new ArrayList<>();
-        Collection<SSTableReader> toRemove = new HashSet<>(oldSSTables);
-        
+
         do
         {
             currentView = view.get();
@@ -95,9 +87,9 @@ public class IndexViewManager
             {
                 // When aborting early open transaction, toRemove may have the same sstable files as newSSTableContexts,
                 // but different SSTableReader java objects with different start positions. So we need to release them
-                // from existing view.  see DSP-19677
+                // from existing view.
                 SSTableReader sstable = sstableIndex.getSSTable();
-                if (toRemove.contains(sstable) || newViewIndexes.contains(sstableIndex))
+                if (oldSSTables.contains(sstable) || newViewIndexes.contains(sstableIndex))
                     releasableIndexes.add(sstableIndex);
                 else
                     newViewIndexes.add(sstableIndex);
@@ -142,20 +134,15 @@ public class IndexViewManager
 
     /**
      * Called when index is dropped. Mark all {@link SSTableIndex} as released and per-column index files
-     * will be removed when in-flight queries completed and {@code obsolete} is true.
-     *
-     * @param obsolete true if index files should be deleted after invalidate; false otherwise.
+     * will be removed when in-flight queries are completed.
      */
-    public void invalidate(boolean obsolete)
+    public void invalidate()
     {
         View currentView = view.get();
 
         for (SSTableIndex index : currentView)
         {
-            if (obsolete)
-                index.markObsolete();
-            else
-                index.release();
+            index.markObsolete();
         }
 
         view.set(new View(context, Collections.emptyList()));

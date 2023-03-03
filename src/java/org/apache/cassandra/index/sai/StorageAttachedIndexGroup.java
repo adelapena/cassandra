@@ -17,7 +17,6 @@
  */
 package org.apache.cassandra.index.sai;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -45,6 +44,7 @@ import org.apache.cassandra.db.lifecycle.Tracker;
 import org.apache.cassandra.db.memtable.Memtable;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.index.Index;
+import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.disk.StorageAttachedIndexWriter;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.index.sai.disk.format.Version;
@@ -73,7 +73,7 @@ import org.apache.cassandra.utils.Throwables;
 @ThreadSafe
 public class StorageAttachedIndexGroup implements Index.Group, INotificationConsumer
 {
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(StorageAttachedIndexGroup.class);
 
     private final TableQueryMetrics queryMetrics;
     private final TableStateMetrics stateMetrics;
@@ -143,6 +143,7 @@ public class StorageAttachedIndexGroup implements Index.Group, INotificationCons
     }
 
     @Override
+    @SuppressWarnings("SuspiciousMethodCalls")
     public boolean containsIndex(Index index)
     {
         return indexes.contains(index);
@@ -193,7 +194,7 @@ public class StorageAttachedIndexGroup implements Index.Group, INotificationCons
         IndexDescriptor indexDescriptor = IndexDescriptor.create(descriptor, tableMetadata.comparator);
         try
         {
-            return new StorageAttachedIndexWriter(indexDescriptor, indexes, tracker);
+            return StorageAttachedIndexWriter.createFlushObserverWriter(indexDescriptor, indexes, tracker);
         }
         catch (Throwable t)
         {
@@ -250,7 +251,6 @@ public class StorageAttachedIndexGroup implements Index.Group, INotificationCons
             SSTableAddedNotification notice = (SSTableAddedNotification) notification;
 
             // Avoid validation for index files just written following Memtable flush.
-            //TODO Do we need to validate streamed index files?
             boolean validate = !notice.memtable().isPresent();
             onSSTableChanged(Collections.emptySet(), notice.added, indexes, validate);
         }
@@ -263,11 +263,11 @@ public class StorageAttachedIndexGroup implements Index.Group, INotificationCons
         }
         else if (notification instanceof MemtableRenewedNotification)
         {
-            indexes.forEach(index -> index.getIndexContext().renewMemtable(((MemtableRenewedNotification) notification).renewed));
+            indexes.forEach(index -> index.getIndexContext().getMemtableIndexManager().renewMemtable(((MemtableRenewedNotification) notification).renewed));
         }
         else if (notification instanceof MemtableDiscardedNotification)
         {
-            indexes.forEach(index -> index.getIndexContext().discardMemtable(((MemtableDiscardedNotification) notification).memtable));
+            indexes.forEach(index -> index.getIndexContext().getMemtableIndexManager().discardMemtable(((MemtableDiscardedNotification) notification).memtable));
         }
     }
 
@@ -322,7 +322,7 @@ public class StorageAttachedIndexGroup implements Index.Group, INotificationCons
 
         for (StorageAttachedIndex index : indexes)
         {
-            Set<SSTableContext> invalid = index.getIndexContext().onSSTableChanged(removed, results.left, validate);
+            Collection<SSTableContext> invalid = index.getIndexContext().onSSTableChanged(removed, results.left, validate);
 
             if (!invalid.isEmpty())
             {

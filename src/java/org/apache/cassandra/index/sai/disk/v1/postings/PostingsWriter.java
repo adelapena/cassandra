@@ -24,14 +24,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import org.agrona.collections.IntArrayList;
 import org.agrona.collections.LongArrayList;
 import org.apache.cassandra.index.sai.IndexContext;
-import org.apache.cassandra.index.sai.disk.PostingList;
+import org.apache.cassandra.index.sai.postings.PostingList;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.index.sai.disk.io.RAMIndexOutput;
-import org.apache.cassandra.index.sai.utils.SAICodecUtils;
+import org.apache.cassandra.index.sai.disk.v1.SAICodecUtils;
 import org.apache.lucene.store.DataOutput;
 import org.apache.lucene.store.IndexOutput;
 import org.apache.lucene.util.packed.DirectWriter;
@@ -59,9 +58,9 @@ import static org.apache.lucene.codecs.lucene50.Lucene50PostingsFormat.BLOCK_SIZ
  * as two packed blocks, while the remaining 3 are encoded as one VLong block.
  * </p>
  * <p>
- * Each posting list ends with a meta section and a skip table, that are written right after all postings blocks. Skip
- * interval is the same as block size, and each skip entry points to the end of each block.  Skip table consist of
- * block offsets and last values of each block, compressed as two FoR blocks.
+ * Each posting list ends with a block summary containing metadata and a skip table, written right after all postings
+ * blocks. Skip interval is the same as block size, and each skip entry points to the end of each block.
+ * Skip table consist of block offsets and last values of each block, compressed as two FoR blocks.
  * </p>
  *
  * Visual representation of the disk format:
@@ -100,20 +99,15 @@ public class PostingsWriter implements Closeable
     private long maxDelta;
     private long totalPostings;
 
-    public PostingsWriter(IndexDescriptor indexDescriptor, IndexContext indexContext, boolean segmented) throws IOException
+    public PostingsWriter(IndexDescriptor indexDescriptor, IndexContext indexContext) throws IOException
     {
-        this(indexDescriptor, indexContext, BLOCK_SIZE, segmented);
-    }
-
-    public PostingsWriter(IndexOutput dataOutput) throws IOException
-    {
-        this(dataOutput, BLOCK_SIZE);
+        this(indexDescriptor, indexContext, BLOCK_SIZE);
     }
 
     @VisibleForTesting
-    PostingsWriter(IndexDescriptor indexDescriptor, IndexContext indexContext, int blockSize, boolean segmented) throws IOException
+    PostingsWriter(IndexDescriptor indexDescriptor, IndexContext indexContext, int blockSize) throws IOException
     {
-        this(indexDescriptor.openPerIndexOutput(IndexComponent.POSTING_LISTS, indexContext, true, segmented), blockSize);
+        this(indexDescriptor.openPerIndexOutput(IndexComponent.POSTING_LISTS, indexContext, true), blockSize);
     }
 
     private PostingsWriter(IndexOutput dataOutput, int blockSize) throws IOException
@@ -181,8 +175,8 @@ public class PostingsWriter implements Closeable
             size++;
             totalPostings++;
         }
-        if (size == 0)
-            return -1;
+
+        assert size > 0 : "No postings were written";
 
         finish();
 
@@ -258,9 +252,9 @@ public class PostingsWriter implements Closeable
         writeSortedFoRBlock(blockMaxIDs, dataOutput);
     }
 
-    private void writePostingsBlock(long maxValue, int blockSize) throws IOException
+    private void writePostingsBlock(long maxDelta, int blockSize) throws IOException
     {
-        final int bitsPerValue = maxValue == 0 ? 0 : DirectWriter.unsignedBitsRequired(maxValue);
+        final int bitsPerValue = maxDelta == 0 ? 0 : DirectWriter.unsignedBitsRequired(maxDelta);
 
         assert bitsPerValue < Byte.MAX_VALUE;
 
@@ -289,24 +283,6 @@ public class PostingsWriter implements Closeable
             for (int i = 0; i < values.size(); ++i)
             {
                 writer.add(values.getLong(i));
-            }
-            writer.finish();
-        }
-    }
-
-    private void writeSortedFoRBlock(IntArrayList values, IndexOutput output) throws IOException
-    {
-        final int maxValue = values.getInt(values.size() - 1);
-
-        assert values.size() > 0;
-        final int bitsPerValue = maxValue == 0 ? 0 : DirectWriter.unsignedBitsRequired(maxValue);
-        output.writeByte((byte) bitsPerValue);
-        if (bitsPerValue > 0)
-        {
-            final DirectWriter writer = DirectWriter.getInstance(output, values.size(), bitsPerValue);
-            for (int i = 0; i < values.size(); ++i)
-            {
-                writer.add(values.getInt(i));
             }
             writer.finish();
         }

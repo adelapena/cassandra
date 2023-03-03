@@ -19,21 +19,18 @@ package org.apache.cassandra.index.sai.disk.v1.bitpack;
 
 import java.io.IOException;
 
-import com.google.common.annotations.VisibleForTesting;
-
-import org.apache.cassandra.index.sai.SSTableQueryContext;
+import org.apache.cassandra.index.sai.disk.io.IndexFileUtils;
 import org.apache.cassandra.index.sai.disk.io.IndexInputReader;
 import org.apache.cassandra.index.sai.disk.v1.LongArray;
-import org.apache.cassandra.index.sai.utils.IndexFileUtils;
-import org.apache.cassandra.index.sai.utils.SAICodecUtils;
+import org.apache.cassandra.index.sai.disk.v1.SAICodecUtils;
 import org.apache.cassandra.io.util.FileHandle;
 import org.apache.cassandra.io.util.RandomAccessReader;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.IndexInput;
 
-import static org.apache.cassandra.index.sai.utils.SAICodecUtils.checkBlockSize;
-import static org.apache.cassandra.index.sai.utils.SAICodecUtils.numBlocks;
-import static org.apache.cassandra.index.sai.utils.SAICodecUtils.readVLong;
+import static org.apache.cassandra.index.sai.disk.v1.SAICodecUtils.checkBlockSize;
+import static org.apache.cassandra.index.sai.disk.v1.SAICodecUtils.numBlocks;
+import static org.apache.cassandra.index.sai.disk.v1.SAICodecUtils.readVLong;
 import static org.apache.lucene.util.BitUtil.zigZagDecode;
 
 /**
@@ -57,7 +54,7 @@ public class BlockPackedReader implements LongArray.Factory
 
         blockShift = checkBlockSize(meta.blockSize, AbstractBlockPackedWriter.MIN_BLOCK_SIZE, AbstractBlockPackedWriter.MAX_BLOCK_SIZE);
         blockMask = meta.blockSize - 1;
-        final int numBlocks = numBlocks(valueCount, meta.blockSize);
+        int numBlocks = numBlocks(valueCount, meta.blockSize);
         blockBitsPerValue = new byte[numBlocks];
         blockOffsets = new long[numBlocks];
         minValues = new long[numBlocks];
@@ -100,19 +97,12 @@ public class BlockPackedReader implements LongArray.Factory
         }
     }
 
-    @VisibleForTesting
-    @Override
-    public LongArray open()
-    {
-        return openTokenReader(0, null);
-    }
-
     @Override
     @SuppressWarnings({"resource", "RedundantSuppression"})
-    public LongArray openTokenReader(long sstableRowId, SSTableQueryContext context)
+    public LongArray open()
     {
-        final IndexInput indexInput = IndexFileUtils.instance.openInput(file);
-        return new AbstractBlockPackedReader(indexInput, blockBitsPerValue, blockShift, blockMask, sstableRowId, valueCount)
+        IndexInput indexInput = IndexFileUtils.instance.openInput(file);
+        return new AbstractBlockPackedReader(indexInput, blockBitsPerValue, blockShift, blockMask, valueCount)
         {
             @Override
             protected long blockOffsetAt(int block)

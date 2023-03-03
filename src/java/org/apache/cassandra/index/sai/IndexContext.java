@@ -25,12 +25,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
@@ -40,26 +36,21 @@ import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.cql3.statements.schema.IndexTarget;
 import org.apache.cassandra.db.ClusteringComparator;
 import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.PartitionPosition;
-import org.apache.cassandra.db.lifecycle.LifecycleNewTracker;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.BooleanType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.marshal.UUIDType;
-import org.apache.cassandra.db.memtable.Memtable;
 import org.apache.cassandra.db.rows.Cell;
 import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.dht.AbstractBounds;
 import org.apache.cassandra.index.sai.analyzer.AbstractAnalyzer;
+import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.disk.format.Version;
-import org.apache.cassandra.index.sai.memory.MemtableIndex;
+import org.apache.cassandra.index.sai.memory.MemtableIndexManager;
 import org.apache.cassandra.index.sai.metrics.ColumnQueryMetrics;
 import org.apache.cassandra.index.sai.metrics.IndexMetrics;
 import org.apache.cassandra.index.sai.plan.Expression;
-import org.apache.cassandra.index.sai.utils.KeyRangeIterator;
-import org.apache.cassandra.index.sai.utils.KeyRangeUnionIterator;
 import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
 import org.apache.cassandra.index.sai.utils.TypeUtil;
 import org.apache.cassandra.index.sai.view.IndexViewManager;
@@ -67,12 +58,10 @@ import org.apache.cassandra.index.sai.view.View;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.schema.ColumnMetadata;
 import org.apache.cassandra.schema.IndexMetadata;
-import org.apache.cassandra.utils.Clock;
-import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.Pair;
 
 /**
- * Manage metadata for each column index.
+ * Manages metadata for each column index.
  */
 public class IndexContext
 {
@@ -82,8 +71,6 @@ public class IndexContext
                                                                               AsciiType.instance,
                                                                               BooleanType.instance,
                                                                               UUIDType.instance);
-
-    public static final String ENABLE_SEGMENT_COMPACTION_OPTION_NAME = "enable_segment_compaction";
 
     private final AbstractType<?> partitionKeyType;
     private final ClusteringComparator clusteringComparator;
@@ -96,9 +83,9 @@ public class IndexContext
 
     // Config can be null if the column context is "fake" (i.e. created for a filtering expression).
     @Nullable
-    private final IndexMetadata config;
+    private final IndexMetadata indexMetadata;
 
-    private final ConcurrentMap<Memtable, MemtableIndex> liveMemtableIndexMap;
+    private final MemtableIndexManager memtableIndexManager;
 
     private final IndexViewManager viewManager;
     private final IndexMetrics indexMetrics;
@@ -106,7 +93,6 @@ public class IndexContext
     private final AbstractAnalyzer.AnalyzerFactory indexAnalyzerFactory;
     private final AbstractAnalyzer.AnalyzerFactory queryAnalyzerFactory;
     private final PrimaryKeyFactory primaryKeyFactory;
-    private final boolean segmentCompactionEnabled;
 
     public IndexContext(String keyspace,
                         String table,
@@ -114,7 +100,7 @@ public class IndexContext
                         ClusteringComparator clusteringComparator,
                         ColumnMetadata columnMetadata,
                         IndexTarget.Type indexType,
-                        @Nullable IndexMetadata config)
+                        @Nullable IndexMetadata indexMetadata)
     {
         this.keyspace = Objects.requireNonNull(keyspace);
         this.table = Objects.requireNonNull(table);
@@ -125,12 +111,11 @@ public class IndexContext
         this.validator = TypeUtil.cellValueType(columnMetadata, indexType);
         this.primaryKeyFactory = Version.LATEST.onDiskFormat().primaryKeyFactory(clusteringComparator);
 
-        this.config = config;
-        this.segmentCompactionEnabled = config == null || Boolean.parseBoolean(config.options.getOrDefault(ENABLE_SEGMENT_COMPACTION_OPTION_NAME, "true"));
+        this.indexMetadata = indexMetadata;
+        this.memtableIndexManager = indexMetadata == null ? null : new MemtableIndexManager(this);
+        this.indexMetrics = indexMetadata == null ? null : new IndexMetrics(this);
         this.viewManager = new IndexViewManager(this);
-        this.indexMetrics = config == null ? null : new IndexMetrics(this);
         this.columnQueryMetrics = new ColumnQueryMetrics.TrieIndexMetrics(this);
-        this.liveMemtableIndexMap = config == null ? null : new ConcurrentHashMap<>();
 
         // We currently only support the NoOpAnalyzer
         this.indexAnalyzerFactory = AbstractAnalyzer.fromOptions(getValidator(), Collections.emptyMap());
@@ -169,116 +154,116 @@ public class IndexContext
 
     public IndexMetadata getIndexMetadata()
     {
-        return config;
+        return indexMetadata;
     }
 
-    public long index(DecoratedKey key, Row row, Memtable mt)
-    {
-        assert config != null : "Attempt to index on a non-indexing context";
-
-        MemtableIndex current = liveMemtableIndexMap.get(mt);
-
-        // We expect the relevant IndexMemtable to be present most of the time, so only make the
-        // call to computeIfAbsent() if it's not. (see https://bugs.openjdk.java.net/browse/JDK-8161372)
-        MemtableIndex target = (current != null)
-                               ? current
-                               : liveMemtableIndexMap.computeIfAbsent(mt, memtable -> new MemtableIndex(this));
-
-        long start = Clock.Global.nanoTime();
-
-        long bytes = 0;
-
-        if (isNonFrozenCollection())
-        {
-            Iterator<ByteBuffer> bufferIterator = getValuesOf(row, FBUtilities.nowInSeconds());
-            if (bufferIterator != null)
-            {
-                while (bufferIterator.hasNext())
-                {
-                    ByteBuffer value = bufferIterator.next();
-                    bytes += target.index(key, row.clustering(), value);
-                }
-            }
-        }
-        else
-        {
-            ByteBuffer value = getValueOf(key, row, FBUtilities.nowInSeconds());
-            target.index(key, row.clustering(), value);
-        }
-        indexMetrics.memtableIndexWriteLatency.update(Clock.Global.nanoTime() - start, TimeUnit.NANOSECONDS);
-        return bytes;
-    }
-
-    public void renewMemtable(Memtable renewed)
-    {
-        assert liveMemtableIndexMap != null : "Attempt to renew memtable on non-indexing context";
-
-        for (Memtable memtable : liveMemtableIndexMap.keySet())
-        {
-            // remove every index but the one that corresponds to the post-truncate Memtable
-            if (renewed != memtable)
-            {
-                liveMemtableIndexMap.remove(memtable);
-            }
-        }
-    }
-
-    public void discardMemtable(Memtable discarded)
-    {
-        assert liveMemtableIndexMap != null : "Attempt to discard memtable from non-indexing context";
-
-        liveMemtableIndexMap.remove(discarded);
-    }
-
-    public MemtableIndex getPendingMemtableIndex(LifecycleNewTracker tracker)
-    {
-        return liveMemtableIndexMap.keySet().stream()
-                                   .filter(m -> tracker.equals(m.getFlushTransaction()))
-                                   .findFirst()
-                                   .map(liveMemtableIndexMap::get)
-                                   .orElse(null);
-    }
-
-
-    public KeyRangeIterator searchMemtableIndexes(Expression e, AbstractBounds<PartitionPosition> keyRange)
-    {
-        assert liveMemtableIndexMap != null : "Attempt to perform search on non-indexing context";
-
-        Collection<MemtableIndex> memtableIndexes = liveMemtableIndexMap.values();
-
-        if (memtableIndexes.isEmpty())
-        {
-            return KeyRangeIterator.empty();
-        }
-
-        KeyRangeIterator.Builder builder = KeyRangeUnionIterator.builder(memtableIndexes.size());
-
-        for (MemtableIndex memtableIndex : memtableIndexes)
-        {
-            builder.add(memtableIndex.search(e, keyRange));
-        }
-
-        return builder.build();
-    }
-
-    public long liveMemtableWriteCount()
-    {
-        assert liveMemtableIndexMap != null : "Attempt to get metrics from non-indexing context";
-
-        return liveMemtableIndexMap.values().stream().mapToLong(MemtableIndex::writeCount).sum();
-    }
-
-    public long estimatedMemIndexMemoryUsed()
-    {
-        assert liveMemtableIndexMap != null : "Attempt to get metrics from non-indexing context";
-
-        return liveMemtableIndexMap.values().stream().mapToLong(MemtableIndex::estimatedMemoryUsed).sum();
-    }
+//    public long index(DecoratedKey key, Row row, Memtable mt)
+//    {
+//        assert indexMetadata != null : "Attempt to index on a non-indexing context";
+//
+//        MemtableIndex current = liveMemtableIndexMap.get(mt);
+//
+//        // We expect the relevant IndexMemtable to be present most of the time, so only make the
+//        // call to computeIfAbsent() if it's not. (see https://bugs.openjdk.java.net/browse/JDK-8161372)
+//        MemtableIndex target = (current != null)
+//                               ? current
+//                               : liveMemtableIndexMap.computeIfAbsent(mt, memtable -> new MemtableIndex(this));
+//
+//        long start = Clock.Global.nanoTime();
+//
+//        long bytes = 0;
+//
+//        if (isNonFrozenCollection())
+//        {
+//            Iterator<ByteBuffer> bufferIterator = getValuesOf(row, FBUtilities.nowInSeconds());
+//            if (bufferIterator != null)
+//            {
+//                while (bufferIterator.hasNext())
+//                {
+//                    ByteBuffer value = bufferIterator.next();
+//                    bytes += target.index(key, row.clustering(), value);
+//                }
+//            }
+//        }
+//        else
+//        {
+//            ByteBuffer value = getValueOf(key, row, FBUtilities.nowInSeconds());
+//            target.index(key, row.clustering(), value);
+//        }
+//        indexMetrics.memtableIndexWriteLatency.update(Clock.Global.nanoTime() - start, TimeUnit.NANOSECONDS);
+//        return bytes;
+//    }
+//
+//    public void renewMemtable(Memtable renewed)
+//    {
+//        assert liveMemtableIndexMap != null : "Attempt to renew memtable on non-indexing context";
+//
+//        for (Memtable memtable : liveMemtableIndexMap.keySet())
+//        {
+//            // remove every index but the one that corresponds to the post-truncate Memtable
+//            if (renewed != memtable)
+//            {
+//                liveMemtableIndexMap.remove(memtable);
+//            }
+//        }
+//    }
+//
+//    public void discardMemtable(Memtable discarded)
+//    {
+//        assert liveMemtableIndexMap != null : "Attempt to discard memtable from non-indexing context";
+//
+//        liveMemtableIndexMap.remove(discarded);
+//    }
+//
+//    public MemtableIndex getPendingMemtableIndex(LifecycleNewTracker tracker)
+//    {
+//        return liveMemtableIndexMap.keySet().stream()
+//                                   .filter(m -> tracker.equals(m.getFlushTransaction()))
+//                                   .findFirst()
+//                                   .map(liveMemtableIndexMap::get)
+//                                   .orElse(null);
+//    }
+//
+//
+//    public KeyRangeIterator searchMemtableIndexes(Expression e, AbstractBounds<PartitionPosition> keyRange)
+//    {
+//        assert liveMemtableIndexMap != null : "Attempt to perform search on non-indexing context";
+//
+//        Collection<MemtableIndex> memtableIndexes = liveMemtableIndexMap.values();
+//
+//        if (memtableIndexes.isEmpty())
+//        {
+//            return KeyRangeIterator.empty();
+//        }
+//
+//        KeyRangeIterator.Builder builder = KeyRangeUnionIterator.builder(memtableIndexes.size());
+//
+//        for (MemtableIndex memtableIndex : memtableIndexes)
+//        {
+//            builder.add(memtableIndex.search(e, keyRange));
+//        }
+//
+//        return builder.build();
+//    }
+//
+//    public long liveMemtableWriteCount()
+//    {
+//        assert liveMemtableIndexMap != null : "Attempt to get metrics from non-indexing context";
+//
+//        return liveMemtableIndexMap.values().stream().mapToLong(MemtableIndex::writeCount).sum();
+//    }
+//
+//    public long estimatedMemIndexMemoryUsed()
+//    {
+//        assert liveMemtableIndexMap != null : "Attempt to get metrics from non-indexing context";
+//
+//        return liveMemtableIndexMap.values().stream().mapToLong(MemtableIndex::estimatedMemoryUsed).sum();
+//    }
 
     /**
      * @return A set of SSTables which have attached to them invalid index components.
      */
-    public Set<SSTableContext> onSSTableChanged(Collection<SSTableReader> oldSSTables, Collection<SSTableContext> newSSTables, boolean validate)
+    public Collection<SSTableContext> onSSTableChanged(Collection<SSTableReader> oldSSTables, Collection<SSTableContext> newSSTables, boolean validate)
     {
         return viewManager.update(oldSSTables, newSSTables, validate);
     }
@@ -311,7 +296,7 @@ public class IndexContext
     @Nullable
     public String getIndexName()
     {
-        return config == null ? null : config.name;
+        return indexMetadata == null ? null : indexMetadata.name;
     }
 
     /**
@@ -339,6 +324,13 @@ public class IndexContext
         return viewManager.getView();
     }
 
+    public MemtableIndexManager getMemtableIndexManager()
+    {
+        assert memtableIndexManager != null : "Attempt to use memtable index manager on non-indexed context";
+
+        return memtableIndexManager;
+    }
+
     /**
      * @return total number of per-index open files
      */
@@ -354,37 +346,33 @@ public class IndexContext
 
     public boolean isNotIndexed()
     {
-        return config == null;
+        return indexMetadata == null;
     }
 
     /**
      * Called when index is dropped. Clear all live in-memory indexes and close
      * analyzer factories. Mark all {@link SSTableIndex} as released and per-column index files
-     * will be removed when in-flight queries completed and {@code obsolete} is true.
-     *
-     * @param obsolete true if index files should be deleted after invalidate; false otherwise.
+     * will be removed when in-flight queries are completed.
      */
-    public void invalidate(boolean obsolete)
+    public void invalidate()
     {
-        if (liveMemtableIndexMap != null)
-            liveMemtableIndexMap.clear();
-        viewManager.invalidate(obsolete);
+        viewManager.invalidate();
+        indexAnalyzerFactory.close();
+        if (queryAnalyzerFactory != indexAnalyzerFactory)
+            queryAnalyzerFactory.close();
+        if (memtableIndexManager != null)
+            memtableIndexManager.invalidate();
         if (indexMetrics != null)
             indexMetrics.release();
         if (columnQueryMetrics != null)
             columnQueryMetrics.release();
-        indexAnalyzerFactory.close();
-        if (queryAnalyzerFactory != indexAnalyzerFactory)
-        {
-            queryAnalyzerFactory.close();
-        }
     }
 
-    @VisibleForTesting
-    public ConcurrentMap<Memtable, MemtableIndex> getLiveMemtables()
-    {
-        return liveMemtableIndexMap;
-    }
+//    @VisibleForTesting
+//    public ConcurrentMap<Memtable, MemtableIndex> getLiveMemtables()
+//    {
+//        return liveMemtableIndexMap;
+//    }
 
     public boolean supports(Operator op)
     {
@@ -494,7 +482,7 @@ public class IndexContext
 
         return Objects.equals(columnMetadata, other.columnMetadata) &&
                (indexType == other.indexType) &&
-               Objects.equals(config, other.config) &&
+               Objects.equals(indexMetadata, other.indexMetadata) &&
                Objects.equals(partitionKeyType, other.partitionKeyType) &&
                Objects.equals(clusteringComparator, other.clusteringComparator);
     }
@@ -502,7 +490,7 @@ public class IndexContext
     @Override
     public int hashCode()
     {
-        return Objects.hash(columnMetadata, indexType, config, partitionKeyType, clusteringComparator);
+        return Objects.hash(columnMetadata, indexType, indexMetadata, partitionKeyType, clusteringComparator);
     }
 
     /**
@@ -520,14 +508,14 @@ public class IndexContext
     public String logMessage(String message)
     {
         // Index names are unique only within a keyspace.
-        return String.format("[%s.%s.%s] %s", keyspace, table, config == null ? "?" : config.name, message);
+        return String.format("[%s.%s.%s] %s", keyspace, table, indexMetadata == null ? "?" : indexMetadata.name, message);
     }
 
     /**
      * @return the indexes that are built on the given SSTables on the left and corrupted indexes'
      * corresponding contexts on the right
      */
-    public Pair<Set<SSTableIndex>, Set<SSTableContext>> getBuiltIndexes(Collection<SSTableContext> sstableContexts, boolean validate)
+    public Pair<Collection<SSTableIndex>, Collection<SSTableContext>> getBuiltIndexes(Collection<SSTableContext> sstableContexts, boolean validate)
     {
         Set<SSTableIndex> valid = new HashSet<>(sstableContexts.size());
         Set<SSTableContext> invalid = new HashSet<>();
@@ -614,20 +602,5 @@ public class IndexContext
                         .stream()
                         .mapToLong(SSTableIndex::indexFileCacheSize)
                         .sum();
-    }
-
-    /**
-     * Returns true if index segments should be compacted into one segment after building the index.
-     *
-     * By default, this option is set to true. A user is able to override this by setting
-     * <code>enable_segment_compaction</code> to false in the index options.
-     * This is an expert-only option.
-     * Disabling compaction improves performance of writes at the expense of significantly reducing performance
-     * of read queries. A user should never turn compaction off on a production system
-     * unless diagnosing a performance issue.
-     */
-    public boolean isSegmentCompactionEnabled()
-    {
-        return this.segmentCompactionEnabled;
     }
 }

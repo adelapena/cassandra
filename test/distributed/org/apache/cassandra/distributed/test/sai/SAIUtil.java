@@ -115,7 +115,7 @@ public class SAIUtil
     public static List<String> getIndexes(Cluster cluster, String keyspace)
     {
         waitForSchemaAgreement(cluster);
-        String query = String.format("SELECT index_name FROM system_views.indexes WHERE keyspace_name = '%s' ALLOW FILTERING", keyspace);
+        String query = String.format("SELECT index_name FROM system_views.sai_indexes WHERE keyspace_name = '%s' ALLOW FILTERING", keyspace);
         SimpleQueryResult result = cluster.get(1).executeInternalWithResult(query);
         return Streams.stream(result)
                       .map(row -> (String) row.get("index_name"))

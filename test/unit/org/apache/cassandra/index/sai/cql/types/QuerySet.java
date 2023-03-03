@@ -142,7 +142,7 @@ public abstract class QuerySet extends SAITester
             for (int and = 0; and < allRows.length / 4; and++)
             {
                 int index = getRandom().nextIntBetween(0, allRows.length - 1);
-                Iterator valueIterator = ((Collection) allRows[index][2]).iterator();
+                Iterator<?> valueIterator = ((Collection<?>) allRows[index][2]).iterator();
                 Object value1 = valueIterator.next();
                 Object value2 = valueIterator.hasNext() ? valueIterator.next() : value1;
                 assertRowsIgnoringOrder(tester.execute("SELECT * FROM %s WHERE value CONTAINS ? AND value CONTAINS ? ALLOW FILTERING",
@@ -155,7 +155,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Collection)row[2]).contains(value))
+                if (((Collection<?>)row[2]).contains(value))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -166,7 +166,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Collection)row[2]).contains(value1) && ((Collection)row[2]).contains(value2))
+                if (((Collection<?>)row[2]).contains(value1) && ((Collection<?>)row[2]).contains(value2))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -220,7 +220,7 @@ public abstract class QuerySet extends SAITester
             for (int and = 0; and < allRows.length / 4; and++)
             {
                 int index = getRandom().nextIntBetween(0, allRows.length - 1);
-                Map map = (Map)allRows[index][2];
+                Map<?, ?> map = (Map<?, ?>)allRows[index][2];
                 Object value1 = map.values().toArray()[getRandom().nextIntBetween(0, map.values().size() - 1)];
                 Object value2 = map.keySet().toArray()[getRandom().nextIntBetween(0, map.values().size() - 1)];
                 assertRowsIgnoringOrder(tester.execute("SELECT * FROM %s WHERE value CONTAINS ? AND value CONTAINS ? ALLOW FILTERING",
@@ -233,7 +233,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).containsValue(value))
+                if (((Map<?, ?>)row[2]).containsValue(value))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -244,7 +244,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).containsValue(value1) && ((Map)row[2]).containsValue(value2))
+                if (((Map<?, ?>)row[2]).containsValue(value1) && ((Map<?, ?>)row[2]).containsValue(value2))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -270,7 +270,7 @@ public abstract class QuerySet extends SAITester
             for (int and = 0; and < allRows.length / 4; and++)
             {
                 int index = getRandom().nextIntBetween(0, allRows.length - 1);
-                Map map = (Map)allRows[index][2];
+                Map<?, ?> map = (Map<?, ?>)allRows[index][2];
                 Object key1 = map.keySet().toArray()[getRandom().nextIntBetween(0, map.keySet().size() - 1)];
                 Object key2 = map.keySet().toArray()[getRandom().nextIntBetween(0, map.keySet().size() - 1)];
                 assertRowsIgnoringOrder(tester.execute("SELECT * FROM %s WHERE value CONTAINS KEY ? AND value CONTAINS KEY ? ALLOW FILTERING",
@@ -283,7 +283,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).containsKey(value))
+                if (((Map<?, ?>)row[2]).containsKey(value))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -294,7 +294,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).containsKey(value1) && ((Map)row[2]).containsKey(value2))
+                if (((Map<?, ?>)row[2]).containsKey(value1) && ((Map<?, ?>)row[2]).containsKey(value2))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -313,7 +313,7 @@ public abstract class QuerySet extends SAITester
         {
             for (int index = 0; index < allRows.length; index++)
             {
-                Map map = (Map)allRows[index][2];
+                Map<?, ?> map = (Map<?, ?>)allRows[index][2];
                 Object key = map.keySet().toArray()[0];
                 Object value = map.get(key);
                 assertRowsIgnoringOrder(tester.execute("SELECT * FROM %s WHERE value[?] = ?",
@@ -322,7 +322,7 @@ public abstract class QuerySet extends SAITester
             for (int and = 0; and < allRows.length / 4; and++)
             {
                 int index = getRandom().nextIntBetween(0, allRows.length - 1);
-                Map map = (Map)allRows[index][2];
+                Map<?, ?> map = (Map<?, ?>)allRows[index][2];
                 Object key1 = map.keySet().toArray()[getRandom().nextIntBetween(0, map.keySet().size() - 1)];
                 Object value1 = map.get(key1);
                 Object key2 = map.keySet().toArray()[getRandom().nextIntBetween(0, map.keySet().size() - 1)];
@@ -337,7 +337,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                Map rowMap = (Map)row[2];
+                Map<?, ?> rowMap = (Map<?, ?>)row[2];
                 if (rowMap.containsKey(key))
                 {
                     if (rowMap.get(key).equals(value))
@@ -352,7 +352,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                Map rowMap = (Map)row[2];
+                Map<?, ?> rowMap = (Map<?, ?>)row[2];
                 if (rowMap.containsKey(key1) && rowMap.containsKey(key2))
                 {
                     if (rowMap.get(key1).equals(value1) && rowMap.get(key2).equals(value2))
@@ -375,7 +375,7 @@ public abstract class QuerySet extends SAITester
         {
             for (int index = 0; index < allRows.length; index++)
             {
-                Map map = (Map)allRows[index][2];
+                Map<?, ?> map = (Map<?, ?>)allRows[index][2];
                 Object key = map.keySet().toArray()[0];
                 Object value = map.get(key);
 
@@ -391,7 +391,7 @@ public abstract class QuerySet extends SAITester
             for (int and = 0; and < allRows.length / 4; and++)
             {
                 int index = getRandom().nextIntBetween(0, allRows.length - 1);
-                Map map = (Map)allRows[index][2];
+                Map<?, ?> map = (Map<?, ?>)allRows[index][2];
                 Object key1 = map.keySet().toArray()[getRandom().nextIntBetween(0, map.keySet().size() - 1)];
                 Object value1 = map.get(key1);
                 Object key2 = map.keySet().toArray()[getRandom().nextIntBetween(0, map.keySet().size() - 1)];
@@ -416,7 +416,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).containsKey(value))
+                if (((Map<?, ?>)row[2]).containsKey(value))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -427,7 +427,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).containsValue(value))
+                if (((Map<?, ?>)row[2]).containsValue(value))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -438,7 +438,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                Map rowMap = (Map)row[2];
+                Map<?, ?> rowMap = (Map<?, ?>)row[2];
                 if (rowMap.containsKey(key))
                 {
                     if (rowMap.get(key).equals(value))
@@ -453,7 +453,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).containsKey(value1) && ((Map)row[2]).containsKey(value2))
+                if (((Map<?, ?>)row[2]).containsKey(value1) && ((Map<?, ?>)row[2]).containsKey(value2))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -464,7 +464,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                if (((Map)row[2]).containsValue(value1) && ((Map)row[2]).containsValue(value2))
+                if (((Map<?, ?>)row[2]).containsValue(value1) && ((Map<?, ?>)row[2]).containsValue(value2))
                     expected.add(row);
             }
             return expected.toArray(new Object[][]{});
@@ -475,7 +475,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                Map rowMap = (Map)row[2];
+                Map<?, ?> rowMap = (Map<?, ?>)row[2];
                 if (rowMap.containsKey(key1) && rowMap.containsKey(key2))
                 {
                     if (rowMap.get(key1).equals(value1) && rowMap.get(key2).equals(value2))
@@ -490,7 +490,7 @@ public abstract class QuerySet extends SAITester
             List<Object[]> expected = new ArrayList<>();
             for (Object[] row : allRows)
             {
-                Map rowMap = (Map)row[2];
+                Map<?, ?> rowMap = (Map<?, ?>)row[2];
                 if (rowMap.containsKey(key1) && rowMap.containsKey(key2) && rowMap.containsValue(value2))
                 {
                     if (rowMap.get(key1).equals(value1))

@@ -39,13 +39,13 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
     private final TableQueryMetrics queryMetrics;
     private final RowFilter postIndexFilter;
     private final RowFilter filterOperation;
-    private final Set<StorageAttachedIndex> indexes;
+    private final Set<Index> indexes;
 
     private StorageAttachedIndexQueryPlan(ColumnFamilyStore cfs,
                                           TableQueryMetrics queryMetrics,
                                           RowFilter postIndexFilter,
                                           RowFilter filterOperation,
-                                          ImmutableSet<StorageAttachedIndex> indexes)
+                                          ImmutableSet<Index> indexes)
     {
         this.cfs = cfs;
         this.queryMetrics = queryMetrics;
@@ -60,7 +60,7 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
                                                        Set<StorageAttachedIndex> indexes,
                                                        RowFilter rowFilter)
     {
-        ImmutableSet.Builder<StorageAttachedIndex> selectedIndexesBuilder = ImmutableSet.builder();
+        ImmutableSet.Builder<Index> selectedIndexesBuilder = ImmutableSet.builder();
 
         for (RowFilter.Expression expression : rowFilter)
         {
@@ -78,7 +78,7 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
             }
         }
 
-        ImmutableSet<StorageAttachedIndex> selectedIndexes = selectedIndexesBuilder.build();
+        ImmutableSet<Index> selectedIndexes = selectedIndexesBuilder.build();
         if (selectedIndexes.isEmpty())
             return null;
 
@@ -94,7 +94,7 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
     @Override
     public Set<Index> getIndexes()
     {
-        return ImmutableSet.copyOf(indexes);
+        return indexes;
     }
 
     @Override

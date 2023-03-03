@@ -273,38 +273,43 @@ public class KeyRangeUnionIteratorTest extends AbstractKeyRangeIteratorTester
     @Test
     public void testRangeIterator()
     {
-        LongIterator tokens = new LongIterator(new long[] { 0L, 1L, 2L, 3L });
-
-        assertEquals(0L, tokens.getMinimum().token().getLongValue());
-        assertEquals(3L, tokens.getMaximum().token().getLongValue());
-
-        for (int i = 0; i <= 3; i++)
+        try (LongIterator tokens = new LongIterator(new long[] { 0L, 1L, 2L, 3L }))
         {
-            Assert.assertTrue(tokens.hasNext());
-            assertEquals(i, tokens.getCurrent().token().getLongValue());
-            assertEquals(i, tokens.next().token().getLongValue());
+            assertEquals(0L, tokens.getMinimum().token().getLongValue());
+            assertEquals(3L, tokens.getMaximum().token().getLongValue());
+
+            for (int i = 0; i <= 3; i++)
+            {
+                Assert.assertTrue(tokens.hasNext());
+                assertEquals(i, tokens.getCurrent().token().getLongValue());
+                assertEquals(i, tokens.next().token().getLongValue());
+            }
         }
 
-        tokens = new LongIterator(new long[] { 0L, 1L, 3L, 5L });
+        try (LongIterator tokens = new LongIterator(new long[] { 0L, 1L, 3L, 5L }))
+        {
+            assertEquals(3L, tokens.skipTo(LongIterator.fromToken(2L)).token().getLongValue());
+            Assert.assertTrue(tokens.hasNext());
+            assertEquals(3L, tokens.getCurrent().token().getLongValue());
+            assertEquals(3L, tokens.next().token().getLongValue());
 
-        assertEquals(3L, tokens.skipTo(LongIterator.fromToken(2L)).token().getLongValue());
-        Assert.assertTrue(tokens.hasNext());
-        assertEquals(3L, tokens.getCurrent().token().getLongValue());
-        assertEquals(3L, tokens.next().token().getLongValue());
+            assertEquals(5L, tokens.skipTo(LongIterator.fromToken(5L)).token().getLongValue());
+            Assert.assertTrue(tokens.hasNext());
+            assertEquals(5L, tokens.getCurrent().token().getLongValue());
+            assertEquals(5L, tokens.next().token().getLongValue());
+        }
 
-        assertEquals(5L, tokens.skipTo(LongIterator.fromToken(5L)).token().getLongValue());
-        Assert.assertTrue(tokens.hasNext());
-        assertEquals(5L, tokens.getCurrent().token().getLongValue());
-        assertEquals(5L, tokens.next().token().getLongValue());
-
-        LongIterator empty = LongIterator.newEmptyIterator();
-
-        Assert.assertNull(empty.skipTo(LongIterator.fromToken(3L)));
-        Assert.assertFalse(empty.hasNext());
+        try (LongIterator empty = LongIterator.newEmptyIterator())
+        {
+            Assert.assertNull(empty.skipTo(LongIterator.fromToken(3L)));
+            Assert.assertFalse(empty.hasNext());
+        }
     }
 
     @Test
-    public void emptyRangeTest() {
+    @SuppressWarnings("resource")
+    public void emptyRangeTest()
+    {
         KeyRangeIterator.Builder builder;
         KeyRangeIterator range;
         // empty, then non-empty

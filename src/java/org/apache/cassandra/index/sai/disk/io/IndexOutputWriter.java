@@ -18,20 +18,24 @@
 package org.apache.cassandra.index.sai.disk.io;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import com.google.common.base.MoreObjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.cassandra.index.sai.utils.IndexFileUtils;
 import org.apache.cassandra.io.util.File;
 import org.apache.cassandra.io.util.SequentialWriter;
 import org.apache.lucene.store.IndexOutput;
 
+/**
+ * This is a wrapper over a Cassandra {@link SequentialWriter} that provides a Lucene {@link IndexOutput}
+ * interface for the Lucene index writers.
+ */
+@NotThreadSafe
 public class IndexOutputWriter extends IndexOutput
 {
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(IndexOutputWriter.class);
 
     private final SequentialWriter out;
     private boolean closed;
@@ -105,7 +109,7 @@ public class IndexOutputWriter extends IndexOutput
     }
 
     /**
-     * Returns {@link SequentialWriter} associated with this writer. Convenient when interacting with DSE-DB codebase to
+     * Returns {@link SequentialWriter} associated with this writer. Convenient when interacting with Cassandra codebase to
      * write files to disk. Note that all bytes written to the returned writer will still contribute to the checksum.
      *
      * @return {@link SequentialWriter} associated with this writer

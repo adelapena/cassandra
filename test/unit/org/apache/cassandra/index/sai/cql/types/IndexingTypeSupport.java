@@ -93,11 +93,31 @@ public abstract class IndexingTypeSupport extends SAITester
     @Test
     public void runIndexQueryScenarios() throws Throwable
     {
-        for (String index : dataset.decorateIndexColumn("value"))
-            createIndex(String.format("CREATE CUSTOM INDEX ON %%s(%s) USING 'StorageAttachedIndex'", index));
-        waitForIndexQueryable();
+        if (scenario != Scenario.POST_BUILD_QUERY)
+        {
+            for (String index : dataset.decorateIndexColumn("value"))
+                createIndex(String.format("CREATE CUSTOM INDEX ON %%s(%s) USING 'StorageAttachedIndex'", index));
+            waitForIndexQueryable();
+        }
 
         insertData(this, allRows, scenario);
+
+        switch (scenario)
+        {
+            case SSTABLE_QUERY:
+                flush();
+                break;
+            case COMPACTED_QUERY:
+                flush();
+                compact();
+                break;
+            case POST_BUILD_QUERY:
+                flush();
+                for (String index : dataset.decorateIndexColumn("value"))
+                    createIndex(String.format("CREATE CUSTOM INDEX ON %%s(%s) USING 'StorageAttachedIndex'", index));
+                waitForIndexQueryable();
+                break;
+        }
 
         dataset.querySet().runQueries(this, allRows);
     }

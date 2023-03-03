@@ -58,6 +58,5 @@ public class IndexInputLeakDetector extends TestRuleAdapter
     protected void afterAlways(List<Throwable> errors)
     {
         trackedIndexFileUtils.clear();
-        TrackingIndexFileUtils.reset();
     }
 }

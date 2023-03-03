@@ -23,7 +23,7 @@ import org.apache.cassandra.index.sai.disk.io.RAMIndexOutput;
 import org.apache.lucene.store.IndexOutput;
 import org.apache.lucene.util.packed.DirectWriter;
 
-import static org.apache.cassandra.index.sai.utils.SAICodecUtils.checkBlockSize;
+import static org.apache.cassandra.index.sai.disk.v1.SAICodecUtils.checkBlockSize;
 
 /**
  * Modified copy of {@code org.apache.lucene.util.packed.AbstractBlockPackedWriter} to use {@link DirectWriter} for

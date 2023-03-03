@@ -60,12 +60,8 @@ public class TableQueryMetrics extends AbstractMetrics
 
     public void record(QueryContext queryContext)
     {
-        if (queryContext.queryTimeouts > 0)
-        {
-            assert queryContext.queryTimeouts == 1;
-
+        if (queryContext.queryTimedOut)
             totalQueryTimeouts.inc();
-        }
 
         long skippingLookups = queryContext.tokenSkippingLookups;
         long skippingCacheHits = queryContext.tokenSkippingCacheHits;
@@ -128,25 +124,20 @@ public class TableQueryMetrics extends AbstractMetrics
             queryLatency.update(totalQueryTimeNs, TimeUnit.NANOSECONDS);
             final long queryLatencyMicros = TimeUnit.NANOSECONDS.toMicros(totalQueryTimeNs);
 
-            final long ssTablesHit = queryContext.sstablesHit;
-            final long segmentsHit = queryContext.segmentsHit;
-            final long partitionsRead = queryContext.partitionsRead;
-            final long rowsFiltered = queryContext.rowsFiltered;
+            sstablesHit.update(queryContext.sstablesHit);
+            segmentsHit.update(queryContext.segmentsHit);
 
-            sstablesHit.update(ssTablesHit);
-            this.segmentsHit.update(segmentsHit);
+            partitionReads.update(queryContext.partitionsRead);
+            totalPartitionReads.inc(queryContext.partitionsRead);
 
-            partitionReads.update(partitionsRead);
-            totalPartitionReads.inc(partitionsRead);
-
-            this.rowsFiltered.update(rowsFiltered);
-            totalRowsFiltered.inc(rowsFiltered);
+            rowsFiltered.update(queryContext.rowsFiltered);
+            totalRowsFiltered.inc(queryContext.rowsFiltered);
 
             if (Tracing.isTracing())
             {
                 Tracing.trace("Index query accessed memtable indexes, {}, and {}, post-filtered {} in {}, and took {} microseconds.",
-                              pluralize(ssTablesHit, "SSTable index", "es"), pluralize(segmentsHit, "segment", "s"),
-                              pluralize(rowsFiltered, "row", "s"), pluralize(partitionsRead, "partition", "s"),
+                              pluralize(queryContext.sstablesHit, "SSTable index", "es"), pluralize(queryContext.segmentsHit, "segment", "s"),
+                              pluralize(queryContext.rowsFiltered, "row", "s"), pluralize(queryContext.partitionsRead, "partition", "s"),
                               queryLatencyMicros);
             }
 

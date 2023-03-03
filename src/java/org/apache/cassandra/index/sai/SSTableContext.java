@@ -25,7 +25,6 @@ import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.io.sstable.Descriptor;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
-import org.apache.cassandra.io.util.File;
 import org.apache.cassandra.utils.Throwables;
 import org.apache.cassandra.utils.concurrent.Ref;
 import org.apache.cassandra.utils.concurrent.RefCounted;
@@ -80,7 +79,7 @@ public class SSTableContext extends SharedCloseableImpl
 
             primaryKeyMapFactory = indexDescriptor.newPrimaryKeyMapFactory(sstable);
 
-            Cleanup cleanup = new Cleanup(primaryKeyMapFactory, sstableRef);
+            Cleanup cleanup = new Cleanup(primaryKeyMapFactory, indexDescriptor, sstableRef);
 
             return new SSTableContext(sstable, indexDescriptor, primaryKeyMapFactory, cleanup);
         }
@@ -110,17 +109,11 @@ public class SSTableContext extends SharedCloseableImpl
     }
 
     /**
-     * @return disk usage of per-sstable index files
+     * @return disk usage (in bytes) of per-sstable index files
      */
     public long diskUsage()
     {
-        return indexDescriptor.version.onDiskFormat()
-                                      .perSSTableComponents()
-                                      .stream()
-                                      .map(indexDescriptor::fileFor)
-                                      .filter(File::exists)
-                                      .mapToLong(File::length)
-                                      .sum();
+        return indexDescriptor.sizeOnDiskOfPerSSTableComponents();
     }
 
     /**
@@ -157,11 +150,15 @@ public class SSTableContext extends SharedCloseableImpl
     private static class Cleanup implements RefCounted.Tidy
     {
         private final PrimaryKeyMap.Factory primaryKeyMapFactory;
+        private final IndexDescriptor indexDescriptor;
         private final Ref<? extends SSTableReader> sstableRef;
 
-        private Cleanup(PrimaryKeyMap.Factory primaryKeyMapFactory, Ref<? extends SSTableReader> sstableRef)
+        private Cleanup(PrimaryKeyMap.Factory primaryKeyMapFactory,
+                        IndexDescriptor indexDescriptor,
+                        Ref<? extends SSTableReader> sstableRef)
         {
             this.primaryKeyMapFactory = primaryKeyMapFactory;
+            this.indexDescriptor = indexDescriptor;
             this.sstableRef = sstableRef;
         }
 
@@ -177,7 +174,7 @@ public class SSTableContext extends SharedCloseableImpl
         @Override
         public String name()
         {
-            return null;
+            return indexDescriptor.toString();
         }
     }
 }

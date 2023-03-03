@@ -69,29 +69,29 @@ public class IndexDescriptorTest
     }
 
     @Test
-    public void versionBAPerSSTableComponentIsParsedCorrectly() throws Throwable
+    public void versionAAPerSSTableComponentIsParsedCorrectly() throws Throwable
     {
-        setLatestVersion(Version.BA);
+        setLatestVersion(Version.AA);
 
-        createFileOnDisk("-SAI+ba+GroupComplete.db");
+        createFileOnDisk("-SAI+aa+GroupComplete.db");
 
         IndexDescriptor indexDescriptor = IndexDescriptor.create(descriptor, SAITester.EMPTY_COMPARATOR);
 
-        assertEquals(Version.BA, indexDescriptor.version);
+        assertEquals(Version.AA, indexDescriptor.version);
         assertTrue(indexDescriptor.hasComponent(IndexComponent.GROUP_COMPLETION_MARKER));
     }
 
     @Test
-    public void versionBAPerIndexComponentIsParsedCorrectly() throws Throwable
+    public void versionAAPerIndexComponentIsParsedCorrectly() throws Throwable
     {
-        setLatestVersion(Version.BA);
+        setLatestVersion(Version.AA);
 
-        createFileOnDisk("-SAI+ba+test_index+ColumnComplete.db");
+        createFileOnDisk("-SAI+aa+test_index+ColumnComplete.db");
 
         IndexDescriptor indexDescriptor = IndexDescriptor.create(descriptor, SAITester.EMPTY_COMPARATOR);
         IndexContext indexContext = SAITester.createIndexContext("test_index", UTF8Type.instance);
 
-        assertEquals(Version.BA, indexDescriptor.version);
+        assertEquals(Version.AA, indexDescriptor.version);
         assertTrue(indexDescriptor.hasComponent(IndexComponent.COLUMN_COMPLETION_MARKER, indexContext));
     }
 

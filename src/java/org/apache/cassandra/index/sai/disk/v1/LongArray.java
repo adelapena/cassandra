@@ -20,9 +20,7 @@ package org.apache.cassandra.index.sai.disk.v1;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.function.Supplier;
-
-import org.apache.cassandra.index.sai.SSTableQueryContext;
-import org.apache.cassandra.index.sai.disk.v1.bitpack.BlockPackedReader;
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * Abstraction over a long-indexed array of longs.
@@ -39,16 +37,10 @@ public interface LongArray extends Closeable
      */
     long length();
 
-    /**
-     * Using the given token returns the first row ID corresponding to the token.
-     * @param targetToken Token to lookup and it must not be smaller than previous value
-     * @return The row ID of the given token or negative value if target token is greater than all tokens
-     */
-    long findTokenRowID(long targetToken);
-
     @Override
     default void close() throws IOException { }
 
+    @NotThreadSafe
     class DeferredLongArray implements LongArray
     {
         private final Supplier<LongArray> supplier;
@@ -75,13 +67,6 @@ public interface LongArray extends Closeable
         }
 
         @Override
-        public long findTokenRowID(long targetToken)
-        {
-            open();
-            return longArray.findTokenRowID(targetToken);
-        }
-
-        @Override
         public void close() throws IOException
         {
             if (opened)
@@ -101,27 +86,5 @@ public interface LongArray extends Closeable
     interface Factory
     {
         LongArray open();
-
-        /**
-         * TODO use a different interface for {@link BlockPackedReader}, as {@link LongArray#findTokenRowID(long)} is
-         * not supported by other implementation.
-         *
-         * @param startingIndex minimum index to be used in {@link LongArray#findTokenRowID(long)}.
-         *                      In {@link org.apache.cassandra.index.sai.disk.PostingListRangeIterator}, a segmentRowId
-         *                      is provided and then in {@link OffsetFactory},
-         *                      segment offset is applied to segmentRowId to create sstableRowId which will be used by
-         *                      {@link BlockPackedReader#openTokenReader(long, SSTableQueryContext)}.
-         * @param context shared between indexed columns for the same sstable in a given query
-         * @return token BlockPackedReader
-         */
-        default LongArray openTokenReader(long startingIndex, SSTableQueryContext context)
-        {
-            return open();
-        }
-
-        default Factory withOffset(long idxOffset)
-        {
-            return new OffsetFactory(this, idxOffset);
-        }
     }
 }

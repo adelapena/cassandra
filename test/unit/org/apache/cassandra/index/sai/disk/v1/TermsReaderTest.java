@@ -27,14 +27,15 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.SAITester;
-import org.apache.cassandra.index.sai.disk.MemtableTermsIterator;
-import org.apache.cassandra.index.sai.disk.PostingList;
-import org.apache.cassandra.index.sai.disk.TermsIterator;
+import org.apache.cassandra.index.sai.memory.MemtableTermsIterator;
+import org.apache.cassandra.index.sai.postings.PostingList;
+import org.apache.cassandra.index.sai.utils.TermsIterator;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
-import org.apache.cassandra.index.sai.disk.v1.trie.InvertedIndexWriter;
+import org.apache.cassandra.index.sai.disk.v1.segment.LiteralIndexSegmentTermsReader;
+import org.apache.cassandra.index.sai.disk.v1.segment.SegmentMetadata;
+import org.apache.cassandra.index.sai.disk.v1.trie.LiteralIndexWriter;
 import org.apache.cassandra.index.sai.metrics.QueryEventListener;
-import org.apache.cassandra.index.sai.utils.SAICodecUtils;
 import org.apache.cassandra.index.sai.utils.SAIRandomizedTester;
 import org.apache.cassandra.io.util.FileHandle;
 import org.apache.cassandra.utils.Pair;
@@ -76,21 +77,21 @@ public class TermsReaderTest extends SAIRandomizedTester
         final List<Pair<ByteComparable, LongArrayList>> termsEnum = buildTermsEnum(terms, postings);
 
         SegmentMetadata.ComponentMetadataMap indexMetas;
-        try (InvertedIndexWriter writer = new InvertedIndexWriter(indexDescriptor, indexContext, false))
+        try (LiteralIndexWriter writer = new LiteralIndexWriter(indexDescriptor, indexContext))
         {
-            indexMetas = writer.writeAll(new MemtableTermsIterator(null, null, termsEnum.iterator()));
+            indexMetas = writer.writeCompleteSegment(new MemtableTermsIterator(null, null, termsEnum.iterator()));
         }
 
-        FileHandle termsData = indexDescriptor.createPerIndexFileHandle(IndexComponent.TERMS_DATA, indexContext, false);
-        FileHandle postingLists = indexDescriptor.createPerIndexFileHandle(IndexComponent.POSTING_LISTS, indexContext, false);
+        FileHandle termsData = indexDescriptor.createPerIndexFileHandle(IndexComponent.TERMS_DATA, indexContext);
+        FileHandle postingLists = indexDescriptor.createPerIndexFileHandle(IndexComponent.POSTING_LISTS, indexContext);
 
         long termsFooterPointer = Long.parseLong(indexMetas.get(IndexComponent.TERMS_DATA).attributes.get(SAICodecUtils.FOOTER_POINTER));
 
-        try (TermsReader reader = new TermsReader(indexContext,
-                                                  termsData,
-                                                  postingLists,
-                                                  indexMetas.get(IndexComponent.TERMS_DATA).root,
-                                                  termsFooterPointer))
+        try (LiteralIndexSegmentTermsReader reader = new LiteralIndexSegmentTermsReader(indexContext,
+                                                                                        termsData,
+                                                                                        postingLists,
+                                                                                        indexMetas.get(IndexComponent.TERMS_DATA).root,
+                                                                                        termsFooterPointer))
         {
             try (TermsIterator actualTermsEnum = reader.allTerms(0))
             {
@@ -112,21 +113,21 @@ public class TermsReaderTest extends SAIRandomizedTester
         final List<Pair<ByteComparable, LongArrayList>> termsEnum = buildTermsEnum(numTerms, numPostings);
 
         SegmentMetadata.ComponentMetadataMap indexMetas;
-        try (InvertedIndexWriter writer = new InvertedIndexWriter(indexDescriptor, indexContext, false))
+        try (LiteralIndexWriter writer = new LiteralIndexWriter(indexDescriptor, indexContext))
         {
-            indexMetas = writer.writeAll(new MemtableTermsIterator(null, null, termsEnum.iterator()));
+            indexMetas = writer.writeCompleteSegment(new MemtableTermsIterator(null, null, termsEnum.iterator()));
         }
 
-        FileHandle termsData = indexDescriptor.createPerIndexFileHandle(IndexComponent.TERMS_DATA, indexContext, false);
-        FileHandle postingLists = indexDescriptor.createPerIndexFileHandle(IndexComponent.POSTING_LISTS, indexContext, false);
+        FileHandle termsData = indexDescriptor.createPerIndexFileHandle(IndexComponent.TERMS_DATA, indexContext);
+        FileHandle postingLists = indexDescriptor.createPerIndexFileHandle(IndexComponent.POSTING_LISTS, indexContext);
 
         long termsFooterPointer = Long.parseLong(indexMetas.get(IndexComponent.TERMS_DATA).attributes.get(SAICodecUtils.FOOTER_POINTER));
 
-        try (TermsReader reader = new TermsReader(indexContext,
-                                                  termsData,
-                                                  postingLists,
-                                                  indexMetas.get(IndexComponent.TERMS_DATA).root,
-                                                  termsFooterPointer))
+        try (LiteralIndexSegmentTermsReader reader = new LiteralIndexSegmentTermsReader(indexContext,
+                                                                                        termsData,
+                                                                                        postingLists,
+                                                                                        indexMetas.get(IndexComponent.TERMS_DATA).root,
+                                                                                        termsFooterPointer))
         {
             for (Pair<ByteComparable, LongArrayList> pair : termsEnum)
             {

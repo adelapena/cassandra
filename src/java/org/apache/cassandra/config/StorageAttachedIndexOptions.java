@@ -17,8 +17,6 @@
  */
 package org.apache.cassandra.config;
 
-import com.google.common.base.Objects;
-
 import org.apache.cassandra.exceptions.ConfigurationException;
 
 public class StorageAttachedIndexOptions
@@ -27,29 +25,14 @@ public class StorageAttachedIndexOptions
 
     private static final int MAXIMUM_SEGMENT_BUFFER_MB = 32768;
 
-    public int segment_write_buffer_space_mb = DEFAULT_SEGMENT_BUFFER_MB;
+    public DataStorageSpec.IntMebibytesBound segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(DEFAULT_SEGMENT_BUFFER_MB);
 
     public void validate()
     {
-        if ((segment_write_buffer_space_mb < 0) || (segment_write_buffer_space_mb > MAXIMUM_SEGMENT_BUFFER_MB))
+        if ((segment_write_buffer_size.toBytes() < 0) || (segment_write_buffer_size.toMebibytes() > MAXIMUM_SEGMENT_BUFFER_MB))
         {
-            throw new ConfigurationException("Invalid value for segment_write_buffer_space_mb. " +
+            throw new ConfigurationException("Invalid value for segment_write_buffer_size. " +
                                              "Value must be a positive integer less than 32768");
         }
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StorageAttachedIndexOptions that = (StorageAttachedIndexOptions) o;
-        return Objects.equal(segment_write_buffer_space_mb, that.segment_write_buffer_space_mb);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hashCode(segment_write_buffer_space_mb);
     }
 }

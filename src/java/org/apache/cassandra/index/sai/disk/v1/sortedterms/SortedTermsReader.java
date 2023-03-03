@@ -19,31 +19,23 @@
 package org.apache.cassandra.index.sai.disk.v1.sortedterms;
 
 import java.io.IOException;
-import java.util.Iterator;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.annotation.concurrent.ThreadSafe;
 
-import com.google.common.base.Preconditions;
-
-import org.apache.cassandra.index.sai.SSTableQueryContext;
 import org.apache.cassandra.index.sai.disk.io.IndexInputReader;
 import org.apache.cassandra.index.sai.disk.v1.LongArray;
+import org.apache.cassandra.index.sai.disk.v1.SAICodecUtils;
 import org.apache.cassandra.index.sai.disk.v1.bitpack.MonotonicBlockPackedReader;
 import org.apache.cassandra.index.sai.disk.v1.bitpack.NumericValuesMeta;
-import org.apache.cassandra.index.sai.utils.SAICodecUtils;
 import org.apache.cassandra.io.util.FileHandle;
-import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.bytecomparable.ByteComparable;
-import org.apache.cassandra.utils.bytecomparable.ByteSource;
-import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.util.BytesRef;
 
 import static org.apache.cassandra.index.sai.disk.v1.sortedterms.SortedTermsWriter.TERMS_DICT_BLOCK_MASK;
 import static org.apache.cassandra.index.sai.disk.v1.sortedterms.SortedTermsWriter.TERMS_DICT_BLOCK_SHIFT;
 
 /**
- * Provides read access to a sorted on-disk sequence of terms.
+ * Provides read access to a sorted on-disk sequence of terms written by {@link SortedTermsWriter}.
  * <p>
  * Offers the following features:
  * <ul>
@@ -69,62 +61,33 @@ import static org.apache.cassandra.index.sai.disk.v1.sortedterms.SortedTermsWrit
  * @see SortedTermsWriter
  * @see org.apache.cassandra.index.sai.disk.v1.sortedterms
  */
-@ThreadSafe
+@NotThreadSafe
 public class SortedTermsReader
 {
+    private static final long BEFORE_START = -1;
+
     private final FileHandle termsData;
     private final SortedTermsMeta meta;
-    private final FileHandle termsTrie;
     private final LongArray.Factory blockOffsetsFactory;
 
     /**
      * Creates a new reader based on its data components.
      * <p>
      * It does not own the components, so you must close them separately after you're done with the reader.
-     * @param termsData handle to the file with a sequence of prefix-compressed blocks
+     * @param termsDataFileHandle handle to the file with a sequence of prefix-compressed blocks
      *                  each storing a fixed number of terms
      * @param termsDataBlockOffsets handle to the file containing an encoded sequence of the file offsets pointing to the blocks
-     * @param termsTrie handle to the file storing the trie with the term-to-point-id mapping
      * @param meta metadata object created earlier by the writer
      * @param blockOffsetsMeta metadata object for the block offsets
      */
-    public SortedTermsReader(@Nonnull FileHandle termsData,
+    public SortedTermsReader(@Nonnull FileHandle termsDataFileHandle,
                              @Nonnull FileHandle termsDataBlockOffsets,
-                             @Nonnull FileHandle termsTrie,
                              @Nonnull SortedTermsMeta meta,
                              @Nonnull NumericValuesMeta blockOffsetsMeta) throws IOException
     {
-        this.termsData = termsData;
-        this.termsTrie = termsTrie;
-        try (IndexInput trieInput = IndexInputReader.create(termsTrie))
-        {
-            SAICodecUtils.validate(trieInput);
-        }
+        this.termsData = termsDataFileHandle;
         this.meta = meta;
         this.blockOffsetsFactory = new MonotonicBlockPackedReader(termsDataBlockOffsets, blockOffsetsMeta);
-    }
-
-    /**
-     * Returns the point id (ordinal) of the target term or the next greater if no exact match found.
-     * If reached the end of the terms file, returns <code>Long.MAX_VALUE</code>.
-     * Complexity of this operation is O(log n).
-     *
-     * @param term target term to lookup
-     */
-    public long getPointId(@Nonnull ByteComparable term)
-    {
-        Preconditions.checkNotNull(term, "term null");
-
-        try (TrieRangeIterator reader = new TrieRangeIterator(termsTrie.instantiateRebufferer(),
-                                                              meta.trieFP,
-                                                              term,
-                                                              null,
-                                                              true,
-                                                              true))
-        {
-            final Iterator<Pair<ByteSource, Long>> iterator = reader.iterator();
-            return iterator.hasNext() ? iterator.next().right : Long.MAX_VALUE;
-        }
     }
 
     /**
@@ -137,14 +100,14 @@ public class SortedTermsReader
      * The cursor is valid as long this object hasn't been closed.
      * You must close the cursor when you no longer need it.
      */
-    public @Nonnull Cursor openCursor(SSTableQueryContext context) throws IOException
+    public @Nonnull Cursor openCursor() throws IOException
     {
-        return new Cursor(termsData, blockOffsetsFactory, context);
+        return new Cursor(termsData, blockOffsetsFactory);
     }
 
     /**
      * Allows reading the terms from the terms file.
-     * Can quickly seek to a random term by <code>pointId</code>.
+     * Can quickly seek to a random term by point id.
      * <p>
      * This object is stateful and not thread safe.
      * It maintains a position to the current term as well as a buffer that can hold one term.
@@ -152,7 +115,7 @@ public class SortedTermsReader
     @NotThreadSafe
     public class Cursor implements AutoCloseable
     {
-        private final IndexInputReader termsData;
+        private final IndexInputReader termsInput;
         private final long termsDataFp;
         private final LongArray blockOffsets;
 
@@ -162,18 +125,18 @@ public class SortedTermsReader
         // The point id the cursor currently points to. -1 means before the first item.
         private long pointId = -1;
 
-        Cursor(FileHandle termsData, LongArray.Factory blockOffsetsFactory, SSTableQueryContext context) throws IOException
+        Cursor(FileHandle termsFile, LongArray.Factory blockOffsetsFactory) throws IOException
         {
-            this.termsData = IndexInputReader.create(termsData);
-            SAICodecUtils.validate(this.termsData);
-            this.termsDataFp = this.termsData.getFilePointer();
-            this.blockOffsets = new LongArray.DeferredLongArray(() -> blockOffsetsFactory.openTokenReader(0, context));
+            this.termsInput = IndexInputReader.create(termsFile);
+            SAICodecUtils.validate(this.termsInput);
+            this.termsDataFp = this.termsInput.getFilePointer();
+            this.blockOffsets = new LongArray.DeferredLongArray(blockOffsetsFactory::open);
             this.currentTerm = new BytesRef(meta.maxTermLength);
         }
 
         /**
          * Returns the current position of the cursor.
-         * Initially, before the first call to {@link Cursor#advance}, the cursor is positioned at -1.
+         * Initially, before the first call to {@link #advance}, the cursor is positioned at -1.
          * After reading all the items, the cursor is positioned at index one
          * greater than the position of the last item.
          */
@@ -183,9 +146,9 @@ public class SortedTermsReader
         }
 
         /**
-         * Returns the current term data as <code>ByteComparable</code> referencing the internal term buffer.
+         * Returns the current term data as {@link ByteComparable} referencing the internal term buffer.
          * The term data stored behind that reference is valid only until the next call to
-         * {@link Cursor#advance} or {@link Cursor#seekToPointId(long)}.
+         * {@link #advance} or {@link #seekToPointId(long)}.
          */
         public @Nonnull ByteComparable term()
         {
@@ -205,7 +168,7 @@ public class SortedTermsReader
          */
         public boolean advance() throws IOException
         {
-            if (pointId >= meta.count || ++pointId >= meta.count)
+            if (pointId >= meta.termCount || ++pointId >= meta.termCount)
             {
                 currentTerm.length = 0;
                 return false;
@@ -216,22 +179,26 @@ public class SortedTermsReader
             if ((pointId & TERMS_DICT_BLOCK_MASK) == 0L)
             {
                 prefixLength = 0;
-                suffixLength = termsData.readVInt();
+                suffixLength = termsInput.readVInt();
             }
             else
             {
-                final int token = Byte.toUnsignedInt(termsData.readByte());
-                prefixLength = token & 0x0F;
-                suffixLength = 1 + (token >>> 4);
+                // Read the prefix and suffix lengths following the compression mechanism described
+                // in the SortedTermsWriter. If the lengths contained in the starting byte are less
+                // than the 4 bit maximum then nothing further is read. Otherwise, the lengths in the
+                // following vints are added.
+                int compressedLengths = Byte.toUnsignedInt(termsInput.readByte());
+                prefixLength = compressedLengths & 0x0F;
+                suffixLength = 1 + (compressedLengths >>> 4);
                 if (prefixLength == 15)
-                    prefixLength += termsData.readVInt();
+                    prefixLength += termsInput.readVInt();
                 if (suffixLength == 16)
-                    suffixLength += termsData.readVInt();
+                    suffixLength += termsInput.readVInt();
             }
 
             assert prefixLength + suffixLength <= meta.maxTermLength;
             currentTerm.length = prefixLength + suffixLength;
-            termsData.readBytes(currentTerm.bytes, prefixLength, suffixLength);
+            termsInput.readBytes(currentTerm.bytes, prefixLength, suffixLength);
             return true;
         }
 
@@ -243,28 +210,29 @@ public class SortedTermsReader
          * <p>
          * This method has constant complexity.
          *
-         * @param target point id to lookup
+         * @param pointId point id to lookup
          * @throws IOException if a seek and read from the terms file fails
          * @throws IndexOutOfBoundsException if the target point id is less than -1 or greater than the number of terms
          */
-        public void seekToPointId(long target) throws IOException
+        public void seekToPointId(long pointId) throws IOException
         {
-            if (target < -1 || target > meta.count)
-                throw new IndexOutOfBoundsException();
+            if (pointId < BEFORE_START || pointId > meta.termCount)
+                throw new IndexOutOfBoundsException(String.format("The target point id [%s] cannot be less than -1 or " +
+                                                                  "greater than the term count [%s]", pointId, meta.termCount));
 
-            if (target == -1 || target == meta.count)
+            if (pointId == BEFORE_START || pointId == meta.termCount)
             {
-                termsData.seek(termsDataFp);   // matters only if target is -1
-                pointId = target;
+                termsInput.seek(termsDataFp);   // matters only if target is -1
+                this.pointId = pointId;
                 currentTerm.length = 0;
             }
             else
             {
-                final long blockIndex = target >>> TERMS_DICT_BLOCK_SHIFT;
-                final long blockAddress = blockOffsets.get(blockIndex);
-                termsData.seek(blockAddress + termsDataFp);
-                pointId = (blockIndex << TERMS_DICT_BLOCK_SHIFT) - 1;
-                while (pointId < target)
+                long blockIndex = pointId >>> TERMS_DICT_BLOCK_SHIFT;
+                long blockAddress = blockOffsets.get(blockIndex);
+                termsInput.seek(blockAddress + termsDataFp);
+                this.pointId = (blockIndex << TERMS_DICT_BLOCK_SHIFT) - 1;
+                while (this.pointId < pointId)
                 {
                     boolean advanced = advance();
                     assert advanced : "unexpected eof";   // must return true because target is in range
@@ -277,13 +245,13 @@ public class SortedTermsReader
          */
         public void reset() throws IOException
         {
-            seekToPointId(-1);
+            seekToPointId(BEFORE_START);
         }
 
         @Override
         public void close()
         {
-            this.termsData.close();
+            termsInput.close();
         }
     }
 }

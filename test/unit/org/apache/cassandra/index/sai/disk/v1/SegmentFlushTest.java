@@ -41,12 +41,14 @@ import org.apache.cassandra.db.rows.BufferCell;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.SAITester;
-import org.apache.cassandra.index.sai.disk.PostingList;
-import org.apache.cassandra.index.sai.disk.TermsIterator;
+import org.apache.cassandra.index.sai.postings.PostingList;
+import org.apache.cassandra.index.sai.utils.TermsIterator;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
+import org.apache.cassandra.index.sai.disk.v1.segment.LiteralIndexSegmentTermsReader;
+import org.apache.cassandra.index.sai.disk.v1.segment.SegmentBuilder;
+import org.apache.cassandra.index.sai.disk.v1.segment.SegmentMetadata;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
-import org.apache.cassandra.index.sai.utils.SAICodecUtils;
 import org.apache.cassandra.io.sstable.Descriptor;
 import org.apache.cassandra.io.sstable.SequenceBasedSSTableId;
 import org.apache.cassandra.io.util.File;
@@ -163,11 +165,11 @@ public class SegmentFlushTest
 
         long termsFooterPointer = Long.parseLong(segmentMetadata.componentMetadatas.get(IndexComponent.TERMS_DATA).attributes.get(SAICodecUtils.FOOTER_POINTER));
 
-        try (TermsReader reader = new TermsReader(indexContext,
-                                                  termsData,
-                                                  postingLists,
-                                                  segmentMetadata.componentMetadatas.get(IndexComponent.TERMS_DATA).root,
-                                                  termsFooterPointer))
+        try (LiteralIndexSegmentTermsReader reader = new LiteralIndexSegmentTermsReader(indexContext,
+                                                                                        termsData,
+                                                                                        postingLists,
+                                                                                        segmentMetadata.componentMetadatas.get(IndexComponent.TERMS_DATA).root,
+                                                                                        termsFooterPointer))
         {
             TermsIterator iterator = reader.allTerms(0);
             assertEquals(minTerm, iterator.getMinTerm());
@@ -195,7 +197,7 @@ public class SegmentFlushTest
 
     private void verifySegmentMetadata(SegmentMetadata segmentMetadata)
     {
-        assertEquals(segmentRowIdOffset, segmentMetadata.segmentRowIdOffset);
+        assertEquals(segmentRowIdOffset, segmentMetadata.rowIdOffset);
         assertEquals(minKey, segmentMetadata.minKey);
         assertEquals(maxKey, segmentMetadata.maxKey);
         assertEquals(minTerm, segmentMetadata.minTerm);

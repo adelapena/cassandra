@@ -34,10 +34,13 @@ import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.SAITester;
 import org.apache.cassandra.index.sai.SSTableQueryContext;
-import org.apache.cassandra.index.sai.disk.MemtableTermsIterator;
+import org.apache.cassandra.index.sai.memory.MemtableTermsIterator;
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
-import org.apache.cassandra.index.sai.disk.v1.trie.InvertedIndexWriter;
+import org.apache.cassandra.index.sai.disk.v1.segment.IndexSegmentSearcher;
+import org.apache.cassandra.index.sai.disk.v1.segment.LiteralIndexSegmentSearcher;
+import org.apache.cassandra.index.sai.disk.v1.segment.SegmentMetadata;
+import org.apache.cassandra.index.sai.disk.v1.trie.LiteralIndexWriter;
 import org.apache.cassandra.index.sai.plan.Expression;
 import org.apache.cassandra.index.sai.utils.KeyRangeIterator;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
@@ -98,7 +101,7 @@ public class InvertedIndexSearcherTest extends SAIRandomizedTester
         final int numTerms = getRandom().nextIntBetween(64, 512), numPostings = getRandom().nextIntBetween(256, 1024);
         final List<Pair<ByteComparable, LongArrayList>> termsEnum = buildTermsEnum(numTerms, numPostings);
 
-        try (IndexSearcher searcher = buildIndexAndOpenSearcher(numTerms, numPostings, termsEnum))
+        try (IndexSegmentSearcher searcher = buildIndexAndOpenSearcher(numTerms, numPostings, termsEnum))
         {
             for (int t = 0; t < numTerms; ++t)
             {
@@ -160,7 +163,7 @@ public class InvertedIndexSearcherTest extends SAIRandomizedTester
         final int numTerms = getRandom().nextIntBetween(5, 15), numPostings = getRandom().nextIntBetween(5, 20);
         final List<Pair<ByteComparable, LongArrayList>> termsEnum = buildTermsEnum(numTerms, numPostings);
 
-        try (IndexSearcher searcher = buildIndexAndOpenSearcher(numTerms, numPostings, termsEnum))
+        try (IndexSegmentSearcher searcher = buildIndexAndOpenSearcher(numTerms, numPostings, termsEnum))
         {
             searcher.search(new Expression(SAITester.createIndexContext("meh", UTF8Type.instance))
                             .add(Operator.GT, UTF8Type.instance.decompose("a")), context);
@@ -173,7 +176,7 @@ public class InvertedIndexSearcherTest extends SAIRandomizedTester
         }
     }
 
-    private IndexSearcher buildIndexAndOpenSearcher(int terms, int postings, List<Pair<ByteComparable, LongArrayList>> termsEnum) throws IOException
+    private IndexSegmentSearcher buildIndexAndOpenSearcher(int terms, int postings, List<Pair<ByteComparable, LongArrayList>> termsEnum) throws IOException
     {
         final int size = terms * postings;
         final IndexDescriptor indexDescriptor = newIndexDescriptor();
@@ -181,9 +184,9 @@ public class InvertedIndexSearcherTest extends SAIRandomizedTester
         final IndexContext indexContext = SAITester.createIndexContext(index, UTF8Type.instance);
 
         SegmentMetadata.ComponentMetadataMap indexMetas;
-        try (InvertedIndexWriter writer = new InvertedIndexWriter(indexDescriptor, indexContext, false))
+        try (LiteralIndexWriter writer = new LiteralIndexWriter(indexDescriptor, indexContext))
         {
-            indexMetas = writer.writeAll(new MemtableTermsIterator(null, null, termsEnum.iterator()));
+            indexMetas = writer.writeCompleteSegment(new MemtableTermsIterator(null, null, termsEnum.iterator()));
         }
 
         final SegmentMetadata segmentMetadata = new SegmentMetadata(0,
@@ -196,13 +199,13 @@ public class InvertedIndexSearcherTest extends SAIRandomizedTester
                                                                     wrap(termsEnum.get(terms - 1).left),
                                                                     indexMetas);
 
-        try (PerIndexFiles indexFiles = new PerIndexFiles(indexDescriptor, indexContext, false))
+        try (PerColumnIndexFiles indexFiles = new PerColumnIndexFiles(indexDescriptor, indexContext))
         {
-            final IndexSearcher searcher = IndexSearcher.open(TEST_PRIMARY_KEY_MAP_FACTORY,
-                                                              indexFiles,
-                                                              segmentMetadata,
-                                                              SAITester.createIndexContext(index, UTF8Type.instance));
-            assertThat(searcher, is(instanceOf(InvertedIndexSearcher.class)));
+            final IndexSegmentSearcher searcher = IndexSegmentSearcher.open(TEST_PRIMARY_KEY_MAP_FACTORY,
+                                                                            indexFiles,
+                                                                            segmentMetadata,
+                                                                            SAITester.createIndexContext(index, UTF8Type.instance));
+            assertThat(searcher, is(instanceOf(LiteralIndexSegmentSearcher.class)));
             return searcher;
         }
     }

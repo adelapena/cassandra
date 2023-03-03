@@ -20,19 +20,19 @@ package org.apache.cassandra.io.tries;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 
+import org.apache.cassandra.io.util.PageAware;
+import org.apache.cassandra.io.util.RandomAccessReader;
 import org.apache.cassandra.io.util.Rebufferer;
 import org.apache.cassandra.io.util.Rebufferer.BufferHolder;
-import org.apache.cassandra.utils.PageAware;
 import org.apache.cassandra.utils.bytecomparable.ByteComparable;
 import org.apache.cassandra.utils.bytecomparable.ByteSource;
 
 /**
- * Thread-unsafe trie walking helper. This is analogous to RandomAccessReader for tries -- takes an on-disk trie
+ * Thread-unsafe trie walking helper. This is analogous to {@link RandomAccessReader} for tries -- takes an on-disk trie
  * accessible via a supplied Rebufferer and lets user seek to nodes and work with them.
  * <p>
  * Assumes data was written using page-aware builder and thus no node crosses a page and thus a buffer boundary.
  */
-// TODO STAR-247: unit test are insufficient - they did not catch a problem fixed in STAR-247
 public class Walker<VALUE extends Walker<VALUE>> implements AutoCloseable
 {
     private final Rebufferer source;
@@ -98,6 +98,11 @@ public class Walker<VALUE extends Walker<VALUE>> implements AutoCloseable
     protected final int payloadFlags()
     {
         return nodeType.payloadFlags(buf, offset);
+    }
+
+    protected final boolean hasPayload()
+    {
+        return payloadFlags() != 0;
     }
 
     protected final int payloadPosition()
@@ -248,7 +253,6 @@ public class Walker<VALUE extends Walker<VALUE>> implements AutoCloseable
             go(transition(searchIndex));
         }
     }
-
 
     /**
      * Takes a prefix of the given key. The prefix is in the sense of a separator key match, i.e. it is only

@@ -31,8 +31,8 @@ import org.apache.cassandra.io.tries.TrieSerializer;
 import org.apache.cassandra.io.tries.Walker;
 import org.apache.cassandra.io.util.DataOutputPlus;
 import org.apache.cassandra.io.util.Rebufferer;
+import org.apache.cassandra.io.util.SizedInts;
 import org.apache.cassandra.utils.Pair;
-import org.apache.cassandra.utils.SizedInts;
 import org.apache.cassandra.utils.bytecomparable.ByteComparable;
 import org.apache.cassandra.utils.bytecomparable.ByteSource;
 import org.apache.lucene.util.ArrayUtil;
@@ -61,38 +61,26 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
         @Override
         public void write(DataOutputPlus dest, SerializationNode<Long> node, long nodePosition) throws IOException
         {
-            final TrieNode type = TrieNode.typeFor(node, nodePosition);
-            final Long payload = node.payload();
+            TrieNode type = TrieNode.typeFor(node, nodePosition);
+            Long payload = node.payload();
+            int payloadBits = sizeof(payload);
+            type.serialize(dest, node, payloadBits, nodePosition);
+
             if (payload != null)
-            {
-                final int payloadBits = SizedInts.nonZeroSize(payload);
-                type.serialize(dest, node, payloadBits, nodePosition);
                 SizedInts.write(dest, payload, payloadBits);
-            }
-            else
-            {
-                type.serialize(dest, node, 0, nodePosition);
-            }
         }
 
         private int sizeof(Long payload)
         {
-            if (payload != null)
-            {
-                return SizedInts.nonZeroSize(payload);
-            }
-            return 0;
+            return payload == null ? 0 : SizedInts.nonZeroSize(payload);
         }
     };
 
     public long exactMatch(ByteComparable key)
     {
-        int b = follow(key);
-        if (b != ByteSource.END_OF_STREAM)
-        {
-            return NOT_FOUND;
-        }
-        return getCurrentPayload();
+        // Since we are looking for an exact match we are always expecting the follow
+        // to return END_OF_STREAM if the key was found.
+        return follow(key) == ByteSource.END_OF_STREAM ? getCurrentPayload() : NOT_FOUND;
     }
 
     public Iterator<Pair<ByteComparable, Long>> iterator()
@@ -105,12 +93,8 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
             @Override
             protected Pair<ByteComparable, Long> computeNext()
             {
-                final long node = advanceNode();
-                if (node == -1)
-                {
-                    return endOfData();
-                }
-                return Pair.create(collector.toByteComparable(), getCurrentPayload());
+                return advanceNode() == NOT_FOUND ? endOfData()
+                                                  : Pair.create(collector.toByteComparable(), getCurrentPayload());
             }
 
             private long advanceNode()
@@ -124,7 +108,7 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
                     int childIndex = stack.childIndex + 1;
                     transitionByte = transitionByte(childIndex);
 
-                    if (transitionByte > 256)
+                    if (transitionByte == Integer.MAX_VALUE)
                     {
                         // ascend
                         stack = stack.prev;
@@ -132,13 +116,14 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
                         if (stack == null)
                         {
                             // exhausted whole trie
-                            return -1;
+                            return NOT_FOUND;
                         }
                         go(stack.node);
                         continue;
                     }
 
                     child = transition(childIndex);
+                    stack.childIndex = childIndex;
 
                     if (child != -1)
                     {
@@ -147,16 +132,11 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
                         // descend
                         go(child);
 
-                        stack.childIndex = childIndex;
                         stack = new IterationPosition(child, stack);
                         collector.add(transitionByte);
 
-                        if (payloadFlags() != 0)
+                        if (hasPayload())
                             return child;
-                    }
-                    else
-                    {
-                        stack.childIndex = childIndex;
                     }
                 }
             }
@@ -165,7 +145,7 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
 
     public ByteComparable getMaxTerm()
     {
-        final TransitionBytesCollector collector = new ImmutableTransitionBytesCollector();
+        TransitionBytesCollector collector = new ImmutableTransitionBytesCollector();
         go(root);
         while (true)
         {
@@ -182,12 +162,11 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
 
     public ByteComparable getMinTerm()
     {
-        final TransitionBytesCollector collector = new ImmutableTransitionBytesCollector();
+        TransitionBytesCollector collector = new ImmutableTransitionBytesCollector();
         go(root);
         while (true)
         {
-            int payloadBits = payloadFlags();
-            if (payloadBits > 0)
+            if (hasPayload())
             {
                 return collector.toByteComparable();
             }
@@ -215,8 +194,8 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
         @Override
         public ByteComparable toByteComparable()
         {
-            assert pos > 0;
-            final int length = pos;
+            assert pos > 0 : "Cannot create a byte comparable from an empty value";
+            int length = pos;
             return v -> ByteSource.fixedLength(bytes, 0, length);
         }
 
@@ -249,10 +228,15 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
 
         public ByteComparable toByteComparable()
         {
-            assert pos > 0;
-            final byte[] value = new byte[pos];
+            assert pos > 0 : "Cannot create a byte comparable from an empty value";
+            byte[] value = new byte[pos];
             System.arraycopy(bytes, 0, value, 0, pos);
             return v -> ByteSource.fixedLength(value, 0, value.length);
+        }
+
+        public void reset()
+        {
+            pos = 0;
         }
 
         @Override

@@ -380,7 +380,7 @@ public interface Memtable extends Comparable<Memtable>, UnfilteredSource
     /** True if the memtable contains no data */
     boolean isClean();
 
-    /** These two methods provide a way of tracking on-going flushes */
+    // The following two methods provide a way of tracking ongoing flushes
     public LifecycleTransaction setFlushTransaction(LifecycleTransaction transaction);
     public LifecycleTransaction getFlushTransaction();
 

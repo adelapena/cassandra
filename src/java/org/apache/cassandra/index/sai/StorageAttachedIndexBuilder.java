@@ -120,7 +120,8 @@ public class StorageAttachedIndexBuilder extends SecondaryIndexBuilder
         }
     }
 
-    private String logMessage(String message) {
+    private String logMessage(String message)
+    {
         return String.format("[%s.%s.*] %s", metadata.keyspace, metadata.name, message);
     }
 
@@ -153,9 +154,8 @@ public class StorageAttachedIndexBuilder extends SecondaryIndexBuilder
             IndexDescriptor indexDescriptor = IndexDescriptor.create(sstable);
             indexes.forEach(index -> indexDescriptor.deleteColumnIndex(index.getIndexContext()));
 
-            indexWriter = new StorageAttachedIndexWriter(indexDescriptor, indexes, txn, perIndexComponentsOnly);
+            indexWriter = StorageAttachedIndexWriter.createBuilderWriter(indexDescriptor, indexes, txn, perIndexComponentsOnly);
 
-            long previousKeyPosition = 0;
             indexWriter.begin();
 
             try (KeyIterator keys = new KeyIterator(sstable.descriptor, metadata))
@@ -168,10 +168,9 @@ public class StorageAttachedIndexBuilder extends SecondaryIndexBuilder
                         throw new CompactionInterruptedException(getCompactionInfo());
                     }
 
-                    final DecoratedKey key = keys.next();
-                    final long keyPosition = keys.getKeyPosition();
+                    DecoratedKey key = keys.next();
 
-                    indexWriter.startPartition(key, keyPosition);
+                    indexWriter.startPartition(key, keys.getKeyPosition());
 
                     RowIndexEntry<?> indexEntry = sstable.getPosition(key, SSTableReader.Operator.EQ);
                     dataFile.seek(indexEntry.position);
@@ -186,10 +185,9 @@ public class StorageAttachedIndexBuilder extends SecondaryIndexBuilder
                         while (partition.hasNext())
                             indexWriter.nextUnfilteredCluster(partition.next());
                     }
-
-                    bytesProcessed += keyPosition - previousKeyPosition;
-                    previousKeyPosition = keyPosition;
                 }
+
+                bytesProcessed += keys.getBytesRead();
 
                 completeSSTable(indexWriter, sstable, indexes, perSSTableFileLock);
             }
@@ -253,7 +251,7 @@ public class StorageAttachedIndexBuilder extends SecondaryIndexBuilder
     }
 
     /**
-     * if the per sstable index files are already created, not need to write it again, unless found corrupted on rebuild
+     * if the per sstable index files are already created, no need to write them again, unless found corrupted on rebuild
      * if not created, try to acquire a lock, so only one builder will generate per sstable index files
      */
     private CountDownLatch shouldWritePerSSTableFiles(SSTableReader sstable)

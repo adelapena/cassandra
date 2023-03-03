@@ -19,7 +19,6 @@
 package org.apache.cassandra.index.sai.disk.v1;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -37,16 +36,16 @@ import org.apache.cassandra.index.sai.StorageAttachedIndex;
 import org.apache.cassandra.index.sai.disk.PerIndexWriter;
 import org.apache.cassandra.index.sai.disk.PerSSTableWriter;
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
-import org.apache.cassandra.index.sai.disk.SearchableIndex;
+import org.apache.cassandra.index.sai.disk.RowMapping;
+import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.index.sai.disk.format.OnDiskFormat;
-import org.apache.cassandra.index.sai.memory.RowMapping;
+import org.apache.cassandra.index.sai.disk.v1.segment.SegmentBuilder;
 import org.apache.cassandra.index.sai.metrics.AbstractMetrics;
 import org.apache.cassandra.index.sai.utils.NamedMemoryLimiter;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
 import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
-import org.apache.cassandra.index.sai.utils.SAICodecUtils;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.metrics.CassandraMetricsRegistry;
 import org.apache.cassandra.metrics.DefaultNameFactory;
@@ -56,7 +55,7 @@ import static org.apache.cassandra.utils.FBUtilities.prettyPrintMemory;
 
 public class V1OnDiskFormat implements OnDiskFormat
 {
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(V1OnDiskFormat.class);
 
     private static final Set<IndexComponent> PER_SSTABLE_COMPONENTS = EnumSet.of(IndexComponent.GROUP_COMPLETION_MARKER,
                                                                                  IndexComponent.GROUP_META,
@@ -81,10 +80,10 @@ public class V1OnDiskFormat implements OnDiskFormat
      * ex. If there is one column index building per table across 8 compactors, each index will be
      *     eligible to flush once it reaches (segment_write_buffer_space_mb / 8) MBs.
      */
-    public static final long SEGMENT_BUILD_MEMORY_LIMIT = 1024L * 1024L * DatabaseDescriptor.getSAISegmentWriteBufferSpace();
+    public static final long SEGMENT_BUILD_MEMORY_LIMIT = DatabaseDescriptor.getSAISegmentWriteBufferSpace().toBytes();
 
-    public static final NamedMemoryLimiter SEGMENT_BUILD_MEMORY_LIMITER =
-    new NamedMemoryLimiter(SEGMENT_BUILD_MEMORY_LIMIT, "SSTable-attached Index Segment Builder");
+    public static final NamedMemoryLimiter SEGMENT_BUILD_MEMORY_LIMITER = new NamedMemoryLimiter(SEGMENT_BUILD_MEMORY_LIMIT,
+                                                                                                 "Storage Attached Index Segment Builder");
 
     static
     {
@@ -94,9 +93,8 @@ public class V1OnDiskFormat implements OnDiskFormat
         CassandraMetricsRegistry.MetricName bufferSpaceLimit = DefaultNameFactory.createMetricName(AbstractMetrics.TYPE, "SegmentBufferSpaceLimitBytes", null);
         CassandraMetricsRegistry.Metrics.register(bufferSpaceLimit, (Gauge<Long>) () -> SEGMENT_BUILD_MEMORY_LIMIT);
 
-        // Note: The active builder count starts at 1 to avoid dividing by zero.
         CassandraMetricsRegistry.MetricName buildsInProgress = DefaultNameFactory.createMetricName(AbstractMetrics.TYPE, "ColumnIndexBuildsInProgress", null);
-        CassandraMetricsRegistry.Metrics.register(buildsInProgress, (Gauge<Long>) () -> SegmentBuilder.ACTIVE_BUILDER_COUNT.get() - 1);
+        CassandraMetricsRegistry.Metrics.register(buildsInProgress, (Gauge<Integer>) SegmentBuilder::getActiveBuilderCount);
     }
 
     public static final V1OnDiskFormat instance = new V1OnDiskFormat();
@@ -111,28 +109,15 @@ public class V1OnDiskFormat implements OnDiskFormat
     }
 
     @Override
-    public boolean isPerSSTableBuildComplete(IndexDescriptor indexDescriptor)
-    {
-        return indexDescriptor.hasComponent(IndexComponent.GROUP_COMPLETION_MARKER);
-    }
-
-    @Override
-    public boolean isPerIndexBuildComplete(IndexDescriptor indexDescriptor, IndexContext indexContext)
-    {
-        return indexDescriptor.hasComponent(IndexComponent.GROUP_COMPLETION_MARKER) &&
-               indexDescriptor.hasComponent(IndexComponent.COLUMN_COMPLETION_MARKER, indexContext);
-    }
-
-    @Override
     public PrimaryKeyMap.Factory newPrimaryKeyMapFactory(IndexDescriptor indexDescriptor, SSTableReader sstable)
     {
         return new RowAwarePrimaryKeyMap.RowAwarePrimaryKeyMapFactory(indexDescriptor, sstable);
     }
 
     @Override
-    public SearchableIndex newSearchableIndex(SSTableContext sstableContext, IndexContext indexContext)
+    public SSTableIndex.Searcher newSSTableIndexSearcher(SSTableContext sstableContext, IndexContext indexContext)
     {
-        return new V1SearchableIndex(sstableContext, indexContext);
+        return new V1SSTableIndexSearcher(sstableContext, indexContext);
     }
 
     @Override
@@ -157,10 +142,23 @@ public class V1OnDiskFormat implements OnDiskFormat
             return new SSTableIndexWriter(indexDescriptor, index.getIndexContext(), limiter, index.isIndexValid());
         }
 
-        return new MemtableIndexWriter(index.getIndexContext().getPendingMemtableIndex(tracker),
+        return new MemtableIndexWriter(index.getIndexContext().getMemtableIndexManager().getPendingMemtableIndex(tracker),
                                        indexDescriptor,
                                        index.getIndexContext(),
                                        rowMapping);
+    }
+
+    @Override
+    public boolean isPerSSTableBuildComplete(IndexDescriptor indexDescriptor)
+    {
+        return indexDescriptor.hasComponent(IndexComponent.GROUP_COMPLETION_MARKER);
+    }
+
+    @Override
+    public boolean isPerIndexBuildComplete(IndexDescriptor indexDescriptor, IndexContext indexContext)
+    {
+        return indexDescriptor.hasComponent(IndexComponent.GROUP_COMPLETION_MARKER) &&
+               indexDescriptor.hasComponent(IndexComponent.COLUMN_COMPLETION_MARKER, indexContext);
     }
 
     @Override
@@ -184,7 +182,7 @@ public class V1OnDiskFormat implements OnDiskFormat
                         logger.debug(indexDescriptor.logMessage("{} failed for index component {} on SSTable {}"),
                                      (checksum ? "Checksum validation" : "Validation"),
                                      indexComponent,
-                                     indexDescriptor.descriptor);
+                                     indexDescriptor.sstableDescriptor);
                     }
                     return false;
                 }
@@ -214,7 +212,7 @@ public class V1OnDiskFormat implements OnDiskFormat
                         logger.debug(indexDescriptor.logMessage("{} failed for index component {} on SSTable {}"),
                                      (checksum ? "Checksum validation" : "Validation"),
                                      indexComponent,
-                                     indexDescriptor.descriptor);
+                                     indexDescriptor.sstableDescriptor);
                     }
                     return false;
                 }
@@ -238,6 +236,8 @@ public class V1OnDiskFormat implements OnDiskFormat
     @Override
     public int openFilesPerSSTable()
     {
+        // For the V1 format there are always 4 open files per SSTable - token values, primary key trie,
+        // primary key blocks, primary key block offsets
         return 4;
     }
 

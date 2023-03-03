@@ -92,7 +92,7 @@ public class ValueIterator<CONCRETE extends ValueIterator<CONCRETE>> extends Wal
                 {
                     if (childIndex == 0 || childIndex == -1)
                     {
-                        if (payloadFlags() != 0)
+                        if (hasPayload())
                             payloadedNode = position;
                     }
                     else
@@ -138,7 +138,7 @@ public class ValueIterator<CONCRETE extends ValueIterator<CONCRETE>> extends Wal
         try
         {
             go(root);
-            if (payloadFlags() != 0)
+            if (hasPayload())
                 next = root;
             else
                 next = advanceNode();
@@ -200,7 +200,7 @@ public class ValueIterator<CONCRETE extends ValueIterator<CONCRETE>> extends Wal
                 stack.childIndex = childIndex;
                 stack = new IterationPosition(child, -1, l, stack);
 
-                if (payloadFlags() != 0)
+                if (hasPayload())
                     return child;
             }
             else
@@ -208,6 +208,5 @@ public class ValueIterator<CONCRETE extends ValueIterator<CONCRETE>> extends Wal
                 stack.childIndex = childIndex;
             }
         }
-
     }
 }

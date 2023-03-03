@@ -40,7 +40,6 @@ import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures; // checkstyle: permit this import
 import com.google.common.util.concurrent.ListenableFuture; // checkstyle: permit this import
@@ -75,6 +74,7 @@ import org.apache.cassandra.index.IndexRegistry;
 import org.apache.cassandra.index.SecondaryIndexBuilder;
 import org.apache.cassandra.index.TargetParser;
 import org.apache.cassandra.index.sai.analyzer.AbstractAnalyzer;
+import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.index.sai.disk.format.Version;
 import org.apache.cassandra.index.sai.utils.TypeUtil;
@@ -107,7 +107,7 @@ public class StorageAttachedIndex implements Index
             NavigableMap<SSTableReader, Set<StorageAttachedIndex>> sstables = new TreeMap<>(Comparator.comparing(s -> s.descriptor.id, SSTableIdFactory.COMPARATOR));
             StorageAttachedIndexGroup group = StorageAttachedIndexGroup.getIndexGroup(cfs);
 
-            assert group != null : "Index group does not exist for table";
+            assert group != null : "Index group does not exist for table " + cfs.keyspace + '.' + cfs.name;
 
             indexes.stream()
                    .filter((i) -> i instanceof StorageAttachedIndex)
@@ -139,8 +139,7 @@ public class StorageAttachedIndex implements Index
     private static final StorageAttachedIndexBuildingSupport INDEX_BUILDER_SUPPORT = new StorageAttachedIndexBuildingSupport();
 
     private static final Set<String> VALID_OPTIONS = ImmutableSet.of(IndexTarget.TARGET_OPTION_NAME,
-                                                                     IndexTarget.CUSTOM_INDEX_OPTION_NAME,
-                                                                     IndexContext.ENABLE_SEGMENT_COMPACTION_OPTION_NAME);
+                                                                     IndexTarget.CUSTOM_INDEX_OPTION_NAME);
 
     public static final Set<CQL3Type> SUPPORTED_TYPES = ImmutableSet.of(CQL3Type.Native.ASCII, CQL3Type.Native.BIGINT, CQL3Type.Native.DATE,
                                                                         CQL3Type.Native.DOUBLE, CQL3Type.Native.FLOAT, CQL3Type.Native.INT,
@@ -279,7 +278,7 @@ public class StorageAttachedIndex implements Index
     {
         if (baseCfs.indexManager.isIndexQueryable(this))
         {
-            logger.debug(indexContext.logMessage("Skipping validation and building in initialization task, as pre-join has already made the storage attached index queryable..."));
+            logger.debug(indexContext.logMessage("Skipping validation and building in initialization task, as pre-join has already made the storage-attached index queryable..."));
             initBuildStarted = true;
             return CompletableFuture.completedFuture(null);
         }
@@ -287,11 +286,11 @@ public class StorageAttachedIndex implements Index
         // stop in-progress compaction tasks to prevent compacted sstable not being indexed.
         logger.debug(indexContext.logMessage("Stopping active compactions to make sure all sstables are indexed after initial build."));
         CompactionManager.instance.interruptCompactionFor(Collections.singleton(baseCfs.metadata()),
-                                                          Predicates.alwaysTrue(),
+                                                          ssTableReader -> true,
                                                           true);
 
         // Force another flush to make sure on disk index is generated for memtable data before marking it queryable.
-        // In case of offline scrub, there is no live memtables.
+        // In the case of offline scrub, there are no live memtables.
         if (!baseCfs.getTracker().getView().liveMemtables.isEmpty())
         {
             baseCfs.forceBlockingFlush(ColumnFamilyStore.FlushReason.INDEX_BUILD_STARTED);
@@ -302,7 +301,7 @@ public class StorageAttachedIndex implements Index
 
         StorageAttachedIndexGroup indexGroup = StorageAttachedIndexGroup.getIndexGroup(baseCfs);
 
-        assert indexGroup != null : "Index group does not exist for table";
+        assert indexGroup != null : "Index group does not exist for table " + baseCfs.keyspace + '.' + baseCfs.name;
 
         List<SSTableReader> nonIndexed = findNonIndexedSSTables(baseCfs, indexGroup, validate);
 
@@ -312,7 +311,7 @@ public class StorageAttachedIndex implements Index
         }
 
         // split sorted sstables into groups with similar size and build each group in separate compaction thread
-        List<List<SSTableReader>> groups = groupBySize(nonIndexed, DatabaseDescriptor.getConcurrentCompactors());
+        List<List<SSTableReader>> groups = groupBySize(nonIndexed, DatabaseDescriptor.getConcurrentIndexBuilders());
         List<ListenableFuture<?>> futures = new ArrayList<>();
 
         for (List<SSTableReader> group : groups)
@@ -388,7 +387,7 @@ public class StorageAttachedIndex implements Index
             for (SSTableIndex sstableIndex : indexContext.getView().getIndexes())
                 sstableIndex.getSSTable().unregisterComponents(toRemove, baseCfs.getTracker());
 
-            indexContext.invalidate(true);
+            indexContext.invalidate();
             return null;
         };
     }
@@ -630,7 +629,8 @@ public class StorageAttachedIndex implements Index
         @Override
         public void insertRow(Row row)
         {
-            adjustMemtableSize(indexContext.index(key, row, memtable), CassandraWriteContext.fromContext(writeContext).getGroup());
+            adjustMemtableSize(indexContext.getMemtableIndexManager().index(key, row, memtable),
+                               CassandraWriteContext.fromContext(writeContext).getGroup());
         }
 
         @Override

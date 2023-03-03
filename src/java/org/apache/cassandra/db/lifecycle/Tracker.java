@@ -217,7 +217,7 @@ public class Tracker
         return accumulate;
     }
 
-    public void updateSizeTracking(long adjustment)
+    public void updateLiveDiskSpaceUsed(long adjustment)
     {
         cfstore.metric.liveDiskSpaceUsed.inc(adjustment);
         cfstore.metric.totalDiskSpaceUsed.inc(adjustment);

@@ -18,6 +18,7 @@
 package org.apache.cassandra.index.sai.disk.v1;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import org.apache.lucene.store.RandomAccessInput;
 
@@ -77,7 +78,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -89,7 +90,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -101,7 +102,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -112,7 +113,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -125,7 +126,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -136,7 +137,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -150,7 +151,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -161,7 +162,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -174,7 +175,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -185,7 +186,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -196,7 +197,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -207,7 +208,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -218,7 +219,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 
@@ -229,7 +230,7 @@ public class DirectReaders
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     };
 }

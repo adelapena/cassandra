@@ -30,7 +30,7 @@ import org.apache.cassandra.db.virtual.VirtualKeyspaceRegistry;
 import org.apache.cassandra.dht.AbstractBounds;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.index.sai.SAITester;
-import org.apache.cassandra.index.sai.SSTableIndex;
+import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.StorageAttachedIndex;
 import org.apache.cassandra.io.sstable.SSTableId;
 import org.apache.cassandra.io.sstable.SSTableIdFactory;
@@ -44,27 +44,27 @@ public class SSTablesSystemViewTest extends SAITester
 {
     private static final String SELECT = String.format("SELECT %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s " +
                                                        "FROM %s.%s WHERE %s = '%s'",
-                                                       SSTablesSystemView.INDEX_NAME,
-                                                       SSTablesSystemView.SSTABLE_NAME,
-                                                       SSTablesSystemView.TABLE_NAME,
-                                                       SSTablesSystemView.COLUMN_NAME,
-                                                       SSTablesSystemView.FORMAT_VERSION,
-                                                       SSTablesSystemView.CELL_COUNT,
-                                                       SSTablesSystemView.MIN_ROW_ID,
-                                                       SSTablesSystemView.MAX_ROW_ID,
-                                                       SSTablesSystemView.START_TOKEN,
-                                                       SSTablesSystemView.END_TOKEN,
-                                                       SSTablesSystemView.PER_TABLE_DISK_SIZE,
-                                                       SSTablesSystemView.PER_COLUMN_DISK_SIZE,
+                                                       SSTableIndexesSystemView.INDEX_NAME,
+                                                       SSTableIndexesSystemView.SSTABLE_NAME,
+                                                       SSTableIndexesSystemView.TABLE_NAME,
+                                                       SSTableIndexesSystemView.COLUMN_NAME,
+                                                       SSTableIndexesSystemView.FORMAT_VERSION,
+                                                       SSTableIndexesSystemView.CELL_COUNT,
+                                                       SSTableIndexesSystemView.MIN_ROW_ID,
+                                                       SSTableIndexesSystemView.MAX_ROW_ID,
+                                                       SSTableIndexesSystemView.START_TOKEN,
+                                                       SSTableIndexesSystemView.END_TOKEN,
+                                                       SSTableIndexesSystemView.PER_TABLE_DISK_SIZE,
+                                                       SSTableIndexesSystemView.PER_COLUMN_DISK_SIZE,
                                                        SchemaConstants.VIRTUAL_VIEWS,
-                                                       SSTablesSystemView.NAME,
-                                                       SSTablesSystemView.KEYSPACE_NAME,
+                                                       SSTableIndexesSystemView.NAME,
+                                                       SSTableIndexesSystemView.KEYSPACE_NAME,
                                                        KEYSPACE);
 
     @BeforeClass
     public static void setup()
     {
-        VirtualKeyspaceRegistry.instance.register(new VirtualKeyspace(SchemaConstants.VIRTUAL_VIEWS, ImmutableList.of(new SSTablesSystemView(SchemaConstants.VIRTUAL_VIEWS))));
+        VirtualKeyspaceRegistry.instance.register(new VirtualKeyspace(SchemaConstants.VIRTUAL_VIEWS, ImmutableList.of(new SSTableIndexesSystemView(SchemaConstants.VIRTUAL_VIEWS))));
 
         CQLTester.setUpClass();
     }

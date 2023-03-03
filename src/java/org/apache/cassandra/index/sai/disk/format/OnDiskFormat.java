@@ -29,13 +29,13 @@ import org.apache.cassandra.index.sai.StorageAttachedIndex;
 import org.apache.cassandra.index.sai.disk.PerIndexWriter;
 import org.apache.cassandra.index.sai.disk.PerSSTableWriter;
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
-import org.apache.cassandra.index.sai.disk.SearchableIndex;
-import org.apache.cassandra.index.sai.memory.RowMapping;
+import org.apache.cassandra.index.sai.disk.RowMapping;
+import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 
 /**
- * An interface to the on-disk format of an index. This provides format agnostics methods
+ * An interface to the on-disk format of an index. This provides format agnostic methods
  * to read and write an on-disk format.
  *
  * The methods on this interface can be logically mapped into the following groups
@@ -45,9 +45,9 @@ import org.apache.cassandra.io.sstable.format.SSTableReader;
  *     format. This can include static information about the per-sstable components</li>
  *     <li>Methods taking just an {@link IndexContext}. These methods return static information
  *     specific to the index. This can be information relating to the type of index being used</li>
- *     <li>Methods taking an {@link IndexDescriptor}. These methods interact with the on-disk components or
- *     return objects that will interact with the on-disk components or return information about the on-disk
- *     components. If they take an {@link IndexContext} as well they will be interacting with per-index files
+ *     <li>Methods taking an {@link IndexDescriptor}. These methods interact with the on-disk components, or
+ *     return objects that will interact with the on-disk components, or return information about the on-disk
+ *     components. If they take an {@link IndexContext} as well they will be interacting with per-index files;
  *     otherwise they will be interacting with per-sstable files</li>
  *     <li>Methods taking an {@link IndexComponent}. These methods only interact with a single component or
  *     set of components</li>
@@ -60,57 +60,37 @@ public interface OnDiskFormat
      * Returns the {@link PrimaryKeyFactory} for the on-disk format
      *
      * @param comparator the {@link ClusteringComparator} to use in the {@link PrimaryKeyFactory}
-     * @return the primary key factory
      */
     PrimaryKeyFactory primaryKeyFactory(ClusteringComparator comparator);
-
-    /**
-     * Returns true if the per-sstable index components have been built and are valid.
-     *
-     * @param indexDescriptor The {@link IndexDescriptor} for the SSTable SAI index
-     * @return true if the per-sstable index components have been built and are complete
-     */
-    boolean isPerSSTableBuildComplete(IndexDescriptor indexDescriptor);
-
-    /**
-     * Returns true if the per-index index components have been built and are valid.
-     *
-     * @param indexDescriptor The {@link IndexDescriptor} for the SSTable SAI Index
-     * @param indexContext The {@link IndexContext} for the index
-     * @return true if the per-index index components have been built and are complete
-     */
-    boolean isPerIndexBuildComplete(IndexDescriptor indexDescriptor, IndexContext indexContext);
 
     /**
      * Returns a {@link PrimaryKeyMap.Factory} for the SSTable
      *
      * @param indexDescriptor The {@link IndexDescriptor} for the SSTable
      * @param sstable The {@link SSTableReader} associated with the {@link IndexDescriptor}
-     * @return a {@link PrimaryKeyMap.Factory} for the SSTable
      */
     PrimaryKeyMap.Factory newPrimaryKeyMapFactory(IndexDescriptor indexDescriptor, SSTableReader sstable);
 
     /**
-     * Create a new {@link SearchableIndex} for an on-disk index. This is held by the {@code SSTableIndex}
+     * Create a new {@link SSTableIndex.Searcher} for an on-disk index. This is held by the {@code SSTableIndex}
      * and shared between queries.
      *
      * @param sstableContext The {@link SSTableContext} holding the per-SSTable information for the index
      * @param indexContext The {@link IndexContext} holding the per-index information for the index
-     * @return the new {@link SearchableIndex} for the on-disk index
+     * @return the new {@link SSTableIndex.Searcher} for the on-disk index
      */
-    SearchableIndex newSearchableIndex(SSTableContext sstableContext, IndexContext indexContext);
+    SSTableIndex.Searcher newSSTableIndexSearcher(SSTableContext sstableContext, IndexContext indexContext);
 
     /**
-     * Create a new writer for the per-SSTable on-disk components of an index.
+     * Create a new {@link PerSSTableWriter} to write the per-SSTable on-disk components of an index.
      *
      * @param indexDescriptor The {@link IndexDescriptor} for the SSTable
-     * @return The {@link PerSSTableWriter} to write the per-SSTable on-disk components
      * @throws IOException if the writer couldn't be created
      */
     PerSSTableWriter newPerSSTableWriter(IndexDescriptor indexDescriptor) throws IOException;
 
     /**
-     * Create a new writer for the per-index on-disk components of an index. The {@link LifecycleNewTracker}
+     * Create a new {@link PerIndexWriter} to write the per-index on-disk components of an index. The {@link LifecycleNewTracker}
      * is used to determine the type of index write about to happen this will either be an
      * {@code OperationType.FLUSH} indicating that we are about to flush a {@link org.apache.cassandra.index.sai.memory.MemtableIndex}
      * or one of the other operation types indicating that we will be writing from an existing SSTable
@@ -119,7 +99,6 @@ public interface OnDiskFormat
      * @param indexDescriptor The {@link IndexDescriptor} for the SSTable
      * @param tracker The {@link LifecycleNewTracker} for index build operation.
      * @param rowMapping The {@link RowMapping} that is used to map rowID to {@code PrimaryKey} during the write operation
-     * @return The {@link PerIndexWriter} that will write the per-index on-disk components
      */
     PerIndexWriter newPerIndexWriter(StorageAttachedIndex index,
                                      IndexDescriptor indexDescriptor,
@@ -127,9 +106,24 @@ public interface OnDiskFormat
                                      RowMapping rowMapping);
 
     /**
+     * Returns true if the per-sstable index components have been built and are valid.
+     *
+     * @param indexDescriptor The {@link IndexDescriptor} for the SSTable SAI index
+     */
+    boolean isPerSSTableBuildComplete(IndexDescriptor indexDescriptor);
+
+    /**
+     * Returns true if the per-index index components have been built and are valid.
+     *
+     * @param indexDescriptor The {@link IndexDescriptor} for the SSTable SAI index
+     * @param indexContext The {@link IndexContext} for the index
+     */
+    boolean isPerIndexBuildComplete(IndexDescriptor indexDescriptor, IndexContext indexContext);
+
+    /**
      * Validate all the per-SSTable on-disk components and throw if a component is not valid
      *
-     * @param indexDescriptor The {@link IndexDescriptor} for the SSTable
+     * @param indexDescriptor The {@link IndexDescriptor} for the SSTable SAI index
      * @param checksum {@code true} if the checksum should be tested as part of the validation
      *
      * @return true if all the per-SSTable components are valid
@@ -139,7 +133,7 @@ public interface OnDiskFormat
     /**
      * Validate all the per-index on-disk components and throw if a component is not valid
      *
-     * @param indexDescriptor The {@link IndexDescriptor} for the SSTable
+     * @param indexDescriptor The {@link IndexDescriptor} for the SSTable SAI index
      * @param indexContext The {@link IndexContext} holding the per-index information for the index
      * @param checksum {@code true} if the checksum should be tested as part of the validation
      *
@@ -151,8 +145,6 @@ public interface OnDiskFormat
      * Returns the set of {@link IndexComponent} for the per-SSTable part of an index.
      * This is a complete set of components that could exist on-disk. It does not imply that the
      * components currently exist on-disk.
-     *
-     * @return The set of {@link IndexComponent} for the per-SSTable index
      */
     Set<IndexComponent> perSSTableComponents();
 
@@ -162,7 +154,6 @@ public interface OnDiskFormat
      * components currently exist on-disk.
      *
      * @param indexContext The {@link IndexContext} for the index
-     * @return The set of {@link IndexComponent} for the per-index index
      */
     Set<IndexComponent> perIndexComponents(IndexContext indexContext);
 
@@ -170,8 +161,6 @@ public interface OnDiskFormat
      * Return the number of open per-SSTable files that can be open during a query.
      * This is a static indication of the files that can be held open by an index
      * for queries. It is not a dynamic calculation.
-     *
-     * @return The number of open per-SSTable files
      */
     int openFilesPerSSTable();
 
@@ -181,7 +170,6 @@ public interface OnDiskFormat
      * for queries. It is not a dynamic calculation.
      *
      * @param indexContext The {@link IndexContext} for the index
-     * @return The number of open per-index files
      */
     int openFilesPerIndex(IndexContext indexContext);
 }

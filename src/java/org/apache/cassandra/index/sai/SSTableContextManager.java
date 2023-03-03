@@ -17,7 +17,6 @@
  */
 package org.apache.cassandra.index.sai;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
@@ -34,12 +33,12 @@ import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.utils.Pair;
 
 /**
- * Manage per-sstable {@link SSTableContext} for {@link StorageAttachedIndexGroup}
+ * Manages per-sstable {@link SSTableContext}s for {@link StorageAttachedIndexGroup}
  */
 @ThreadSafe
 public class SSTableContextManager
 {
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(SSTableContextManager.class);
 
     private final ConcurrentHashMap<SSTableReader, SSTableContext> sstableContexts = new ConcurrentHashMap<>();
 
@@ -139,6 +138,7 @@ public class SSTableContextManager
         sstableContexts.clear();
     }
 
+    @SuppressWarnings("EmptyTryBlock")
     private void removeInvalidSSTableContext(SSTableReader sstable)
     {
         try (SSTableContext ignored = sstableContexts.remove(sstable))

@@ -56,7 +56,7 @@ public class QueryContext
     public long tokenSkippingCacheHits = 0;
     public long tokenSkippingLookups = 0;
 
-    public long queryTimeouts = 0;
+    public boolean queryTimedOut = false;
 
     private final Map<SSTableReader, SSTableQueryContext> sstableQueryContexts = new HashMap<>();
 
@@ -86,7 +86,7 @@ public class QueryContext
     {
         if (totalQueryTimeNs() >= executionQuotaNano && !DISABLE_TIMEOUT)
         {
-            queryTimeouts++;
+            queryTimedOut = true;
             throw new QueryCancelledException(readCommand);
         }
     }

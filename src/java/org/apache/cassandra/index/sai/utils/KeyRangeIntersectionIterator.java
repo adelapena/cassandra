@@ -17,7 +17,6 @@
  */
 package org.apache.cassandra.index.sai.utils;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -39,7 +38,7 @@ import org.apache.cassandra.tracing.Tracing;
 @SuppressWarnings({"resource", "RedundantSuppression"})
 public class KeyRangeIntersectionIterator extends KeyRangeIterator
 {
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(KeyRangeIntersectionIterator.class);
 
     // The cassandra.sai.intersection.clause.limit (default: 2) controls the maximum number of range iterator that
     // will be used in the final intersection of a query operation.
