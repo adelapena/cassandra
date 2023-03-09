@@ -27,6 +27,7 @@ import org.junit.Test;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.CQL3Type;
 import org.apache.cassandra.cql3.functions.FunctionFactory;
 import org.apache.cassandra.cql3.functions.FunctionParameter;
@@ -34,10 +35,12 @@ import org.apache.cassandra.cql3.functions.NativeFunction;
 import org.apache.cassandra.cql3.functions.NativeFunctions;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.Int32Type;
+import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.transport.ProtocolVersion;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
+import static org.apache.cassandra.cql3.functions.masking.ColumnMask.DISABLED_ERROR_MESSAGE;
 
 /**
  * Tests schema altering queries ({@code CREATE TABLE}, {@code ALTER TABLE}, etc.) that attach/dettach dynamic data
@@ -486,6 +489,58 @@ public class ColumnMaskTest extends ColumnMaskTester
                       row("{\"k\": 0, \"c\": 0, \"v\": 0}"), // (0, 0, 0)
                       row("{\"k\": 1, \"c\": 0, \"v\": 3}"), // (1, 0, 3)
                       row("{\"k\": 2, \"c\": 0, \"v\": 6}")); // (2, 0, 6)
+    }
+
+    @Test
+    public void testEnableFlag() throws Throwable
+    {
+        // verify that we cannot create tables with masked columns if DDM is disabled
+        DatabaseDescriptor.setDynamicDataMaskingEnabled(false);
+        assertInvalidThrowMessage(DISABLED_ERROR_MESSAGE,
+                                  InvalidRequestException.class,
+                                  "CREATE TABLE t (k int PRIMARY KEY, v text MASKED WITH DEFAULT)");
+        assertInvalidThrowMessage(DISABLED_ERROR_MESSAGE,
+                                  InvalidRequestException.class,
+                                  "CREATE TABLE t (k int MASKED WITH DEFAULT PRIMARY KEY, v text)");
+        assertInvalidThrowMessage(DISABLED_ERROR_MESSAGE,
+                                  InvalidRequestException.class,
+                                  "CREATE TABLE t (k int, c int MASKED WITH DEFAULT, v text, PRIMARY KEY(k, c))");
+
+        // verify that we cannot mask and exisiting column if DDM is disabled
+        createTable("CREATE TABLE %s (k int, c int, s int static, r int, PRIMARY KEY(k, c))");
+        assertInvalidThrowMessage(DISABLED_ERROR_MESSAGE,
+                                  InvalidRequestException.class,
+                                  "ALTER TABLE %s ALTER k MASKED WITH DEFAULT");
+        assertInvalidThrowMessage(DISABLED_ERROR_MESSAGE,
+                                  InvalidRequestException.class,
+                                  "ALTER TABLE %s ALTER c MASKED WITH DEFAULT");
+        assertInvalidThrowMessage(DISABLED_ERROR_MESSAGE,
+                                  InvalidRequestException.class,
+                                  "ALTER TABLE %s ALTER s MASKED WITH DEFAULT");
+        assertInvalidThrowMessage(DISABLED_ERROR_MESSAGE,
+                                  InvalidRequestException.class,
+                                  "ALTER TABLE %s ALTER r MASKED WITH DEFAULT");
+
+        // enable DDM and add some masked data
+        DatabaseDescriptor.setDynamicDataMaskingEnabled(true);
+        alterTable("ALTER TABLE %s ALTER k MASKED WITH DEFAULT");
+        alterTable("ALTER TABLE %s ALTER c MASKED WITH DEFAULT");
+        alterTable("ALTER TABLE %s ALTER s MASKED WITH DEFAULT");
+        alterTable("ALTER TABLE %s ALTER r MASKED WITH DEFAULT");
+        execute("INSERT INTO %s (k, c, s, r) VALUES (1, 2, 3, 4)");
+        assertRowsNet(executeNet("SELECT * FROM %s"), row(0, 0, 0, 0));
+
+        // verify that column masks are not applied if DDM is disabled
+        DatabaseDescriptor.setDynamicDataMaskingEnabled(false);
+        assertRowsNet(executeNet("SELECT * FROM %s"), row(1, 2, 3, 4));
+
+        // verify that we can drop column masks even if DDM is disabled
+        alterTable("ALTER TABLE %s ALTER k DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER c DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER s DROP MASKED");
+        alterTable("ALTER TABLE %s ALTER r DROP MASKED");
+        DatabaseDescriptor.setDynamicDataMaskingEnabled(true);
+        assertRowsNet(executeNet("SELECT * FROM %s"), row(1, 2, 3, 4));
     }
 
     private void assertRowsWithPaging(String query, Object[]... rows)

@@ -62,6 +62,7 @@ public class UnmaskPermissionTest extends CQLTester
     @BeforeClass
     public static void beforeClass()
     {
+        DatabaseDescriptor.setDynamicDataMaskingEnabled(true);
         DatabaseDescriptor.setPermissionsValidity(0);
         DatabaseDescriptor.setRolesValidity(0);
         CQLTester.setUpClass();

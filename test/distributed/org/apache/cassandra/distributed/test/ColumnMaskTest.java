@@ -128,6 +128,7 @@ public class ColumnMaskTest extends TestBaseImpl
         Cluster cluster = init(Cluster.build()
                                       .withNodes(nodeCount)
                                       .withConfig(conf -> conf.with(GOSSIP, NATIVE_PROTOCOL)
+                                                              .set("dynamic_data_masking_enabled", "true")
                                                               .set("user_defined_functions_enabled", "true")
                                                               .set("authenticator", "PasswordAuthenticator")
                                                               .set("authorizer", "CassandraAuthorizer"))

@@ -186,6 +186,16 @@ public abstract class AlterTableStatement extends AlterSchemaStatement
         }
 
         @Override
+        public void validate(ClientState state)
+        {
+            super.validate(state);
+
+            // we don't allow creating masks if they are disabled, but we still allow dropping them
+            if (rawMask != null)
+                ColumnMask.ensureEnabled();
+        }
+
+        @Override
         public KeyspaceMetadata apply(KeyspaceMetadata keyspace, TableMetadata table)
         {
             ColumnMetadata column = table.getColumn(columnName);

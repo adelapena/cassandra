@@ -151,6 +151,13 @@ public final class CreateTableStatement extends AlterSchemaStatement
             Guardrails.compactTablesEnabled.ensureEnabled(state);
 
         validateDefaultTimeToLive(attrs.asNewTableParams());
+
+        // Verify that dynamic data masking is enabled if there are masked columns
+        for (ColumnProperties.Raw raw : rawColumns.values())
+        {
+            if (raw.rawMask != null)
+                ColumnMask.ensureEnabled();
+        }
     }
 
     SchemaChange schemaChangeEvent(KeyspacesDiff diff)

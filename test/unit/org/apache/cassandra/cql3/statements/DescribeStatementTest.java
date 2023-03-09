@@ -763,6 +763,7 @@ public class DescribeStatementTest extends CQLTester
     public void testDescribeTableWithColumnMasks() throws Throwable
     {
         requireNetwork();
+        DatabaseDescriptor.setDynamicDataMaskingEnabled(true);
 
         String table = createTable(KEYSPACE_PER_TEST,
                                    "CREATE TABLE %s (" +
@@ -793,6 +794,14 @@ public class DescribeStatementTest extends CQLTester
                                       "    AND CLUSTERING ORDER BY (ck1 ASC, ck2 ASC)\n" +
                                       "    AND " + tableParametersCql();
 
+        assertRowsNet(executeDescribeNet("DESCRIBE TABLE " + KEYSPACE_PER_TEST + "." + table + " WITH INTERNALS"),
+                      row(KEYSPACE_PER_TEST,
+                          "table",
+                          table,
+                          tableCreateStatement));
+
+        // masks should be listed even if DDM is disabled
+        DatabaseDescriptor.setDynamicDataMaskingEnabled(false);
         assertRowsNet(executeDescribeNet("DESCRIBE TABLE " + KEYSPACE_PER_TEST + "." + table + " WITH INTERNALS"),
                       row(KEYSPACE_PER_TEST,
                           "table",

@@ -27,6 +27,7 @@ import java.util.Objects;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.AssignmentTestable;
 import org.apache.cassandra.cql3.CQL3Type;
 import org.apache.cassandra.cql3.ColumnIdentifier;
@@ -39,6 +40,7 @@ import org.apache.cassandra.cql3.functions.FunctionResolver;
 import org.apache.cassandra.cql3.functions.ScalarFunction;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.ReversedType;
+import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.transport.ProtocolVersion;
 
 import static java.lang.String.format;
@@ -63,6 +65,10 @@ import static org.apache.cassandra.cql3.statements.RequestValidations.invalidReq
  */
 public class ColumnMask
 {
+    public static final String DISABLED_ERROR_MESSAGE = "Cannot mask columns because dynamic data masking is not " +
+                                                        "enabled. You can enable it with the " +
+                                                        "dynamic_data_masking_enabled property on cassandra.yaml";
+
     /** The CQL function used for masking. */
     public final ScalarFunction function;
 
@@ -109,10 +115,19 @@ public class ColumnMask
      */
     public ByteBuffer mask(ProtocolVersion protocolVersion, ByteBuffer value)
     {
+        if (!DatabaseDescriptor.getDynamicDataMaskingEnabled())
+            return value;
+
         List<ByteBuffer> args = new ArrayList<>(partialArgumentValues.size() + 1);
         args.add(value);
         args.addAll(partialArgumentValues);
         return function.execute(protocolVersion, args);
+    }
+
+    public static void ensureEnabled()
+    {
+        if (!DatabaseDescriptor.getDynamicDataMaskingEnabled())
+            throw new InvalidRequestException(DISABLED_ERROR_MESSAGE);
     }
 
     @Override

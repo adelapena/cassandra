@@ -4578,4 +4578,18 @@ public class DatabaseDescriptor
     {
         conf.client_request_size_metrics_enabled = enabled;
     }
+
+    public static boolean getDynamicDataMaskingEnabled()
+    {
+        return conf.dynamic_data_masking_enabled;
+    }
+
+    public static void setDynamicDataMaskingEnabled(boolean enabled)
+    {
+        if (enabled != conf.dynamic_data_masking_enabled)
+        {
+            logger.info("Setting dynamic_data_masking_enabled to {}", enabled);
+            conf.dynamic_data_masking_enabled = enabled;
+        }
+    }
 }

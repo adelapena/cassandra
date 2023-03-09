@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.CQLTester;
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.cql3.UntypedResultSet;
@@ -67,6 +68,7 @@ public class ColumnMaskTester extends CQLTester
     @Before
     public void before() throws Throwable
     {
+        DatabaseDescriptor.setDynamicDataMaskingEnabled(true);
         useSuperUser();
         executeNet(format("CREATE USER IF NOT EXISTS %s WITH PASSWORD '%s'", USERNAME, PASSWORD));
         executeNet(format("GRANT ALL ON KEYSPACE %s TO %s", KEYSPACE, USERNAME));
