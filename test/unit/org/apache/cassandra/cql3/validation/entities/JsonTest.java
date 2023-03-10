@@ -1036,8 +1036,8 @@ public class JsonTest extends CQLTester
                 row("{\"foo\": 2}")
         );
 
-        assertRows(execute("SELECT JSON toJson(blobAsInt(intAsBlob(v))) FROM %s LIMIT 1"),
-                row("{\"system.tojson(system.blobasint(system.intasblob(v)))\": \"0\"}")
+        assertRows(execute("SELECT JSON toJson(blob_as_int(int_as_blob(v))) FROM %s LIMIT 1"),
+                row("{\"system.tojson(system.blob_as_int(system.int_as_blob(v)))\": \"0\"}")
         );
     }
 

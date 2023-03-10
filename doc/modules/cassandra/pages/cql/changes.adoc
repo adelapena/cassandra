@@ -5,6 +5,7 @@ The following describes the changes in each version of CQL.
 == 3.4.7
 
 * Remove deprecated functions `dateOf` and `unixTimestampOf`, replaced by `toTimestamp` and `toUnixTimestamp` (`18328`)
+* Adopt snake_case function names, deprecating all previous camelCase or alltogetherwithoutspaces function names (`18037`)
 
 == 3.4.6
 
