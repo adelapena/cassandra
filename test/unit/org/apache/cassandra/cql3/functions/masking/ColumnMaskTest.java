@@ -506,7 +506,7 @@ public class ColumnMaskTest extends ColumnMaskTester
                                   InvalidRequestException.class,
                                   "CREATE TABLE t (k int, c int MASKED WITH DEFAULT, v text, PRIMARY KEY(k, c))");
 
-        // verify that we cannot mask and exisiting column if DDM is disabled
+        // verify that we cannot mask an existing column if DDM is disabled
         createTable("CREATE TABLE %s (k int, c int, s int static, r int, PRIMARY KEY(k, c))");
         assertInvalidThrowMessage(DISABLED_ERROR_MESSAGE,
                                   InvalidRequestException.class,
