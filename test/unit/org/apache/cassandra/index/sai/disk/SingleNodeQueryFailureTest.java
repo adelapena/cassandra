@@ -61,7 +61,7 @@ public class SingleNodeQueryFailureTest extends SAITester
     @Test
     public void testFailedTermsReaderOnMultiIndexesQuery() throws Throwable
     {
-        testFailedMultiIndexesQuery("terms_reader", LiteralIndexSegmentTermsReader.TermQuery.class, "lookupTermDictionary");
+        testFailedMultiIndexesQuery("terms_reader", LiteralIndexSegmentTermsReader.TermQuery.class, "lookupPostingsOffset");
     }
 
     private void testFailedMultiIndexesQuery(String name, Class<?> targetClass, String targetMethod) throws Throwable

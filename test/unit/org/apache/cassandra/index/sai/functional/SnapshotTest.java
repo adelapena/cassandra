@@ -72,7 +72,7 @@ public class SnapshotTest extends SAITester
         assertEquals(1, numSnapshottedSSTables);
         long snapshotLastModified = indexFilesLastModified();
 
-        // File.lastModified result can be truncated one second resolution, which can be lesser than the index build
+        // File.lastModified result can be truncated one second resolution, which can be less than the index build
         // time, so we sleep for that time to guarantee that the modification date any of overridden index file will be
         // different to that of the original file
         Thread.sleep(1000);

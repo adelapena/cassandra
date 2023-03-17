@@ -41,14 +41,14 @@ import org.apache.cassandra.db.rows.BufferCell;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.SAITester;
-import org.apache.cassandra.index.sai.postings.PostingList;
-import org.apache.cassandra.index.sai.utils.TermsIterator;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.index.sai.disk.v1.segment.LiteralIndexSegmentTermsReader;
 import org.apache.cassandra.index.sai.disk.v1.segment.SegmentBuilder;
 import org.apache.cassandra.index.sai.disk.v1.segment.SegmentMetadata;
+import org.apache.cassandra.index.sai.postings.PostingList;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
+import org.apache.cassandra.index.sai.utils.TermsIterator;
 import org.apache.cassandra.io.sstable.Descriptor;
 import org.apache.cassandra.io.sstable.SequenceBasedSSTableId;
 import org.apache.cassandra.io.util.File;
@@ -88,9 +88,9 @@ public class SegmentFlushTest
     public void testFlushBetweenRowIds() throws Exception
     {
         // exceeds max rowId per segment
-        testFlushBetweenRowIds(0, Integer.MAX_VALUE, 1);
-        testFlushBetweenRowIds(0, Long.MAX_VALUE - 1, 1);
-        testFlushBetweenRowIds(0, SegmentBuilder.LAST_VALID_SEGMENT_ROW_ID + 1, 1);
+        testFlushBetweenRowIds(0, Integer.MAX_VALUE, 2);
+        testFlushBetweenRowIds(0, Long.MAX_VALUE - 1, 2);
+        testFlushBetweenRowIds(0, SegmentBuilder.LAST_VALID_SEGMENT_ROW_ID + 1, 2);
         testFlushBetweenRowIds(Integer.MAX_VALUE - SegmentBuilder.LAST_VALID_SEGMENT_ROW_ID - 1, Integer.MAX_VALUE - 1, 1);
         testFlushBetweenRowIds(Long.MAX_VALUE - SegmentBuilder.LAST_VALID_SEGMENT_ROW_ID - 1, Long.MAX_VALUE - 1, 1);
     }
@@ -140,22 +140,47 @@ public class SegmentFlushTest
 
         MetadataSource source = MetadataSource.loadColumnMetadata(indexDescriptor, indexContext);
 
-        // verify segment count
         List<SegmentMetadata> segmentMetadatas = SegmentMetadata.load(source, indexDescriptor.primaryKeyFactory);
         assertEquals(segments, segmentMetadatas.size());
 
         // verify segment metadata
         SegmentMetadata segmentMetadata = segmentMetadatas.get(0);
-        segmentRowIdOffset = 0;
+        segmentRowIdOffset = sstableRowId1;
         posting1 = 0;
-        posting2 = (int) (sstableRowId2 - segmentRowIdOffset);
+        posting2 = segments == 1 ? (int) (sstableRowId2 - segmentRowIdOffset) : 0;
         minKey = SAITester.TEST_FACTORY.createTokenOnly(key1.getToken());
-        maxKey = SAITester.TEST_FACTORY.createTokenOnly(key2.getToken());
+        maxKey = segments == 1 ? SAITester.TEST_FACTORY.createTokenOnly(key2.getToken()) : minKey;
         minTerm = term1;
-        maxTerm = term2;
-        numRows = 2;
+        maxTerm = segments == 1 ? term2 : term1;
+        numRows = segments == 1 ? 2 : 1;
         verifySegmentMetadata(segmentMetadata);
         verifyStringIndex(indexDescriptor, indexContext, segmentMetadata);
+
+        if (segments > 1)
+        {
+            segmentRowIdOffset = sstableRowId2;
+            posting1 = 0;
+            posting2 = 0;
+            minKey = SAITester.TEST_FACTORY.createTokenOnly(key2.getToken());
+            maxKey = minKey;
+            minTerm = term2;
+            maxTerm = term2;
+            numRows = 1;
+
+            segmentMetadata = segmentMetadatas.get(1);
+            verifySegmentMetadata(segmentMetadata);
+            verifyStringIndex(indexDescriptor, indexContext, segmentMetadata);
+        }
+    }
+
+    private void verifySegmentMetadata(SegmentMetadata segmentMetadata)
+    {
+        assertEquals(segmentRowIdOffset, segmentMetadata.rowIdOffset);
+        assertEquals(minKey, segmentMetadata.minKey);
+        assertEquals(maxKey, segmentMetadata.maxKey);
+        assertEquals(minTerm, segmentMetadata.minTerm);
+        assertEquals(maxTerm, segmentMetadata.maxTerm);
+        assertEquals(numRows, segmentMetadata.numRows);
     }
 
     private void verifyStringIndex(IndexDescriptor indexDescriptor, IndexContext indexContext, SegmentMetadata segmentMetadata) throws IOException
@@ -193,16 +218,6 @@ public class SegmentFlushTest
 
         assertEquals(0, ByteComparable.compare(term, ByteComparable.fixedLength(expectedTerm), ByteComparable.Version.OSS42));
         assertEquals(minSegmentRowId == maxSegmentRowId ? 1 : 2, postings.size());
-    }
-
-    private void verifySegmentMetadata(SegmentMetadata segmentMetadata)
-    {
-        assertEquals(segmentRowIdOffset, segmentMetadata.rowIdOffset);
-        assertEquals(minKey, segmentMetadata.minKey);
-        assertEquals(maxKey, segmentMetadata.maxKey);
-        assertEquals(minTerm, segmentMetadata.minTerm);
-        assertEquals(maxTerm, segmentMetadata.maxTerm);
-        assertEquals(numRows, segmentMetadata.numRows);
     }
 
     private Row createRow(ColumnMetadata column, ByteBuffer value)

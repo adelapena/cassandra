@@ -58,11 +58,15 @@ public class Descriptor
     // Current SSTable directory format is {keyspace}/{tableName}-{tableId}[/backups|/snapshots/{tag}][/.{indexName}]/{component}.db
     // * {var} are mandatory components
     // * [var] are optional components
+    //
+    // Note: The component allows the '+' character in addition to the characters supported by other elements in order
+    // to all custom components to have an ability to support structured naming of the component that is transparent
+    // to the SSTable naming.
     static final Pattern SSTABLE_DIR_PATTERN = Pattern.compile(".*/(?<keyspace>\\w+)/" +
                                                                "(?<tableName>\\w+)-(?<tableId>[0-9a-f]{32})/" +
                                                                "(backups/|snapshots/(?<tag>[\\w-]+)/)?" +
                                                                "(\\.(?<indexName>[\\w-]+)/)?" +
-                                                               "(?<component>[\\w-]+)\\.(?<ext>[\\w]+)$");
+                                                               "(?<component>[\\w-\\+]+)\\.(?<ext>[\\w]+)$");
 
     // Pre 2.1 SSTable directory format is {keyspace}/{tableName}-{tableId}[/backups|/snapshots/{tag}][/.{indexName}]/{component}.db
     static final Pattern LEGACY_SSTABLE_DIR_PATTERN = Pattern.compile(".*/(?<keyspace>\\w+)/" +

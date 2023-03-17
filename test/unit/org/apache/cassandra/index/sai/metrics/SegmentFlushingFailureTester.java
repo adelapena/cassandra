@@ -101,7 +101,7 @@ public abstract class SegmentFlushingFailureTester extends SAITester
 
         assertEquals(expectedBytesLimit(), getSegmentBufferSpaceLimit());
         assertEquals("Segment buffer memory tracker should start at zero!", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertEquals("There should be no segment builders in progress.", 0, getColumnIndexBuildsInProgress());
 
         execute("INSERT INTO %s (id1, v1) VALUES ('0', '0')");
         flush();
@@ -120,7 +120,7 @@ public abstract class SegmentFlushingFailureTester extends SAITester
         assertTrue(memoryTrackingCounter.get() > 0);
 
         assertEquals("Global memory tracker should have reverted to zero.", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertEquals("There should be no segment builders in progress.", 0, getColumnIndexBuildsInProgress());
 
         rows = executeNet("SELECT * FROM %s WHERE v1 = '0'");
         assertEquals(1, rows.all().size());
@@ -151,7 +151,7 @@ public abstract class SegmentFlushingFailureTester extends SAITester
 
         assertEquals(expectedBytesLimit(), getSegmentBufferSpaceLimit());
         assertEquals("Segment buffer memory tracker should start at zero!", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertEquals("There should be no segment builders in progress.", 0, getColumnIndexBuildsInProgress());
 
         execute("INSERT INTO %s (id1, v1) VALUES ('0', '0')");
         flush();
@@ -176,7 +176,7 @@ public abstract class SegmentFlushingFailureTester extends SAITester
 
         assertEquals(expectedBytesLimit(), getSegmentBufferSpaceLimit());
         assertEquals("Segment buffer memory tracker should start at zero!", 0L, getSegmentBufferUsedBytes());
-        assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+        assertEquals("There should be no segment builders in progress.", 0, getColumnIndexBuildsInProgress());
 
         execute("INSERT INTO " + KEYSPACE + '.' + table1 + "(id1, v1) VALUES ('0', '0')");
         flush(KEYSPACE, table1);
@@ -210,7 +210,7 @@ public abstract class SegmentFlushingFailureTester extends SAITester
             Assert.assertEquals(aborts, writerAbortCounter.get());
 
             assertEquals("Global memory tracker should have reverted to zero.", 0L, getSegmentBufferUsedBytes());
-            assertEquals("There should be no segment builders in progress.", 0L, getColumnIndexBuildsInProgress());
+            assertEquals("There should be no segment builders in progress.", 0, getColumnIndexBuildsInProgress());
         }
         finally
         {

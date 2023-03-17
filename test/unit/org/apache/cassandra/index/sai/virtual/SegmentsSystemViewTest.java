@@ -17,8 +17,10 @@
  */
 package org.apache.cassandra.index.sai.virtual;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
@@ -123,16 +125,38 @@ public class SegmentsSystemViewTest extends SAITester
         assertRows(execute(SELECT, literalIndex), row3);
 
         for (int lastValidSegmentRowId : Arrays.asList(0, 1, 2, 3, 5, 9, 25, 49, 59, 99, 101))
+//        for (int lastValidSegmentRowId : Arrays.asList(1, 2, 3, 5, 9, 25, 49, 59, 99, 101))
         {
             SegmentBuilder.updateLastValidSegmentRowId(lastValidSegmentRowId);
 
             // compaction to rewrite segments
             StorageService.instance.upgradeSSTables(KEYSPACE, false, currentTable());
-            // however many segments we create during the build we should always end up with
-            // just 1 segment with all the rows in it
-            Object[] segmentRow = row(0L, (long)num, 0L, (long)(num - 1));
-            assertRows(execute(SELECT, literalIndex), segmentRow);
 
+            List<Object[]> segmentRows = new ArrayList<>();
+//            int rowCount = 0;
+//            long segmentRowIdOffset = 0;
+//            long cellCount = 0;
+//            long minSSTableRowId = 0;
+//            long maxSSTableRowId = 0;
+//
+//            while (cellCount < 100)
+//            {
+//                Object[] row = row()
+//            }
+
+            for (int row = 0; row < num / (lastValidSegmentRowId + 1); row++)
+                segmentRows.add(row((long)(row * (lastValidSegmentRowId + 1)),
+                                    (long)(lastValidSegmentRowId + 1),
+                                    (long)(row * (lastValidSegmentRowId + 1)),
+                                    (long)(row * (lastValidSegmentRowId + 1) + lastValidSegmentRowId)));
+            long prevMaxSSTableRowId = segmentRows.isEmpty() ? -1L : (long)segmentRows.get(segmentRows.size() - 1)[3];
+            if (prevMaxSSTableRowId < 99L)
+            {
+                segmentRows.add(row(prevMaxSSTableRowId + 1, 99 - prevMaxSSTableRowId, prevMaxSSTableRowId + 1, 99L));
+            }
+
+            UntypedResultSet resultSet = execute(SELECT, literalIndex);
+            assertRows(execute(SELECT, literalIndex), segmentRows.toArray(new Object[][]{}));
             // verify index metadata length
             Map<String, Long> indexLengths = new HashMap<>();
             for (UntypedResultSet.Row row : execute(SELECT_INDEX_METADATA))
