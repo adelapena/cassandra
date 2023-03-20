@@ -57,7 +57,7 @@ public class IndexDescriptorTest
     public void setup() throws Throwable
     {
         temporaryFolder.create();
-        descriptor = Descriptor.fromFilename(temporaryFolder.newFolder().getAbsolutePath() + "/nb-1-big-Data.db");
+        descriptor = Descriptor.fromFile(new File(temporaryFolder.newFolder().getAbsolutePath() + "/nb-1-big-Data.db"));
         latest = Version.LATEST;
     }
 
@@ -110,11 +110,11 @@ public class IndexDescriptorTest
         Path path;
         try
         {
-            path = Paths.get(URI.create(descriptor.baseFilename() + filename));
+            path = Paths.get(URI.create(descriptor.baseFile() + filename));
         }
         catch (IllegalArgumentException ex)
         {
-            path = Paths.get(descriptor.baseFilename() + filename);
+            path = Paths.get(descriptor.baseFile() + filename);
         }
 
         Files.touch(new File(path).toJavaIOFile());

@@ -78,7 +78,7 @@ public class TrieTermsDictionaryTest extends SAIRandomizedTester
         }
 
         try (FileHandle input = indexDescriptor.createPerIndexFileHandle(IndexComponent.TERMS_DATA, indexContext);
-             TrieTermsDictionaryReader reader = new TrieTermsDictionaryReader(input.instantiateRebufferer(), fp))
+             TrieTermsDictionaryReader reader = new TrieTermsDictionaryReader(input.instantiateRebufferer(null), fp))
         {
             assertEquals(TrieTermsDictionaryReader.NOT_FOUND, reader.exactMatch(asByteComparable("a")));
             assertEquals(0, reader.exactMatch(asByteComparable("ab")));
@@ -105,7 +105,7 @@ public class TrieTermsDictionaryTest extends SAIRandomizedTester
         }
 
         try (FileHandle input = indexDescriptor.createPerIndexFileHandle(IndexComponent.TERMS_DATA, indexContext);
-             TrieTermsDictionaryReader reader = new TrieTermsDictionaryReader(input.instantiateRebufferer(), fp))
+             TrieTermsDictionaryReader reader = new TrieTermsDictionaryReader(input.instantiateRebufferer(null), fp))
         {
             final Iterator<Pair<ByteComparable, Long>> iterator = reader.iterator();
             final Iterator<ByteComparable> expected = byteComparables.iterator();
@@ -138,7 +138,7 @@ public class TrieTermsDictionaryTest extends SAIRandomizedTester
         }
 
         try (FileHandle input = indexDescriptor.createPerIndexFileHandle(IndexComponent.TERMS_DATA, indexContext);
-             TrieTermsDictionaryReader reader = new TrieTermsDictionaryReader(input.instantiateRebufferer(), fp))
+             TrieTermsDictionaryReader reader = new TrieTermsDictionaryReader(input.instantiateRebufferer(null), fp))
         {
             final ByteComparable expectedMaxTerm = byteComparables.get(byteComparables.size() - 1);
             final ByteComparable actualMaxTerm = reader.getMaxTerm();

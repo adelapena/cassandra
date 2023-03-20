@@ -164,7 +164,7 @@ public class LiteralIndexSegmentTermsReader implements Closeable
 
         public long lookupPostingsOffset(ByteComparable term)
         {
-            try (TrieTermsDictionaryReader reader = new TrieTermsDictionaryReader(termDictionaryFile.instantiateRebufferer(), termDictionaryRoot))
+            try (TrieTermsDictionaryReader reader = new TrieTermsDictionaryReader(termDictionaryFile.instantiateRebufferer(null), termDictionaryRoot))
             {
                 final long offset = reader.exactMatch(term);
 
@@ -196,7 +196,7 @@ public class LiteralIndexSegmentTermsReader implements Closeable
 
         private TermsScanner(long segmentOffset)
         {
-            this.termsDictionaryReader = new TrieTermsDictionaryReader(termDictionaryFile.instantiateRebufferer(), termDictionaryRoot);
+            this.termsDictionaryReader = new TrieTermsDictionaryReader(termDictionaryFile.instantiateRebufferer(null), termDictionaryRoot);
 
             this.minTerm = ByteBuffer.wrap(ByteSourceInverse.readBytes(termsDictionaryReader.getMinTerm().asComparableBytes(ByteComparable.Version.OSS42)));
             this.maxTerm = ByteBuffer.wrap(ByteSourceInverse.readBytes(termsDictionaryReader.getMaxTerm().asComparableBytes(ByteComparable.Version.OSS42)));

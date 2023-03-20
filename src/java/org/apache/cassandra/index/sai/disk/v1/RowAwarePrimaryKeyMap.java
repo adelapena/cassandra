@@ -112,7 +112,7 @@ public class RowAwarePrimaryKeyMap implements PrimaryKeyMap
         {
             LongArray rowIdToToken = new LongArray.DeferredLongArray(tokenReaderFactory::open);
             return new RowAwarePrimaryKeyMap(rowIdToToken,
-                                             new TriePrefixSearcher(primaryKeyTrieFile.instantiateRebufferer(), sortedTermsMeta.trieFilePointer),
+                                             new TriePrefixSearcher(primaryKeyTrieFile.instantiateRebufferer(null), sortedTermsMeta.trieFilePointer),
                                              sortedTermsReader.openCursor(),
                                              partitioner,
                                              primaryKeyFactory,

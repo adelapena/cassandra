@@ -86,7 +86,9 @@ import org.apache.cassandra.inject.Injection;
 import org.apache.cassandra.inject.Injections;
 import org.apache.cassandra.io.sstable.Component;
 import org.apache.cassandra.io.sstable.SSTable;
+import org.apache.cassandra.io.sstable.format.SSTableFormat;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
+import org.apache.cassandra.io.sstable.format.TOCComponent;
 import org.apache.cassandra.io.util.File;
 import org.apache.cassandra.schema.ColumnMetadata;
 import org.apache.cassandra.schema.IndexMetadata;
@@ -499,7 +501,7 @@ public abstract class SAITester extends CQLTester
 
         for (IndexComponent indexComponent : Version.LATEST.onDiskFormat().perSSTableComponents())
         {
-            Set<File> tableFiles = componentFiles(indexFiles, new Component(Component.Type.CUSTOM, Version.LATEST.fileNameFormatter().format(indexComponent, null)));
+            Set<File> tableFiles = componentFiles(indexFiles, SSTableFormat.Components.Types.CUSTOM.createComponent(Version.LATEST.fileNameFormatter().format(indexComponent, null)));
             assertEquals(tableFiles.toString(), perSSTableFiles, tableFiles.size());
         }
 
@@ -508,9 +510,8 @@ public abstract class SAITester extends CQLTester
             for (IndexComponent indexComponent : Version.LATEST.onDiskFormat().perIndexComponents(literalIndexContext))
             {
                 Set<File> stringIndexFiles = componentFiles(indexFiles,
-                                                            new Component(Component.Type.CUSTOM,
-                                                                          Version.LATEST.fileNameFormatter().format(indexComponent,
-                                                                                                                    literalIndexContext)));
+                                                            SSTableFormat.Components.Types.CUSTOM.createComponent(Version.LATEST.fileNameFormatter().format(indexComponent,
+                                                                                                                                                            literalIndexContext)));
                 if (isBuildCompletionMarker(indexComponent))
                     assertEquals(literalCompletionMarkers, stringIndexFiles.size());
                 else
@@ -746,7 +747,7 @@ public abstract class SAITester extends CQLTester
             else
                 assertFalse("Expect no index components, but got " + components, components.toString().contains("SAI"));
 
-            Set<Component> tocContents = SSTable.readTOC(sstable.descriptor);
+            Set<Component> tocContents = TOCComponent.loadTOC(sstable.descriptor);
             assertEquals(components, tocContents);
         }
     }

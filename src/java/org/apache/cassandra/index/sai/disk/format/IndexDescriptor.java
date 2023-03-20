@@ -267,10 +267,7 @@ public class IndexDescriptor
                          file, FBUtilities.prettyPrintMemory(file.length()));
         }
 
-        try (final FileHandle.Builder builder = new FileHandle.Builder(file.absolutePath()).mmapped(true))
-        {
-            return builder.complete();
-        }
+        return new FileHandle.Builder(file).mmapped(true).complete();
     }
 
     public FileHandle createPerIndexFileHandle(IndexComponent indexComponent, IndexContext indexContext)
@@ -283,10 +280,7 @@ public class IndexDescriptor
                          file, FBUtilities.prettyPrintMemory(file.length()));
         }
 
-        try (final FileHandle.Builder builder = new FileHandle.Builder(file.absolutePath()).mmapped(true))
-        {
-            return builder.complete();
-        }
+        return new FileHandle.Builder(file).mmapped(true).complete();
     }
 
     public Set<Component> getLivePerSSTableComponents()
@@ -295,7 +289,7 @@ public class IndexDescriptor
                       .perSSTableComponents()
                       .stream()
                       .filter(c -> fileFor(c).exists())
-                      .map(c -> new Component(Component.Type.CUSTOM, componentName(c)))
+                      .map(version::makePerSSTableComponent)
                       .collect(Collectors.toSet());
     }
 
@@ -305,7 +299,7 @@ public class IndexDescriptor
                       .perIndexComponents(indexContext)
                       .stream()
                       .filter(c -> fileFor(c, indexContext).exists())
-                      .map(c -> new Component(Component.Type.CUSTOM, componentName(c, indexContext)))
+                      .map(c -> version.makePerIndexComponent(c, indexContext))
                       .collect(Collectors.toSet());
     }
 
@@ -414,8 +408,8 @@ public class IndexDescriptor
 
     private File createFile(IndexComponent component, IndexContext indexContext)
     {
-        Component customComponent = new Component(Component.Type.CUSTOM, componentName(component, indexContext));
-        return new File(sstableDescriptor.filenameFor(customComponent));
+        Component customComponent = version.makePerIndexComponent(component, indexContext);
+        return sstableDescriptor.fileFor(customComponent);
     }
 
     private long numberOfPerIndexComponents(IndexContext indexContext)

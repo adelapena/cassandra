@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.RowIndexEntry;
 import org.apache.cassandra.db.compaction.CompactionInfo;
 import org.apache.cassandra.db.compaction.CompactionInterruptedException;
 import org.apache.cassandra.db.compaction.OperationType;
@@ -45,7 +44,7 @@ import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.io.sstable.Descriptor;
 import org.apache.cassandra.io.sstable.KeyIterator;
 import org.apache.cassandra.io.sstable.SSTableIdentityIterator;
-import org.apache.cassandra.io.sstable.format.SSTableFlushObserver;
+import org.apache.cassandra.io.sstable.SSTableFlushObserver;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.io.util.RandomAccessReader;
 import org.apache.cassandra.schema.TableMetadata;
@@ -158,7 +157,9 @@ public class StorageAttachedIndexBuilder extends SecondaryIndexBuilder
 
             indexWriter.begin();
 
-            try (KeyIterator keys = new KeyIterator(sstable.descriptor, metadata))
+            long previousBytesRead = 0;
+
+            try (KeyIterator keys = sstable.keyIterator())
             {
                 while (keys.hasNext())
                 {
@@ -170,10 +171,10 @@ public class StorageAttachedIndexBuilder extends SecondaryIndexBuilder
 
                     DecoratedKey key = keys.next();
 
-                    indexWriter.startPartition(key, keys.getKeyPosition());
+                    indexWriter.startPartition(key, -1, -1);
 
-                    RowIndexEntry<?> indexEntry = sstable.getPosition(key, SSTableReader.Operator.EQ);
-                    dataFile.seek(indexEntry.position);
+                    long position = sstable.getPosition(key, SSTableReader.Operator.EQ);
+                    dataFile.seek(position);
                     ByteBufferUtil.readWithShortLength(dataFile); // key
 
                     try (SSTableIdentityIterator partition = SSTableIdentityIterator.create(sstable, dataFile, key))
@@ -185,9 +186,10 @@ public class StorageAttachedIndexBuilder extends SecondaryIndexBuilder
                         while (partition.hasNext())
                             indexWriter.nextUnfilteredCluster(partition.next());
                     }
+                    long bytesRead = keys.getBytesRead();
+                    bytesProcessed += bytesRead - previousBytesRead;
+                    previousBytesRead = bytesRead;
                 }
-
-                bytesProcessed += keys.getBytesRead();
 
                 completeSSTable(indexWriter, sstable, indexes, perSSTableFileLock);
             }
@@ -341,7 +343,7 @@ public class StorageAttachedIndexBuilder extends SecondaryIndexBuilder
             if (isFullRebuild)
                 throw new RuntimeException(logMessage(String.format("%s are dropped, will stop index build.", droppedIndexes)));
             else
-                logger.debug(logMessage("Skip building dropped index {} on sstable {}"), droppedIndexes, descriptor.baseFilename());
+                logger.debug(logMessage("Skip building dropped index {} on sstable {}"), droppedIndexes, descriptor.baseFile());
         }
 
         return existing;

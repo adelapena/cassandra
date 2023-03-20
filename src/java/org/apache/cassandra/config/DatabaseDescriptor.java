@@ -4664,6 +4664,21 @@ public class DatabaseDescriptor
         }
     }
 
+    public static boolean getClientRequestSizeMetricsEnabled()
+    {
+        return conf.client_request_size_metrics_enabled;
+    }
+
+    public static void setClientRequestSizeMetricsEnabled(boolean enabled)
+    {
+        conf.client_request_size_metrics_enabled = enabled;
+    }
+
+    public static Map<String, Supplier<SSTableFormat<?, ?>>> getSSTableFormatFactories()
+    {
+        return Objects.requireNonNull(sstableFormatFactories, "Forgot to initialize DatabaseDescriptor?");
+    }
+
     public static DataStorageSpec.IntMebibytesBound getSAISegmentWriteBufferSpace()
     {
         return conf.sai_options.segment_write_buffer_size;

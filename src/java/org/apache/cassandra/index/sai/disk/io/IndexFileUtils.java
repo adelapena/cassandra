@@ -69,13 +69,10 @@ public class IndexFileUtils
     @SuppressWarnings({"resource", "RedundantSuppression"})
     public IndexInput openBlockingInput(File file)
     {
-        try (final FileHandle.Builder builder = new FileHandle.Builder(file.absolutePath()))
-        {
-            final FileHandle fileHandle = builder.complete();
-            final RandomAccessReader randomReader = fileHandle.createReader();
+        FileHandle fileHandle = new FileHandle.Builder(file).complete();
+        RandomAccessReader randomReader = fileHandle.createReader();
 
-            return IndexInputReader.create(randomReader, fileHandle::close);
-        }
+        return IndexInputReader.create(randomReader, fileHandle::close);
     }
 
     public interface ChecksumWriter
