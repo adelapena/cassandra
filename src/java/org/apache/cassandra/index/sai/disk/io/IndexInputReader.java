@@ -29,7 +29,7 @@ import org.apache.lucene.store.IndexInput;
  * This is a wrapper over a Cassandra {@link RandomAccessReader} that provides an {@link IndexInput}
  * interface for Lucene classes that need {@link IndexInput}. This is an optimisation because the
  * Lucene {@link DataInput} reads bytes one at a time whereas the {@link RandomAccessReader} is
- * optimised to read multi-byte objects faster.
+ * optimised to read multibyte objects faster.
  */
 public class IndexInputReader extends IndexInput
 {

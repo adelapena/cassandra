@@ -157,109 +157,6 @@ public class IndexContext
         return indexMetadata;
     }
 
-//    public long index(DecoratedKey key, Row row, Memtable mt)
-//    {
-//        assert indexMetadata != null : "Attempt to index on a non-indexing context";
-//
-//        MemtableIndex current = liveMemtableIndexMap.get(mt);
-//
-//        // We expect the relevant IndexMemtable to be present most of the time, so only make the
-//        // call to computeIfAbsent() if it's not. (see https://bugs.openjdk.java.net/browse/JDK-8161372)
-//        MemtableIndex target = (current != null)
-//                               ? current
-//                               : liveMemtableIndexMap.computeIfAbsent(mt, memtable -> new MemtableIndex(this));
-//
-//        long start = Clock.Global.nanoTime();
-//
-//        long bytes = 0;
-//
-//        if (isNonFrozenCollection())
-//        {
-//            Iterator<ByteBuffer> bufferIterator = getValuesOf(row, FBUtilities.nowInSeconds());
-//            if (bufferIterator != null)
-//            {
-//                while (bufferIterator.hasNext())
-//                {
-//                    ByteBuffer value = bufferIterator.next();
-//                    bytes += target.index(key, row.clustering(), value);
-//                }
-//            }
-//        }
-//        else
-//        {
-//            ByteBuffer value = getValueOf(key, row, FBUtilities.nowInSeconds());
-//            target.index(key, row.clustering(), value);
-//        }
-//        indexMetrics.memtableIndexWriteLatency.update(Clock.Global.nanoTime() - start, TimeUnit.NANOSECONDS);
-//        return bytes;
-//    }
-//
-//    public void renewMemtable(Memtable renewed)
-//    {
-//        assert liveMemtableIndexMap != null : "Attempt to renew memtable on non-indexing context";
-//
-//        for (Memtable memtable : liveMemtableIndexMap.keySet())
-//        {
-//            // remove every index but the one that corresponds to the post-truncate Memtable
-//            if (renewed != memtable)
-//            {
-//                liveMemtableIndexMap.remove(memtable);
-//            }
-//        }
-//    }
-//
-//    public void discardMemtable(Memtable discarded)
-//    {
-//        assert liveMemtableIndexMap != null : "Attempt to discard memtable from non-indexing context";
-//
-//        liveMemtableIndexMap.remove(discarded);
-//    }
-//
-//    public MemtableIndex getPendingMemtableIndex(LifecycleNewTracker tracker)
-//    {
-//        return liveMemtableIndexMap.keySet().stream()
-//                                   .filter(m -> tracker.equals(m.getFlushTransaction()))
-//                                   .findFirst()
-//                                   .map(liveMemtableIndexMap::get)
-//                                   .orElse(null);
-//    }
-//
-//
-//    public KeyRangeIterator searchMemtableIndexes(Expression e, AbstractBounds<PartitionPosition> keyRange)
-//    {
-//        assert liveMemtableIndexMap != null : "Attempt to perform search on non-indexing context";
-//
-//        Collection<MemtableIndex> memtableIndexes = liveMemtableIndexMap.values();
-//
-//        if (memtableIndexes.isEmpty())
-//        {
-//            return KeyRangeIterator.empty();
-//        }
-//
-//        KeyRangeIterator.Builder builder = KeyRangeUnionIterator.builder(memtableIndexes.size());
-//
-//        for (MemtableIndex memtableIndex : memtableIndexes)
-//        {
-//            builder.add(memtableIndex.search(e, keyRange));
-//        }
-//
-//        return builder.build();
-//    }
-//
-//    public long liveMemtableWriteCount()
-//    {
-//        assert liveMemtableIndexMap != null : "Attempt to get metrics from non-indexing context";
-//
-//        return liveMemtableIndexMap.values().stream().mapToLong(MemtableIndex::writeCount).sum();
-//    }
-//
-//    public long estimatedMemIndexMemoryUsed()
-//    {
-//        assert liveMemtableIndexMap != null : "Attempt to get metrics from non-indexing context";
-//
-//        return liveMemtableIndexMap.values().stream().mapToLong(MemtableIndex::estimatedMemoryUsed).sum();
-//    }
-
     /**
      * @return A set of SSTables which have attached to them invalid index components.
      */
@@ -367,12 +264,6 @@ public class IndexContext
         if (columnQueryMetrics != null)
             columnQueryMetrics.release();
     }
-
-//    @VisibleForTesting
-//    public ConcurrentMap<Memtable, MemtableIndex> getLiveMemtables()
-//    {
-//        return liveMemtableIndexMap;
-//    }
 
     public boolean supports(Operator op)
     {

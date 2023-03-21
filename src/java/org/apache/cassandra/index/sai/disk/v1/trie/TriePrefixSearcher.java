@@ -38,7 +38,7 @@ import org.apache.cassandra.utils.bytecomparable.ByteSource;
 @NotThreadSafe
 public class TriePrefixSearcher extends Walker<TriePrefixSearcher>
 {
-    public static long NOT_FOUND = -1L;
+    public static final long NOT_FOUND = -1L;
 
     private IterationPosition stack;
 
@@ -146,9 +146,10 @@ public class TriePrefixSearcher extends Walker<TriePrefixSearcher>
 
     private static class IterationPosition
     {
-        public long node;
+        public final long node;
+        public final IterationPosition prev;
+
         public int childIndex;
-        public IterationPosition prev;
 
         public IterationPosition(long node, int childIndex, IterationPosition prev)
         {

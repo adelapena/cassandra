@@ -276,7 +276,7 @@ public class LiteralIndexSegmentTermsReader implements Closeable
         }
 
         @Override
-        public long advance(long targetRowID) throws IOException
+        public long advance(long targetRowID)
         {
             throw new UnsupportedOperationException("Cannot advance an offset posting list");
         }

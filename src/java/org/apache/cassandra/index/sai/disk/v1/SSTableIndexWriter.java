@@ -131,7 +131,6 @@ public class SSTableIndexWriter implements PerIndexWriter
                              indexDescriptor.sstableDescriptor,
                              elapsed - start,
                              elapsed);
-                start = elapsed;
             }
 
             // Even an empty segment may carry some fixed memory, so remove it:
