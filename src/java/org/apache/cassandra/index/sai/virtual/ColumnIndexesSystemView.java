@@ -41,7 +41,7 @@ import org.apache.cassandra.schema.TableMetadata;
  */
 public class ColumnIndexesSystemView extends AbstractVirtualTable
 {
-    static final String NAME = "sai_column_indexes";
+    public static final String NAME = "sai_column_indexes";
 
     static final String KEYSPACE_NAME = "keyspace_name";
     static final String INDEX_NAME = "index_name";
