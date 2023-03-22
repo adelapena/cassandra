@@ -386,10 +386,10 @@ public class IndexContext
 
     /**
      * A helper method for constructing consistent log messages for specific column indexes.
-     *
+     * <p>
      * Example: For the index "idx" in keyspace "ks" on table "tb", calling this method with the raw message
      * "Flushing new index segment..." will produce...
-     *
+     * <p>
      * "[ks.tb.idx] Flushing new index segment..."
      *
      * @param message The raw content of a logging message, without information identifying it with an index.

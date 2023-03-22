@@ -33,7 +33,7 @@ import org.apache.cassandra.io.util.FileUtils;
  * Maintains a mapping of {@link IndexComponent}s to associated {@link FileHandle}s for
  * read operations on the components. Users of this class are returned copies of the
  * {@link FileHandle}s using {@link FileHandle#sharedCopy()} so returned handles still
- * to be closed by the user.
+ * need to be closed by the user.
  */
 public class PerColumnIndexFiles implements Closeable
 {

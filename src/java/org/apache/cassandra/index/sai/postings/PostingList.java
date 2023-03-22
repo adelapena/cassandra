@@ -48,7 +48,7 @@ public interface PostingList extends Closeable
      * Advances to the first row ID beyond the current that is greater than or equal to the
      * target, and returns that row ID. Exhausts the iterator and returns {@link #END_OF_STREAM} if
      * the target is greater than the highest row ID.
-     *
+     * <p>
      * Note: Callers must use the return value of this method before calling {@link #nextPosting()}, as calling
      * that method will return the next posting, not the one to which we have just advanced.
      *

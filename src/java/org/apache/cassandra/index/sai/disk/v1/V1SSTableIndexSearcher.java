@@ -158,8 +158,8 @@ public class V1SSTableIndexSearcher implements SSTableIndex.Searcher
 
     @Override
     public List<KeyRangeIterator> search(Expression expression,
-                                      AbstractBounds<PartitionPosition> keyRange,
-                                      SSTableQueryContext context) throws IOException
+                                         AbstractBounds<PartitionPosition> keyRange,
+                                         SSTableQueryContext context) throws IOException
     {
         List<KeyRangeIterator> segmentIterators = new ArrayList<>();
 

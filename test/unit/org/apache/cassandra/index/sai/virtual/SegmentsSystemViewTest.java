@@ -125,7 +125,6 @@ public class SegmentsSystemViewTest extends SAITester
         assertRows(execute(SELECT, literalIndex), row3);
 
         for (int lastValidSegmentRowId : Arrays.asList(0, 1, 2, 3, 5, 9, 25, 49, 59, 99, 101))
-//        for (int lastValidSegmentRowId : Arrays.asList(1, 2, 3, 5, 9, 25, 49, 59, 99, 101))
         {
             SegmentBuilder.updateLastValidSegmentRowId(lastValidSegmentRowId);
 
@@ -133,16 +132,6 @@ public class SegmentsSystemViewTest extends SAITester
             StorageService.instance.upgradeSSTables(KEYSPACE, false, currentTable());
 
             List<Object[]> segmentRows = new ArrayList<>();
-//            int rowCount = 0;
-//            long segmentRowIdOffset = 0;
-//            long cellCount = 0;
-//            long minSSTableRowId = 0;
-//            long maxSSTableRowId = 0;
-//
-//            while (cellCount < 100)
-//            {
-//                Object[] row = row()
-//            }
 
             for (int row = 0; row < num / (lastValidSegmentRowId + 1); row++)
                 segmentRows.add(row((long)(row * (lastValidSegmentRowId + 1)),

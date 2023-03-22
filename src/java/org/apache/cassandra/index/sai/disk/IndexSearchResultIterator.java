@@ -75,7 +75,9 @@ public class IndexSearchResultIterator extends KeyRangeIterator
             {
                 queryContext.checkpoint();
                 queryContext.incSstablesHit();
-                assert !sstableIndex.isReleased() : "Index was released from the view during the query";
+
+                if (sstableIndex.isReleased())
+                    throw new IllegalStateException(sstableIndex.getIndexContext().logMessage("Index was released from the view during the query"));
 
                 SSTableQueryContext context = queryContext.getSSTableQueryContext(sstableIndex.getSSTable());
                 List<KeyRangeIterator> segmentIterators = sstableIndex.search(expression, keyRange, context);
@@ -86,7 +88,7 @@ public class IndexSearchResultIterator extends KeyRangeIterator
             catch (Throwable e)
             {
                 if (!(e instanceof QueryCancelledException))
-                    logger.debug(String.format("Failed search an index %s, aborting query.", sstableIndex.getSSTable()), e);
+                    logger.debug(sstableIndex.getIndexContext().logMessage(String.format("Failed search an index %s, aborting query.", sstableIndex.getSSTable())), e);
 
                 throw Throwables.cleaned(e);
             }
@@ -135,7 +137,7 @@ public class IndexSearchResultIterator extends KeyRangeIterator
         }
         catch (Throwable e)
         {
-            logger.error(String.format("Failed to release index %s", index.getSSTable()), e);
+            logger.error(index.getIndexContext().logMessage(String.format("Failed to release index on SSTable %s", index.getSSTable())), e);
         }
     }
 }

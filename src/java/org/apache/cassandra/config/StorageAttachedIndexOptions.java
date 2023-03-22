@@ -32,7 +32,7 @@ public class StorageAttachedIndexOptions
         if ((segment_write_buffer_size.toBytes() < 0) || (segment_write_buffer_size.toMebibytes() > MAXIMUM_SEGMENT_BUFFER_MB))
         {
             throw new ConfigurationException("Invalid value for segment_write_buffer_size. " +
-                                             "Value must be a positive integer less than 32768");
+                                             "Value must be a positive integer less than " + MAXIMUM_SEGMENT_BUFFER_MB + "MiB");
         }
     }
 }

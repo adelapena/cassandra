@@ -172,7 +172,7 @@ public class SegmentMetadata
     public String toString()
     {
         return "SegmentMetadata{" +
-               "segmentRowIdOffset=" + rowIdOffset +
+               "rowIdOffset=" + rowIdOffset +
                ", minSSTableRowId=" + minSSTableRowId +
                ", maxSSTableRowId=" + maxSSTableRowId +
                ", numRows=" + numRows +

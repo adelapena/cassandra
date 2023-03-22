@@ -28,7 +28,7 @@ import org.apache.lucene.store.IndexInput;
  * A subclass of the {@link PostingsReader} that does not allow the {@link PostingList} to be
  * advanced and does not support mapping row ids to primary keys.
  *
- * It is used during index merges to sequentially scan the postings in order using {@link ::nextPosting}.
+ * It is used during index merges to sequentially scan the postings in order using {@link #nextPosting}.
  */
 public class ScanningPostingsReader extends PostingsReader
 {

@@ -342,7 +342,7 @@ public class QueryController
         return indexes;
     }
 
-    // The purpose of this method is to, attempt to, calculate the most selective expression based on
+    // The purpose of this method is to attempt to calculate the most selective expression based on
     // which indexes are within the requested key range and return the expression along with the
     // selected indexes.
     //
