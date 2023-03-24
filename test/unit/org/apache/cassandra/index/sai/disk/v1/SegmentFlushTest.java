@@ -43,7 +43,6 @@ import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.SAITester;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
-import org.apache.cassandra.index.sai.disk.v1.segment.LiteralIndexSegmentTermsReader;
 import org.apache.cassandra.index.sai.disk.v1.segment.SegmentBuilder;
 import org.apache.cassandra.index.sai.disk.v1.segment.SegmentMetadata;
 import org.apache.cassandra.index.sai.postings.PostingList;
@@ -188,15 +187,8 @@ public class SegmentFlushTest
         FileHandle termsData = indexDescriptor.createPerIndexFileHandle(IndexComponent.TERMS_DATA, indexContext);
         FileHandle postingLists = indexDescriptor.createPerIndexFileHandle(IndexComponent.POSTING_LISTS, indexContext);
 
-        long termsFooterPointer = Long.parseLong(segmentMetadata.componentMetadatas.get(IndexComponent.TERMS_DATA).attributes.get(SAICodecUtils.FOOTER_POINTER));
-
-        try (LiteralIndexSegmentTermsReader reader = new LiteralIndexSegmentTermsReader(indexContext,
-                                                                                        termsData,
-                                                                                        postingLists,
-                                                                                        segmentMetadata.componentMetadatas.get(IndexComponent.TERMS_DATA).root,
-                                                                                        termsFooterPointer))
+        try (TermsIterator iterator = new TermsScanner(termsData, postingLists, segmentMetadata.componentMetadatas.get(IndexComponent.TERMS_DATA).root))
         {
-            TermsIterator iterator = reader.allTerms(0);
             assertEquals(minTerm, iterator.getMinTerm());
             assertEquals(maxTerm, iterator.getMaxTerm());
 

@@ -19,8 +19,6 @@ package org.apache.cassandra.index.sai.disk.v1.segment;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -32,18 +30,14 @@ import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.disk.io.IndexFileUtils;
 import org.apache.cassandra.index.sai.disk.v1.postings.PostingsReader;
-import org.apache.cassandra.index.sai.disk.v1.postings.ScanningPostingsReader;
 import org.apache.cassandra.index.sai.disk.v1.trie.TrieTermsDictionaryReader;
 import org.apache.cassandra.index.sai.metrics.QueryEventListener;
 import org.apache.cassandra.index.sai.postings.PostingList;
-import org.apache.cassandra.index.sai.utils.TermsIterator;
 import org.apache.cassandra.io.util.FileHandle;
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.cassandra.utils.Clock;
-import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.Throwables;
 import org.apache.cassandra.utils.bytecomparable.ByteComparable;
-import org.apache.cassandra.utils.bytecomparable.ByteSourceInverse;
 import org.apache.lucene.store.IndexInput;
 
 import static org.apache.cassandra.index.sai.disk.v1.SAICodecUtils.validate;
@@ -95,12 +89,6 @@ public class LiteralIndexSegmentTermsReader implements Closeable
     {
         FileUtils.closeQuietly(termDictionaryFile);
         FileUtils.closeQuietly(postingsFile);
-    }
-
-    public TermsIterator allTerms(long segmentOffset)
-    {
-        // blocking, since we use it only for segment merging for now
-        return new TermsScanner(segmentOffset);
     }
 
     public PostingList exactMatch(ByteComparable term, QueryEventListener.TrieIndexEventListener perQueryEventListener, QueryContext context)
@@ -182,103 +170,6 @@ public class LiteralIndexSegmentTermsReader implements Closeable
             PostingsReader.BlocksSummary header = new PostingsReader.BlocksSummary(postingsSummaryInput, offset);
 
             return new PostingsReader(postingsInput, header, listener.postingListEventListener());
-        }
-    }
-
-    // currently only used for testing
-    private class TermsScanner implements TermsIterator
-    {
-        private final long segmentOffset;
-        private final TrieTermsDictionaryReader termsDictionaryReader;
-        private final Iterator<Pair<ByteComparable, Long>> iterator;
-        private final ByteBuffer minTerm, maxTerm;
-        private Pair<ByteComparable, Long> entry;
-
-        private TermsScanner(long segmentOffset)
-        {
-            this.termsDictionaryReader = new TrieTermsDictionaryReader(termDictionaryFile.instantiateRebufferer(null), termDictionaryRoot);
-
-            this.minTerm = ByteBuffer.wrap(ByteSourceInverse.readBytes(termsDictionaryReader.getMinTerm().asComparableBytes(ByteComparable.Version.OSS42)));
-            this.maxTerm = ByteBuffer.wrap(ByteSourceInverse.readBytes(termsDictionaryReader.getMaxTerm().asComparableBytes(ByteComparable.Version.OSS42)));
-            this.iterator = termsDictionaryReader.iterator();
-            this.segmentOffset = segmentOffset;
-        }
-
-        @Override
-        @SuppressWarnings({"resource", "RedundantSuppression"})
-        public PostingList postings() throws IOException
-        {
-            assert entry != null;
-            final IndexInput input = IndexFileUtils.instance.openInput(postingsFile);
-            return new OffsetPostingList(segmentOffset, new ScanningPostingsReader(input, new PostingsReader.BlocksSummary(input, entry.right)));
-        }
-
-        @Override
-        public void close()
-        {
-            termsDictionaryReader.close();
-        }
-
-        @Override
-        public ByteBuffer getMinTerm()
-        {
-            return minTerm;
-        }
-
-        @Override
-        public ByteBuffer getMaxTerm()
-        {
-            return maxTerm;
-        }
-
-        @Override
-        public ByteComparable next()
-        {
-            if (iterator.hasNext())
-            {
-                entry = iterator.next();
-                return entry.left;
-            }
-            return null;
-        }
-
-        @Override
-        public boolean hasNext()
-        {
-            return iterator.hasNext();
-        }
-    }
-
-    private static class OffsetPostingList implements PostingList
-    {
-        private final long offset;
-        private final PostingList wrapped;
-
-        OffsetPostingList(long offset, PostingList postingList)
-        {
-            this.offset = offset;
-            this.wrapped = postingList;
-        }
-
-        @Override
-        public long nextPosting() throws IOException
-        {
-            long next = wrapped.nextPosting();
-            if (next == PostingList.END_OF_STREAM)
-                return next;
-            return next + offset;
-        }
-
-        @Override
-        public long size()
-        {
-            return wrapped.size();
-        }
-
-        @Override
-        public long advance(long targetRowID)
-        {
-            throw new UnsupportedOperationException("Cannot advance an offset posting list");
         }
     }
 }

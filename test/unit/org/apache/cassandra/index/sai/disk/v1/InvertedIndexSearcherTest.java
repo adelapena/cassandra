@@ -42,9 +42,8 @@ import org.apache.cassandra.index.sai.disk.v1.segment.LiteralIndexSegmentSearche
 import org.apache.cassandra.index.sai.disk.v1.segment.SegmentMetadata;
 import org.apache.cassandra.index.sai.disk.v1.trie.LiteralIndexWriter;
 import org.apache.cassandra.index.sai.plan.Expression;
-import org.apache.cassandra.index.sai.utils.KeyRangeIterator;
+import org.apache.cassandra.index.sai.iterators.KeyRangeIterator;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
-import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
 import org.apache.cassandra.index.sai.utils.SAIRandomizedTester;
 import org.apache.cassandra.service.StorageService;
 import org.apache.cassandra.utils.Pair;
@@ -65,7 +64,7 @@ public class InvertedIndexSearcherTest extends SAIRandomizedTester
 {
     public static final PrimaryKeyMap TEST_PRIMARY_KEY_MAP = new PrimaryKeyMap()
     {
-        private final PrimaryKeyFactory primaryKeyFactory = PrimaryKey.factory(new ClusteringComparator());
+        private final PrimaryKey.Factory primaryKeyFactory = new PrimaryKey.Factory(new ClusteringComparator());
 
         @Override
         public PrimaryKey primaryKeyFromRowId(long sstableRowId)

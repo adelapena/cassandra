@@ -35,7 +35,6 @@ import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.v1.MetadataSource;
 import org.apache.cassandra.index.sai.disk.v1.MetadataWriter;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
-import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.store.IndexOutput;
@@ -113,7 +112,7 @@ public class SegmentMetadata
         this.componentMetadatas = componentMetadatas;
     }
 
-    private SegmentMetadata(IndexInput input, PrimaryKeyFactory primaryKeyFactory) throws IOException
+    private SegmentMetadata(IndexInput input, PrimaryKey.Factory primaryKeyFactory) throws IOException
     {
         this.rowIdOffset = input.readLong();
         this.numRows = input.readLong();
@@ -127,7 +126,7 @@ public class SegmentMetadata
     }
 
     @SuppressWarnings({"resource", "RedundantSuppression"})
-    public static List<SegmentMetadata> load(MetadataSource source, PrimaryKeyFactory primaryKeyFactory) throws IOException
+    public static List<SegmentMetadata> load(MetadataSource source, PrimaryKey.Factory primaryKeyFactory) throws IOException
     {
         IndexInput input = source.get(NAME);
 

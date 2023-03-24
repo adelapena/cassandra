@@ -37,7 +37,7 @@ import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.disk.v1.segment.Segment;
 import org.apache.cassandra.index.sai.disk.v1.segment.SegmentMetadata;
 import org.apache.cassandra.index.sai.plan.Expression;
-import org.apache.cassandra.index.sai.utils.KeyRangeIterator;
+import org.apache.cassandra.index.sai.iterators.KeyRangeIterator;
 import org.apache.cassandra.index.sai.utils.TypeUtil;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.io.util.FileUtils;
@@ -54,9 +54,12 @@ import static org.apache.cassandra.index.sai.virtual.SegmentsSystemView.MIN_TERM
 import static org.apache.cassandra.index.sai.virtual.SegmentsSystemView.START_TOKEN;
 import static org.apache.cassandra.index.sai.virtual.SegmentsSystemView.TABLE_NAME;
 
-public class V1SSTableIndexSearcher implements SSTableIndex.Searcher
+/**
+ * A version specific implementation of the {@link SSTableIndex} where the
+ * index is segmented
+ */
+public class V1SSTableIndex extends SSTableIndex
 {
-    private final IndexContext indexContext;
     private final ImmutableList<Segment> segments;
     private final List<SegmentMetadata> metadatas;
     private final DecoratedKey minKey;
@@ -68,9 +71,10 @@ public class V1SSTableIndexSearcher implements SSTableIndex.Searcher
 
     private PerColumnIndexFiles indexFiles;
 
-    public V1SSTableIndexSearcher(SSTableContext sstableContext, IndexContext indexContext)
+    public V1SSTableIndex(SSTableContext sstableContext, IndexContext indexContext)
     {
-        this.indexContext = indexContext;
+        super(sstableContext, indexContext);
+
         try
         {
             this.indexFiles = new PerColumnIndexFiles(sstableContext.indexDescriptor, indexContext);
@@ -175,8 +179,9 @@ public class V1SSTableIndexSearcher implements SSTableIndex.Searcher
     }
 
     @Override
-    public void populateSystemView(SimpleDataSet dataset, SSTableReader sstable)
+    public void populateSegmentView(SimpleDataSet dataset)
     {
+        SSTableReader sstable = getSSTable();
         Token.TokenFactory tokenFactory = sstable.metadata().partitioner.getTokenFactory();
 
         for (SegmentMetadata metadata : metadatas)
@@ -196,7 +201,7 @@ public class V1SSTableIndexSearcher implements SSTableIndex.Searcher
     }
 
     @Override
-    public void close()
+    protected void internalRelease()
     {
         FileUtils.closeQuietly(indexFiles);
         FileUtils.closeQuietly(segments);

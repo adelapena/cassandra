@@ -21,7 +21,6 @@ package org.apache.cassandra.index.sai.disk.format;
 import java.io.IOException;
 import java.util.Set;
 
-import org.apache.cassandra.db.ClusteringComparator;
 import org.apache.cassandra.db.lifecycle.LifecycleNewTracker;
 import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.SSTableContext;
@@ -31,7 +30,6 @@ import org.apache.cassandra.index.sai.disk.PerSSTableWriter;
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
 import org.apache.cassandra.index.sai.disk.RowMapping;
 import org.apache.cassandra.index.sai.disk.SSTableIndex;
-import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 
 /**
@@ -57,13 +55,6 @@ import org.apache.cassandra.io.sstable.format.SSTableReader;
 public interface OnDiskFormat
 {
     /**
-     * Returns the {@link PrimaryKeyFactory} for the on-disk format
-     *
-     * @param comparator the {@link ClusteringComparator} to use in the {@link PrimaryKeyFactory}
-     */
-    PrimaryKeyFactory primaryKeyFactory(ClusteringComparator comparator);
-
-    /**
      * Returns a {@link PrimaryKeyMap.Factory} for the SSTable
      *
      * @param indexDescriptor The {@link IndexDescriptor} for the SSTable
@@ -72,14 +63,13 @@ public interface OnDiskFormat
     PrimaryKeyMap.Factory newPrimaryKeyMapFactory(IndexDescriptor indexDescriptor, SSTableReader sstable);
 
     /**
-     * Create a new {@link SSTableIndex.Searcher} for an on-disk index. This is held by the {@code SSTableIndex}
-     * and shared between queries.
+     * Create a new {@link SSTableIndex} for an on-disk index.
      *
      * @param sstableContext The {@link SSTableContext} holding the per-SSTable information for the index
      * @param indexContext The {@link IndexContext} holding the per-index information for the index
-     * @return the new {@link SSTableIndex.Searcher} for the on-disk index
+     * @return the new {@link SSTableIndex} for the on-disk index
      */
-    SSTableIndex.Searcher newSSTableIndexSearcher(SSTableContext sstableContext, IndexContext indexContext);
+    SSTableIndex newSSTableIndex(SSTableContext sstableContext, IndexContext indexContext);
 
     /**
      * Create a new {@link PerSSTableWriter} to write the per-SSTable on-disk components of an index.

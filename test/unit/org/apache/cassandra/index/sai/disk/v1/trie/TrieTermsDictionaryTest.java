@@ -105,9 +105,8 @@ public class TrieTermsDictionaryTest extends SAIRandomizedTester
         }
 
         try (FileHandle input = indexDescriptor.createPerIndexFileHandle(IndexComponent.TERMS_DATA, indexContext);
-             TrieTermsDictionaryReader reader = new TrieTermsDictionaryReader(input.instantiateRebufferer(null), fp))
+             TrieTermsIterator iterator = new TrieTermsIterator(input.instantiateRebufferer(null), fp))
         {
-            final Iterator<Pair<ByteComparable, Long>> iterator = reader.iterator();
             final Iterator<ByteComparable> expected = byteComparables.iterator();
             int offset = 0;
             while (iterator.hasNext())

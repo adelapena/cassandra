@@ -85,22 +85,13 @@ public class TermsReaderTest extends SAIRandomizedTester
         FileHandle termsData = indexDescriptor.createPerIndexFileHandle(IndexComponent.TERMS_DATA, indexContext);
         FileHandle postingLists = indexDescriptor.createPerIndexFileHandle(IndexComponent.POSTING_LISTS, indexContext);
 
-        long termsFooterPointer = Long.parseLong(indexMetas.get(IndexComponent.TERMS_DATA).attributes.get(SAICodecUtils.FOOTER_POINTER));
-
-        try (LiteralIndexSegmentTermsReader reader = new LiteralIndexSegmentTermsReader(indexContext,
-                                                                                        termsData,
-                                                                                        postingLists,
-                                                                                        indexMetas.get(IndexComponent.TERMS_DATA).root,
-                                                                                        termsFooterPointer))
+        try (TermsIterator iterator = new TermsScanner(termsData, postingLists, indexMetas.get(IndexComponent.TERMS_DATA).root))
         {
-            try (TermsIterator actualTermsEnum = reader.allTerms(0))
+            int i = 0;
+            for (ByteComparable term = iterator.next(); term != null; term = iterator.next())
             {
-                int i = 0;
-                for (ByteComparable term = actualTermsEnum.next(); term != null; term = actualTermsEnum.next())
-                {
-                    final ByteComparable expected = termsEnum.get(i++).left;
-                    assertEquals(0, ByteComparable.compare(expected, term, ByteComparable.Version.OSS42));
-                }
+                final ByteComparable expected = termsEnum.get(i++).left;
+                assertEquals(0, ByteComparable.compare(expected, term, ByteComparable.Version.OSS42));
             }
         }
     }

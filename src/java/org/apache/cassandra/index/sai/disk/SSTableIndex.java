@@ -18,7 +18,6 @@
 
 package org.apache.cassandra.index.sai.disk;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
@@ -38,10 +37,9 @@ import org.apache.cassandra.index.sai.SSTableContext;
 import org.apache.cassandra.index.sai.SSTableQueryContext;
 import org.apache.cassandra.index.sai.disk.format.Version;
 import org.apache.cassandra.index.sai.plan.Expression;
-import org.apache.cassandra.index.sai.utils.KeyRangeIterator;
+import org.apache.cassandra.index.sai.iterators.KeyRangeIterator;
 import org.apache.cassandra.io.sstable.SSTableIdFactory;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
-import org.apache.cassandra.io.util.FileUtils;
 
 /**
  * A reference-counted container of a {@link SSTableReader} for each column index that:
@@ -51,16 +49,15 @@ import org.apache.cassandra.io.util.FileUtils;
  *     <li>Exposes the index metadata for the column index</li>
  * </ul>
  */
-public class SSTableIndex
+public abstract class SSTableIndex
 {
     // sort sstable indexes by first key, then last key, then descriptor id
     public static final Comparator<SSTableIndex> COMPARATOR = Comparator.comparing((SSTableIndex s) -> s.getSSTable().first)
                                                                         .thenComparing(s -> s.getSSTable().last)
                                                                         .thenComparing(s -> s.getSSTable().descriptor.id, SSTableIdFactory.COMPARATOR);
 
-    private final SSTableContext sstableContext;
-    private final IndexContext indexContext;
-    private final Searcher searcher;
+    protected final SSTableContext sstableContext;
+    protected final IndexContext indexContext;
 
     private final AtomicInteger references = new AtomicInteger(1);
     private final AtomicBoolean obsolete = new AtomicBoolean(false);
@@ -69,10 +66,96 @@ public class SSTableIndex
     {
         assert indexContext.getValidator() != null;
 
-        this.searcher = sstableContext.indexDescriptor.newSSTableIndexSearcher(sstableContext, indexContext);
-
         this.sstableContext = sstableContext.sharedCopy(); // this line must not be before any code that may throw
         this.indexContext = indexContext;
+    }
+
+    /**
+     * Returns the amount of memory occupied by the index when it is initially loaded.
+     * This is the amount of data loaded into internal memory buffers by the index and
+     * does include the class footprint overhead. It used by the index metrics.
+     */
+    public abstract long indexFileCacheSize();
+
+    /**
+     * Returns the number of indexed rows in the index. This comes from the index
+     * metadata created when the index was written and is used by the index metrics.
+     */
+    public abstract long getRowCount();
+
+    /**
+     * Returns the minimum indexed rowId for the index. This comes from the index
+     * metadata created when the index was written and is used by the index metrics.
+     */
+    public abstract long minSSTableRowId();
+
+    /**
+     * Returns the maximum indexed rowId for the index. This comes from the index
+     * metadata created when the index was written and is used by the index metrics.
+     */
+    public abstract long maxSSTableRowId();
+
+    /**
+     * Returns the minimum term held in the index based on the natural sort order of
+     * the index column type comparator. It comes from the index metadata created when
+     * the index was written and is used by the index metrics and used in queries to
+     * determine whether a term, or range or terms, exists in the index.
+     */
+    public abstract ByteBuffer minTerm();
+
+    /**
+     * Returns the maximum term held in the index based on the natural sort order of
+     * the index column type comparator. It comes from the index metadata created when
+     * the index was written and is used by the index metrics and used in queries to
+     * determine whether a term, or range or terms, exists in the index.
+     */
+    public abstract ByteBuffer maxTerm();
+
+    /**
+     * Returns the minimum key held in the index. It comes from the index metadata
+     * created when the index was written and is used by the index metrics and used
+     * in queries to determine whether a query key range is served by the index.
+     */
+    public abstract DecoratedKey minKey();
+
+    /**
+     * Returns the maximum key held in the index. It comes from the index metadata
+     * created when the index was written and is used by the index metrics and used
+     * in queries to determine whether a query key range is served by the index.
+     */
+    public abstract DecoratedKey maxKey();
+
+    /**
+     * Perform a search on the index for a single expression and keyRange.
+     *
+     * The result is a {@link List} of {@link KeyRangeIterator} because there will
+     * be a {@link KeyRangeIterator} for each segment in the index. The result
+     * will never be null but may be an empty {@link List}.
+     *
+     * @param expression The {@link Expression} to be searched for
+     * @param keyRange The {@link AbstractBounds<PartitionPosition>} defining the
+     *                 token range for the search
+     * @param context The {@link SSTableQueryContext} holding the per-query state
+     * @return a {@link List} of {@link KeyRangeIterator}s containing the results
+     * of the search
+     */
+    public abstract List<KeyRangeIterator> search(Expression expression,
+                                                  AbstractBounds<PartitionPosition> keyRange,
+                                                  SSTableQueryContext context) throws IOException;
+
+    /**
+     * Populates a virtual table using the index metadata owned by the index
+     */
+    public abstract void populateSegmentView(SimpleDataSet dataSet);
+
+    protected abstract void internalRelease();
+
+    /**
+     * @return total size of per-column index components, in bytes
+     */
+    public long sizeOfPerColumnComponents()
+    {
+        return sstableContext.indexDescriptor.sizeOnDiskOfPerIndexComponents(indexContext);
     }
 
     public IndexContext getIndexContext()
@@ -83,75 +166,6 @@ public class SSTableIndex
     public SSTableContext getSSTableContext()
     {
         return sstableContext;
-    }
-
-    public long indexFileCacheSize()
-    {
-        return searcher.indexFileCacheSize();
-    }
-
-    /**
-     * @return number of indexed rows, note that rows may have been updated or removed in sstable.
-     */
-    public long getRowCount()
-    {
-        return searcher.getRowCount();
-    }
-
-    /**
-     * @return total size of per-column index components, in bytes
-     */
-    public long sizeOfPerColumnComponents()
-    {
-        return sstableContext.indexDescriptor.sizeOnDiskOfPerIndexComponents(indexContext);
-    }
-
-    /**
-     * @return the smallest possible sstable row id in this index.
-     */
-    public long minSSTableRowId()
-    {
-        return searcher.minSSTableRowId();
-    }
-
-    /**
-     * @return the largest possible sstable row id in this index.
-     */
-    public long maxSSTableRowId()
-    {
-        return searcher.maxSSTableRowId();
-    }
-
-    public ByteBuffer minTerm()
-    {
-        return searcher.minTerm();
-    }
-
-    public ByteBuffer maxTerm()
-    {
-        return searcher.maxTerm();
-    }
-
-    public DecoratedKey minKey()
-    {
-        return searcher.minKey();
-    }
-
-    public DecoratedKey maxKey()
-    {
-        return searcher.maxKey();
-    }
-
-    public List<KeyRangeIterator> search(Expression expression,
-                                         AbstractBounds<PartitionPosition> keyRange,
-                                         SSTableQueryContext context) throws IOException
-    {
-        return searcher.search(expression, keyRange, context);
-    }
-
-    public void populateSegmentView(SimpleDataSet dataSet)
-    {
-        searcher.populateSystemView(dataSet, sstableContext.sstable);
     }
 
     public Version getVersion()
@@ -189,7 +203,7 @@ public class SSTableIndex
 
         if (n == 0)
         {
-            FileUtils.closeQuietly(searcher);
+            internalRelease();
             sstableContext.close();
 
             /*
@@ -232,95 +246,5 @@ public class SSTableIndex
                           .add("sstable", sstableContext.sstable.descriptor)
                           .add("totalRows", sstableContext.sstable.getTotalRows())
                           .toString();
-    }
-
-    /**
-     * This is used to abstract the index search between on-disk versions.
-     * Callers to this interface should be unaware of the on-disk version for
-     * the index.
-     *
-     * It is responsible for supplying metadata about the on-disk index. This is
-     * used during query time to help coordinate queries and is also returned
-     * by the virtual tables.
-     */
-    public interface Searcher extends Closeable
-    {
-        /**
-         * Returns the amount of memory occupied by the index when it is initially loaded.
-         * This is the amount of data loaded into internal memory buffers by the index and
-         * does include the class footprint overhead. It used by the index metrics.
-         */
-        long indexFileCacheSize();
-
-        /**
-         * Returns the number of indexed rows in the index. This comes from the index
-         * metadata created when the index was written and is used by the index metrics.
-         */
-        long getRowCount();
-
-        /**
-         * Returns the minimum indexed rowId for the index. This comes from the index
-         * metadata created when the index was written and is used by the index metrics.
-         */
-        long minSSTableRowId();
-
-        /**
-         * Returns the maximum indexed rowId for the index. This comes from the index
-         * metadata created when the index was written and is used by the index metrics.
-         */
-        long maxSSTableRowId();
-
-        /**
-         * Returns the minimum term held in the index based on the natural sort order of
-         * the index column type comparator. It comes from the index metadata created when
-         * the index was written and is used by the index metrics and used in queries to
-         * determine whether a term, or range or terms, exists in the index.
-         */
-        ByteBuffer minTerm();
-
-        /**
-         * Returns the maximum term held in the index based on the natural sort order of
-         * the index column type comparator. It comes from the index metadata created when
-         * the index was written and is used by the index metrics and used in queries to
-         * determine whether a term, or range or terms, exists in the index.
-         */
-        ByteBuffer maxTerm();
-
-        /**
-         * Returns the minimum key held in the index. It comes from the index metadata
-         * created when the index was written and is used by the index metrics and used
-         * in queries to determine whether a query key range is served by the index.
-         */
-        DecoratedKey minKey();
-
-        /**
-         * Returns the maximum key held in the index. It comes from the index metadata
-         * created when the index was written and is used by the index metrics and used
-         * in queries to determine whether a query key range is served by the index.
-         */
-        DecoratedKey maxKey();
-
-        /**
-         * Perform a search on the index for a single expression and keyRange.
-         *
-         * The result is a {@link List} of {@link KeyRangeIterator} because there will
-         * be a {@link KeyRangeIterator} for each segment in the index. The result
-         * will never be null but may be an empty {@link List}.
-         *
-         * @param expression The {@link Expression} to be searched for
-         * @param keyRange The {@link AbstractBounds<PartitionPosition>} defining the
-         *                 token range for the search
-         * @param context The {@link SSTableQueryContext} holding the per-query state
-         * @return a {@link List} of {@link KeyRangeIterator}s containing the results
-         * of the search
-         */
-        List<KeyRangeIterator> search(Expression expression,
-                                      AbstractBounds<PartitionPosition> keyRange,
-                                      SSTableQueryContext context) throws IOException;
-
-        /**
-         * Populates a virtual table using the index metadata owned by the index
-         */
-        void populateSystemView(SimpleDataSet dataSet, SSTableReader sstable);
     }
 }

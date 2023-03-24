@@ -54,8 +54,8 @@ import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.StorageAttachedIndex;
 import org.apache.cassandra.index.sai.metrics.TableQueryMetrics;
-import org.apache.cassandra.index.sai.utils.KeyRangeIntersectionIterator;
-import org.apache.cassandra.index.sai.utils.KeyRangeIterator;
+import org.apache.cassandra.index.sai.iterators.KeyRangeIntersectionIterator;
+import org.apache.cassandra.index.sai.iterators.KeyRangeIterator;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
 import org.apache.cassandra.index.sai.disk.IndexSearchResultIterator;
 import org.apache.cassandra.index.sai.view.View;
@@ -333,7 +333,7 @@ public class QueryController
             }
             else
             {
-                readers.addAll(applyScope(view.match(expression)));
+                readers.addAll(selectIndexesInRange(view.match(expression)));
             }
 
             indexes.put(expression, readers);
@@ -360,7 +360,7 @@ public class QueryController
             View view = expression.context.getView();
 
             NavigableSet<SSTableIndex> indexes = new TreeSet<>(SSTableIndex.COMPARATOR);
-            indexes.addAll(applyScope(view.match(expression)));
+            indexes.addAll(selectIndexesInRange(view.match(expression)));
 
             if (indexes.isEmpty())
                 continue;
@@ -375,7 +375,7 @@ public class QueryController
         return primaryExpression == null ? null : Pair.create(primaryExpression, primaryIndexes);
     }
 
-    private List<SSTableIndex> applyScope(List<SSTableIndex> indexes)
+    private List<SSTableIndex> selectIndexesInRange(List<SSTableIndex> indexes)
     {
         return indexes.stream().filter(this::indexInRange).collect(Collectors.toList());
     }

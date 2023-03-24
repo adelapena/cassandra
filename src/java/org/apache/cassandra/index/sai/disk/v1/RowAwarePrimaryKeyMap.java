@@ -41,7 +41,6 @@ import org.apache.cassandra.index.sai.disk.v1.sortedterms.SortedTermsMeta;
 import org.apache.cassandra.index.sai.disk.v1.sortedterms.SortedTermsReader;
 import org.apache.cassandra.index.sai.disk.v1.trie.TriePrefixSearcher;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
-import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.io.util.FileHandle;
 import org.apache.cassandra.io.util.FileUtils;
@@ -80,7 +79,7 @@ public class RowAwarePrimaryKeyMap implements PrimaryKeyMap
         private FileHandle primaryKeyTrieFile = null;
         private final IPartitioner partitioner;
         private final ClusteringComparator clusteringComparator;
-        private final PrimaryKeyFactory primaryKeyFactory;
+        private final PrimaryKey.Factory primaryKeyFactory;
 
         public RowAwarePrimaryKeyMapFactory(IndexDescriptor indexDescriptor, SSTableReader sstable)
         {
@@ -130,7 +129,7 @@ public class RowAwarePrimaryKeyMap implements PrimaryKeyMap
     private final TriePrefixSearcher triePrefixSearcher;
     private final SortedTermsReader.Cursor cursor;
     private final IPartitioner partitioner;
-    private final PrimaryKeyFactory primaryKeyFactory;
+    private final PrimaryKey.Factory primaryKeyFactory;
     private final ClusteringComparator clusteringComparator;
     private final ByteBuffer tokenBuffer = ByteBuffer.allocate(Long.BYTES);
 
@@ -138,7 +137,7 @@ public class RowAwarePrimaryKeyMap implements PrimaryKeyMap
                                   TriePrefixSearcher triePrefixSearcher,
                                   SortedTermsReader.Cursor cursor,
                                   IPartitioner partitioner,
-                                  PrimaryKeyFactory primaryKeyFactory,
+                                  PrimaryKey.Factory primaryKeyFactory,
                                   ClusteringComparator clusteringComparator)
     {
         this.rowIdToToken = rowIdToToken;

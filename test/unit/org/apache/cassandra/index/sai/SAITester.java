@@ -80,7 +80,6 @@ import org.apache.cassandra.index.sai.disk.format.Version;
 import org.apache.cassandra.index.sai.disk.v1.V1OnDiskFormat;
 import org.apache.cassandra.index.sai.utils.NamedMemoryLimiter;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
-import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
 import org.apache.cassandra.index.sai.utils.ResourceLeakDetector;
 import org.apache.cassandra.inject.Injection;
 import org.apache.cassandra.inject.Injections;
@@ -143,7 +142,7 @@ public abstract class SAITester extends CQLTester
 
     public static final ClusteringComparator EMPTY_COMPARATOR = new ClusteringComparator();
 
-    public static final PrimaryKeyFactory TEST_FACTORY = PrimaryKey.factory(EMPTY_COMPARATOR);
+    public static final PrimaryKey.Factory TEST_FACTORY = new PrimaryKey.Factory(EMPTY_COMPARATOR);
 
     @Rule
     public TestRule testRules = new ResourceLeakDetector();

@@ -27,17 +27,20 @@ import org.apache.cassandra.utils.bytecomparable.ByteSource;
 public class ValueIterator<CONCRETE extends ValueIterator<CONCRETE>> extends Walker<CONCRETE>
 {
     private final ByteSource limit;
-    private IterationPosition stack;
+    private final TransitionBytesCollector collector;
+
+    protected IterationPosition stack;
+
     private long next;
 
-    static class IterationPosition
+    public static class IterationPosition
     {
-        long node;
+        final long node;
         int childIndex;
-        int limit;
-        IterationPosition prev;
+        final int limit;
+        final IterationPosition prev;
 
-        IterationPosition(long node, int childIndex, int limit, IterationPosition prev)
+        public IterationPosition(long node, int childIndex, int limit, IterationPosition prev)
         {
             super();
             this.node = node;
@@ -53,22 +56,102 @@ public class ValueIterator<CONCRETE extends ValueIterator<CONCRETE>> extends Wal
         }
     }
 
-    protected ValueIterator(Rebufferer source, long root)
+    protected ValueIterator(Rebufferer source, long root, boolean collecting)
     {
         super(source, root);
         limit = null;
+        collector = collecting ? new TransitionBytesCollector() : null;
         initializeNoLeftBound(root, 256);
     }
 
-    protected ValueIterator(Rebufferer source, long root, ByteComparable start, ByteComparable end, boolean admitPrefix)
+    protected ValueIterator(Rebufferer source, long root, ByteComparable start, ByteComparable end, boolean admitPrefix, boolean collecting)
     {
         super(source, root);
         limit = end != null ? end.asComparableBytes(BYTE_COMPARABLE_VERSION) : null;
-
+        collector = collecting ? new TransitionBytesCollector() : null;
         if (start != null)
             initializeWithLeftBound(root, start.asComparableBytes(BYTE_COMPARABLE_VERSION), admitPrefix, limit != null);
         else
             initializeNoLeftBound(root, limit != null ? limit.next() : 256);
+    }
+
+    /**
+     * Returns the payload node position without advancing.
+     */
+    protected long peekNode()
+    {
+        return next;
+    }
+
+    /**
+     * Returns the payload node position.
+     *
+     * This method must be async-read-safe, see {@link #advanceNode()}.
+     */
+    protected long nextPayloadedNode()
+    {
+        long toReturn = next;
+        if (next != -1)
+            next = advanceNode();
+        return toReturn;
+    }
+
+    protected ByteComparable nextCollectedValue()
+    {
+        assert collector != null : "Cannot get a collected value from a non-collecting iterator";
+
+        return collector.toByteComparable();
+    }
+
+    protected long advanceNode()
+    {
+        long child;
+        int transitionByte;
+
+        go(stack.node);
+        while (true)
+        {
+            int childIndex = stack.childIndex + 1;
+            transitionByte = transitionByte(childIndex);
+
+            if (transitionByte > stack.limit)
+            {
+                // ascend
+                stack = stack.prev;
+                if (collector != null)
+                    collector.pop();
+                if (stack == null)        // exhausted whole trie
+                    return -1;
+                go(stack.node);
+                continue;
+            }
+
+            child = transition(childIndex);
+
+            if (child != -1)
+            {
+                assert child >= 0 : String.format("Expected value >= 0 but got %d - %s", child, this);
+
+                // descend
+                go(child);
+
+                int l = 256;
+                if (transitionByte == stack.limit)
+                    l = limit.next();
+
+                stack.childIndex = childIndex;
+                stack = new IterationPosition(child, -1, l, stack);
+                if (collector != null)
+                    collector.add(transitionByte);
+
+                if (hasPayload())
+                    return child;
+            }
+            else
+            {
+                stack.childIndex = childIndex;
+            }
+        }
     }
 
     private void initializeWithLeftBound(long root, ByteSource startStream, boolean admitPrefix, boolean atLimit)
@@ -147,66 +230,6 @@ public class ValueIterator<CONCRETE extends ValueIterator<CONCRETE>> extends Wal
         {
             super.close();
             throw t;
-        }
-    }
-
-    /**
-     * Returns the payload node position.
-     *
-     * This method must be async-read-safe, see {@link #advanceNode()}.
-     */
-    protected long nextPayloadedNode()
-    {
-        long toReturn = next;
-        if (next != -1)
-            next = advanceNode();
-        return toReturn;
-    }
-
-    private long advanceNode()
-    {
-        long child;
-        int transitionByte;
-
-        go(stack.node);
-        while (true)
-        {
-            int childIndex = stack.childIndex + 1;
-            transitionByte = transitionByte(childIndex);
-
-            if (transitionByte > stack.limit)
-            {
-                // ascend
-                stack = stack.prev;
-                if (stack == null)        // exhausted whole trie
-                    return -1;
-                go(stack.node);
-                continue;
-            }
-
-            child = transition(childIndex);
-
-            if (child != -1)
-            {
-                assert child >= 0 : String.format("Expected value >= 0 but got %d - %s", child, this);
-
-                // descend
-                go(child);
-
-                int l = 256;
-                if (transitionByte == stack.limit)
-                    l = limit.next();
-
-                stack.childIndex = childIndex;
-                stack = new IterationPosition(child, -1, l, stack);
-
-                if (hasPayload())
-                    return child;
-            }
-            else
-            {
-                stack.childIndex = childIndex;
-            }
         }
     }
 }

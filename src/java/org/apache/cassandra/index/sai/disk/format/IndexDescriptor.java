@@ -41,7 +41,6 @@ import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.disk.io.IndexFileUtils;
 import org.apache.cassandra.index.sai.disk.io.IndexOutputWriter;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
-import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
 import org.apache.cassandra.io.sstable.Component;
 import org.apache.cassandra.io.sstable.Descriptor;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
@@ -70,14 +69,14 @@ public class IndexDescriptor
     public final Version version;
     public final Descriptor sstableDescriptor;
     public final ClusteringComparator clusteringComparator;
-    public final PrimaryKeyFactory primaryKeyFactory;
+    public final PrimaryKey.Factory primaryKeyFactory;
 
     private IndexDescriptor(Version version, Descriptor sstableDescriptor, ClusteringComparator clusteringComparator)
     {
         this.version = version;
         this.sstableDescriptor = sstableDescriptor;
         this.clusteringComparator = clusteringComparator;
-        this.primaryKeyFactory = PrimaryKey.factory(clusteringComparator);
+        this.primaryKeyFactory = new PrimaryKey.Factory(clusteringComparator);
     }
 
     public static IndexDescriptor create(Descriptor descriptor, ClusteringComparator clusteringComparator)
@@ -118,9 +117,9 @@ public class IndexDescriptor
         return version.onDiskFormat().newPrimaryKeyMapFactory(this, sstable);
     }
 
-    public SSTableIndex.Searcher newSSTableIndexSearcher(SSTableContext sstableContext, IndexContext indexContext)
+    public SSTableIndex newSSTableIndex(SSTableContext sstableContext, IndexContext indexContext)
     {
-        return version.onDiskFormat().newSSTableIndexSearcher(sstableContext, indexContext);
+        return version.onDiskFormat().newSSTableIndex(sstableContext, indexContext);
     }
 
     public PerSSTableWriter newPerSSTableWriter() throws IOException

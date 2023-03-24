@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Gauge;
 import org.apache.cassandra.config.DatabaseDescriptor;
-import org.apache.cassandra.db.ClusteringComparator;
 import org.apache.cassandra.db.compaction.OperationType;
 import org.apache.cassandra.db.lifecycle.LifecycleNewTracker;
 import org.apache.cassandra.index.sai.IndexContext;
@@ -44,8 +43,6 @@ import org.apache.cassandra.index.sai.disk.format.OnDiskFormat;
 import org.apache.cassandra.index.sai.disk.v1.segment.SegmentBuilder;
 import org.apache.cassandra.index.sai.metrics.AbstractMetrics;
 import org.apache.cassandra.index.sai.utils.NamedMemoryLimiter;
-import org.apache.cassandra.index.sai.utils.PrimaryKey;
-import org.apache.cassandra.index.sai.utils.PrimaryKeyFactory;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.metrics.CassandraMetricsRegistry;
 import org.apache.cassandra.metrics.DefaultNameFactory;
@@ -103,21 +100,15 @@ public class V1OnDiskFormat implements OnDiskFormat
     {}
 
     @Override
-    public PrimaryKeyFactory primaryKeyFactory(ClusteringComparator comparator)
-    {
-        return PrimaryKey.factory(comparator);
-    }
-
-    @Override
     public PrimaryKeyMap.Factory newPrimaryKeyMapFactory(IndexDescriptor indexDescriptor, SSTableReader sstable)
     {
         return new RowAwarePrimaryKeyMap.RowAwarePrimaryKeyMapFactory(indexDescriptor, sstable);
     }
 
     @Override
-    public SSTableIndex.Searcher newSSTableIndexSearcher(SSTableContext sstableContext, IndexContext indexContext)
+    public SSTableIndex newSSTableIndex(SSTableContext sstableContext, IndexContext indexContext)
     {
-        return new V1SSTableIndexSearcher(sstableContext, indexContext);
+        return new V1SSTableIndex(sstableContext, indexContext);
     }
 
     @Override

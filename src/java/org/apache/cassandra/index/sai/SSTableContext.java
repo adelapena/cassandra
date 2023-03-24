@@ -22,6 +22,7 @@ import java.util.Collections;
 import com.google.common.base.Objects;
 
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
+import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.io.sstable.Descriptor;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
@@ -98,6 +99,14 @@ public class SSTableContext extends SharedCloseableImpl
     public SSTableContext sharedCopy()
     {
         return new SSTableContext(this);
+    }
+
+    /**
+     * Returns a new {@link SSTableIndex} for a per-column index
+     */
+    public SSTableIndex newSSTableIndex(IndexContext indexContext)
+    {
+        return indexDescriptor.newSSTableIndex(this, indexContext);
     }
 
     /**

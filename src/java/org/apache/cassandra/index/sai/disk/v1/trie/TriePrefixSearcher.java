@@ -20,7 +20,7 @@ package org.apache.cassandra.index.sai.disk.v1.trie;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.cassandra.io.tries.TrieNode;
+import org.apache.cassandra.io.tries.ValueIterator;
 import org.apache.cassandra.io.tries.Walker;
 import org.apache.cassandra.io.util.Rebufferer;
 import org.apache.cassandra.io.util.SizedInts;
@@ -36,15 +36,13 @@ import org.apache.cassandra.utils.bytecomparable.ByteSource;
  * TODO Extend search to return first payload or all sub-payloads as iterator (LIKE support?)
  */
 @NotThreadSafe
-public class TriePrefixSearcher extends Walker<TriePrefixSearcher>
+public class TriePrefixSearcher extends ValueIterator<TriePrefixSearcher>
 {
     public static final long NOT_FOUND = -1L;
 
-    private IterationPosition stack;
-
     public TriePrefixSearcher(Rebufferer source, long root)
     {
-        super(source, root);
+        super(source, root, false);
     }
 
     public long prefixSearch(ByteSource startStream)
@@ -74,13 +72,13 @@ public class TriePrefixSearcher extends Walker<TriePrefixSearcher>
                 if (childIndex < 0)
                     break;
 
-                prev = new IterationPosition(position, childIndex, prev);
+                prev = new IterationPosition(position, childIndex, 256, prev);
                 go(transition(childIndex));
             }
 
             childIndex = -1 - childIndex - 1;
 
-            stack = new IterationPosition(position, childIndex, prev);
+            stack = new IterationPosition(position, childIndex, 256, prev);
 
             // Advancing now gives us first match if we didn't find one already.
             if (payloadedNode == -1)
@@ -90,79 +88,11 @@ public class TriePrefixSearcher extends Walker<TriePrefixSearcher>
                 return NOT_FOUND;
 
             return SizedInts.read(buf, payloadPosition(), payloadFlags());
-
         }
         catch (Throwable t)
         {
             super.close();
             throw t;
-        }
-    }
-
-    private void advanceNode()
-    {
-        long child;
-        int transitionByte;
-
-        go(stack.node);
-
-        while (true)
-        {
-            // advance position in node but don't change the stack just yet due to NotInCacheExceptions
-            int childIndex = stack.childIndex + 1;
-            transitionByte = transitionByte(childIndex);
-
-            if (transitionByte > TrieNode.BYTE_VALUES)
-            {
-                // ascend
-                stack = stack.prev;
-                if (stack == null)        // exhausted whole trie
-                    return;
-                go(stack.node);
-                continue;
-            }
-
-            child = transition(childIndex);
-
-            if (child != -1)
-            {
-                assert child >= 0 : String.format("Expected value >= 0 but got %d - %s", child, this);
-
-                // descend
-                go(child);
-
-                stack.childIndex = childIndex;
-                stack = new IterationPosition(child, -1, stack);
-
-                if (hasPayload())
-                    return;
-            }
-            else
-            {
-                stack.childIndex = childIndex;
-            }
-        }
-    }
-
-    private static class IterationPosition
-    {
-        public final long node;
-        public final IterationPosition prev;
-
-        public int childIndex;
-
-        public IterationPosition(long node, int childIndex, IterationPosition prev)
-        {
-            super();
-            this.node = node;
-            this.childIndex = childIndex;
-            this.prev = prev;
-        }
-
-        @Override
-        public String toString()
-        {
-            return String.format("[Node %d, child %d]", node, childIndex);
         }
     }
 }

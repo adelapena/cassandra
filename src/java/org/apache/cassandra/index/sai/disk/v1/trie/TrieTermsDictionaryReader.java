@@ -19,11 +19,7 @@ package org.apache.cassandra.index.sai.disk.v1.trie;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Iterator;
 import javax.annotation.concurrent.NotThreadSafe;
-
-import com.google.common.collect.AbstractIterator;
 
 import org.apache.cassandra.io.tries.SerializationNode;
 import org.apache.cassandra.io.tries.TrieNode;
@@ -32,10 +28,8 @@ import org.apache.cassandra.io.tries.Walker;
 import org.apache.cassandra.io.util.DataOutputPlus;
 import org.apache.cassandra.io.util.Rebufferer;
 import org.apache.cassandra.io.util.SizedInts;
-import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.bytecomparable.ByteComparable;
 import org.apache.cassandra.utils.bytecomparable.ByteSource;
-import org.apache.lucene.util.ArrayUtil;
 
 /**
  * Page-aware random access reader for a trie terms dictionary written by {@link TrieTermsDictionaryWriter}.
@@ -83,98 +77,6 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
         return follow(key) == ByteSource.END_OF_STREAM ? getCurrentPayload() : NOT_FOUND;
     }
 
-    public Iterator<Pair<ByteComparable, Long>> iterator()
-    {
-        return new AbstractIterator<Pair<ByteComparable, Long>>()
-        {
-            final TransitionBytesCollector collector = new TransitionBytesCollector();
-            IterationPosition stack = new IterationPosition(root, null);
-
-            @Override
-            protected Pair<ByteComparable, Long> computeNext()
-            {
-                return advanceNode() == NOT_FOUND ? endOfData()
-                                                  : Pair.create(collector.toByteComparable(), getCurrentPayload());
-            }
-
-            private long advanceNode()
-            {
-                long child;
-                int transitionByte;
-
-                go(stack.node);
-                while (true)
-                {
-                    int childIndex = stack.childIndex + 1;
-                    transitionByte = transitionByte(childIndex);
-
-                    if (transitionByte == Integer.MAX_VALUE)
-                    {
-                        // ascend
-                        stack = stack.prev;
-                        collector.pop();
-                        if (stack == null)
-                        {
-                            // exhausted whole trie
-                            return NOT_FOUND;
-                        }
-                        go(stack.node);
-                        continue;
-                    }
-
-                    child = transition(childIndex);
-                    stack.childIndex = childIndex;
-
-                    if (child != -1)
-                    {
-                        assert child >= 0 : String.format("Expected value >= 0 but got %d - %s", child, this);
-
-                        // descend
-                        go(child);
-
-                        stack = new IterationPosition(child, stack);
-                        collector.add(transitionByte);
-
-                        if (hasPayload())
-                            return child;
-                    }
-                }
-            }
-        };
-    }
-
-    public ByteComparable getMaxTerm()
-    {
-        TransitionBytesCollector collector = new ImmutableTransitionBytesCollector();
-        go(root);
-        while (true)
-        {
-            int lastIdx = transitionRange() - 1;
-            long lastChild = transition(lastIdx);
-            if (lastIdx < 0)
-            {
-                return collector.toByteComparable();
-            }
-            collector.add(transitionByte(lastIdx));
-            go(lastChild);
-        }
-    }
-
-    public ByteComparable getMinTerm()
-    {
-        TransitionBytesCollector collector = new ImmutableTransitionBytesCollector();
-        go(root);
-        while (true)
-        {
-            if (hasPayload())
-            {
-                return collector.toByteComparable();
-            }
-            collector.add(transitionByte(0));
-            go(transition(0));
-        }
-    }
-
     private long getCurrentPayload()
     {
         return getPayload(buf, payloadPosition(), payloadFlags());
@@ -187,82 +89,5 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
             return NOT_FOUND;
         }
         return SizedInts.read(contents, payloadPos, bytes);
-    }
-
-    public static class ImmutableTransitionBytesCollector extends TransitionBytesCollector
-    {
-        @Override
-        public ByteComparable toByteComparable()
-        {
-            assert pos > 0 : "Cannot create a byte comparable from an empty value";
-            int length = pos;
-            return v -> ByteSource.fixedLength(bytes, 0, length);
-        }
-
-        @Override
-        public void pop()
-        {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    public static class TransitionBytesCollector
-    {
-        protected byte[] bytes = new byte[32];
-        protected int pos = 0;
-
-        public void add(int b)
-        {
-            if (pos == bytes.length)
-            {
-                bytes = ArrayUtil.grow(bytes, pos + 1);
-            }
-            bytes[pos++] = (byte) b;
-        }
-
-        public void pop()
-        {
-            assert pos >= 0;
-            pos--;
-        }
-
-        public ByteComparable toByteComparable()
-        {
-            assert pos > 0 : "Cannot create a byte comparable from an empty value";
-            byte[] value = new byte[pos];
-            System.arraycopy(bytes, 0, value, 0, pos);
-            return v -> ByteSource.fixedLength(value, 0, value.length);
-        }
-
-        public void reset()
-        {
-            pos = 0;
-        }
-
-        @Override
-        public String toString()
-        {
-            return String.format("[Bytes %s, pos %d]", Arrays.toString(bytes), pos);
-        }
-    }
-
-    private static class IterationPosition
-    {
-        final long node;
-        final IterationPosition prev;
-        int childIndex;
-
-        IterationPosition(long node, IterationPosition prev)
-        {
-            this.node = node;
-            this.childIndex = -1;
-            this.prev = prev;
-        }
-
-        @Override
-        public String toString()
-        {
-            return String.format("[Node %d, child %d]", node, childIndex);
-        }
     }
 }
