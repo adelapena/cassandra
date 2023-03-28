@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.PartitionPosition;
@@ -36,8 +38,8 @@ import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.SSTableContext;
 import org.apache.cassandra.index.sai.SSTableQueryContext;
 import org.apache.cassandra.index.sai.disk.format.Version;
-import org.apache.cassandra.index.sai.plan.Expression;
 import org.apache.cassandra.index.sai.iterators.KeyRangeIterator;
+import org.apache.cassandra.index.sai.plan.Expression;
 import org.apache.cassandra.io.sstable.SSTableIdFactory;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 
@@ -51,6 +53,8 @@ import org.apache.cassandra.io.sstable.format.SSTableReader;
  */
 public abstract class SSTableIndex
 {
+    private static final Logger logger = LoggerFactory.getLogger(SSTableIndex.class);
+
     // sort sstable indexes by first key, then last key, then descriptor id
     public static final Comparator<SSTableIndex> COMPARATOR = Comparator.comparing((SSTableIndex s) -> s.getSSTable().first)
                                                                         .thenComparing(s -> s.getSSTable().last)
@@ -197,6 +201,18 @@ public abstract class SSTableIndex
         return references.get() <= 0;
     }
 
+    public void releaseQuietly()
+    {
+        try
+        {
+            release();
+        }
+        catch (Throwable e)
+        {
+            logger.error(getIndexContext().logMessage("Failed to release index on SSTable {}"), getSSTable().descriptor, e);
+        }
+    }
+
     public void release()
     {
         int n = references.decrementAndGet();
@@ -244,6 +260,8 @@ public abstract class SSTableIndex
         return MoreObjects.toStringHelper(this)
                           .add("column", indexContext.getColumnName())
                           .add("sstable", sstableContext.sstable.descriptor)
+                          .add("minTerm", indexContext.getValidator().getString(minTerm()))
+                          .add("maxTerm", indexContext.getValidator().getString(maxTerm()))
                           .add("totalRows", sstableContext.sstable.getTotalRows())
                           .toString();
     }

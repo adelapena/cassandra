@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 
 import org.apache.cassandra.db.DecoratedKey;

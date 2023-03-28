@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.MoreObjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,6 +123,12 @@ public class RangeTermTree
         public int compareTo(Term o)
         {
             return TypeUtil.compare(term, o.term, comparator);
+        }
+
+        @Override
+        public String toString()
+        {
+            return MoreObjects.toStringHelper(this).add("term", comparator.getString(term)).toString();
         }
     }
 }

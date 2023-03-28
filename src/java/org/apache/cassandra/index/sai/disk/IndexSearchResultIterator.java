@@ -18,6 +18,7 @@
 package org.apache.cassandra.index.sai.disk;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -42,9 +43,9 @@ public class IndexSearchResultIterator extends KeyRangeIterator
 
     private final QueryContext context;
     private final KeyRangeIterator union;
-    private final Set<SSTableIndex> referencedIndexes;
+    private final Collection<SSTableIndex> referencedIndexes;
 
-    private IndexSearchResultIterator(KeyRangeIterator union, Set<SSTableIndex> referencedIndexes, QueryContext queryContext)
+    private IndexSearchResultIterator(KeyRangeIterator union, Collection<SSTableIndex> referencedIndexes, QueryContext queryContext)
     {
         super(union.getMinimum(), union.getMaximum(), union.getCount());
 
@@ -59,7 +60,7 @@ public class IndexSearchResultIterator extends KeyRangeIterator
      */
     @SuppressWarnings({"resource", "RedundantSuppression"})
     public static IndexSearchResultIterator build(Expression expression,
-                                                  Set<SSTableIndex> sstableIndexes,
+                                                  Collection<SSTableIndex> sstableIndexes,
                                                   AbstractBounds<PartitionPosition> keyRange,
                                                   QueryContext queryContext)
     {

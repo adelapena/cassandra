@@ -80,7 +80,7 @@ public class MemtableIndexManager
         else
         {
             ByteBuffer value = indexContext.getValueOf(key, row, FBUtilities.nowInSeconds());
-            target.index(key, row.clustering(), value);
+            bytes += target.index(key, row.clustering(), value);
         }
         indexContext.getIndexMetrics().memtableIndexWriteLatency.update(Clock.Global.nanoTime() - start, TimeUnit.NANOSECONDS);
         return bytes;
