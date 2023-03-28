@@ -79,10 +79,10 @@ public class TrieTermsDictionaryReader extends Walker<TrieTermsDictionaryReader>
 
     private long getCurrentPayload()
     {
-        return getPayload(buf, payloadPosition(), payloadFlags());
+        return getPayloadAt(buf, payloadPosition(), payloadFlags());
     }
 
-    private long getPayload(ByteBuffer contents, int payloadPos, int bytes)
+    private long getPayloadAt(ByteBuffer contents, int payloadPos, int bytes)
     {
         if (bytes == 0)
         {

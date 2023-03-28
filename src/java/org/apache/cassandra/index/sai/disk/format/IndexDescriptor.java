@@ -107,11 +107,6 @@ public class IndexDescriptor
         return version.fileNameFormatter().format(indexComponent, null);
     }
 
-    public String componentName(IndexComponent indexComponent, IndexContext indexContext)
-    {
-        return version.fileNameFormatter().format(indexComponent, indexContext);
-    }
-
     public PrimaryKeyMap.Factory newPrimaryKeyMapFactory(SSTableReader sstable)
     {
         return version.onDiskFormat().newPrimaryKeyMapFactory(this, sstable);

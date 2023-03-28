@@ -150,12 +150,16 @@ public class QueryController
     }
 
     /**
-     * Build a {@link KeyRangeIterator.Builder} from the given list of expressions by applying given operation (AND).
-     * Building of such builder involves index search, results of which are persisted in the internal resources list
-     *
-     * @param expressions The expressions to build range iterator from (expressions with not results are ignored).
-     *
-     * @return range iterator builder based on given expressions and operation type.
+     * Build a {@link KeyRangeIterator.Builder} from the given list of {@link Expression}s.
+     * <p>
+     * This is achieved by creating an on-disk view of the query that maps the expressions to
+     * the {@link SSTableIndex}s that will satisfy the expression.
+     * <p>
+     * Each expression / sstable indexes mapping is then passed to {@link IndexSearchResultIterator#build(Expression, Collection, AbstractBounds, QueryContext)}
+     * to search the in-memory index associated with the expression and the sstable indexes, the results of
+     * which are unioned and returned.
+     * <p>
+     * The results from each expression are added to a {@link KeyRangeIntersectionIterator} and returned.
      */
     public KeyRangeIterator.Builder getIndexQueryResults(Collection<Expression> expressions)
     {
@@ -163,14 +167,14 @@ public class QueryController
 
         QueryViewBuilder queryViewBuilder = new QueryViewBuilder(expressions, mergeRange);
 
-        Collection<Pair<Expression, Collection<SSTableIndex>>> view = queryViewBuilder.build();
+        Collection<Pair<Expression, Collection<SSTableIndex>>> queryView = queryViewBuilder.build();
 
         try
         {
-            for (Pair<Expression, Collection<SSTableIndex>> pair : view)
+            for (Pair<Expression, Collection<SSTableIndex>> queryViewPair : queryView)
             {
                 @SuppressWarnings({"resource", "RedundantSuppression"}) // RangeIterators are closed by releaseIndexes
-                KeyRangeIterator index = IndexSearchResultIterator.build(pair.left, pair.right, mergeRange, queryContext);
+                KeyRangeIterator index = IndexSearchResultIterator.build(queryViewPair.left, queryViewPair.right, mergeRange, queryContext);
 
                 builder.add(index);
             }
@@ -179,7 +183,7 @@ public class QueryController
         {
             // all sstable indexes in view have been referenced, need to clean up when exception is thrown
             builder.cleanup();
-            view.forEach(pair -> pair.right.forEach(SSTableIndex::releaseQuietly));
+            queryView.forEach(pair -> pair.right.forEach(SSTableIndex::releaseQuietly));
             throw t;
         }
         return builder;

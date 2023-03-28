@@ -129,9 +129,7 @@ class QueryViewBuilder
             // and have a term range that is satisfied by the expression.
             View view = expression.context.getView();
             Set<SSTableIndex> indexes = new TreeSet<>(SSTableIndex.COMPARATOR);
-            mostSelective.right.forEach(index -> indexes.addAll(selectIndexesMatchingExpression(expression,
-                                                                                                view.match(index.minKey(),
-                                                                                                           index.maxKey()))));
+            mostSelective.right.forEach(index -> indexes.addAll(view.match(index.minKey(), index.maxKey())));
             queryView.add(Pair.create(expression, indexes));
         }
 
@@ -170,11 +168,6 @@ class QueryViewBuilder
         }
 
         return mostSelectiveExpression == null ? null : Pair.create(mostSelectiveExpression, mostSelectiveIndexes);
-    }
-
-    private List<SSTableIndex> selectIndexesMatchingExpression(Expression expression, List<SSTableIndex> indexes)
-    {
-        return indexes.stream().filter(index -> indexMatchesExpression(expression, index)).collect(Collectors.toList());
     }
 
     private boolean indexMatchesExpression(Expression expression, SSTableIndex index)
