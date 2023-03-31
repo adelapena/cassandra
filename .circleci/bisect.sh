@@ -35,32 +35,28 @@ die ()
 
 print_help()
 {
-  echo "Usage: $0 [-r|-b|-l|-m|-h|-e]"
+  echo "Usage: $0 [-c|-r|-b]"
+  echo "   -c <config> The config.yml file for CircleCI"
   echo "   -r <remote> The name of the GitHub remote where the temporal changes will be force-pushed"
   echo "   -b <branch> The name of the temporal Git branch to be created"
-  echo "   -l Generate config.yml using low resources"
-  echo "   -m Generate config.yml using mid resources"
-  echo "   -h Generate config.yml using high resources"
-  echo "   -e <key=value> Environment variables as described by .circleci/generate.sh"
 }
 
 # Parse arguments, most of them will be passed through to .circleci/generate.sh
 config_args=""
-while getopts "e:r:b:lmhf" opt; do
+while getopts "c:r:b:" opt; do
   case $opt in
+      c ) config=$OPTARG;;
       r ) remote=$OPTARG;;
       b ) branch=$OPTARG;;
-      l ) config_args="$config_args -$opt";;
-      m ) config_args="$config_args -$opt";;
-      h ) config_args="$config_args -$opt";;
-      f ) config_args="$config_args -$opt";;
-      e ) config_args="$config_args -$opt $OPTARG";;
       \?) die "Invalid option: -$OPTARG";;
   esac
 done
 shift $((OPTIND-1))
 if [ "$#" -ne 0 ]; then
     die "Unexpected config_args"
+fi
+if [ -z "$config" ]; then
+  die "A config.yml file should be specified with -c option"
 fi
 if [ -z "$remote" ]; then
   die "A remote should be specified with -r option"
@@ -75,46 +71,6 @@ if [[ ${remote_url} == *"apache/cassandra"* ]]; then
   die "The remote shouldn't be the Apache repo but a private one, $remote points to: $remote_url"
 fi
 
-# Generate a CircleCI config file that automatically runs the repeated tests
-sed -i.bak '/workflows:/d' $CIRCLE_CONFIG_FILE
-sed -i.bak '/    version: 2/d' $CIRCLE_CONFIG_FILE
-sed -i.bak '/java8_separate_tests/d' $CIRCLE_CONFIG_FILE
-sed -i.bak '/java8_pre-commit_tests/d' $CIRCLE_CONFIG_FILE
-sed -i.bak '/java11_separate_tests:/d' $CIRCLE_CONFIG_FILE
-workflows="\
-j8_repeated_tests_jobs: \&j8_repeated_tests_jobs\n\
-  jobs:\n\
-    - j8_build\n\
-    - j8_repeated_utest:\n\
-        requires:\n\
-          - j8_build\n\
-    - j8_repeated_dtest:\n\
-        requires:\n\
-          - j8_build\n\
-    - j11_repeated_utest:\n\
-        requires:\n\
-          - j8_build\n\
-    - j11_repeated_dtest:\n\
-        requires:\n\
-          - j8_build\n\
-\n\
-j11_repeated_tests_jobs: \&j11_repeated_tests_jobs\n\
-  jobs:\n\
-    - j11_build\n\
-    - j11_repeated_utest:\n\
-        requires:\n\
-          - j11_build\n\
-    - j11_repeated_dtest:\n\
-        requires:\n\
-          - j11_build\n\
-\n\
-workflows:\n\
-    version: 2\n\
-    java8_repeated_tests: \*j8_repeated_tests_jobs\n\
-    java11_repeated_tests: \*j11_repeated_tests_jobs"
-sed -i.bak "s/    java11_pre-commit_tests: \*j11_pre-commit_jobs/${workflows}/g" $CIRCLE_CONFIG_FILE
-$CIRCLE_DIR/generate.sh $config_args
-git restore $CIRCLE_CONFIG_FILE
 
 # Create a temporal testing branch, overriding it if it already exists
 tested_commit=$(git rev-parse HEAD)
@@ -124,6 +80,7 @@ git checkout -b $branch
 echo "Testing commit $tested_commit on branch $branch"
 
 # Push CircleCI config to start workflow
+cp "$config" $CIRCLE_DIR/config.yml
 git add $CIRCLE_DIR/config.yml
 git commit -m "DO NOT MERGE - Testing $tested_commit"
 git push -f $remote $branch
