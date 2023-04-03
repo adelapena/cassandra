@@ -3131,6 +3131,11 @@ a `bigInt` raw value
 
 |`toUnixTimestamp` |`date` |Converts the `date` argument into a `bigInt`
 raw value
+
+|`dateOf` |`timeuuid` |Similar to `toTimestamp(timeuuid)` (DEPRECATED)
+
+|`unixTimestampOf` |`timeuuid` |Similar to `toUnixTimestamp(timeuuid)`
+(DEPRECATED)
 |===
 
 [[blobFun]]
