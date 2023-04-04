@@ -664,6 +664,10 @@ public class StorageAttachedIndexDDLTest extends SAITester
         // valid checksums.
         boolean expectedLiteralState = isBuildCompletionMarker(component);
 
+        assertEquals("Validation for " + component + " should be " + expectedLiteralState + " but was " + !expectedLiteralState,
+                     expectedLiteralState,
+                     validateComponents(literalIndexContext));
+
         assertEquals("Checksum verification for " + component + " should be " + expectedLiteralState + " but was " + !expectedLiteralState,
                      expectedLiteralState,
                      verifyChecksum(literalIndexContext));

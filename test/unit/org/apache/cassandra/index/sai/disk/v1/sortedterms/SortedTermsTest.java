@@ -21,6 +21,7 @@ package org.apache.cassandra.index.sai.disk.v1.sortedterms;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -139,6 +140,33 @@ public class SortedTermsTest extends SAIRandomizedTester
     }
 
     @Test
+    public void testLongPrefixesAndSuffixes() throws Exception
+    {
+        IndexDescriptor descriptor = newIndexDescriptor();
+
+        List<byte[]> terms = new ArrayList<>();
+        writeLongPrefixAndSuffixTerms(descriptor, terms);
+
+        withSortedTermsCursor(descriptor, cursor ->
+        {
+            int x = 0;
+            while (cursor.advance())
+            {
+                ByteComparable term = cursor.term();
+
+                byte[] bytes = ByteSourceInverse.readBytes(term.asComparableBytes(ByteComparable.Version.OSS42));
+                assertArrayEquals(terms.get(x), bytes);
+                x++;
+            }
+
+            // assert we don't increase the point id beyond one point after the last item
+            assertEquals(cursor.pointId(), terms.size());
+            assertFalse(cursor.advance());
+            assertEquals(cursor.pointId(), terms.size());
+        });
+    }
+
+    @Test
     public void testAdvance() throws IOException
     {
         IndexDescriptor descriptor = newIndexDescriptor();
@@ -163,28 +191,6 @@ public class SortedTermsTest extends SAIRandomizedTester
             assertEquals(cursor.pointId(), terms.size());
             assertFalse(cursor.advance());
             assertEquals(cursor.pointId(), terms.size());
-        });
-    }
-
-    @Test
-    public void testReset() throws Exception
-    {
-        IndexDescriptor descriptor = newIndexDescriptor();
-
-        List<byte[]> terms = new ArrayList<>();
-        writeTerms(descriptor, terms);
-
-        withSortedTermsCursor(descriptor, cursor ->
-        {
-            assertTrue(cursor.advance());
-            assertTrue(cursor.advance());
-            String term1 = cursor.term().byteComparableAsString(ByteComparable.Version.OSS42);
-            cursor.reset();
-            assertTrue(cursor.advance());
-            assertTrue(cursor.advance());
-            String term2 = cursor.term().byteComparableAsString(ByteComparable.Version.OSS42);
-            assertEquals(term1, term2);
-            assertEquals(1, cursor.pointId());
         });
     }
 
@@ -276,6 +282,72 @@ public class SortedTermsTest extends SAIRandomizedTester
 
                     writer.add(ByteComparable.fixedLength(bytes));
                 }
+            }
+        }
+    }
+
+    private void writeLongPrefixAndSuffixTerms(IndexDescriptor indexDescriptor, List<byte[]> terms) throws IOException
+    {
+        try (MetadataWriter metadataWriter = new MetadataWriter(indexDescriptor.openPerSSTableOutput(IndexComponent.GROUP_META)))
+        {
+            IndexOutputWriter trieWriter = indexDescriptor.openPerSSTableOutput(IndexComponent.PRIMARY_KEY_TRIE);
+            IndexOutputWriter bytesWriter = indexDescriptor.openPerSSTableOutput(IndexComponent.PRIMARY_KEY_BLOCKS);
+            NumericValuesWriter blockFPWriter = new NumericValuesWriter(indexDescriptor.componentName(IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS),
+                                                                        indexDescriptor.openPerSSTableOutput(IndexComponent.PRIMARY_KEY_BLOCK_OFFSETS),
+                                                                        metadataWriter, true);
+            try (SortedTermsWriter writer = new SortedTermsWriter(indexDescriptor.componentName(IndexComponent.PRIMARY_KEY_BLOCKS),
+                                                                  metadataWriter,
+                                                                  bytesWriter,
+                                                                  blockFPWriter,
+                                                                  trieWriter))
+            {
+                // The following writes a lexographically ordered set of terms that cover the following
+                // conditions:
+
+                // Start value 0
+                byte[] bytes = new byte[20];
+                terms.add(bytes);
+                writer.add(ByteComparable.fixedLength(bytes));
+                // prefix > 15
+                bytes = new byte[20];
+                Arrays.fill(bytes, 16, 20, (byte)1);
+                terms.add(bytes);
+                writer.add(ByteComparable.fixedLength(bytes));
+                // prefix == 15
+                bytes = new byte[20];
+                Arrays.fill(bytes, 15, 20, (byte)1);
+                terms.add(bytes);
+                writer.add(ByteComparable.fixedLength(bytes));
+                // prefix < 15
+                bytes = new byte[20];
+                Arrays.fill(bytes, 14, 20, (byte)1);
+                terms.add(bytes);
+                writer.add(ByteComparable.fixedLength(bytes));
+                // suffix > 16
+                bytes = new byte[20];
+                Arrays.fill(bytes, 0, 4, (byte)1);
+                terms.add(bytes);
+                writer.add(ByteComparable.fixedLength(bytes));
+                // suffix == 16
+                bytes = new byte[20];
+                Arrays.fill(bytes, 0, 5, (byte)1);
+                terms.add(bytes);
+                writer.add(ByteComparable.fixedLength(bytes));
+                // suffix < 16
+                bytes = new byte[20];
+                Arrays.fill(bytes, 0, 6, (byte)1);
+                terms.add(bytes);
+                writer.add(ByteComparable.fixedLength(bytes));
+
+                bytes = new byte[32];
+                Arrays.fill(bytes, 0, 16, (byte)1);
+                terms.add(bytes);
+                writer.add(ByteComparable.fixedLength(bytes));
+                // prefix >= 15 && suffix >= 16
+                bytes = new byte[32];
+                Arrays.fill(bytes, 0, 32, (byte)1);
+                terms.add(bytes);
+                writer.add(ByteComparable.fixedLength(bytes));
             }
         }
     }

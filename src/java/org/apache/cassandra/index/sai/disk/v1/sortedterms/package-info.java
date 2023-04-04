@@ -51,5 +51,8 @@
  *
  * The implementation has been based on code from Lucene version 7.5 {@link org.apache.lucene.index.SortedDocValues}.
  * Prefix compression and bitpacking are used extensively to save space.
+ * <p>
+ * The sorted terms data structure is used for the storage and reading of {@link org.apache.cassandra.index.sai.utils.PrimaryKey}s
+ * by the {@link org.apache.cassandra.index.sai.disk.v1.RowAwarePrimaryKeyMap}.
  */
 package org.apache.cassandra.index.sai.disk.v1.sortedterms;

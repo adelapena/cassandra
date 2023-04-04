@@ -30,7 +30,6 @@ import com.google.common.base.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.PartitionPosition;
 import org.apache.cassandra.db.virtual.SimpleDataSet;
 import org.apache.cassandra.dht.AbstractBounds;
@@ -116,18 +115,11 @@ public abstract class SSTableIndex
     public abstract ByteBuffer maxTerm();
 
     /**
-     * Returns the minimum key held in the index. It comes from the index metadata
-     * created when the index was written and is used by the index metrics and used
-     * in queries to determine whether a query key range is served by the index.
+     * Returns the key bounds of the index. It is created from the minimum and
+     * maximum keys held in the metadata and is used to determine whether
+     * sstable indexes overlap or not.
      */
-    public abstract DecoratedKey minKey();
-
-    /**
-     * Returns the maximum key held in the index. It comes from the index metadata
-     * created when the index was written and is used by the index metrics and used
-     * in queries to determine whether a query key range is served by the index.
-     */
-    public abstract DecoratedKey maxKey();
+    public abstract AbstractBounds<PartitionPosition> bounds();
 
     /**
      * Perform a search on the index for a single expression and keyRange.

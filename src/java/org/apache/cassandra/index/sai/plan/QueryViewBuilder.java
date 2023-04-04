@@ -39,12 +39,12 @@ import org.apache.cassandra.utils.Pair;
  * Build a query specific view of the on-disk indexes for a query. This will return a
  * {@link Collection} of {@link Expression} and {@link SSTableIndex}s that represent
  * the on-disk data for a query.
- *
+ * <p>
  * The query view will include all the indexed expressions even if they don't have any
  * on-disk data. This in necessary because the query view is used to query in-memory
  * data as well as the attached on-disk indexes.
  */
-class QueryViewBuilder
+public class QueryViewBuilder
 {
     private final Collection<Expression> expressions;
     private final AbstractBounds<PartitionPosition> range;
@@ -129,11 +129,20 @@ class QueryViewBuilder
             // and have a term range that is satisfied by the expression.
             View view = expression.context.getView();
             Set<SSTableIndex> indexes = new TreeSet<>(SSTableIndex.COMPARATOR);
-            mostSelective.right.forEach(index -> indexes.addAll(view.match(index.minKey(), index.maxKey())));
+            indexes.addAll(view.match(expression)
+                               .stream()
+                               .filter(index -> sstableIndexOverlaps(index, mostSelective.right))
+                               .collect(Collectors.toList()));
             queryView.add(Pair.create(expression, indexes));
         }
 
         return queryView;
+    }
+
+    private boolean sstableIndexOverlaps(SSTableIndex sstableIndex, Collection<SSTableIndex> sstableIndexes)
+    {
+        return sstableIndexes.stream().anyMatch(index -> index.bounds().contains(sstableIndex.bounds().left) ||
+                                                         index.bounds().contains(sstableIndex.bounds().right));
     }
 
     // The purpose of this method is to calculate the most selective expression. This is the
@@ -168,11 +177,6 @@ class QueryViewBuilder
         }
 
         return mostSelectiveExpression == null ? null : Pair.create(mostSelectiveExpression, mostSelectiveIndexes);
-    }
-
-    private boolean indexMatchesExpression(Expression expression, SSTableIndex index)
-    {
-        return expression.isSatisfiedBy(index.minTerm()) || expression.isSatisfiedBy(index.maxTerm());
     }
 
     private List<SSTableIndex> selectIndexesInRange(List<SSTableIndex> indexes)

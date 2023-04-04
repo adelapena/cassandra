@@ -22,6 +22,8 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import org.apache.cassandra.index.sai.disk.io.IndexInputReader;
 import org.apache.cassandra.index.sai.disk.v1.LongArray;
 import org.apache.cassandra.index.sai.disk.v1.SAICodecUtils;
@@ -122,8 +124,8 @@ public class SortedTermsReader
         // The term the cursor currently points to. Initially empty.
         private final BytesRef currentTerm;
 
-        // The point id the cursor currently points to. -1 means before the first item.
-        private long pointId = -1;
+        // The point id the cursor currently points to. BEFORE_START means before the first item.
+        private long pointId = BEFORE_START;
 
         Cursor(FileHandle termsFile, LongArray.Factory blockOffsetsFactory) throws IOException
         {
@@ -156,6 +158,36 @@ public class SortedTermsReader
         }
 
         /**
+         * Positions the cursor on the target point id and reads the term at target to the current term buffer.
+         * <p>
+         * It is allowed to position the cursor before the first item or after the last item;
+         * in these cases the internal buffer is cleared.
+         * <p>
+         * This method has constant complexity.
+         *
+         * @param pointId point id to lookup
+         * @throws IOException if a seek and read from the terms file fails
+         * @throws IndexOutOfBoundsException if the target point id is less than -1 or greater than the number of terms
+         */
+        public void seekToPointId(long pointId) throws IOException
+        {
+            if (pointId < 0 || pointId > meta.termCount)
+                throw new IndexOutOfBoundsException(String.format("The target point id [%s] cannot be less than 0 or " +
+                                                                  "greater than the term count [%s]", pointId, meta.termCount));
+            long blockIndex = pointId >>> TERMS_DICT_BLOCK_SHIFT;
+            long blockAddress = blockOffsets.get(blockIndex);
+            termsInput.seek(blockAddress + termsDataFp);
+            this.pointId = (blockIndex << TERMS_DICT_BLOCK_SHIFT) - 1;
+            while (this.pointId < pointId && advance());
+        }
+
+        @Override
+        public void close()
+        {
+            termsInput.close();
+        }
+
+        /**
          * Advances the cursor to the next term and reads it into the current term buffer.
          * <p>
          * If there are no more available terms, clears the term buffer and the cursor's position will point to the
@@ -166,7 +198,8 @@ public class SortedTermsReader
          * @return true if the cursor was advanced successfully, false if the end of file was reached
          * @throws IOException if a read from the terms file fails
          */
-        public boolean advance() throws IOException
+        @VisibleForTesting
+        protected boolean advance() throws IOException
         {
             if (pointId >= meta.termCount || ++pointId >= meta.termCount)
             {
@@ -198,60 +231,10 @@ public class SortedTermsReader
 
             assert prefixLength + suffixLength <= meta.maxTermLength;
             currentTerm.length = prefixLength + suffixLength;
+            // The currentTerm is appended to as the suffix for the current term is
+            // added to the existing prefix.
             termsInput.readBytes(currentTerm.bytes, prefixLength, suffixLength);
             return true;
-        }
-
-        /**
-         * Positions the cursor on the target point id and reads the term at target to the current term buffer.
-         * <p>
-         * It is allowed to position the cursor before the first item or after the last item;
-         * in these cases the internal buffer is cleared.
-         * <p>
-         * This method has constant complexity.
-         *
-         * @param pointId point id to lookup
-         * @throws IOException if a seek and read from the terms file fails
-         * @throws IndexOutOfBoundsException if the target point id is less than -1 or greater than the number of terms
-         */
-        public void seekToPointId(long pointId) throws IOException
-        {
-            if (pointId < BEFORE_START || pointId > meta.termCount)
-                throw new IndexOutOfBoundsException(String.format("The target point id [%s] cannot be less than -1 or " +
-                                                                  "greater than the term count [%s]", pointId, meta.termCount));
-
-            if (pointId == BEFORE_START || pointId == meta.termCount)
-            {
-                termsInput.seek(termsDataFp);   // matters only if target is -1
-                this.pointId = pointId;
-                currentTerm.length = 0;
-            }
-            else
-            {
-                long blockIndex = pointId >>> TERMS_DICT_BLOCK_SHIFT;
-                long blockAddress = blockOffsets.get(blockIndex);
-                termsInput.seek(blockAddress + termsDataFp);
-                this.pointId = (blockIndex << TERMS_DICT_BLOCK_SHIFT) - 1;
-                while (this.pointId < pointId)
-                {
-                    boolean advanced = advance();
-                    assert advanced : "unexpected eof";   // must return true because target is in range
-                }
-            }
-        }
-
-        /**
-         * Resets the cursor to its initial position before the first item.
-         */
-        public void reset() throws IOException
-        {
-            seekToPointId(BEFORE_START);
-        }
-
-        @Override
-        public void close()
-        {
-            termsInput.close();
         }
     }
 }

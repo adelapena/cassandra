@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 
 import org.apache.cassandra.db.DecoratedKey;
@@ -37,8 +36,8 @@ import org.apache.cassandra.index.sai.SSTableQueryContext;
 import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.disk.v1.segment.Segment;
 import org.apache.cassandra.index.sai.disk.v1.segment.SegmentMetadata;
-import org.apache.cassandra.index.sai.plan.Expression;
 import org.apache.cassandra.index.sai.iterators.KeyRangeIterator;
+import org.apache.cassandra.index.sai.plan.Expression;
 import org.apache.cassandra.index.sai.utils.TypeUtil;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.io.util.FileUtils;
@@ -63,8 +62,7 @@ public class V1SSTableIndex extends SSTableIndex
 {
     private final ImmutableList<Segment> segments;
     private final List<SegmentMetadata> metadatas;
-    private final DecoratedKey minKey;
-    private final DecoratedKey maxKey; // in token order
+    private final AbstractBounds<PartitionPosition> bounds;
     private final ByteBuffer minTerm;
     private final ByteBuffer maxTerm;
     private final long minSSTableRowId, maxSSTableRowId;
@@ -94,8 +92,10 @@ public class V1SSTableIndex extends SSTableIndex
             segments = segmentsBuilder.build();
             assert !segments.isEmpty();
 
-            this.minKey = metadatas.get(0).minKey.partitionKey();
-            this.maxKey = metadatas.get(metadatas.size() - 1).maxKey.partitionKey();
+            DecoratedKey minKey = metadatas.get(0).minKey.partitionKey();
+            DecoratedKey maxKey = metadatas.get(metadatas.size() - 1).maxKey.partitionKey();
+
+            this.bounds = AbstractBounds.bounds(minKey, true, maxKey, true);
 
             this.minTerm = metadatas.stream().map(m -> m.minTerm).min(TypeUtil.comparator(indexContext.getValidator())).orElse(null);
             this.maxTerm = metadatas.stream().map(m -> m.maxTerm).max(TypeUtil.comparator(indexContext.getValidator())).orElse(null);
@@ -150,15 +150,9 @@ public class V1SSTableIndex extends SSTableIndex
     }
 
     @Override
-    public DecoratedKey minKey()
+    public AbstractBounds<PartitionPosition> bounds()
     {
-        return minKey;
-    }
-
-    @Override
-    public DecoratedKey maxKey()
-    {
-        return maxKey;
+        return bounds;
     }
 
     @Override
@@ -193,8 +187,8 @@ public class V1SSTableIndex extends SSTableIndex
                    .column(CELL_COUNT, metadata.numRows)
                    .column(MIN_SSTABLE_ROW_ID, metadata.minSSTableRowId)
                    .column(MAX_SSTABLE_ROW_ID, metadata.maxSSTableRowId)
-                   .column(START_TOKEN, tokenFactory.toString(metadata.minKey.partitionKey().getToken()))
-                   .column(END_TOKEN, tokenFactory.toString(metadata.maxKey.partitionKey().getToken()))
+                   .column(START_TOKEN, tokenFactory.toString(metadata.minKey.token()))
+                   .column(END_TOKEN, tokenFactory.toString(metadata.maxKey.token()))
                    .column(MIN_TERM, indexContext.getValidator().getSerializer().deserialize(metadata.minTerm).toString())
                    .column(MAX_TERM, indexContext.getValidator().getSerializer().deserialize(metadata.maxTerm).toString())
                    .column(COMPONENT_METADATA, metadata.componentMetadatas.asMap());

@@ -179,15 +179,17 @@ public class SortedTermsWriter implements Closeable
     {
         try (IndexOutput output = metadataWriter.builder(componentName))
         {
-            long trieFP = this.trieWriter.complete();
+            long trieFilePointer = this.trieWriter.complete();
             SAICodecUtils.writeFooter(trieOutput);
             SAICodecUtils.writeFooter(termsOutput);
-            SortedTermsMeta sortedTermsMeta = new SortedTermsMeta(trieFP, pointId, maxLength);
-            sortedTermsMeta.write(output);
+            SortedTermsMeta.write(output, trieFilePointer, pointId, maxLength);
+            // Don't close the offsets writer quietly because of the work it does
+            // during its close. We need to propagate the error.
+            offsetsWriter.close();
         }
         finally
         {
-            FileUtils.closeQuietly(Arrays.asList(trieWriter, trieOutput, termsOutput, offsetsWriter));
+            FileUtils.closeQuietly(Arrays.asList(trieWriter, trieOutput, termsOutput));
         }
     }
 

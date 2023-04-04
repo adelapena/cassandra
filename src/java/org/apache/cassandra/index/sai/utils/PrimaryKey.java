@@ -17,9 +17,11 @@
  */
 package org.apache.cassandra.index.sai.utils;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -27,6 +29,7 @@ import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.ClusteringComparator;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.dht.Token;
+import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.cassandra.utils.bytecomparable.ByteComparable;
 import org.apache.cassandra.utils.bytecomparable.ByteSource;
 
@@ -145,6 +148,18 @@ public interface PrimaryKey extends Comparable<PrimaryKey>
                 if (obj instanceof PrimaryKey)
                     return compareTo((PrimaryKey) obj) == 0;
                 return false;
+            }
+
+            @Override
+            public String toString()
+            {
+                return String.format("PrimaryKey: { token: %s, partition: %s, clustering: %s:%s} ",
+                                     token(),
+                                     partitionKey(),
+                                     clustering() == null ? null : clustering().kind(),
+                                     clustering() == null ? null : Arrays.stream(clustering().getBufferArray())
+                                                                         .map(ByteBufferUtil::bytesToHex)
+                                                                         .collect(Collectors.joining(", ")));
             }
         }
 

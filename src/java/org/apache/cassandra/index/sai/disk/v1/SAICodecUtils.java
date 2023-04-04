@@ -21,7 +21,6 @@ package org.apache.cassandra.index.sai.disk.v1;
 import java.io.IOException;
 
 import org.apache.cassandra.index.sai.disk.format.Version;
-import org.apache.cassandra.io.compress.CorruptBlockException;
 import org.apache.lucene.codecs.CodecUtil;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.ChecksumIndexInput;
@@ -51,29 +50,15 @@ public class SAICodecUtils
 
     public static void checkHeader(DataInput in) throws IOException
     {
-        try
+        final int actualMagic = in.readInt();
+        if (actualMagic != CODEC_MAGIC)
         {
-            final int actualMagic = in.readInt();
-            if (actualMagic != CODEC_MAGIC)
-            {
-                throw new CorruptIndexException("codec header mismatch: actual header=" + actualMagic + " vs expected header=" + CODEC_MAGIC, in);
-            }
-            final Version actualVersion = Version.parse(in.readString());
-            if (!actualVersion.onOrAfter(Version.EARLIEST))
-            {
-                throw new IOException("Unsupported version: " + actualVersion);
-            }
+            throw new CorruptIndexException("codec header mismatch: actual header=" + actualMagic + " vs expected header=" + CODEC_MAGIC, in);
         }
-        catch (Throwable th)
+        final Version actualVersion = Version.parse(in.readString());
+        if (!actualVersion.onOrAfter(Version.EARLIEST))
         {
-            if (th.getCause() instanceof CorruptBlockException)
-            {
-                throw new CorruptIndexException("corrupted", in, th.getCause());
-            }
-            else
-            {
-                throw th;
-            }
+            throw new IOException("Unsupported version: " + actualVersion);
         }
     }
 
@@ -106,23 +91,6 @@ public class SAICodecUtils
         input.seek(current);
     }
 
-    public static void validateFooterAndResetPosition(IndexInput in) throws IOException
-    {
-        long position = in.getFilePointer();
-        long fileLength = in.length();
-        long footerLength = CodecUtil.footerLength();
-        long footerPosition = fileLength - footerLength;
-
-        if (footerPosition < 0)
-        {
-            throw new CorruptIndexException("invalid codec footer (file truncated?): file length=" + fileLength + ", footer length=" + footerLength, in);
-        }
-
-        in.seek(footerPosition);
-        validateFooter(in, false);
-        in.seek(position);
-    }
-
     public static void validateChecksum(IndexInput input) throws IOException
     {
         long position = input.getFilePointer();
@@ -132,78 +100,6 @@ public class SAICodecUtils
         long actual = CodecUtil.checksumEntireFile(input);
         if (expected != actual)
             throw new CorruptIndexException("checksum failed (hardware problem?) : expected=" + Long.toHexString(expected) + " actual=" + Long.toHexString(actual), input);
-    }
-
-    /**
-     * Copied from org.apache.lucene.codecs.CodecUtil.validateFooter(IndexInput).
-     *
-     * If the file is segmented then the footer can exist in the middle of the file
-     * so, we shouldn't check that the footer size is correct, we just check that the
-     * footer values are correct.
-     */
-    public static void validateFooter(IndexInput in, boolean segmented) throws IOException
-    {
-        long remaining = in.length() - in.getFilePointer();
-        long expected = CodecUtil.footerLength();
-
-        if (!segmented)
-        {
-            if (remaining < expected)
-            {
-                throw new CorruptIndexException("misplaced codec footer (file truncated?): remaining=" + remaining + ", expected=" + expected + ", fp=" + in.getFilePointer(), in);
-            }
-            else if (remaining > expected)
-            {
-                throw new CorruptIndexException("misplaced codec footer (file extended?): remaining=" + remaining + ", expected=" + expected + ", fp=" + in.getFilePointer(), in);
-            }
-        }
-
-        final int magic = in.readInt();
-
-        if (magic != FOOTER_MAGIC)
-        {
-            throw new CorruptIndexException("codec footer mismatch (file truncated?): actual footer=" + magic + " vs expected footer=" + FOOTER_MAGIC, in);
-        }
-
-        final int algorithmID = in.readInt();
-
-        if (algorithmID != 0)
-        {
-            throw new CorruptIndexException("codec footer mismatch: unknown algorithmID: " + algorithmID, in);
-        }
-    }
-
-
-    // Copied from Lucene CodecUtil as they are not public
-
-    /**
-     * Writes CRC32 value as a 64-bit long to the output.
-     * @throws IllegalStateException if CRC is formatted incorrectly (wrong bits set)
-     * @throws IOException if an i/o error occurs
-     */
-    static void writeCRC(IndexOutput output) throws IOException
-    {
-        long value = output.getChecksum();
-        if ((value & 0xFFFFFFFF00000000L) != 0)
-        {
-            throw new IllegalStateException("Illegal CRC-32 checksum: " + value + " (resource=" + output + ')');
-        }
-        output.writeLong(value);
-    }
-
-    /**
-     * Reads CRC32 value as a 64-bit long from the input.
-     * @throws CorruptIndexException if CRC is formatted incorrectly (wrong bits set)
-     * @throws IOException if an i/o error occurs
-     */
-    static long readCRC(IndexInput input) throws IOException
-    {
-        long value = input.readLong();
-        if ((value & 0xFFFFFFFF00000000L) != 0)
-        {
-            throw new CorruptIndexException("Illegal CRC-32 checksum: " + value, input);
-        }
-        return value;
     }
 
     // Copied from Lucene PackedInts as they are not public
@@ -229,6 +125,9 @@ public class SAICodecUtils
 
     public static int numBlocks(long size, int blockSize)
     {
+        if (size < 0)
+            throw new IllegalArgumentException("size cannot be negative");
+
         int numBlocks = (int)(size / (long)blockSize) + (size % (long)blockSize == 0L ? 0 : 1);
         if ((long)numBlocks * (long)blockSize < size)
         {
@@ -274,5 +173,93 @@ public class SAICodecUtils
         b = in.readByte();
         i |= (b & 0xFFL) << 56;
         return i;
+    }
+
+    public static void validateFooterAndResetPosition(IndexInput in) throws IOException
+    {
+        long position = in.getFilePointer();
+        long fileLength = in.length();
+        long footerLength = CodecUtil.footerLength();
+        long footerPosition = fileLength - footerLength;
+
+        if (footerPosition < 0)
+        {
+            throw new CorruptIndexException("invalid codec footer (file truncated?): file length=" + fileLength + ", footer length=" + footerLength, in);
+        }
+
+        in.seek(footerPosition);
+        validateFooter(in, false);
+        in.seek(position);
+    }
+
+    /**
+     * Copied from org.apache.lucene.codecs.CodecUtil.validateFooter(IndexInput).
+     *
+     * If the file is segmented then the footer can exist in the middle of the file
+     * so, we shouldn't check that the footer size is correct, we just check that the
+     * footer values are correct.
+     */
+    private static void validateFooter(IndexInput in, boolean segmented) throws IOException
+    {
+        long remaining = in.length() - in.getFilePointer();
+        long expected = CodecUtil.footerLength();
+
+        if (!segmented)
+        {
+            if (remaining < expected)
+            {
+                throw new CorruptIndexException("misplaced codec footer (file truncated?): remaining=" + remaining + ", expected=" + expected + ", fp=" + in.getFilePointer(), in);
+            }
+            else if (remaining > expected)
+            {
+                throw new CorruptIndexException("misplaced codec footer (file extended?): remaining=" + remaining + ", expected=" + expected + ", fp=" + in.getFilePointer(), in);
+            }
+        }
+
+        final int magic = in.readInt();
+
+        if (magic != FOOTER_MAGIC)
+        {
+            throw new CorruptIndexException("codec footer mismatch (file truncated?): actual footer=" + magic + " vs expected footer=" + FOOTER_MAGIC, in);
+        }
+
+        final int algorithmID = in.readInt();
+
+        if (algorithmID != 0)
+        {
+            throw new CorruptIndexException("codec footer mismatch: unknown algorithmID: " + algorithmID, in);
+        }
+    }
+
+    // Copied from Lucene CodecUtil as they are not public
+
+    /**
+     * Writes CRC32 value as a 64-bit long to the output.
+     * @throws IllegalStateException if CRC is formatted incorrectly (wrong bits set)
+     * @throws IOException if an i/o error occurs
+     */
+    private static void writeCRC(IndexOutput output) throws IOException
+    {
+        long value = output.getChecksum();
+        if ((value & 0xFFFFFFFF00000000L) != 0)
+        {
+            throw new IllegalStateException("Illegal CRC-32 checksum: " + value + " (resource=" + output + ')');
+        }
+        output.writeLong(value);
+    }
+
+    /**
+     * Reads CRC32 value as a 64-bit long from the input.
+     * @throws CorruptIndexException if CRC is formatted incorrectly (wrong bits set)
+     * @throws IOException if an i/o error occurs
+     */
+    private static long readCRC(IndexInput input) throws IOException
+    {
+        long value = input.readLong();
+        if ((value & 0xFFFFFFFF00000000L) != 0)
+        {
+            throw new CorruptIndexException("Illegal CRC-32 checksum: " + value, input);
+        }
+        return value;
     }
 }

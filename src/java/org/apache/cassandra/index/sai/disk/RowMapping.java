@@ -20,6 +20,8 @@ package org.apache.cassandra.index.sai.disk;
 import java.util.Collections;
 import java.util.Iterator;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.carrotsearch.hppc.LongArrayList;
 import org.apache.cassandra.db.compaction.OperationType;
 import org.apache.cassandra.db.rows.RangeTombstoneMarker;
@@ -36,7 +38,12 @@ import org.apache.cassandra.utils.bytecomparable.ByteComparable;
 /**
  * In memory representation of {@link PrimaryKey} to row ID mappings which only contains
  * {@link Row} regardless of whether it's live or deleted. ({@link RangeTombstoneMarker} is not included.)
+ *
+ * While this inherits the threading behaviour of {@link InMemoryTrie} of single-writer / multiple-reader,
+ * since it is only used by {@link StorageAttachedIndexWriter}, which is not threadsafe, we can consider
+ * this class not threadsafe as well.
  */
+@NotThreadSafe
 public class RowMapping
 {
     private static final InMemoryTrie.UpsertTransformer<Long, Long> OVERWRITE_TRANSFORMER = (existing, update) -> update;
@@ -61,7 +68,7 @@ public class RowMapping
 
     private final InMemoryTrie<Long> rowMapping = new InMemoryTrie<>(BufferType.OFF_HEAP);
 
-    private volatile boolean complete = false;
+    private boolean complete = false;
 
     public PrimaryKey minKey;
     public PrimaryKey maxKey;

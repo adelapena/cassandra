@@ -144,6 +144,12 @@ public abstract class SAITester extends CQLTester
 
     public static final PrimaryKey.Factory TEST_FACTORY = new PrimaryKey.Factory(EMPTY_COMPARATOR);
 
+    static
+    {
+        // Ensure that the on-disk format statics are loaded before the test run
+        Version.LATEST.onDiskFormat();
+    }
+
     @Rule
     public TestRule testRules = new ResourceLeakDetector();
 
@@ -329,14 +335,27 @@ public abstract class SAITester extends CQLTester
         waitForAssert(() -> assertTrue(indexNeedsFullRebuild(indexName)));
     }
 
-    protected boolean verifyChecksum(IndexContext context)
+    protected boolean verifyChecksum(IndexContext indexContext)
     {
         ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
 
         for (SSTableReader sstable : cfs.getLiveSSTables())
         {
             IndexDescriptor indexDescriptor = IndexDescriptor.create(sstable);
-            if (!indexDescriptor.validatePerSSTableComponentsChecksum() || !indexDescriptor.validatePerIndexComponentsChecksum(context))
+            if (!indexDescriptor.validatePerSSTableComponentsChecksum() || !indexDescriptor.validatePerIndexComponentsChecksum(indexContext))
+                return false;
+        }
+        return true;
+    }
+
+    protected boolean validateComponents(IndexContext indexContext)
+    {
+        ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
+
+        for (SSTableReader sstable : cfs.getLiveSSTables())
+        {
+            IndexDescriptor indexDescriptor = IndexDescriptor.create(sstable);
+            if (!indexDescriptor.validatePerSSTableComponents() || !indexDescriptor.validatePerIndexComponents(indexContext))
                 return false;
         }
         return true;

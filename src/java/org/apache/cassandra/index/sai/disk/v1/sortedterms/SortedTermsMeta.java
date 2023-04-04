@@ -39,14 +39,7 @@ public class SortedTermsMeta
         this.maxTermLength = input.readInt();
     }
 
-    public SortedTermsMeta(long trieFilePointer, long termCount, int maxTermLength)
-    {
-        this.trieFilePointer = trieFilePointer;
-        this.termCount = termCount;
-        this.maxTermLength = maxTermLength;
-    }
-
-    public void write(IndexOutput output) throws IOException
+    public static void write(IndexOutput output, long trieFilePointer, long termCount, int maxTermLength) throws IOException
     {
         output.writeLong(trieFilePointer);
         output.writeLong(termCount);
