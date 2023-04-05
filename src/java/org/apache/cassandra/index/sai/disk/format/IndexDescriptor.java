@@ -33,8 +33,8 @@ import org.apache.cassandra.db.lifecycle.LifecycleNewTracker;
 import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.SSTableContext;
 import org.apache.cassandra.index.sai.StorageAttachedIndex;
-import org.apache.cassandra.index.sai.disk.PerIndexWriter;
-import org.apache.cassandra.index.sai.disk.PerSSTableWriter;
+import org.apache.cassandra.index.sai.disk.PerColumnIndexWriter;
+import org.apache.cassandra.index.sai.disk.PerSSTableIndexWriter;
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
 import org.apache.cassandra.index.sai.disk.RowMapping;
 import org.apache.cassandra.index.sai.disk.SSTableIndex;
@@ -92,7 +92,7 @@ public class IndexDescriptor
                                                                   sstable.descriptor,
                                                                   sstable.metadata().comparator);
 
-            if (version.onDiskFormat().isPerSSTableBuildComplete(indexDescriptor))
+            if (version.onDiskFormat().isPerSSTableIndexBuildComplete(indexDescriptor))
             {
                 return indexDescriptor;
             }
@@ -117,26 +117,26 @@ public class IndexDescriptor
         return version.onDiskFormat().newSSTableIndex(sstableContext, indexContext);
     }
 
-    public PerSSTableWriter newPerSSTableWriter() throws IOException
+    public PerSSTableIndexWriter newPerSSTableIndexWriter() throws IOException
     {
-        return version.onDiskFormat().newPerSSTableWriter(this);
+        return version.onDiskFormat().newPerSSTableIndexWriter(this);
     }
 
-    public PerIndexWriter newPerIndexWriter(StorageAttachedIndex index,
-                                            LifecycleNewTracker tracker,
-                                            RowMapping rowMapping)
+    public PerColumnIndexWriter newPerColumnIndexWriter(StorageAttachedIndex index,
+                                                        LifecycleNewTracker tracker,
+                                                        RowMapping rowMapping)
     {
-        return version.onDiskFormat().newPerIndexWriter(index, this, tracker, rowMapping);
+        return version.onDiskFormat().newPerColumnIndexWriter(index, this, tracker, rowMapping);
     }
 
-    public boolean isPerSSTableBuildComplete()
+    public boolean isPerSSTableIndexBuildComplete()
     {
-        return version.onDiskFormat().isPerSSTableBuildComplete(this);
+        return version.onDiskFormat().isPerSSTableIndexBuildComplete(this);
     }
 
-    public boolean isPerIndexBuildComplete(IndexContext indexContext)
+    public boolean isPerColumnIndexBuildComplete(IndexContext indexContext)
     {
-        return version.onDiskFormat().isPerIndexBuildComplete(this, indexContext);
+        return version.onDiskFormat().isPerColumnIndexBuildComplete(this, indexContext);
     }
 
     public boolean hasComponent(IndexComponent indexComponent)
@@ -166,7 +166,7 @@ public class IndexDescriptor
         // the index and the number of per-index components is 1 indicating that only the
         // COLUMN_COMPLETION_MARKER exists for the index, as this is the only file that
         // will be written if the index is empty
-        return isPerIndexBuildComplete(indexContext) && numberOfPerIndexComponents(indexContext) == 1;
+        return isPerColumnIndexBuildComplete(indexContext) && numberOfPerIndexComponents(indexContext) == 1;
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -280,7 +280,7 @@ public class IndexDescriptor
     public Set<Component> getLivePerSSTableComponents()
     {
         return version.onDiskFormat()
-                      .perSSTableComponents()
+                      .perSSTableIndexComponents()
                       .stream()
                       .filter(c -> fileFor(c).exists())
                       .map(version::makePerSSTableComponent)
@@ -290,7 +290,7 @@ public class IndexDescriptor
     public Set<Component> getLivePerIndexComponents(IndexContext indexContext)
     {
         return version.onDiskFormat()
-                      .perIndexComponents(indexContext)
+                      .perColumnIndexComponents(indexContext)
                       .stream()
                       .filter(c -> fileFor(c, indexContext).exists())
                       .map(c -> version.makePerIndexComponent(c, indexContext))
@@ -300,7 +300,7 @@ public class IndexDescriptor
     public long sizeOnDiskOfPerSSTableComponents()
     {
         return version.onDiskFormat()
-                      .perSSTableComponents()
+                      .perSSTableIndexComponents()
                       .stream()
                       .map(this::fileFor)
                       .filter(File::exists)
@@ -311,7 +311,7 @@ public class IndexDescriptor
     public long sizeOnDiskOfPerIndexComponents(IndexContext indexContext)
     {
         return version.onDiskFormat()
-                      .perIndexComponents(indexContext)
+                      .perColumnIndexComponents(indexContext)
                       .stream()
                       .map(c -> fileFor(c, indexContext))
                       .filter(File::exists)
@@ -329,30 +329,30 @@ public class IndexDescriptor
     public boolean validatePerIndexComponents(IndexContext indexContext)
     {
         logger.info(indexContext.logMessage("Validating per-column index components"));
-        return version.onDiskFormat().validatePerIndexComponents(this, indexContext, false);
+        return version.onDiskFormat().validatePerColumnIndexComponents(this, indexContext, false);
     }
 
     @VisibleForTesting
     public boolean validatePerIndexComponentsChecksum(IndexContext indexContext)
     {
-        return version.onDiskFormat().validatePerIndexComponents(this, indexContext, true);
+        return version.onDiskFormat().validatePerColumnIndexComponents(this, indexContext, true);
     }
 
     public boolean validatePerSSTableComponents()
     {
-        return version.onDiskFormat().validatePerSSTableComponents(this, false);
+        return version.onDiskFormat().validatePerSSTableIndexComponents(this, false);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean validatePerSSTableComponentsChecksum()
     {
-        return version.onDiskFormat().validatePerSSTableComponents(this, true);
+        return version.onDiskFormat().validatePerSSTableIndexComponents(this, true);
     }
 
     public void deletePerSSTableIndexComponents()
     {
         version.onDiskFormat()
-               .perSSTableComponents()
+               .perSSTableIndexComponents()
                .stream()
                .map(this::fileFor)
                .filter(File::exists)
@@ -362,7 +362,7 @@ public class IndexDescriptor
     public void deleteColumnIndex(IndexContext indexContext)
     {
         version.onDiskFormat()
-               .perIndexComponents(indexContext)
+               .perColumnIndexComponents(indexContext)
                .stream()
                .map(c -> fileFor(c, indexContext))
                .filter(File::exists)
@@ -409,7 +409,7 @@ public class IndexDescriptor
     private long numberOfPerIndexComponents(IndexContext indexContext)
     {
         return version.onDiskFormat()
-                      .perIndexComponents(indexContext)
+                      .perColumnIndexComponents(indexContext)
                       .stream()
                       .map(c -> fileFor(c, indexContext))
                       .filter(File::exists)

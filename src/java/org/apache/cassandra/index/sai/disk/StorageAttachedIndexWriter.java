@@ -49,8 +49,8 @@ public class StorageAttachedIndexWriter implements SSTableFlushObserver
 
     private final IndexDescriptor indexDescriptor;
     private final Collection<StorageAttachedIndex> indexes;
-    private final Collection<PerIndexWriter> perIndexWriters;
-    private final PerSSTableWriter perSSTableWriter;
+    private final Collection<PerColumnIndexWriter> perIndexWriters;
+    private final PerSSTableIndexWriter perSSTableWriter;
     private final Stopwatch stopwatch = Stopwatch.createUnstarted();
     private final RowMapping rowMapping;
     private final boolean propagateErrors;
@@ -87,15 +87,15 @@ public class StorageAttachedIndexWriter implements SSTableFlushObserver
         this.indexes = indexes;
         this.rowMapping = RowMapping.create(lifecycleNewTracker.opType());
         this.propagateErrors = propagateErrors;
-        this.perIndexWriters = indexes.stream().map(index -> indexDescriptor.newPerIndexWriter(index,
-                                                                                               lifecycleNewTracker,
-                                                                                               rowMapping))
+        this.perIndexWriters = indexes.stream().map(index -> indexDescriptor.newPerColumnIndexWriter(index,
+                                                                                                     lifecycleNewTracker,
+                                                                                                     rowMapping))
                                       .filter(Objects::nonNull) // a null here means the column had no data to flush
                                       .collect(Collectors.toList());
 
         // If the SSTable components are already being built by another index build then we don't want
         // to build them again so use a null writer
-        this.perSSTableWriter = perIndexComponentsOnly ? PerSSTableWriter.NONE : indexDescriptor.newPerSSTableWriter();
+        this.perSSTableWriter = perIndexComponentsOnly ? PerSSTableIndexWriter.NONE : indexDescriptor.newPerSSTableIndexWriter();
     }
 
     @Override
@@ -176,7 +176,7 @@ public class StorageAttachedIndexWriter implements SSTableFlushObserver
 
             rowMapping.complete();
 
-            for (PerIndexWriter perIndexWriter : perIndexWriters)
+            for (PerColumnIndexWriter perIndexWriter : perIndexWriters)
             {
                 perIndexWriter.complete(stopwatch);
             }
@@ -216,7 +216,7 @@ public class StorageAttachedIndexWriter implements SSTableFlushObserver
         if (fromIndex)
             indexes.forEach(StorageAttachedIndex::makeIndexNonQueryable);
         
-        for (PerIndexWriter perIndexWriter : perIndexWriters)
+        for (PerColumnIndexWriter perIndexWriter : perIndexWriters)
         {
             try
             {
@@ -249,7 +249,7 @@ public class StorageAttachedIndexWriter implements SSTableFlushObserver
         perSSTableWriter.nextRow(primaryKey);
         rowMapping.add(primaryKey, sstableRowId);
 
-        for (PerIndexWriter w : perIndexWriters)
+        for (PerColumnIndexWriter w : perIndexWriters)
         {
             w.addRow(primaryKey, row, sstableRowId);
         }

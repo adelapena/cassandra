@@ -27,7 +27,7 @@ import org.apache.cassandra.index.sai.disk.v1.trie.TrieTermsDictionaryWriter;
 public enum IndexComponent
 {
     /**
-     * Stores per-index metadata.
+     * Metadata for per-column index components
      */
     META("Meta"),
 
@@ -70,7 +70,7 @@ public enum IndexComponent
     PRIMARY_KEY_BLOCK_OFFSETS("PrimaryKeyBlockOffsets"),
 
     /**
-     * Stores per-sstable metadata.
+     * Metadata for per-SSTable on-disk components.
      */
     GROUP_META("GroupMeta"),
 

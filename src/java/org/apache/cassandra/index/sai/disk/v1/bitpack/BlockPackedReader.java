@@ -68,12 +68,12 @@ public class BlockPackedReader implements LongArray.Factory
             for (int i = 0; i < numBlocks; ++i)
             {
                 final int token = in.readByte() & 0xFF;
-                final int bitsPerValue = token >>> AbstractBlockPackedWriter.BPV_SHIFT;
+                final int bitsPerValue = token >>> BlockPackedWriter.BPV_SHIFT;
                 if (bitsPerValue > 64)
                 {
                     throw new CorruptIndexException(String.format("Block %d is corrupted. Bits per value should be no more than 64 and is %d.", i, bitsPerValue), in);
                 }
-                if ((token & AbstractBlockPackedWriter.MIN_VALUE_EQUALS_0) == 0)
+                if ((token & BlockPackedWriter.MIN_VALUE_EQUALS_0) == 0)
                 {
                     long val = zigZagDecode(1L + readVLong(in));
                     minValues[i] = val;

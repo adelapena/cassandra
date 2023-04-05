@@ -32,17 +32,19 @@ import static org.apache.lucene.util.BitUtil.zigZagEncode;
  */
 public class BlockPackedWriter extends AbstractBlockPackedWriter
 {
+    static final int BPV_SHIFT = 1;
+    static final int MIN_VALUE_EQUALS_0 = 1;
+
     public BlockPackedWriter(IndexOutput out, int blockSize)
     {
         super(out, blockSize);
     }
 
     @Override
-    protected void flush() throws IOException
+    protected void flushBlock() throws IOException
     {
-        assert off > 0;
         long min = Long.MAX_VALUE, max = Long.MIN_VALUE;
-        for (int i = 0; i < off; ++i)
+        for (int i = 0; i < offset; ++i)
         {
             min = Math.min(values[i], min);
             max = Math.max(values[i], max);
@@ -56,8 +58,6 @@ public class BlockPackedWriter extends AbstractBlockPackedWriter
 
         if (min != 0)
         {
-            // TODO: the min values can be delta encoded since they are read linearly
-            // TODO: buffer the min values so they may be written as a single block
             writeVLong(blockMetaWriter, zigZagEncode(min) - 1);
         }
 
@@ -65,15 +65,13 @@ public class BlockPackedWriter extends AbstractBlockPackedWriter
         {
             if (min != 0)
             {
-                for (int i = 0; i < off; ++i)
+                for (int i = 0; i < offset; ++i)
                 {
                     values[i] -= min;
                 }
             }
-            blockMetaWriter.writeVLong(out.getFilePointer());
-            writeValues(off, bitsRequired);
+            blockMetaWriter.writeVLong(indexOutput.getFilePointer());
+            writeValues(offset, bitsRequired);
         }
-
-        off = 0;
     }
 }

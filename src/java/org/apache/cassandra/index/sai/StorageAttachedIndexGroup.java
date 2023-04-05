@@ -222,7 +222,7 @@ public class StorageAttachedIndexGroup implements Index.Group, INotificationCons
     static Set<Component> getComponents(Collection<StorageAttachedIndex> indices)
     {
         Set<Component> components = Version.LATEST.onDiskFormat()
-                                                  .perSSTableComponents()
+                                                  .perSSTableIndexComponents()
                                                   .stream()
                                                   .map(Version.LATEST::makePerSSTableComponent)
                                                   .collect(Collectors.toSet());

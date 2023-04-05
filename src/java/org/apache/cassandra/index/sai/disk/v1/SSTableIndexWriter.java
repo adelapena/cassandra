@@ -34,7 +34,7 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.analyzer.AbstractAnalyzer;
-import org.apache.cassandra.index.sai.disk.PerIndexWriter;
+import org.apache.cassandra.index.sai.disk.PerColumnIndexWriter;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.index.sai.disk.v1.segment.SegmentBuilder;
@@ -50,7 +50,7 @@ import org.apache.cassandra.utils.NoSpamLogger;
  * Column index writer that accumulates (on-heap) indexed data from a compacted SSTable as it's being flushed to disk.
  */
 @NotThreadSafe
-public class SSTableIndexWriter implements PerIndexWriter
+public class SSTableIndexWriter implements PerColumnIndexWriter
 {
     private static final Logger logger = LoggerFactory.getLogger(SSTableIndexWriter.class);
     private static final NoSpamLogger noSpamLogger = NoSpamLogger.getLogger(logger, 1, TimeUnit.MINUTES);

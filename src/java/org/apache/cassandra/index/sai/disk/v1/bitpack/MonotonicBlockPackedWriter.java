@@ -43,14 +43,12 @@ public class MonotonicBlockPackedWriter extends AbstractBlockPackedWriter
     }
 
     @Override
-    protected void flush() throws IOException
+    protected void flushBlock() throws IOException
     {
-        assert off > 0;
-
-        final float avg = off == 1 ? 0f : (float) (values[off - 1] - values[0]) / (off - 1);
+        final float avg = offset == 1 ? 0f : (float) (values[offset - 1] - values[0]) / (offset - 1);
         long min = values[0];
         // adjust min so that all deltas will be positive
-        for (int i = 1; i < off; ++i)
+        for (int i = 1; i < offset; ++i)
         {
             final long actual = values[i];
             final long expected = MonotonicBlockPackedReader.expected(min, avg, i);
@@ -61,7 +59,7 @@ public class MonotonicBlockPackedWriter extends AbstractBlockPackedWriter
         }
 
         long maxDelta = 0;
-        for (int i = 0; i < off; ++i)
+        for (int i = 0; i < offset; ++i)
         {
             values[i] = values[i] - MonotonicBlockPackedReader.expected(min, avg, i);
             maxDelta = Math.max(maxDelta, values[i]);
@@ -77,10 +75,8 @@ public class MonotonicBlockPackedWriter extends AbstractBlockPackedWriter
         {
             final int bitsRequired = DirectWriter.bitsRequired(maxDelta);
             blockMetaWriter.writeVInt(bitsRequired);
-            blockMetaWriter.writeVLong(out.getFilePointer());
-            writeValues(off, bitsRequired);
+            blockMetaWriter.writeVLong(indexOutput.getFilePointer());
+            writeValues(offset, bitsRequired);
         }
-
-        off = 0;
     }
 }

@@ -24,9 +24,9 @@ import org.apache.cassandra.index.sai.utils.PrimaryKey;
 /**
  * Writes all SSTable-attached index files. The files written are version specific.
  */
-public interface PerSSTableWriter
+public interface PerSSTableIndexWriter
 {
-    PerSSTableWriter NONE = (key) -> {};
+    PerSSTableIndexWriter NONE = (key) -> {};
 
     void nextRow(PrimaryKey primaryKey) throws IOException;
 

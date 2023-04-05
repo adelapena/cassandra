@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.cassandra.index.sai.disk.PerSSTableWriter;
+import org.apache.cassandra.index.sai.disk.PerSSTableIndexWriter;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
 import org.apache.cassandra.index.sai.disk.io.IndexOutputWriter;
@@ -32,7 +32,7 @@ import org.apache.cassandra.index.sai.disk.v1.sortedterms.SortedTermsWriter;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
 import org.apache.lucene.util.IOUtils;
 
-public class SSTableComponentsWriter implements PerSSTableWriter
+public class SSTableComponentsWriter implements PerSSTableIndexWriter
 {
     protected static final Logger logger = LoggerFactory.getLogger(SSTableComponentsWriter.class);
 

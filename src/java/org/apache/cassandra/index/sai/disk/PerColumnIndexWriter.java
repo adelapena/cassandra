@@ -27,7 +27,7 @@ import org.apache.cassandra.index.sai.utils.PrimaryKey;
 /**
  * Creates the on-disk components for a given column index.
  */
-public interface PerIndexWriter
+public interface PerColumnIndexWriter
 {
     /**
      * Adds a row to this index.

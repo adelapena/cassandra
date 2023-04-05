@@ -35,14 +35,7 @@ public class NumericValuesMeta
         blockMetaOffset = input.readVLong();
     }
 
-    public NumericValuesMeta(long valueCount, int blockSize, long blockMetaOffset)
-    {
-        this.valueCount = valueCount;
-        this.blockSize = blockSize;
-        this.blockMetaOffset = blockMetaOffset;
-    }
-
-    public void write(IndexOutput out) throws IOException
+    public static void write(IndexOutput out, long valueCount, int blockSize, long blockMetaOffset) throws IOException
     {
         out.writeLong(valueCount);
         out.writeInt(blockSize);

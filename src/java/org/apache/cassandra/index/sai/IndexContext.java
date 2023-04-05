@@ -233,7 +233,7 @@ public class IndexContext
      */
     public int openPerIndexFiles()
     {
-        return viewManager.getView().size() * Version.LATEST.onDiskFormat().openFilesPerIndex(this);
+        return viewManager.getView().size() * Version.LATEST.onDiskFormat().openFilesPerColumnIndex(this);
     }
 
     public void drop(Collection<SSTableReader> sstablesToRebuild)
@@ -416,7 +416,7 @@ public class IndexContext
             if (sstableContext.sstable.isMarkedCompacted())
                 continue;
 
-            if (!sstableContext.indexDescriptor.isPerIndexBuildComplete(this))
+            if (!sstableContext.indexDescriptor.isPerColumnIndexBuildComplete(this))
             {
                 logger.debug(logMessage("An on-disk index build for SSTable {} has not completed."), sstableContext.descriptor());
                 continue;

@@ -39,19 +39,13 @@ import static org.apache.cassandra.index.sai.disk.v1.sortedterms.SortedTermsWrit
 /**
  * Provides read access to a sorted on-disk sequence of terms written by {@link SortedTermsWriter}.
  * <p>
- * Offers the following features:
- * <ul>
- *     <li>forward iterating over all terms sequentially with a cursor</li>
- *     <li>constant-time look up of the term at a given point id</li>
- *     <li>log-time lookup of the point id of a term</li>
- * </ul>
+ * Allows constant-time look up of the term at a given point id.
  * <p>
  * Care has been taken to make this structure as efficient as possible.
  * Reading terms does not require allocating data heap buffers per each read operation.
  * Only one term at a time is loaded to memory.
  * Low complexity algorithms are used – a lookup of the term by point id is constant time,
  * and a lookup of the point id by the term is logarithmic.
- *
  * <p>
  * Because the blocks are prefix compressed, random access applies only to the locating the whole block.
  * In order to jump to a concrete term inside the block, the block terms are iterated from the block beginning.

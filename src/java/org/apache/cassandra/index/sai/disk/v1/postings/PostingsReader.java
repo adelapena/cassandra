@@ -49,13 +49,13 @@ public class PostingsReader implements OrdinalPostingList
     private final QueryEventListener.PostingListEventListener listener;
     private final BlocksSummary summary;
 
-    private int postingsBlockIdx;
-    private int blockIdx; // position in block
+    private int postingsBlockIndex;
+    private int blockIndex; // position in block
     private long totalPostingsRead;
-    private long actualSegmentRowId;
+    private long actualPosting;
 
     private long currentPosition;
-    private DirectReaders.Reader currentFORValues;
+    private DirectReaders.Reader currentFoRValues;
     private long postingsDecoded = 0;
 
     @VisibleForTesting
@@ -97,12 +97,12 @@ public class PostingsReader implements OrdinalPostingList
             //TODO This should need to change because we can potentially end up with postings of more than Integer.MAX_VALUE?
             this.numPostings = input.readVInt();
 
-            final SeekingRandomAccessInput randomAccessInput = new SeekingRandomAccessInput(input);
-            final int numBlocks = input.readVInt();
-            final long maxBlockValuesLength = input.readVLong();
-            final long maxBlockValuesOffset = input.getFilePointer() + maxBlockValuesLength;
+            SeekingRandomAccessInput randomAccessInput = new SeekingRandomAccessInput(input);
+            int numBlocks = input.readVInt();
+            long maxBlockValuesLength = input.readVLong();
+            long maxBlockValuesOffset = input.getFilePointer() + maxBlockValuesLength;
 
-            final byte offsetBitsPerValue = input.readByte();
+            byte offsetBitsPerValue = input.readByte();
             if (offsetBitsPerValue > 64)
             {
                 throw new CorruptIndexException(
@@ -111,7 +111,7 @@ public class PostingsReader implements OrdinalPostingList
             this.offsets = new LongArrayReader(randomAccessInput, DirectReaders.getReaderForBitsPerValue(offsetBitsPerValue), input.getFilePointer(), numBlocks);
 
             input.seek(maxBlockValuesOffset);
-            final byte valuesBitsPerValue = input.readByte();
+            byte valuesBitsPerValue = input.readByte();
             if (valuesBitsPerValue > 64)
             {
                 throw new CorruptIndexException(
@@ -193,7 +193,7 @@ public class PostingsReader implements OrdinalPostingList
             block = -block - 1;
         }
 
-        if (postingsBlockIdx == block + 1)
+        if (postingsBlockIndex == block + 1)
         {
             // we're in the same block, just iterate through
             return slowAdvance(targetRowID);
@@ -226,7 +226,7 @@ public class PostingsReader implements OrdinalPostingList
     // crossing blocks, the preceeding block index
     private int binarySearchBlocks(long targetRowID)
     {
-        int lowBlockIndex = postingsBlockIdx - 1;
+        int lowBlockIndex = postingsBlockIndex - 1;
         int highBlockIndex = Math.toIntExact(summary.maxValues.length()) - 1;
 
         // in current block
@@ -273,18 +273,18 @@ public class PostingsReader implements OrdinalPostingList
     private void lastPosInBlock(int block)
     {
         // blockMaxValues is integer only
-        actualSegmentRowId = summary.maxValues.get(block);
+        actualPosting = summary.maxValues.get(block);
         //upper bound, since we might've advanced to the last block, but upper bound is enough
-        totalPostingsRead += (summary.blockSize - blockIdx) + (block - postingsBlockIdx + 1) * (long)summary.blockSize;
+        totalPostingsRead += (summary.blockSize - blockIndex) + (block - postingsBlockIndex + 1) * (long)summary.blockSize;
 
-        postingsBlockIdx = block + 1;
-        blockIdx = summary.blockSize;
+        postingsBlockIndex = block + 1;
+        blockIndex = summary.blockSize;
     }
 
     @Override
     public long nextPosting() throws IOException
     {
-        final long next = peekNext();
+        long next = peekNext();
         if (next != END_OF_STREAM)
         {
             advanceOnePosition(next);
@@ -298,68 +298,63 @@ public class PostingsReader implements OrdinalPostingList
         {
             return END_OF_STREAM;
         }
-        if (blockIdx == summary.blockSize)
+        if (blockIndex == summary.blockSize)
         {
             reBuffer();
         }
 
-        return actualSegmentRowId + nextRowID();
+        return actualPosting + nextFoRValue();
     }
 
-    private int nextRowID()
+    private int nextFoRValue()
     {
-        // currentFORValues is null when the all the values in the block are the same
-        if (currentFORValues == null)
+        // currentFoRValues is null when the all the values in the block are the same
+        if (currentFoRValues == null)
         {
             return 0;
         }
         else
         {
-            final long id = currentFORValues.get(seekingInput, currentPosition, blockIdx);
+            long id = currentFoRValues.get(seekingInput, currentPosition, blockIndex);
             postingsDecoded++;
             return Math.toIntExact(id);
         }
     }
 
-    private void advanceOnePosition(long nextRowID)
+    private void advanceOnePosition(long nextPosting)
     {
-        actualSegmentRowId = nextRowID;
+        actualPosting = nextPosting;
         totalPostingsRead++;
-        blockIdx++;
+        blockIndex++;
     }
 
     private void reBuffer() throws IOException
     {
-        final long pointer = summary.offsets.get(postingsBlockIdx);
+        long pointer = summary.offsets.get(postingsBlockIndex);
 
         input.seek(pointer);
 
-        final long left = summary.numPostings - totalPostingsRead;
+        long left = summary.numPostings - totalPostingsRead;
         assert left > 0;
 
         readFoRBlock(input);
 
-        postingsBlockIdx++;
-        blockIdx = 0;
+        postingsBlockIndex++;
+        blockIndex = 0;
     }
 
     private void readFoRBlock(IndexInput in) throws IOException
     {
-        final byte bitsPerValue = in.readByte();
+        byte bitsPerValue = in.readByte();
 
         currentPosition = in.getFilePointer();
 
         if (bitsPerValue == 0)
         {
             // currentFORValues is null when the all the values in the block are the same
-            currentFORValues = null;
+            currentFoRValues = null;
             return;
         }
-        else if (bitsPerValue > 64)
-        {
-            throw new CorruptIndexException(
-                    String.format("Postings list #%s block is corrupted. Bits per value should be no more than 64 and is %d.", postingsBlockIdx, bitsPerValue), input);
-        }
-        currentFORValues = DirectReaders.getReaderForBitsPerValue(bitsPerValue);
+        currentFoRValues = DirectReaders.getReaderForBitsPerValue(bitsPerValue);
     }
 }

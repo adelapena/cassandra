@@ -33,31 +33,22 @@ public abstract class AbstractBlockPackedWriter
 {
     static final int MIN_BLOCK_SIZE = 64;
     static final int MAX_BLOCK_SIZE = 1 << (30 - 3);
-    static final int MIN_VALUE_EQUALS_0 = 1;
-    static final int BPV_SHIFT = 1;
 
-    protected final IndexOutput out;
+    protected final IndexOutput indexOutput;
     protected final long[] values;
-    protected int off;
+    protected int offset;
     protected boolean finished;
     
     final RAMIndexOutput blockMetaWriter;
 
-    AbstractBlockPackedWriter(IndexOutput out, int blockSize)
+    AbstractBlockPackedWriter(IndexOutput indexOutput, int blockSize)
     {
         checkBlockSize(blockSize, MIN_BLOCK_SIZE, MAX_BLOCK_SIZE);
-        this.out = out;
+        this.indexOutput = indexOutput;
         this.blockMetaWriter = new RAMIndexOutput("NumericValuesMeta");
         values = new long[blockSize];
     }
 
-    private void checkNotFinished()
-    {
-        if (finished)
-        {
-            throw new IllegalStateException(String.format("[%s] Writer already finished!", out.getName()));
-        }
-    }
 
     /**
      * Append a new long.
@@ -65,13 +56,12 @@ public abstract class AbstractBlockPackedWriter
     public void add(long l) throws IOException
     {
         checkNotFinished();
-        if (off == values.length)
+        if (offset == values.length)
         {
             flush();
         }
-        values[off++] = l;
+        values[offset++] = l;
     }
-
 
     /**
      * Flush all buffered data to disk. This instance is not usable anymore
@@ -82,21 +72,22 @@ public abstract class AbstractBlockPackedWriter
     public long finish() throws IOException
     {
         checkNotFinished();
-        if (off > 0)
+        if (offset > 0)
         {
             flush();
         }
-        final long fp = out.getFilePointer();
-        blockMetaWriter.writeTo(out);
+        final long fp = indexOutput.getFilePointer();
+        blockMetaWriter.writeTo(indexOutput);
         finished = true;
         return fp;
     }
 
-    protected abstract void flush() throws IOException;
+    protected abstract void flushBlock() throws IOException;
+
 
     void writeValues(int numValues, int bitsPerValue) throws IOException
     {
-        final DirectWriter writer = DirectWriter.getInstance(out, numValues, bitsPerValue);
+        final DirectWriter writer = DirectWriter.getInstance(indexOutput, numValues, bitsPerValue);
         for (int i = 0; i < numValues; ++i)
         {
             writer.add(values[i]);
@@ -113,5 +104,19 @@ public abstract class AbstractBlockPackedWriter
             i >>>= 7;
         }
         out.writeByte((byte) i);
+    }
+
+    private void flush() throws IOException
+    {
+        flushBlock();
+        offset = 0;
+    }
+
+    private void checkNotFinished()
+    {
+        if (finished)
+        {
+            throw new IllegalStateException(String.format("[%s] Writer already finished!", indexOutput.getName()));
+        }
     }
 }

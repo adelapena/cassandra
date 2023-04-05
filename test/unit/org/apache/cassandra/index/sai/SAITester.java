@@ -517,7 +517,7 @@ public abstract class SAITester extends CQLTester
     {
         Set<File> indexFiles = indexFiles();
 
-        for (IndexComponent indexComponent : Version.LATEST.onDiskFormat().perSSTableComponents())
+        for (IndexComponent indexComponent : Version.LATEST.onDiskFormat().perSSTableIndexComponents())
         {
             Set<File> tableFiles = componentFiles(indexFiles, SSTableFormat.Components.Types.CUSTOM.createComponent(Version.LATEST.fileNameFormatter().format(indexComponent, null)));
             assertEquals(tableFiles.toString(), perSSTableFiles, tableFiles.size());
@@ -525,7 +525,7 @@ public abstract class SAITester extends CQLTester
 
         if (literalIndexContext != null)
         {
-            for (IndexComponent indexComponent : Version.LATEST.onDiskFormat().perIndexComponents(literalIndexContext))
+            for (IndexComponent indexComponent : Version.LATEST.onDiskFormat().perColumnIndexComponents(literalIndexContext))
             {
                 Set<File> stringIndexFiles = componentFiles(indexFiles,
                                                             SSTableFormat.Components.Types.CUSTOM.createComponent(Version.LATEST.fileNameFormatter().format(indexComponent,

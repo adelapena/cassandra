@@ -60,8 +60,8 @@ public class IndexGroupMetricsTest extends AbstractMetricsTest
 
         // with 10 sstable
         int indexopenFileCountWithOnlyNumeric = getOpenIndexFiles();
-        assertEquals(sstables * (Version.LATEST.onDiskFormat().openFilesPerSSTable() +
-                                 Version.LATEST.onDiskFormat().openFilesPerIndex(v1IndexContext)),
+        assertEquals(sstables * (Version.LATEST.onDiskFormat().openFilesPerSSTableIndex() +
+                                 Version.LATEST.onDiskFormat().openFilesPerColumnIndex(v1IndexContext)),
                      indexopenFileCountWithOnlyNumeric);
 
         long diskUsageWithOnlyNumeric = getDiskUsage();
@@ -70,8 +70,8 @@ public class IndexGroupMetricsTest extends AbstractMetricsTest
         // compaction should reduce open files
         compact();
 
-        assertEquals(Version.LATEST.onDiskFormat().openFilesPerSSTable() +
-                     Version.LATEST.onDiskFormat().openFilesPerIndex(v1IndexContext),
+        assertEquals(Version.LATEST.onDiskFormat().openFilesPerSSTableIndex() +
+                     Version.LATEST.onDiskFormat().openFilesPerColumnIndex(v1IndexContext),
                      getOpenIndexFiles());
 
         // drop last index, no open index files

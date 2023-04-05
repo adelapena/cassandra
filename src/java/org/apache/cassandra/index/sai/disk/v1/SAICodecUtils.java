@@ -93,13 +93,7 @@ public class SAICodecUtils
 
     public static void validateChecksum(IndexInput input) throws IOException
     {
-        long position = input.getFilePointer();
-        long expected = CodecUtil.retrieveChecksum(input);
-
-        input.seek(position);
-        long actual = CodecUtil.checksumEntireFile(input);
-        if (expected != actual)
-            throw new CorruptIndexException("checksum failed (hardware problem?) : expected=" + Long.toHexString(expected) + " actual=" + Long.toHexString(actual), input);
+        CodecUtil.checksumEntireFile(input);
     }
 
     // Copied from Lucene PackedInts as they are not public

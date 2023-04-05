@@ -32,8 +32,8 @@ import org.apache.cassandra.db.lifecycle.LifecycleNewTracker;
 import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.SSTableContext;
 import org.apache.cassandra.index.sai.StorageAttachedIndex;
-import org.apache.cassandra.index.sai.disk.PerIndexWriter;
-import org.apache.cassandra.index.sai.disk.PerSSTableWriter;
+import org.apache.cassandra.index.sai.disk.PerColumnIndexWriter;
+import org.apache.cassandra.index.sai.disk.PerSSTableIndexWriter;
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
 import org.apache.cassandra.index.sai.disk.RowMapping;
 import org.apache.cassandra.index.sai.disk.SSTableIndex;
@@ -112,16 +112,16 @@ public class V1OnDiskFormat implements OnDiskFormat
     }
 
     @Override
-    public PerSSTableWriter newPerSSTableWriter(IndexDescriptor indexDescriptor) throws IOException
+    public PerSSTableIndexWriter newPerSSTableIndexWriter(IndexDescriptor indexDescriptor) throws IOException
     {
         return new SSTableComponentsWriter(indexDescriptor);
     }
 
     @Override
-    public PerIndexWriter newPerIndexWriter(StorageAttachedIndex index,
-                                            IndexDescriptor indexDescriptor,
-                                            LifecycleNewTracker tracker,
-                                            RowMapping rowMapping)
+    public PerColumnIndexWriter newPerColumnIndexWriter(StorageAttachedIndex index,
+                                                        IndexDescriptor indexDescriptor,
+                                                        LifecycleNewTracker tracker,
+                                                        RowMapping rowMapping)
     {
         // If we're not flushing, or we haven't yet started the initialization build, flush from SSTable contents.
         if (tracker.opType() != OperationType.FLUSH || !index.isInitBuildStarted())
@@ -140,22 +140,22 @@ public class V1OnDiskFormat implements OnDiskFormat
     }
 
     @Override
-    public boolean isPerSSTableBuildComplete(IndexDescriptor indexDescriptor)
+    public boolean isPerSSTableIndexBuildComplete(IndexDescriptor indexDescriptor)
     {
         return indexDescriptor.hasComponent(IndexComponent.GROUP_COMPLETION_MARKER);
     }
 
     @Override
-    public boolean isPerIndexBuildComplete(IndexDescriptor indexDescriptor, IndexContext indexContext)
+    public boolean isPerColumnIndexBuildComplete(IndexDescriptor indexDescriptor, IndexContext indexContext)
     {
         return indexDescriptor.hasComponent(IndexComponent.GROUP_COMPLETION_MARKER) &&
                indexDescriptor.hasComponent(IndexComponent.COLUMN_COMPLETION_MARKER, indexContext);
     }
 
     @Override
-    public boolean validatePerSSTableComponents(IndexDescriptor indexDescriptor, boolean checksum)
+    public boolean validatePerSSTableIndexComponents(IndexDescriptor indexDescriptor, boolean checksum)
     {
-        for (IndexComponent indexComponent : perSSTableComponents())
+        for (IndexComponent indexComponent : perSSTableIndexComponents())
         {
             if (isNotBuildCompletionMarker(indexComponent))
             {
@@ -183,9 +183,9 @@ public class V1OnDiskFormat implements OnDiskFormat
     }
 
     @Override
-    public boolean validatePerIndexComponents(IndexDescriptor indexDescriptor, IndexContext indexContext, boolean checksum)
+    public boolean validatePerColumnIndexComponents(IndexDescriptor indexDescriptor, IndexContext indexContext, boolean checksum)
     {
-        for (IndexComponent indexComponent : perIndexComponents(indexContext))
+        for (IndexComponent indexComponent : perColumnIndexComponents(indexContext))
         {
             if (isNotBuildCompletionMarker(indexComponent))
             {
@@ -213,19 +213,19 @@ public class V1OnDiskFormat implements OnDiskFormat
     }
 
     @Override
-    public Set<IndexComponent> perSSTableComponents()
+    public Set<IndexComponent> perSSTableIndexComponents()
     {
         return PER_SSTABLE_COMPONENTS;
     }
 
     @Override
-    public Set<IndexComponent> perIndexComponents(IndexContext indexContext)
+    public Set<IndexComponent> perColumnIndexComponents(IndexContext indexContext)
     {
         return LITERAL_COMPONENTS;
     }
 
     @Override
-    public int openFilesPerSSTable()
+    public int openFilesPerSSTableIndex()
     {
         // For the V1 format there are always 4 open files per SSTable - token values, primary key trie,
         // primary key blocks, primary key block offsets
@@ -233,7 +233,7 @@ public class V1OnDiskFormat implements OnDiskFormat
     }
 
     @Override
-    public int openFilesPerIndex(IndexContext indexContext)
+    public int openFilesPerColumnIndex(IndexContext indexContext)
     {
         // For the V1 format there are always 2 open files per index - index (kdtree or terms) + postings
         return 2;

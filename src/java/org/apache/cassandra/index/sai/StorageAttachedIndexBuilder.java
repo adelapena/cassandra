@@ -260,7 +260,7 @@ public class StorageAttachedIndexBuilder extends SecondaryIndexBuilder
     {
         // if per-table files are incomplete or checksum failed during full rebuild.
         IndexDescriptor indexDescriptor = IndexDescriptor.create(sstable);
-        if (!indexDescriptor.isPerSSTableBuildComplete() ||
+        if (!indexDescriptor.isPerSSTableIndexBuildComplete() ||
             (isFullRebuild && !indexDescriptor.validatePerSSTableComponentsChecksum()))
         {
             CountDownLatch latch = CountDownLatch.newCountDownLatch(1);

@@ -618,10 +618,10 @@ public class StorageAttachedIndexDDLTest extends SAITester
     {
         IndexContext LiteralIndexContext = createIndexContext(literalIndexName, UTF8Type.instance);
 
-        for (IndexComponent component : Version.LATEST.onDiskFormat().perSSTableComponents())
+        for (IndexComponent component : Version.LATEST.onDiskFormat().perSSTableIndexComponents())
             verifyRebuildIndexComponent(LiteralIndexContext, component, null, corruptionType, rebuild);
 
-        for (IndexComponent component : Version.LATEST.onDiskFormat().perIndexComponents(LiteralIndexContext))
+        for (IndexComponent component : Version.LATEST.onDiskFormat().perColumnIndexComponents(LiteralIndexContext))
             verifyRebuildIndexComponent(LiteralIndexContext, component, LiteralIndexContext, corruptionType, rebuild);
     }
 
@@ -682,7 +682,7 @@ public class StorageAttachedIndexDDLTest extends SAITester
             reloadSSTableIndex();
 
             // Verify the index cannot be read:
-            verifySSTableIndexes(literalIndexContext.getIndexName(), Version.LATEST.onDiskFormat().perSSTableComponents().contains(component) ? 0 : 1, 0);
+            verifySSTableIndexes(literalIndexContext.getIndexName(), Version.LATEST.onDiskFormat().perSSTableIndexComponents().contains(component) ? 0 : 1, 0);
 
             try
             {

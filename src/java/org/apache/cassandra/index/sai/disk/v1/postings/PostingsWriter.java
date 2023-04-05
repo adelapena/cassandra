@@ -26,6 +26,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import org.agrona.collections.LongArrayList;
 import org.apache.cassandra.index.sai.IndexContext;
+import org.apache.cassandra.index.sai.disk.v1.DirectReaders;
 import org.apache.cassandra.index.sai.postings.PostingList;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
@@ -42,7 +43,7 @@ import static org.apache.lucene.codecs.lucene50.Lucene50PostingsFormat.BLOCK_SIZ
 /**
  * Encodes, compresses and writes postings lists to disk.
  *
- * All row IDs in the posting list are delta encoded, then deltas are divided into blocks for compression.
+ * All postings in the posting list are delta encoded, then deltas are divided into blocks for compression.
  * <p>
  * In packed blocks, longs are encoded with the same bit width (FoR compression). The block size (i.e. number of
  * longs inside block) is fixed (currently 128). Additionally blocks that are all the same value are encoded in an
@@ -54,7 +55,7 @@ import static org.apache.lucene.codecs.lucene50.Lucene50PostingsFormat.BLOCK_SIZ
  *
  * <p>
  * Packed blocks are favoured, meaning when the postings are long enough, {@link PostingsWriter} will try
- * to encode most data as a packed block. Take a term with 259 row IDs as an example, the first 256 IDs are encoded
+ * to encode most data as a packed block. Take a term with 259 postings as an example, the first 256 postings are encoded
  * as two packed blocks, while the remaining 3 are encoded as one VLong block.
  * </p>
  * <p>
@@ -95,7 +96,7 @@ public class PostingsWriter implements Closeable
     private final long startOffset;
 
     private int bufferUpto;
-    private long lastSegmentRowId;
+    private long lastPosting;
     private long maxDelta;
     private long totalPostings;
 
@@ -165,13 +166,13 @@ public class PostingsWriter implements Closeable
         blockOffsets.clear();
         blockMaxIDs.clear();
 
-        long segmentRowId;
+        long posting;
         // When postings list are merged, we don't know exact size, just an upper bound.
         // We need to count how many postings we added to the block ourselves.
         int size = 0;
-        while ((segmentRowId = postings.nextPosting()) != PostingList.END_OF_STREAM)
+        while ((posting = postings.nextPosting()) != PostingList.END_OF_STREAM)
         {
-            writePosting(segmentRowId);
+            writePosting(posting);
             size++;
             totalPostings++;
         }
@@ -190,29 +191,29 @@ public class PostingsWriter implements Closeable
         return totalPostings;
     }
 
-    private void writePosting(long segmentRowId) throws IOException
+    private void writePosting(long posting) throws IOException
     {
-        if (!(segmentRowId >= lastSegmentRowId || lastSegmentRowId == 0))
-            throw new IllegalArgumentException(String.format(POSTINGS_MUST_BE_SORTED_ERROR_MSG, segmentRowId, lastSegmentRowId));
+        if (posting < lastPosting && lastPosting != 0)
+            throw new IllegalArgumentException(String.format(POSTINGS_MUST_BE_SORTED_ERROR_MSG, posting, lastPosting));
 
-        final long delta = segmentRowId - lastSegmentRowId;
+        final long delta = posting - lastPosting;
         maxDelta = max(maxDelta, delta);
         deltaBuffer[bufferUpto++] = delta;
 
         if (bufferUpto == blockSize)
         {
-            addBlockToSkipTable(segmentRowId);
+            addBlockToSkipTable(posting);
             writePostingsBlock(maxDelta, bufferUpto);
             resetBlockCounters();
         }
-        lastSegmentRowId = segmentRowId;
+        lastPosting = posting;
     }
 
     private void finish() throws IOException
     {
         if (bufferUpto > 0)
         {
-            addBlockToSkipTable(lastSegmentRowId);
+            addBlockToSkipTable(lastPosting);
 
             writePostingsBlock(maxDelta, bufferUpto);
         }
@@ -221,7 +222,7 @@ public class PostingsWriter implements Closeable
     private void resetBlockCounters()
     {
         bufferUpto = 0;
-        lastSegmentRowId = 0;
+        lastPosting = 0;
         maxDelta = 0;
     }
 
@@ -256,7 +257,7 @@ public class PostingsWriter implements Closeable
     {
         final int bitsPerValue = maxDelta == 0 ? 0 : DirectWriter.unsignedBitsRequired(maxDelta);
 
-        assert bitsPerValue < Byte.MAX_VALUE;
+        assert DirectReaders.SUPPORTED_BITS_PER_VALUE.contains(bitsPerValue);
 
         dataOutput.writeByte((byte) bitsPerValue);
         if (bitsPerValue > 0)

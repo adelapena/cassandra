@@ -84,8 +84,7 @@ public class NumericValuesWriter implements Closeable
             long fp = writer.finish();
             SAICodecUtils.writeFooter(output);
 
-            NumericValuesMeta meta = new NumericValuesMeta(count, blockSize, fp);
-            meta.write(o);
+            NumericValuesMeta.write(o, count, blockSize, fp);
         }
         finally
         {

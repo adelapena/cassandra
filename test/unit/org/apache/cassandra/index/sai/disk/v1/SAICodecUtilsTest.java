@@ -48,7 +48,7 @@ public class SAICodecUtilsTest extends SAIRandomizedTester
     }
 
     @Test
-    public void checkHeaderDoesNotFaileWithValidHeader() throws Exception
+    public void checkHeaderDoesNotFailWithValidHeader() throws Exception
     {
         try (IndexOutputWriter writer = IndexFileUtils.instance.openOutput(file))
         {
@@ -285,6 +285,58 @@ public class SAICodecUtilsTest extends SAIRandomizedTester
             assertThatThrownBy(() -> SAICodecUtils.validateFooterAndResetPosition(input))
             .isInstanceOf(CorruptIndexException.class)
             .hasMessageContaining("invalid codec footer (file truncated?): file length=7, footer length=16 ");
+        }
+    }
+
+    @Test
+    public void validateChecksumFailsWithInvalidChecksum() throws Exception
+    {
+        int numBytes = nextInt(1000, 10000);
+        try (IndexOutputWriter writer = IndexFileUtils.instance.openOutput(file))
+        {
+            SAICodecUtils.writeHeader(writer);
+            for (int value = 0; value < numBytes; value++)
+                writer.writeByte(getRandom().nextByte());
+
+            writer.writeInt(FOOTER_MAGIC);
+            writer.writeInt(0);
+            writer.writeLong(0);
+        }
+
+        try (IndexInput input = IndexFileUtils.instance.openBlockingInput(file))
+        {
+            SAICodecUtils.checkHeader(input);
+            for (int value = 0; value < numBytes; value++)
+                input.readByte();
+            assertThatThrownBy(() -> SAICodecUtils.validateChecksum(input))
+            .isInstanceOf(CorruptIndexException.class)
+            .hasMessageContaining("checksum failed (hardware problem?) : expected=0 actual=");
+        }
+    }
+
+    @Test
+    public void validateChecksumFailsWithIllegalChecksum() throws Exception
+    {
+        int numBytes = nextInt(1000, 10000);
+        try (IndexOutputWriter writer = IndexFileUtils.instance.openOutput(file))
+        {
+            SAICodecUtils.writeHeader(writer);
+            for (int value = 0; value < numBytes; value++)
+                writer.writeByte(getRandom().nextByte());
+
+            writer.writeInt(FOOTER_MAGIC);
+            writer.writeInt(0);
+            writer.writeLong(0xFFFFFFFF00000000L);
+        }
+
+        try (IndexInput input = IndexFileUtils.instance.openBlockingInput(file))
+        {
+            SAICodecUtils.checkHeader(input);
+            for (int value = 0; value < numBytes; value++)
+                input.readByte();
+            assertThatThrownBy(() -> SAICodecUtils.validateChecksum(input))
+            .isInstanceOf(CorruptIndexException.class)
+            .hasMessageContaining("Illegal CRC-32 checksum: -4294967296 ");
         }
     }
 

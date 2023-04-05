@@ -31,7 +31,7 @@ import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.index.sai.IndexContext;
-import org.apache.cassandra.index.sai.disk.PerIndexWriter;
+import org.apache.cassandra.index.sai.disk.PerColumnIndexWriter;
 import org.apache.cassandra.index.sai.disk.RowMapping;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
@@ -48,7 +48,7 @@ import org.apache.cassandra.utils.bytecomparable.ByteComparable;
  * Column index writer that flushes indexed data directly from the corresponding Memtable index, without buffering index
  * data in memory.
  */
-public class MemtableIndexWriter implements PerIndexWriter
+public class MemtableIndexWriter implements PerColumnIndexWriter
 {
     private static final Logger logger = LoggerFactory.getLogger(MemtableIndexWriter.class);
 
