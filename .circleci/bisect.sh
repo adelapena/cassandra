@@ -92,7 +92,7 @@ git checkout $tested_commit
 git branch -D $branch
 
 # Prepare GitHub API URL
-repo=`git config remote.${remote}.url | sed -e 's/.*://'` | sed -e 's/\.git//g'
+repo=`git config remote.${remote}.url | sed -e 's/.*://' | sed -e 's/\.git//g'`
 url="https://api.github.com/repos/$repo/commits/$commit/status"
 
 # Do some initial wait giving CircleCI time to start the workflows
