@@ -71,7 +71,6 @@ public class PostingsReader implements OrdinalPostingList
         this.input = input;
         this.seekingInput = new SeekingRandomAccessInput(input);
         this.listener = listener;
-
         this.summary = summary;
 
         reBuffer();
@@ -105,7 +104,7 @@ public class PostingsReader implements OrdinalPostingList
             long maxBlockValuesOffset = input.getFilePointer() + maxBlockValuesLength;
 
             byte offsetBitsPerValue = input.readByte();
-            if (offsetBitsPerValue > 64)
+            if (!DirectReaders.SUPPORTED_BITS_PER_VALUE.contains((int)offsetBitsPerValue))
             {
                 throw new CorruptIndexException(
                         String.format("Postings list header is corrupted: Bits per value for block offsets must be no more than 64 and is %d.", offsetBitsPerValue), input);
@@ -114,7 +113,7 @@ public class PostingsReader implements OrdinalPostingList
 
             input.seek(maxBlockValuesOffset);
             byte valuesBitsPerValue = input.readByte();
-            if (valuesBitsPerValue > 64)
+            if (!DirectReaders.SUPPORTED_BITS_PER_VALUE.contains((int)valuesBitsPerValue))
             {
                 throw new CorruptIndexException(
                         String.format("Postings list header is corrupted: Bits per value for values samples must be no more than 64 and is %d.", valuesBitsPerValue), input);
@@ -347,6 +346,9 @@ public class PostingsReader implements OrdinalPostingList
 
     private void readFoRBlock(IndexInput in) throws IOException
     {
+        if (blockIndex == 0)
+            actualPosting = in.readVLong();
+
         byte bitsPerValue = in.readByte();
 
         currentPosition = in.getFilePointer();

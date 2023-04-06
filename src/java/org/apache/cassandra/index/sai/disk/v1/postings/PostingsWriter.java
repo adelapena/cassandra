@@ -45,6 +45,8 @@ import static org.apache.lucene.codecs.lucene50.Lucene50PostingsFormat.BLOCK_SIZ
  * Encodes, compresses and writes postings lists to disk.
  *
  * All postings in the posting list are delta encoded, then deltas are divided into blocks for compression.
+ * The deltas are based on the final value of the previous block. For the first block in the posting list
+ * the first value in the block is written as a VLong prior to block delta encodings.
  * <p>
  * In packed blocks, longs are encoded with the same bit width (FoR compression). The block size (i.e. number of
  * longs inside block) is fixed (currently 128). Additionally blocks that are all the same value are encoded in an
@@ -68,17 +70,17 @@ import static org.apache.lucene.codecs.lucene50.Lucene50PostingsFormat.BLOCK_SIZ
  * Visual representation of the disk format:
  * <pre>
  *
- * +========+========================+=====+==============+===============+============+=====+========================+========+
- * | HEADER | POSTINGS LIST (TERM 1)                                                   | ... | POSTINGS LIST (TERM N) | FOOTER |
- * +========+========================+=====+==============+===============+============+=====+========================+========+
- *          | FOR BLOCK (1)          | ... | FOR BLOCK (N)| BLOCK SUMMARY              |
- *          +------------------------+-----+--------------+---------------+------------+
- *                                                        | BLOCK SIZE    |            |
- *                                                        | LIST SIZE     | SKIP TABLE |
- *                                                        +---------------+------------+
- *                                                                        | BLOCKS POS.|
- *                                                                        | MAX VALUES |
- *                                                                        +------------+
+ * +========+========================+=====+==============+===============+===============+=====+========================+========+
+ * | HEADER | POSTINGS LIST (TERM 1)                                                      | ... | POSTINGS LIST (TERM N) | FOOTER |
+ * +========+========================+=====+==============+===============+===============+=====+========================+========+
+ *          | FIRST VALUE| FOR BLOCK (1)| ... | FOR BLOCK (N)| BLOCK SUMMARY              |
+ *          +---------------------------+-----+--------------+---------------+------------+
+ *                                                           | BLOCK SIZE    |            |
+ *                                                           | LIST SIZE     | SKIP TABLE |
+ *                                                           +---------------+------------+
+ *                                                                           | BLOCKS POS.|
+ *                                                                           | MAX VALUES |
+ *                                                                           +------------+
  *
  *  </pre>
  */
@@ -91,13 +93,14 @@ public class PostingsWriter implements Closeable
     private final int blockSize;
     private final long[] deltaBuffer;
     private final LongArrayList blockOffsets = new LongArrayList();
-    private final LongArrayList blockMaxIDs = new LongArrayList();
+    private final LongArrayList blockMaximumPostings = new LongArrayList();
     private final RAMIndexOutput inMemoryOutput = new RAMIndexOutput("blockOffsets");
 
     private final long startOffset;
 
     private int bufferUpto;
-    private long lastPosting;
+    private long firstPosting = Long.MIN_VALUE;
+    private long lastPosting = Long.MIN_VALUE;
     private long maxDelta;
     private long totalPostings;
 
@@ -163,9 +166,10 @@ public class PostingsWriter implements Closeable
         checkArgument(postings != null, "Expected non-null posting list.");
         checkArgument(postings.size() > 0, "Expected non-empty posting list.");
 
+        lastPosting = Long.MIN_VALUE;
         resetBlockCounters();
         blockOffsets.clear();
-        blockMaxIDs.clear();
+        blockMaximumPostings.clear();
 
         long posting;
         // When postings list are merged, we don't know exact size, just an upper bound.
@@ -194,43 +198,49 @@ public class PostingsWriter implements Closeable
 
     private void writePosting(long posting) throws IOException
     {
-        if (posting < lastPosting && lastPosting != 0)
-            throw new IllegalArgumentException(String.format(POSTINGS_MUST_BE_SORTED_ERROR_MSG, posting, lastPosting));
-
-        final long delta = posting - lastPosting;
-        maxDelta = max(maxDelta, delta);
-        deltaBuffer[bufferUpto++] = delta;
+        if (lastPosting == Long.MIN_VALUE)
+        {
+            firstPosting = posting;
+            deltaBuffer[bufferUpto++] = 0;
+        }
+        else
+        {
+            if (posting < lastPosting)
+                throw new IllegalArgumentException(String.format(POSTINGS_MUST_BE_SORTED_ERROR_MSG, posting, lastPosting));
+            long delta = posting - lastPosting;
+            maxDelta = max(maxDelta, delta);
+            deltaBuffer[bufferUpto++] = delta;
+        }
+        lastPosting = posting;
 
         if (bufferUpto == blockSize)
         {
-            addBlockToSkipTable(posting);
-            writePostingsBlock(maxDelta, bufferUpto);
+            addBlockToSkipTable();
+            writePostingsBlock();
             resetBlockCounters();
         }
-        lastPosting = posting;
     }
 
     private void finish() throws IOException
     {
         if (bufferUpto > 0)
         {
-            addBlockToSkipTable(lastPosting);
-
-            writePostingsBlock(maxDelta, bufferUpto);
+            addBlockToSkipTable();
+            writePostingsBlock();
         }
     }
 
     private void resetBlockCounters()
     {
+        firstPosting = Long.MIN_VALUE;
         bufferUpto = 0;
-        lastPosting = 0;
         maxDelta = 0;
     }
 
-    private void addBlockToSkipTable(long maxSegmentRowID)
+    private void addBlockToSkipTable()
     {
         blockOffsets.add(dataOutput.getFilePointer());
-        blockMaxIDs.add(maxSegmentRowID);
+        blockMaximumPostings.add(lastPosting);
     }
 
     private void writeSummary(int exactSize) throws IOException
@@ -242,7 +252,7 @@ public class PostingsWriter implements Closeable
 
     private void writeSkipTable() throws IOException
     {
-        assert blockOffsets.size() == blockMaxIDs.size();
+        assert blockOffsets.size() == blockMaximumPostings.size();
         dataOutput.writeVInt(blockOffsets.size());
 
         // compressing offsets in memory first, to know the exact length (with padding)
@@ -251,10 +261,10 @@ public class PostingsWriter implements Closeable
         writeSortedFoRBlock(blockOffsets, inMemoryOutput);
         dataOutput.writeVLong(inMemoryOutput.getFilePointer());
         inMemoryOutput.writeTo(dataOutput);
-        writeSortedFoRBlock(blockMaxIDs, dataOutput);
+        writeSortedFoRBlock(blockMaximumPostings, dataOutput);
     }
 
-    private void writePostingsBlock(long maxDelta, int blockSize) throws IOException
+    private void writePostingsBlock() throws IOException
     {
         final int bitsPerValue = maxDelta == 0 ? 0 : DirectWriter.unsignedBitsRequired(maxDelta);
 
@@ -262,13 +272,25 @@ public class PostingsWriter implements Closeable
         "Unsupported bits per value of " + bitsPerValue + " bits. Supported bits per value are: " +
         DirectReaders.SUPPORTED_BITS_PER_VALUE.stream().map(i -> Integer.toString(i)).collect(Collectors.joining(", "));
 
+        // If we have a first posting, indicating that this is the first block in the posting list
+        // then write it prior to the deltas.
+        if (firstPosting != Long.MIN_VALUE)
+            dataOutput.writeVLong(firstPosting);
+
         dataOutput.writeByte((byte) bitsPerValue);
         if (bitsPerValue > 0)
         {
             final DirectWriter writer = DirectWriter.getInstance(dataOutput, blockSize, bitsPerValue);
-            for (int i = 0; i < blockSize; ++i)
+            for (int index = 0; index < bufferUpto; ++index)
             {
-                writer.add(deltaBuffer[i]);
+                writer.add(deltaBuffer[index]);
+            }
+            if (bufferUpto < blockSize)
+            {
+                for (int index = bufferUpto; index < blockSize; index++)
+                {
+                    writer.add(0);
+                }
             }
             writer.finish();
         }
