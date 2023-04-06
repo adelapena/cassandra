@@ -155,7 +155,7 @@ public class QueryController
      * This is achieved by creating an on-disk view of the query that maps the expressions to
      * the {@link SSTableIndex}s that will satisfy the expression.
      * <p>
-     * Each (expression SSTable indexes) pair is then passed to
+     * Each (expression, SSTable indexes) pair is then passed to
      * {@link IndexSearchResultIterator#build(Expression, Collection, AbstractBounds, QueryContext)}
      * to search the in-memory index associated with the expression and the SSTable indexes, the results of
      * which are unioned and returned.

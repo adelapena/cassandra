@@ -20,6 +20,7 @@ package org.apache.cassandra.index.sai.disk.v1.postings;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -257,7 +258,9 @@ public class PostingsWriter implements Closeable
     {
         final int bitsPerValue = maxDelta == 0 ? 0 : DirectWriter.unsignedBitsRequired(maxDelta);
 
-        assert DirectReaders.SUPPORTED_BITS_PER_VALUE.contains(bitsPerValue);
+        assert DirectReaders.SUPPORTED_BITS_PER_VALUE.contains(bitsPerValue) :
+        "Unsupported bits per value of " + bitsPerValue + " bits. Supported bits per value are: " +
+        DirectReaders.SUPPORTED_BITS_PER_VALUE.stream().map(i -> Integer.toString(i)).collect(Collectors.joining(", "));
 
         dataOutput.writeByte((byte) bitsPerValue);
         if (bitsPerValue > 0)

@@ -49,8 +49,10 @@ public class PostingsReader implements OrdinalPostingList
     private final QueryEventListener.PostingListEventListener listener;
     private final BlocksSummary summary;
 
-    private int postingsBlockIndex;
-    private int blockIndex; // position in block
+    // Current block index
+    private int blockIndex;
+    // Current posting index within block
+    private int postingIndex;
     private long totalPostingsRead;
     private long actualPosting;
 
@@ -193,7 +195,7 @@ public class PostingsReader implements OrdinalPostingList
             block = -block - 1;
         }
 
-        if (postingsBlockIndex == block + 1)
+        if (blockIndex == block + 1)
         {
             // we're in the same block, just iterate through
             return slowAdvance(targetRowID);
@@ -226,7 +228,7 @@ public class PostingsReader implements OrdinalPostingList
     // crossing blocks, the preceeding block index
     private int binarySearchBlocks(long targetRowID)
     {
-        int lowBlockIndex = postingsBlockIndex - 1;
+        int lowBlockIndex = blockIndex - 1;
         int highBlockIndex = Math.toIntExact(summary.maxValues.length()) - 1;
 
         // in current block
@@ -275,10 +277,10 @@ public class PostingsReader implements OrdinalPostingList
         // blockMaxValues is integer only
         actualPosting = summary.maxValues.get(block);
         //upper bound, since we might've advanced to the last block, but upper bound is enough
-        totalPostingsRead += (summary.blockSize - blockIndex) + (block - postingsBlockIndex + 1) * (long)summary.blockSize;
+        totalPostingsRead += (summary.blockSize - postingIndex) + (block - blockIndex + 1) * (long)summary.blockSize;
 
-        postingsBlockIndex = block + 1;
-        blockIndex = summary.blockSize;
+        blockIndex = block + 1;
+        postingIndex = summary.blockSize;
     }
 
     @Override
@@ -298,7 +300,7 @@ public class PostingsReader implements OrdinalPostingList
         {
             return END_OF_STREAM;
         }
-        if (blockIndex == summary.blockSize)
+        if (postingIndex == summary.blockSize)
         {
             reBuffer();
         }
@@ -315,7 +317,7 @@ public class PostingsReader implements OrdinalPostingList
         }
         else
         {
-            long id = currentFoRValues.get(seekingInput, currentPosition, blockIndex);
+            long id = currentFoRValues.get(seekingInput, currentPosition, postingIndex);
             postingsDecoded++;
             return Math.toIntExact(id);
         }
@@ -325,12 +327,12 @@ public class PostingsReader implements OrdinalPostingList
     {
         actualPosting = nextPosting;
         totalPostingsRead++;
-        blockIndex++;
+        postingIndex++;
     }
 
     private void reBuffer() throws IOException
     {
-        long pointer = summary.offsets.get(postingsBlockIndex);
+        long pointer = summary.offsets.get(blockIndex);
 
         input.seek(pointer);
 
@@ -339,8 +341,8 @@ public class PostingsReader implements OrdinalPostingList
 
         readFoRBlock(input);
 
-        postingsBlockIndex++;
-        blockIndex = 0;
+        blockIndex++;
+        postingIndex = 0;
     }
 
     private void readFoRBlock(IndexInput in) throws IOException

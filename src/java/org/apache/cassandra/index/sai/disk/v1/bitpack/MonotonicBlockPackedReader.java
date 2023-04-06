@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.apache.cassandra.index.sai.disk.io.IndexFileUtils;
 import org.apache.cassandra.index.sai.disk.io.IndexInputReader;
+import org.apache.cassandra.index.sai.disk.v1.DirectReaders;
 import org.apache.cassandra.index.sai.disk.v1.LongArray;
 import org.apache.cassandra.index.sai.disk.v1.SAICodecUtils;
 import org.apache.cassandra.io.util.FileHandle;
@@ -70,7 +71,7 @@ public class MonotonicBlockPackedReader implements LongArray.Factory
                 minValuesBuilder.add(in.readZLong());
                 averages[i] = Float.intBitsToFloat(in.readInt());
                 final int bitsPerValue = in.readVInt();
-                if (bitsPerValue > 64)
+                if (!DirectReaders.SUPPORTED_BITS_PER_VALUE.contains(bitsPerValue))
                 {
                     throw new CorruptIndexException(String.format("Block %d is corrupted. Bits per value should be no more than 64 and is %d.", i, bitsPerValue), in);
                 }

@@ -35,18 +35,21 @@ public abstract class AbstractBlockPackedWriter
     static final int MAX_BLOCK_SIZE = 1 << (30 - 3);
 
     protected final IndexOutput indexOutput;
-    protected final long[] values;
-    protected int offset;
+    protected final long[] blockValues;
+    // This collects metadata specific to the block packed writer being used during the
+    // writing of the block packed data. This cached metadata is then written to the end
+    // of the data file when the block packed writer is finished.
+    protected final RAMIndexOutput blockMetaWriter;
+
+    protected int blockIndex;
     protected boolean finished;
-    
-    final RAMIndexOutput blockMetaWriter;
 
     AbstractBlockPackedWriter(IndexOutput indexOutput, int blockSize)
     {
         checkBlockSize(blockSize, MIN_BLOCK_SIZE, MAX_BLOCK_SIZE);
         this.indexOutput = indexOutput;
-        this.blockMetaWriter = new RAMIndexOutput("NumericValuesMeta");
-        values = new long[blockSize];
+        this.blockMetaWriter = new RAMIndexOutput("BlockPackedMeta");
+        blockValues = new long[blockSize];
     }
 
 
@@ -56,11 +59,11 @@ public abstract class AbstractBlockPackedWriter
     public void add(long l) throws IOException
     {
         checkNotFinished();
-        if (offset == values.length)
+        if (blockIndex == blockValues.length)
         {
             flush();
         }
-        values[offset++] = l;
+        blockValues[blockIndex++] = l;
     }
 
     /**
@@ -72,7 +75,7 @@ public abstract class AbstractBlockPackedWriter
     public long finish() throws IOException
     {
         checkNotFinished();
-        if (offset > 0)
+        if (blockIndex > 0)
         {
             flush();
         }
@@ -84,13 +87,12 @@ public abstract class AbstractBlockPackedWriter
 
     protected abstract void flushBlock() throws IOException;
 
-
     void writeValues(int numValues, int bitsPerValue) throws IOException
     {
         final DirectWriter writer = DirectWriter.getInstance(indexOutput, numValues, bitsPerValue);
         for (int i = 0; i < numValues; ++i)
         {
-            writer.add(values[i]);
+            writer.add(blockValues[i]);
         }
         writer.finish();
     }
@@ -109,7 +111,7 @@ public abstract class AbstractBlockPackedWriter
     private void flush() throws IOException
     {
         flushBlock();
-        offset = 0;
+        blockIndex = 0;
     }
 
     private void checkNotFinished()

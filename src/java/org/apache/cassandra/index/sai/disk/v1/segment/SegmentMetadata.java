@@ -181,7 +181,7 @@ public class SegmentMetadata
 
     private static ByteBuffer readBytes(IndexInput input) throws IOException
     {
-        int len = input.readVInt();
+        int len = input.readInt();
         byte[] bytes = new byte[len];
         input.readBytes(bytes, 0, len);
         return ByteBuffer.wrap(bytes);
@@ -192,7 +192,7 @@ public class SegmentMetadata
         try
         {
             byte[] bytes = ByteBufferUtil.getArray(buf);
-            out.writeVInt(bytes.length);
+            out.writeInt(bytes.length);
             out.writeBytes(bytes, 0, bytes.length);
         }
         catch (IOException ioe)

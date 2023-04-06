@@ -44,10 +44,10 @@ public class BlockPackedWriter extends AbstractBlockPackedWriter
     protected void flushBlock() throws IOException
     {
         long min = Long.MAX_VALUE, max = Long.MIN_VALUE;
-        for (int i = 0; i < offset; ++i)
+        for (int i = 0; i < blockIndex; ++i)
         {
-            min = Math.min(values[i], min);
-            max = Math.max(values[i], max);
+            min = Math.min(blockValues[i], min);
+            max = Math.max(blockValues[i], max);
         }
 
         long delta = max - min;
@@ -65,13 +65,13 @@ public class BlockPackedWriter extends AbstractBlockPackedWriter
         {
             if (min != 0)
             {
-                for (int i = 0; i < offset; ++i)
+                for (int i = 0; i < blockIndex; ++i)
                 {
-                    values[i] -= min;
+                    blockValues[i] -= min;
                 }
             }
             blockMetaWriter.writeVLong(indexOutput.getFilePointer());
-            writeValues(offset, bitsRequired);
+            writeValues(blockIndex, bitsRequired);
         }
     }
 }
