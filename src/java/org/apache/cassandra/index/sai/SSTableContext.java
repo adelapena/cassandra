@@ -32,10 +32,11 @@ import org.apache.cassandra.utils.concurrent.RefCounted;
 import org.apache.cassandra.utils.concurrent.SharedCloseableImpl;
 
 /**
- * SSTableContext is created for individual sstable shared across indexes to track per-sstable index files.
- *
- * SSTableContext itself will be released when receiving sstable removed notification, but its shared copies in individual
- * SSTableIndex will be released when in-flight read requests complete.
+ * An {@link SSTableContext} is created for an individual sstable and is shared across column indexes to track per-sstable
+ * index files.
+ * <p>
+ * The {@link SSTableContext} will be released when receiving a sstable removed notification, but its shared copies in
+ * individual {@link SSTableIndex}es will be released when in-flight read requests complete.
  */
 public class SSTableContext extends SharedCloseableImpl
 {

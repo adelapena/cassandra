@@ -113,7 +113,7 @@ public class SSTableContextManager
     }
 
     /**
-     * @return total disk usage of all per-sstable index files
+     * @return total disk usage (in bytes) of all per-sstable index files
      */
     long diskUsage()
     {

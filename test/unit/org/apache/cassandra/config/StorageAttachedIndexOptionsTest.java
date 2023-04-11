@@ -15,24 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.cassandra.config;
+
+import org.junit.Test;
 
 import org.apache.cassandra.exceptions.ConfigurationException;
 
-public class StorageAttachedIndexOptions
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+public class StorageAttachedIndexOptionsTest
 {
-    public static final int DEFAULT_SEGMENT_BUFFER_MB = 1024;
-
-    private static final int MAXIMUM_SEGMENT_BUFFER_MB = 32768;
-
-    public DataStorageSpec.IntMebibytesBound segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(DEFAULT_SEGMENT_BUFFER_MB);
-
-    public void validate()
+    @Test
+    public void testStorageAttachedIndexOptionsValidation() throws Exception
     {
-        if (segment_write_buffer_size.toMebibytes() > MAXIMUM_SEGMENT_BUFFER_MB)
-        {
-            throw new ConfigurationException("Invalid value for segment_write_buffer_size. " +
-                                             "Value must be a positive integer less than " + MAXIMUM_SEGMENT_BUFFER_MB + "MiB");
-        }
+        StorageAttachedIndexOptions saiOptions = new StorageAttachedIndexOptions();
+
+        saiOptions.segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(0);
+        saiOptions.validate();
+
+        saiOptions.segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(32768);
+        saiOptions.validate();
+
+        saiOptions.segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(32769);
+        assertThatThrownBy(() -> saiOptions.validate()).isInstanceOf(ConfigurationException.class)
+                                                       .hasMessage("Invalid value for segment_write_buffer_size. Value must be a positive integer less than 32768MiB");
     }
 }

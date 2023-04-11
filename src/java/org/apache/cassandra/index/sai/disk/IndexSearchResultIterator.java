@@ -28,7 +28,6 @@ import org.apache.cassandra.db.PartitionPosition;
 import org.apache.cassandra.dht.AbstractBounds;
 import org.apache.cassandra.exceptions.QueryCancelledException;
 import org.apache.cassandra.index.sai.QueryContext;
-import org.apache.cassandra.index.sai.SSTableQueryContext;
 import org.apache.cassandra.index.sai.plan.Expression;
 import org.apache.cassandra.index.sai.iterators.KeyRangeIterator;
 import org.apache.cassandra.index.sai.iterators.KeyRangeUnionIterator;
@@ -74,13 +73,13 @@ public class IndexSearchResultIterator extends KeyRangeIterator
             try
             {
                 queryContext.checkpoint();
-                queryContext.incSstablesHit();
+                queryContext.sstablesHit++;
 
                 if (sstableIndex.isReleased())
                     throw new IllegalStateException(sstableIndex.getIndexContext().logMessage("Index was released from the view during the query"));
 
-                SSTableQueryContext context = queryContext.getSSTableQueryContext(sstableIndex.getSSTable());
-                List<KeyRangeIterator> segmentIterators = sstableIndex.search(expression, keyRange, context);
+//                SSTableQueryContext context = queryContext.getSSTableQueryContext(sstableIndex.getSSTable());
+                List<KeyRangeIterator> segmentIterators = sstableIndex.search(expression, keyRange, queryContext);
 
                 if (!segmentIterators.isEmpty())
                     subIterators.addAll(segmentIterators);

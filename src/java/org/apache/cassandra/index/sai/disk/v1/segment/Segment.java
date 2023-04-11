@@ -27,8 +27,8 @@ import org.apache.cassandra.dht.AbstractBounds;
 import org.apache.cassandra.dht.Range;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.index.sai.IndexContext;
+import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.SSTableContext;
-import org.apache.cassandra.index.sai.SSTableQueryContext;
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
 import org.apache.cassandra.index.sai.disk.v1.PerColumnIndexFiles;
 import org.apache.cassandra.index.sai.plan.Expression;
@@ -110,7 +110,7 @@ public class Segment implements Closeable
 
      * @return range iterator that matches given expression
      */
-    public KeyRangeIterator search(Expression expression, SSTableQueryContext context) throws IOException
+    public KeyRangeIterator search(Expression expression, QueryContext context) throws IOException
     {
         return index.search(expression, context);
     }

@@ -347,7 +347,7 @@ public class StorageAttachedIndexGroup implements Index.Group, INotificationCons
     }
 
     /**
-     * @return total disk usage of all per-sstable index files
+     * @return total disk usage (in bytes) of all per-sstable index files
      */
     public long diskUsage()
     {

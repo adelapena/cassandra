@@ -381,8 +381,8 @@ public interface Memtable extends Comparable<Memtable>, UnfilteredSource
     boolean isClean();
 
     // The following two methods provide a way of tracking ongoing flushes
-    public LifecycleTransaction setFlushTransaction(LifecycleTransaction transaction);
-    public LifecycleTransaction getFlushTransaction();
+    LifecycleTransaction setFlushTransaction(LifecycleTransaction transaction);
+    LifecycleTransaction getFlushTransaction();
 
     /** Order memtables by time as reflected in the commit log position at time of construction */
     default int compareTo(Memtable that)

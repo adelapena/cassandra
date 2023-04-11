@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.index.sai.IndexContext;
-import org.apache.cassandra.index.sai.SSTableQueryContext;
+import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.v1.PerColumnIndexFiles;
@@ -79,18 +79,18 @@ public class LiteralIndexSegmentSearcher extends IndexSegmentSearcher
 
     @Override
     @SuppressWarnings({"resource", "RedundantSuppression"})
-    public KeyRangeIterator search(Expression exp, SSTableQueryContext context) throws IOException
+    public KeyRangeIterator search(Expression expression, QueryContext queryContext) throws IOException
     {
         if (logger.isTraceEnabled())
-            logger.trace(indexContext.logMessage("Searching on expression '{}'..."), exp);
+            logger.trace(indexContext.logMessage("Searching on expression '{}'..."), expression);
 
-        if (!exp.getOp().isEquality())
-            throw new IllegalArgumentException(indexContext.logMessage("Unsupported expression: " + exp));
+        if (!expression.getOp().isEquality())
+            throw new IllegalArgumentException(indexContext.logMessage("Unsupported expression: " + expression));
 
-        final ByteComparable term = ByteComparable.fixedLength(exp.lower.value.encoded);
-        QueryEventListener.TrieIndexEventListener listener = MulticastQueryEventListeners.of(context.queryContext(), perColumnEventListener);
-        PostingList postingList = reader.exactMatch(term, listener, context.queryContext());
-        return toIterator(postingList, context);
+        final ByteComparable term = ByteComparable.fixedLength(expression.lower.value.encoded);
+        QueryEventListener.TrieIndexEventListener listener = MulticastQueryEventListeners.of(queryContext, perColumnEventListener);
+        PostingList postingList = reader.exactMatch(term, listener, queryContext);
+        return toIterator(postingList, queryContext);
     }
 
     @Override

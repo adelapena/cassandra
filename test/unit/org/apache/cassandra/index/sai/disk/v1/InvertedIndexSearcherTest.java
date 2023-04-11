@@ -33,7 +33,6 @@ import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.SAITester;
-import org.apache.cassandra.index.sai.SSTableQueryContext;
 import org.apache.cassandra.index.sai.memory.MemtableTermsIterator;
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
@@ -58,7 +57,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class InvertedIndexSearcherTest extends SAIRandomizedTester
 {
@@ -78,7 +76,7 @@ public class InvertedIndexSearcherTest extends SAIRandomizedTester
             return key.token().getLongValue();
         }
     };
-    public static final PrimaryKeyMap.Factory TEST_PRIMARY_KEY_MAP_FACTORY = (context) -> TEST_PRIMARY_KEY_MAP;
+    public static final PrimaryKeyMap.Factory TEST_PRIMARY_KEY_MAP_FACTORY = () -> TEST_PRIMARY_KEY_MAP;
 
     @BeforeClass
     public static void setupCQLTester()
@@ -95,8 +93,7 @@ public class InvertedIndexSearcherTest extends SAIRandomizedTester
 
     private void doTestEqQueriesAgainstStringIndex() throws Exception
     {
-        SSTableQueryContext context = mock(SSTableQueryContext.class);
-        when(context.queryContext()).thenReturn(mock(QueryContext.class));
+        QueryContext context = mock(QueryContext.class);
         final int numTerms = getRandom().nextIntBetween(64, 512), numPostings = getRandom().nextIntBetween(256, 1024);
         final List<Pair<ByteComparable, LongArrayList>> termsEnum = buildTermsEnum(numTerms, numPostings);
 
@@ -157,7 +154,7 @@ public class InvertedIndexSearcherTest extends SAIRandomizedTester
     @Test
     public void testUnsupportedOperator() throws Exception
     {
-        SSTableQueryContext context = mock(SSTableQueryContext.class);
+        QueryContext context = mock(QueryContext.class);
 
         final int numTerms = getRandom().nextIntBetween(5, 15), numPostings = getRandom().nextIntBetween(5, 20);
         final List<Pair<ByteComparable, LongArrayList>> termsEnum = buildTermsEnum(numTerms, numPostings);

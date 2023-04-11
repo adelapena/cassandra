@@ -18,13 +18,13 @@
 
 package org.apache.cassandra.index.sai.disk.v1.segment;
 
-import org.apache.cassandra.index.sai.SSTableQueryContext;
+import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.postings.PeekablePostingList;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
 
 public class IndexSegmentSearcherContext
 {
-    public final SSTableQueryContext context;
+    public final QueryContext context;
     public final PeekablePostingList postingList;
 
     public final PrimaryKey minimumKey;
@@ -34,7 +34,7 @@ public class IndexSegmentSearcherContext
     public IndexSegmentSearcherContext(PrimaryKey minimumKey,
                                        PrimaryKey maximumKey,
                                        long segmentRowIdOffset,
-                                       SSTableQueryContext context,
+                                       QueryContext context,
                                        PeekablePostingList postingList)
     {
         this.context = context;

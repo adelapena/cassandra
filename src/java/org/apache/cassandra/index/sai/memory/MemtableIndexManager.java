@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
+
 import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.cassandra.db.DecoratedKey;
@@ -103,6 +105,7 @@ public class MemtableIndexManager
         liveMemtableIndexMap.remove(discarded);
     }
 
+    @Nullable
     public MemtableIndex getPendingMemtableIndex(LifecycleNewTracker tracker)
     {
         return liveMemtableIndexMap.keySet().stream()

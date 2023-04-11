@@ -242,6 +242,7 @@ public class StorageAttachedIndexBuilder extends SecondaryIndexBuilder
         }
     }
 
+    @Override
     public CompactionInfo getCompactionInfo()
     {
         return new CompactionInfo(metadata,

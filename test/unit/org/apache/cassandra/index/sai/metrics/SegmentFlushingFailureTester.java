@@ -192,10 +192,10 @@ public abstract class SegmentFlushingFailureTester extends SAITester
         // Start compaction against both tables/indexes and verify that they are aborted safely:
         verifyCompactionIndexBuilds(2, segmentFlushFailure, table1, table2);
 
-        assertThatThrownBy(() -> executeNet(String.format("SELECT * FROM %s WHERE v1 = '0'", KEYSPACE + '.' + table1)))
+        assertThatThrownBy(() -> executeNet(String.format("SELECT * FROM %s.%s WHERE v1 = '0'", KEYSPACE, table1)))
                 .isInstanceOf(ReadFailureException.class);
 
-        assertThatThrownBy(() -> executeNet(String.format("SELECT * FROM %s WHERE v1 = '0'", KEYSPACE + '.' + table2)))
+        assertThatThrownBy(() -> executeNet(String.format("SELECT * FROM %s.%s WHERE v1 = '0'", KEYSPACE, table2)))
                 .isInstanceOf(ReadFailureException.class);
     }
 

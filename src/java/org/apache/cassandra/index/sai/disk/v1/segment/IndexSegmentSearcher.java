@@ -21,14 +21,14 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import org.apache.cassandra.index.sai.IndexContext;
-import org.apache.cassandra.index.sai.SSTableQueryContext;
-import org.apache.cassandra.index.sai.postings.PeekablePostingList;
-import org.apache.cassandra.index.sai.postings.PostingList;
-import org.apache.cassandra.index.sai.disk.v1.postings.PostingListRangeIterator;
+import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
 import org.apache.cassandra.index.sai.disk.v1.PerColumnIndexFiles;
-import org.apache.cassandra.index.sai.plan.Expression;
+import org.apache.cassandra.index.sai.disk.v1.postings.PostingListRangeIterator;
 import org.apache.cassandra.index.sai.iterators.KeyRangeIterator;
+import org.apache.cassandra.index.sai.plan.Expression;
+import org.apache.cassandra.index.sai.postings.PeekablePostingList;
+import org.apache.cassandra.index.sai.postings.PostingList;
 
 /**
  * Abstract reader for individual segments of an on-disk index.
@@ -75,9 +75,9 @@ public abstract class IndexSegmentSearcher implements Closeable
      *
      * @return {@link KeyRangeIterator} with matches for the given expression
      */
-    public abstract KeyRangeIterator search(Expression expression, SSTableQueryContext queryContext) throws IOException;
+    public abstract KeyRangeIterator search(Expression expression, QueryContext queryContext) throws IOException;
 
-    KeyRangeIterator toIterator(PostingList postingList, SSTableQueryContext queryContext) throws IOException
+    KeyRangeIterator toIterator(PostingList postingList, QueryContext queryContext) throws IOException
     {
         if (postingList == null)
             return KeyRangeIterator.empty();
@@ -88,6 +88,6 @@ public abstract class IndexSegmentSearcher implements Closeable
                                                                                       queryContext,
                                                                                       PeekablePostingList.makePeekable(postingList));
 
-        return new PostingListRangeIterator(indexContext, primaryKeyMapFactory.newPerSSTablePrimaryKeyMap(queryContext), searcherContext);
+        return new PostingListRangeIterator(indexContext, primaryKeyMapFactory.newPerSSTablePrimaryKeyMap(), searcherContext);
     }
 }

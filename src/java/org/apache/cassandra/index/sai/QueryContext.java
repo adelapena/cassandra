@@ -18,14 +18,11 @@
 
 package org.apache.cassandra.index.sai;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.exceptions.QueryCancelledException;
-import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.utils.Clock;
 
 /**
@@ -58,8 +55,6 @@ public class QueryContext
 
     public boolean queryTimedOut = false;
 
-    private final Map<SSTableReader, SSTableQueryContext> sstableQueryContexts = new HashMap<>();
-
     public QueryContext(ReadCommand readCommand, long executionQuotaMs)
     {
         this.readCommand = readCommand;
@@ -70,16 +65,6 @@ public class QueryContext
     public long totalQueryTimeNs()
     {
         return Clock.Global.nanoTime() - queryStartTimeNanos;
-    }
-
-    public void incSstablesHit()
-    {
-        sstablesHit++;
-    }
-
-    public SSTableQueryContext getSSTableQueryContext(SSTableReader reader)
-    {
-        return sstableQueryContexts.computeIfAbsent(reader, k -> new SSTableQueryContext(this));
     }
 
     public void checkpoint()

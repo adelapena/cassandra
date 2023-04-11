@@ -34,8 +34,8 @@ import org.apache.cassandra.db.PartitionPosition;
 import org.apache.cassandra.db.virtual.SimpleDataSet;
 import org.apache.cassandra.dht.AbstractBounds;
 import org.apache.cassandra.index.sai.IndexContext;
+import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.SSTableContext;
-import org.apache.cassandra.index.sai.SSTableQueryContext;
 import org.apache.cassandra.index.sai.disk.format.Version;
 import org.apache.cassandra.index.sai.iterators.KeyRangeIterator;
 import org.apache.cassandra.index.sai.plan.Expression;
@@ -131,13 +131,13 @@ public abstract class SSTableIndex
      * @param expression The {@link Expression} to be searched for
      * @param keyRange The {@link AbstractBounds<PartitionPosition>} defining the
      *                 token range for the search
-     * @param context The {@link SSTableQueryContext} holding the per-query state
+     * @param context The {@link QueryContext} holding the per-query state
      * @return a {@link List} of {@link KeyRangeIterator}s containing the results
      * of the search
      */
     public abstract List<KeyRangeIterator> search(Expression expression,
                                                   AbstractBounds<PartitionPosition> keyRange,
-                                                  SSTableQueryContext context) throws IOException;
+                                                  QueryContext context) throws IOException;
 
     /**
      * Populates a virtual table using the index metadata owned by the index

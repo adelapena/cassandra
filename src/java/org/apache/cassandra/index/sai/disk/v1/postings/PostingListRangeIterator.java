@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.exceptions.QueryCancelledException;
 import org.apache.cassandra.index.sai.IndexContext;
-import org.apache.cassandra.index.sai.SSTableQueryContext;
+import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.disk.PrimaryKeyMap;
 import org.apache.cassandra.index.sai.disk.v1.segment.IndexSegmentSearcherContext;
-import org.apache.cassandra.index.sai.postings.PostingList;
 import org.apache.cassandra.index.sai.iterators.KeyRangeIterator;
+import org.apache.cassandra.index.sai.postings.PostingList;
 import org.apache.cassandra.index.sai.utils.PrimaryKey;
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.cassandra.utils.Throwables;
@@ -59,7 +59,7 @@ public class PostingListRangeIterator extends KeyRangeIterator
     private static final Logger logger = LoggerFactory.getLogger(PostingListRangeIterator.class);
 
     private final Stopwatch timeToExhaust = Stopwatch.createStarted();
-    private final SSTableQueryContext queryContext;
+    private final QueryContext queryContext;
 
     private final PostingList postingList;
     private final IndexContext indexContext;
@@ -102,7 +102,7 @@ public class PostingListRangeIterator extends KeyRangeIterator
     {
         try
         {
-            queryContext.queryContext().checkpoint();
+            queryContext.checkpoint();
 
             // just end the iterator if we don't have a postingList or current segment is skipped
             if (exhausted())

@@ -20,6 +20,7 @@ package org.apache.cassandra.index.sai.disk.v1;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 
@@ -28,6 +29,9 @@ import org.apache.lucene.store.RandomAccessInput;
 public class DirectReaders
 {
     public static final Set<Integer> SUPPORTED_BITS_PER_VALUE = Sets.newHashSet(0, 1, 2, 4, 8, 12, 16, 20, 24, 28, 32, 40, 48, 56, 64);
+    public static final String SUPPORTED_BITS_PER_VALUE_STRING = SUPPORTED_BITS_PER_VALUE.stream()
+                                                                                         .map(i -> Integer.toString(i))
+                                                                                         .collect(Collectors.joining(", "));
 
     public interface Reader
     {

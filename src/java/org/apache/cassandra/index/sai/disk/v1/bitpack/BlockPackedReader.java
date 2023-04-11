@@ -72,7 +72,8 @@ public class BlockPackedReader implements LongArray.Factory
                 final int bitsPerValue = token >>> BlockPackedWriter.BPV_SHIFT;
                 if (!DirectReaders.SUPPORTED_BITS_PER_VALUE.contains(bitsPerValue))
                 {
-                    throw new CorruptIndexException(String.format("Block %d is corrupted. Bits per value should be no more than 64 and is %d.", i, bitsPerValue), in);
+                    throw new CorruptIndexException(String.format("Block %d is corrupted. Bits per value is %d. Supported values are %s.",
+                                                                  i, bitsPerValue, DirectReaders.SUPPORTED_BITS_PER_VALUE_STRING), in);
                 }
                 if ((token & BlockPackedWriter.MIN_VALUE_EQUALS_0) == 0)
                 {

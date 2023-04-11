@@ -31,8 +31,8 @@ import org.apache.cassandra.db.virtual.SimpleDataSet;
 import org.apache.cassandra.dht.AbstractBounds;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.index.sai.IndexContext;
+import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.SSTableContext;
-import org.apache.cassandra.index.sai.SSTableQueryContext;
 import org.apache.cassandra.index.sai.disk.SSTableIndex;
 import org.apache.cassandra.index.sai.disk.v1.segment.Segment;
 import org.apache.cassandra.index.sai.disk.v1.segment.SegmentMetadata;
@@ -158,7 +158,7 @@ public class V1SSTableIndex extends SSTableIndex
     @Override
     public List<KeyRangeIterator> search(Expression expression,
                                          AbstractBounds<PartitionPosition> keyRange,
-                                         SSTableQueryContext context) throws IOException
+                                         QueryContext context) throws IOException
     {
         List<KeyRangeIterator> segmentIterators = new ArrayList<>();
 
