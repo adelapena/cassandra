@@ -50,9 +50,6 @@ public class QueryContext
     public long triePostingsSkips = 0;
     public long triePostingsDecodes = 0;
 
-    public long tokenSkippingCacheHits = 0;
-    public long tokenSkippingLookups = 0;
-
     public boolean queryTimedOut = false;
 
     public QueryContext(ReadCommand readCommand, long executionQuotaMs)

@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.schema.TableMetadata;
@@ -40,9 +39,6 @@ public class TableQueryMetrics extends AbstractMetrics
     private final Counter totalRowsFiltered;
     private final Counter totalQueriesCompleted;
 
-    private final Meter tokenSkippingLookups;
-    private final Meter tokenSkippingCacheHits;
-
     public TableQueryMetrics(TableMetadata table)
     {
         super(table.keyspace, table.name, TABLE_QUERY_METRIC_TYPE);
@@ -53,21 +49,12 @@ public class TableQueryMetrics extends AbstractMetrics
         totalRowsFiltered = Metrics.counter(createMetricName("TotalRowsFiltered"));
         totalQueriesCompleted = Metrics.counter(createMetricName("TotalQueriesCompleted"));
         totalQueryTimeouts = Metrics.counter(createMetricName("TotalQueryTimeouts"));
-
-        tokenSkippingLookups = Metrics.meter(createMetricName("Lookups", "TokenSkipping"));
-        tokenSkippingCacheHits = Metrics.meter(createMetricName("CacheHits", "TokenSkipping"));
     }
 
     public void record(QueryContext queryContext)
     {
         if (queryContext.queryTimedOut)
             totalQueryTimeouts.inc();
-
-        long skippingLookups = queryContext.tokenSkippingLookups;
-        long skippingCacheHits = queryContext.tokenSkippingCacheHits;
-
-        tokenSkippingLookups.mark(skippingLookups);
-        tokenSkippingCacheHits.mark(skippingCacheHits);
 
         perQueryMetrics.record(queryContext);
     }
