@@ -326,6 +326,7 @@ public class IndexDescriptor
         return componentFile.exists() ? componentFile.length() : 0;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean validatePerIndexComponents(IndexContext indexContext)
     {
         logger.info(indexContext.logMessage("Validating per-column index components"));
@@ -338,6 +339,7 @@ public class IndexDescriptor
         return version.onDiskFormat().validatePerColumnIndexComponents(this, indexContext, true);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean validatePerSSTableComponents()
     {
         return version.onDiskFormat().validatePerSSTableIndexComponents(this, false);

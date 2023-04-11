@@ -17,13 +17,16 @@
  */
 package org.apache.cassandra.config;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import org.apache.cassandra.exceptions.ConfigurationException;
 
 public class StorageAttachedIndexOptions
 {
     public static final int DEFAULT_SEGMENT_BUFFER_MB = 1024;
 
-    private static final int MAXIMUM_SEGMENT_BUFFER_MB = 32768;
+    @VisibleForTesting
+    public static final int MAXIMUM_SEGMENT_BUFFER_MB = 32768;
 
     public DataStorageSpec.IntMebibytesBound segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(DEFAULT_SEGMENT_BUFFER_MB);
 

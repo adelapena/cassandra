@@ -27,18 +27,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class StorageAttachedIndexOptionsTest
 {
     @Test
-    public void testStorageAttachedIndexOptionsValidation() throws Exception
+    public void testStorageAttachedIndexOptionsValidation()
     {
         StorageAttachedIndexOptions saiOptions = new StorageAttachedIndexOptions();
 
         saiOptions.segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(0);
         saiOptions.validate();
 
-        saiOptions.segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(32768);
+        saiOptions.segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(StorageAttachedIndexOptions.MAXIMUM_SEGMENT_BUFFER_MB);
         saiOptions.validate();
 
-        saiOptions.segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(32769);
-        assertThatThrownBy(() -> saiOptions.validate()).isInstanceOf(ConfigurationException.class)
-                                                       .hasMessage("Invalid value for segment_write_buffer_size. Value must be a positive integer less than 32768MiB");
+        saiOptions.segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(StorageAttachedIndexOptions.MAXIMUM_SEGMENT_BUFFER_MB + 1);
+        assertThatThrownBy(saiOptions::validate).isInstanceOf(ConfigurationException.class)
+                                                .hasMessage("Invalid value for segment_write_buffer_size. Value must be a positive integer less than 32768MiB");
     }
 }

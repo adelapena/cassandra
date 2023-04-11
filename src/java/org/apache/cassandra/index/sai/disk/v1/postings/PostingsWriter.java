@@ -285,7 +285,7 @@ public class PostingsWriter implements Closeable
             }
             if (bufferUpto < blockSize)
             {
-                // Pad the rest of the block with 0 so we don't write invalid
+                // Pad the rest of the block with 0, so we don't write invalid
                 // values from previous blocks
                 for (int index = bufferUpto; index < blockSize; index++)
                 {

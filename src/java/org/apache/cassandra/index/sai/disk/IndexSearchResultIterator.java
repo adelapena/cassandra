@@ -78,7 +78,6 @@ public class IndexSearchResultIterator extends KeyRangeIterator
                 if (sstableIndex.isReleased())
                     throw new IllegalStateException(sstableIndex.getIndexContext().logMessage("Index was released from the view during the query"));
 
-//                SSTableQueryContext context = queryContext.getSSTableQueryContext(sstableIndex.getSSTable());
                 List<KeyRangeIterator> segmentIterators = sstableIndex.search(expression, keyRange, queryContext);
 
                 if (!segmentIterators.isEmpty())
