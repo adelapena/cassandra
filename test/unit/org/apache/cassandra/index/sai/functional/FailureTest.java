@@ -107,10 +107,6 @@ public class FailureTest extends SAITester
         execute("INSERT INTO %s (id1, v1) VALUES ('1', '1')");
         execute("INSERT INTO %s (id1, v1) VALUES ('2', '2')");
 
-        // We need to reference SSTableContext first or the failure injection fails
-        // because byteman can't find the class.
-        SSTableContext.class.getName();
-
         Injection ssTableContextCreationFailure = newFailureOnEntry("context_failure_on_creation", SSTableContext.class, "<init>", RuntimeException.class);
         Injections.inject(ssTableContextCreationFailure);
 

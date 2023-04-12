@@ -71,7 +71,7 @@ public class TypeUtilTest extends SAIRandomizedTester
     @Test
     public void testMapType()
     {
-        for(CQL3Type keyCql3Type : StorageAttachedIndex.SUPPORTED_TYPES)
+        for (CQL3Type keyCql3Type : StorageAttachedIndex.SUPPORTED_TYPES)
         {
             AbstractType<?> keyType = keyCql3Type.getType();
 
@@ -101,7 +101,7 @@ public class TypeUtilTest extends SAIRandomizedTester
     @Test
     public void testTuple()
     {
-        for(CQL3Type elementType : StorageAttachedIndex.SUPPORTED_TYPES)
+        for (CQL3Type elementType : StorageAttachedIndex.SUPPORTED_TYPES)
         {
             TupleType type = TupleType.getInstance(new TypeParser(String.format("(%s, %s)", elementType.getType(), elementType.getType())));
             assertFalse(TypeUtil.isFrozenCollection(type));
@@ -113,7 +113,7 @@ public class TypeUtilTest extends SAIRandomizedTester
     @Test
     public void testUDT()
     {
-        for(CQL3Type elementType : StorageAttachedIndex.SUPPORTED_TYPES)
+        for (CQL3Type elementType : StorageAttachedIndex.SUPPORTED_TYPES)
         {
             UserType type = new UserType("ks", ByteBufferUtil.bytes("myType"),
                                          Arrays.asList(FieldIdentifier.forQuoted("f1"), FieldIdentifier.forQuoted("f2")),
@@ -137,7 +137,7 @@ public class TypeUtilTest extends SAIRandomizedTester
     private static void testCollectionType(BiFunction<AbstractType<?>, Boolean, AbstractType<?>> init,
                                            BiConsumer<AbstractType<?>, AbstractType<?>> nonFrozenCollectionTester)
     {
-        for(CQL3Type elementType : StorageAttachedIndex.SUPPORTED_TYPES)
+        for (CQL3Type elementType : StorageAttachedIndex.SUPPORTED_TYPES)
         {
             AbstractType<?> frozenCollection = init.apply(elementType.getType(), false);
             AbstractType<?> reversedFrozenCollection = ReversedType.getInstance(frozenCollection);

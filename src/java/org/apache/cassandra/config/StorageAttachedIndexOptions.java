@@ -28,14 +28,17 @@ public class StorageAttachedIndexOptions
     @VisibleForTesting
     public static final int MAXIMUM_SEGMENT_BUFFER_MB = 32768;
 
+    @VisibleForTesting
+    public static final String INVALID_BUFFER_SIZE_ERROR = "Invalid value for segment_write_buffer_size. " +
+                                                           "Value must be a positive integer less than " + MAXIMUM_SEGMENT_BUFFER_MB + "MiB";
+
     public DataStorageSpec.IntMebibytesBound segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(DEFAULT_SEGMENT_BUFFER_MB);
 
     public void validate()
     {
         if (segment_write_buffer_size.toMebibytes() > MAXIMUM_SEGMENT_BUFFER_MB)
         {
-            throw new ConfigurationException("Invalid value for segment_write_buffer_size. " +
-                                             "Value must be a positive integer less than " + MAXIMUM_SEGMENT_BUFFER_MB + "MiB");
+            throw new ConfigurationException(INVALID_BUFFER_SIZE_ERROR);
         }
     }
 }

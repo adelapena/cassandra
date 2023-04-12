@@ -44,7 +44,8 @@ import static org.junit.Assert.assertNull;
 @RunWith(Parameterized.class)
 public class WalkerTest extends AbstractTrieTestBase
 {
-    @Parameterized.Parameter(0)
+    @SuppressWarnings("rawtypes")
+    @Parameterized.Parameter
     public Class<? extends IncrementalTrieWriter> writerClass;
 
     @Parameterized.Parameters(name = "{index}: trie writer class={0}")
@@ -164,27 +165,29 @@ public class WalkerTest extends AbstractTrieTestBase
         IncrementalTrieWriter<Integer> builder = makeTrie(buf);
         IncrementalTrieWriter.PartialTail ptail = builder.makePartialRoot();
         long rootPos = builder.complete();
-        Rebufferer source = new ByteBufRebufferer(buf.asNewBuffer());
-        Rebufferer partialSource = new TailOverridingRebufferer(new ByteBufRebufferer(buf.asNewBuffer()), ptail.cutoff(), ptail.tail());
-        InternalIterator it = new InternalIterator(new ByteBufRebufferer(buf.asNewBuffer()), rootPos, source("151"), source("515"), true);
-        InternalIterator tailIt = new InternalIterator(new TailOverridingRebufferer(new ByteBufRebufferer(buf.asNewBuffer()), ptail.cutoff(), ptail.tail()), ptail.root(), source("151"), source("515"), true);
-
-        while (true)
+        try (Rebufferer source = new ByteBufRebufferer(buf.asNewBuffer()))
         {
-            long i1 = it.nextPayloadedNode();
-            long i2 = tailIt.nextPayloadedNode();
-            if (i1 == -1 || i2 == -1)
-                break;
+            Rebufferer partialSource = new TailOverridingRebufferer(new ByteBufRebufferer(buf.asNewBuffer()), ptail.cutoff(), ptail.tail());
+            InternalIterator it = new InternalIterator(new ByteBufRebufferer(buf.asNewBuffer()), rootPos, source("151"), source("515"), true);
+            InternalIterator tailIt = new InternalIterator(new TailOverridingRebufferer(new ByteBufRebufferer(buf.asNewBuffer()), ptail.cutoff(), ptail.tail()), ptail.root(), source("151"), source("515"), true);
 
-            Rebufferer.BufferHolder bh1 = source.rebuffer(i1);
-            Rebufferer.BufferHolder bh2 = partialSource.rebuffer(i2);
+            while (true)
+            {
+                long i1 = it.nextPayloadedNode();
+                long i2 = tailIt.nextPayloadedNode();
+                if (i1 == -1 || i2 == -1)
+                    break;
 
-            int f1 = TrieNode.at(bh1.buffer(), (int) (i1 - bh1.offset())).payloadFlags(bh1.buffer(), (int) (i1 - bh1.offset()));
-            int f2 = TrieNode.at(bh2.buffer(), (int) (i2 - bh2.offset())).payloadFlags(bh2.buffer(), (int) (i2 - bh2.offset()));
-            assertEquals(f1, f2);
+                Rebufferer.BufferHolder bh1 = source.rebuffer(i1);
+                Rebufferer.BufferHolder bh2 = partialSource.rebuffer(i2);
 
-            bh2.release();
-            bh1.release();
+                int f1 = TrieNode.at(bh1.buffer(), (int) (i1 - bh1.offset())).payloadFlags(bh1.buffer(), (int) (i1 - bh1.offset()));
+                int f2 = TrieNode.at(bh2.buffer(), (int) (i2 - bh2.offset())).payloadFlags(bh2.buffer(), (int) (i2 - bh2.offset()));
+                assertEquals(f1, f2);
+
+                bh2.release();
+                bh1.release();
+            }
         }
     }
 

@@ -44,13 +44,12 @@ public class MergePostingListTest extends SAIRandomizedTester
     @Test
     public void shouldMergeInterleavedPostingLists() throws IOException
     {
-        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(
-                new ArrayPostingList(1, 4, 6),
-                new ArrayPostingList(2, 3, 4),
-                new ArrayPostingList(1, 6),
-                new ArrayPostingList(2, 5),
-                new ArrayPostingList(3, 6),
-                new ArrayPostingList(3, 5, 6));
+        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(new ArrayPostingList(1, 4, 6),
+                                                                          new ArrayPostingList(2, 3, 4),
+                                                                          new ArrayPostingList(1, 6),
+                                                                          new ArrayPostingList(2, 5),
+                                                                          new ArrayPostingList(3, 6),
+                                                                          new ArrayPostingList(3, 5, 6));
 
         final PostingList merged = MergePostingList.merge(lists);
 
@@ -60,10 +59,9 @@ public class MergePostingListTest extends SAIRandomizedTester
     @Test
     public void shouldMergeDisjointPostingLists() throws IOException
     {
-        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(
-                new ArrayPostingList(1, 6),
-                new ArrayPostingList(8, 9, 11),
-                new ArrayPostingList(15));
+        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(new ArrayPostingList(1, 6),
+                                                                          new ArrayPostingList(8, 9, 11),
+                                                                          new ArrayPostingList(15));
 
         final PostingList merged = MergePostingList.merge(lists);
 
@@ -84,7 +82,7 @@ public class MergePostingListTest extends SAIRandomizedTester
     public void shouldMergeSamePostingLists() throws IOException
     {
         final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(new ArrayPostingList(0),
-                                                                                      new ArrayPostingList(0));
+                                                                          new ArrayPostingList(0));
 
         final PostingList merged = MergePostingList.merge(lists);
 
@@ -94,16 +92,14 @@ public class MergePostingListTest extends SAIRandomizedTester
     @Test
     public void shouldAdvanceAllMergedLists() throws IOException
     {
-        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(
-                new ArrayPostingList(1, 5, 10),
-                new ArrayPostingList(2, 3, 8),
-                new ArrayPostingList(3, 5, 9));
+        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(new ArrayPostingList(1, 5, 10),
+                                                                          new ArrayPostingList(2, 3, 8),
+                                                                          new ArrayPostingList(3, 5, 9));
 
         final PostingList merged = MergePostingList.merge(lists);
         final PostingList expected = new ArrayPostingList(1, 2, 3, 5, 8, 9, 10);
 
-        assertEquals(expected.advance(9),
-                     merged.advance(9));
+        assertEquals(expected.advance(9), merged.advance(9));
 
         assertPostingListEquals(expected, merged);
     }
@@ -112,13 +108,12 @@ public class MergePostingListTest extends SAIRandomizedTester
     @Test
     public void shouldConsumeDuplicatedPostingOnAdvance() throws IOException
     {
-        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(
-                new ArrayPostingList(1, 4, 6),
-                new ArrayPostingList(2, 3, 4),
-                new ArrayPostingList(1, 6),
-                new ArrayPostingList(2, 5),
-                new ArrayPostingList(3, 6),
-                new ArrayPostingList(3, 5, 6));
+        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(new ArrayPostingList(1, 4, 6),
+                                                                          new ArrayPostingList(2, 3, 4),
+                                                                          new ArrayPostingList(1, 6),
+                                                                          new ArrayPostingList(2, 5),
+                                                                          new ArrayPostingList(3, 6),
+                                                                          new ArrayPostingList(3, 5, 6));
 
         final PostingList merged = MergePostingList.merge(lists);
 
@@ -130,13 +125,12 @@ public class MergePostingListTest extends SAIRandomizedTester
     @Test
     public void shouldInterleaveNextAndAdvance() throws IOException
     {
-        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(
-                new ArrayPostingList(1, 4, 6),
-                new ArrayPostingList(2, 3, 4),
-                new ArrayPostingList(1, 6),
-                new ArrayPostingList(2, 5),
-                new ArrayPostingList(3, 6),
-                new ArrayPostingList(3, 5, 6));
+        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(new ArrayPostingList(1, 4, 6),
+                                                                          new ArrayPostingList(2, 3, 4),
+                                                                          new ArrayPostingList(1, 6),
+                                                                          new ArrayPostingList(2, 5),
+                                                                          new ArrayPostingList(3, 6),
+                                                                          new ArrayPostingList(3, 5, 6));
 
         try (PostingList merged = MergePostingList.merge(lists))
         {
@@ -156,9 +150,8 @@ public class MergePostingListTest extends SAIRandomizedTester
     @Test
     public void shouldNotSkipUnconsumedElementOnAdvance() throws IOException
     {
-        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(
-                new ArrayPostingList(1, 2),
-                new ArrayPostingList(3));
+        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(new ArrayPostingList(1, 2),
+                                                                          new ArrayPostingList(3));
 
         try (PostingList merged = MergePostingList.merge(lists))
         {
@@ -171,9 +164,8 @@ public class MergePostingListTest extends SAIRandomizedTester
     @Test
     public void shouldNotReadFromExhaustedChild() throws IOException
     {
-        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(
-                new ArrayPostingList(2),
-                new ArrayPostingList(1, 3, 4));
+        final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(new ArrayPostingList(2),
+                                                                          new ArrayPostingList(1, 3, 4));
 
         try (PostingList merged = MergePostingList.merge(lists))
         {
@@ -187,7 +179,7 @@ public class MergePostingListTest extends SAIRandomizedTester
     public void shouldSkipDuplicates() throws IOException
     {
         final PriorityQueue<PeekablePostingList> lists = newPriorityQueue(new ArrayPostingList(1, 1, 2, 2, 2, 2, 5, 5),
-                                                                                      new ArrayPostingList(1, 2, 2, 3, 3, 4, 4, 5));
+                                                                          new ArrayPostingList(1, 2, 2, 3, 3, 4, 4, 5));
 
         try (PostingList merged = MergePostingList.merge(lists))
         {

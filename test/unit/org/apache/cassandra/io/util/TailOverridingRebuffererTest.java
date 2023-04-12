@@ -35,16 +35,11 @@ import static org.mockito.Mockito.when;
 
 public class TailOverridingRebuffererTest
 {
-    ByteBuffer head = ByteBuffer.wrap(new byte[]{ 1, 2, 3, 4, 5, 6, 7, 8 });
-    ByteBuffer tail = ByteBuffer.wrap(new byte[]{ 9, 10 });
+    private static final ByteBuffer head = ByteBuffer.wrap(new byte[]{ 1, 2, 3, 4, 5, 6, 7, 8 });
+    private static final ByteBuffer tail = ByteBuffer.wrap(new byte[]{ 9, 10 });
 
-    Rebufferer r = Mockito.mock(Rebufferer.class);
-    Rebufferer.BufferHolder bh = Mockito.mock(Rebufferer.BufferHolder.class);
-
-    public void before()
-    {
-        reset(r, bh);
-    }
+    private static final Rebufferer r = Mockito.mock(Rebufferer.class);
+    private static final Rebufferer.BufferHolder bh = Mockito.mock(Rebufferer.BufferHolder.class);
 
     @Test
     public void testAccessLeftToTailFully()

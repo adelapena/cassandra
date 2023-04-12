@@ -37,6 +37,7 @@ import org.apache.cassandra.io.sstable.Component;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class GroupComponentsTest extends SAITester
 {
@@ -51,6 +52,8 @@ public class GroupComponentsTest extends SAITester
 
         ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         StorageAttachedIndexGroup group = StorageAttachedIndexGroup.getIndexGroup(cfs);
+        assertNotNull(group);
+
         StorageAttachedIndex index = (StorageAttachedIndex) group.getIndexes().iterator().next();
         SSTableReader sstable = Iterables.getOnlyElement(cfs.getLiveSSTables());
 
@@ -75,6 +78,8 @@ public class GroupComponentsTest extends SAITester
 
         ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         StorageAttachedIndexGroup group = StorageAttachedIndexGroup.getIndexGroup(cfs);
+        assertNotNull(group);
+
         Set<SSTableReader> sstables = cfs.getLiveSSTables();
 
         assertEquals(1, sstables.size());
@@ -95,6 +100,8 @@ public class GroupComponentsTest extends SAITester
 
         ColumnFamilyStore cfs = getCurrentColumnFamilyStore();
         StorageAttachedIndexGroup group = StorageAttachedIndexGroup.getIndexGroup(cfs);
+        assertNotNull(group);
+
         Set<SSTableReader> sstables = cfs.getLiveSSTables();
 
         assertEquals(1, sstables.size());

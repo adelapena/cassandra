@@ -39,6 +39,6 @@ public class StorageAttachedIndexOptionsTest
 
         saiOptions.segment_write_buffer_size = new DataStorageSpec.IntMebibytesBound(StorageAttachedIndexOptions.MAXIMUM_SEGMENT_BUFFER_MB + 1);
         assertThatThrownBy(saiOptions::validate).isInstanceOf(ConfigurationException.class)
-                                                .hasMessage("Invalid value for segment_write_buffer_size. Value must be a positive integer less than 32768MiB");
+                                                .hasMessage(StorageAttachedIndexOptions.INVALID_BUFFER_SIZE_ERROR);
     }
 }
