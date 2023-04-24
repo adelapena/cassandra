@@ -126,13 +126,13 @@ final class PartitionKeySingleRestrictionSet extends RestrictionSetWrapper imple
     }
 
     @Override
-    public void addRowFilterTo(RowFilter filter,
+    public void addToRowFilter(RowFilter filter,
                                IndexRegistry indexRegistry,
                                QueryOptions options)
     {
         for (SingleRestriction restriction : restrictions)
         {
-             restriction.addRowFilterTo(filter, indexRegistry, options);
+             restriction.addToRowFilter(filter, indexRegistry, options);
         }
     }
 
