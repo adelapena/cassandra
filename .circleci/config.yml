@@ -108,8 +108,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -197,8 +197,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -261,8 +261,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -370,8 +370,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -524,8 +524,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -609,8 +609,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -726,8 +726,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -798,8 +798,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -887,8 +887,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -996,8 +996,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -1086,8 +1086,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -1203,8 +1203,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -1292,8 +1292,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -1409,8 +1409,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -1518,8 +1518,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -1626,8 +1626,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -1716,8 +1716,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -1911,8 +1911,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -1996,8 +1996,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -2129,8 +2129,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -2238,8 +2238,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -2346,8 +2346,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -2431,8 +2431,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -2521,8 +2521,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -2630,8 +2630,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -2738,8 +2738,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -2802,8 +2802,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -2919,8 +2919,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -2991,8 +2991,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -3109,8 +3109,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -3241,8 +3241,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -3373,8 +3373,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -3506,8 +3506,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -3623,8 +3623,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -3737,8 +3737,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -3854,8 +3854,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -3925,8 +3925,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -4015,8 +4015,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -4099,8 +4099,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -4212,8 +4212,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -4284,8 +4284,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -4393,8 +4393,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -4525,8 +4525,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -4614,8 +4614,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -4769,8 +4769,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -4859,8 +4859,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -4948,8 +4948,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -5065,8 +5065,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -5174,8 +5174,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -5282,8 +5282,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -5372,8 +5372,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -5480,8 +5480,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -5570,8 +5570,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -5687,8 +5687,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -5820,8 +5820,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -5938,8 +5938,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -6046,8 +6046,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -6135,8 +6135,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -6267,8 +6267,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -6375,8 +6375,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -6460,8 +6460,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -6566,8 +6566,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -6656,8 +6656,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -6764,8 +6764,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -6854,8 +6854,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -6944,8 +6944,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -7034,8 +7034,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -7143,8 +7143,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -7233,8 +7233,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -7317,8 +7317,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -7434,8 +7434,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -7551,8 +7551,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -7641,8 +7641,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -7748,8 +7748,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -7833,8 +7833,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -7917,8 +7917,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -7979,8 +7979,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -8069,8 +8069,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -8175,8 +8175,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -8370,8 +8370,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -8441,8 +8441,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -8558,8 +8558,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -8666,8 +8666,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -8798,8 +8798,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -8915,8 +8915,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -9021,8 +9021,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -9129,8 +9129,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -9218,8 +9218,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -9290,8 +9290,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -9352,8 +9352,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -9458,8 +9458,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -9548,8 +9548,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -9680,8 +9680,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -9769,8 +9769,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
@@ -9873,8 +9873,8 @@ jobs:
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: org.apache.cassandra.index.sai.cql.StorageAttachedIndexDDLTest
-    - REPEATED_UTESTS_COUNT: 200
+    - REPEATED_UTESTS: org.apache.cassandra.index.sai.disk.SelectiveIntersectionTest
+    - REPEATED_UTESTS_COUNT: 400
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
     - REPEATED_UTESTS_LONG: null
