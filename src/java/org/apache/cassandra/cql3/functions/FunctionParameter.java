@@ -48,13 +48,14 @@ public interface FunctionParameter
      * @param keyspace the current keyspace
      * @param arg a parameter value in a specific function call
      * @param receiverType the type of the object that will receive the result of the function call
+     * @param inferredTypes the types that have been inferred for the other parameters
      * @return the inferred data type of the parameter, or {@link null} it isn't possible to infer it
      */
     @Nullable
     default AbstractType<?> inferType(String keyspace,
                                       AssignmentTestable arg,
                                       @Nullable AbstractType<?> receiverType,
-                                      List<AbstractType<?>> previousTypes)
+                                      @Nullable List<AbstractType<?>> inferredTypes)
     {
         return arg.getCompatibleTypeIfKnown(keyspace);
     }
@@ -83,9 +84,9 @@ public interface FunctionParameter
             public AbstractType<?> inferType(String keyspace,
                                              AssignmentTestable arg,
                                              @Nullable AbstractType<?> receiverType,
-                                             List<AbstractType<?>> previousTypes)
+                                             @Nullable List<AbstractType<?>> inferredTypes)
             {
-                return wrapped.inferType(keyspace, arg, receiverType, previousTypes);
+                return wrapped.inferType(keyspace, arg, receiverType, inferredTypes);
             }
 
             @Override
@@ -130,7 +131,7 @@ public interface FunctionParameter
             public AbstractType<?> inferType(String keyspace,
                                              AssignmentTestable arg,
                                              @Nullable AbstractType<?> receiverType,
-                                             List<AbstractType<?>> previousTypes)
+                                             @Nullable List<AbstractType<?>> inferredTypes)
             {
                 AbstractType<?> inferred = arg.getCompatibleTypeIfKnown(keyspace);
                 return inferred != null ? inferred : types[0].getType();
@@ -168,7 +169,7 @@ public interface FunctionParameter
             public AbstractType<?> inferType(String keyspace,
                                              AssignmentTestable arg,
                                              @Nullable AbstractType<?> receiverType,
-                                             List<AbstractType<?>> previousTypes)
+                                             @Nullable List<AbstractType<?>> inferredTypes)
             {
                 AbstractType<?> type = arg.getCompatibleTypeIfKnown(keyspace);
                 return type == null && inferFromReceiver ? receiverType : type;
@@ -189,9 +190,10 @@ public interface FunctionParameter
     }
 
     /**
-     * @return a function parameter definition that accepts values with the same type as the first parameter
+     * @return a function parameter definition that accepts values of any type, provided that it's the same type as all
+     * the other parameters
      */
-    static FunctionParameter sameAsFirst()
+    static FunctionParameter sameAs(int index, FunctionParameter parameter)
     {
         return new FunctionParameter()
         {
@@ -199,21 +201,22 @@ public interface FunctionParameter
             public AbstractType<?> inferType(String keyspace,
                                              AssignmentTestable arg,
                                              @Nullable AbstractType<?> receiverType,
-                                             List<AbstractType<?>> previousTypes)
+                                             @Nullable List<AbstractType<?>> inferredTypes)
             {
-                return previousTypes.get(0);
+                AbstractType<?> type = inferredTypes == null ? null : inferredTypes.get(index);
+                return type != null ? type : parameter.inferType(keyspace, arg, receiverType, inferredTypes);
             }
 
             @Override
             public void validateType(FunctionName name, AssignmentTestable arg, AbstractType<?> argType)
             {
-                // nothing to do here, all types are accepted
+                parameter.validateType(name, arg, argType);
             }
 
             @Override
             public String toString()
             {
-                return "same";
+                return parameter.toString();
             }
         };
     }

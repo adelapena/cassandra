@@ -36,7 +36,9 @@ public abstract class VectorFcts
 
     public static void addFunctionsTo(NativeFunctions functions)
     {
-        functions.add(new FunctionFactory("similarity_cosine", FunctionParameter.anyType(true), FunctionParameter.anyType(true))
+        functions.add(new FunctionFactory("similarity_cosine",
+                                          FunctionParameter.sameAs(1, FunctionParameter.anyType(true)),
+                                          FunctionParameter.sameAs(0, FunctionParameter.anyType(true)))
         {
             @Override
             protected NativeFunction doGetOrCreateFunction(List<AbstractType<?>> argTypes, AbstractType<?> receiverType)

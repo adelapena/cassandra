@@ -21,9 +21,8 @@ package org.apache.cassandra.cql3.validation.operations;
 import org.junit.Test;
 
 import org.apache.cassandra.cql3.CQLTester;
-import org.apache.cassandra.cql3.UntypedResultSet;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CQLVectorTest extends CQLTester.InMemory
 {
@@ -157,7 +156,18 @@ public class CQLVectorTest extends CQLTester.InMemory
     {
         createTable(KEYSPACE, "CREATE TABLE %s (pk int primary key, value vector<float, 2>)");
 
-        execute("INSERT INTO %s (pk, value) VALUES (0, ?)", vector(1f, 2f));
-        execute("SELECT similarity_cosine(value, ?) FROM %s WHERe pk=0", vector(1f, 2f));
+        Vector<Float> vector = vector(1f, 2f);
+        execute("INSERT INTO %s (pk, value) VALUES (0, ?)", vector);
+
+        execute("SELECT similarity_cosine(value, value) FROM %s WHERE pk=0");
+
+        execute("SELECT similarity_cosine(?, value) FROM %s WHERE pk=0", vector);
+        execute("SELECT similarity_cosine(value, ?) FROM %s WHERE pk=0", vector);
+
+        assertThatThrownBy(() -> execute("SELECT similarity_cosine(?, ?) FROM %s WHERE pk=0", vector, vector))
+                .hasMessageContaining("Cannot infer type of argument ?");
+        execute("SELECT similarity_cosine((vector<float, 2>) ?, ?) FROM %s WHERE pk=0", vector, vector);
+        execute("SELECT similarity_cosine(?, (vector<float, 2>) ?) FROM %s WHERE pk=0", vector, vector);
+        execute("SELECT similarity_cosine((vector<float, 2>) ?, (vector<float, 2>) ?) FROM %s WHERE pk=0", vector, vector);
     }
 }
