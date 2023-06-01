@@ -45,7 +45,7 @@ public class DeletionTime implements Comparable<DeletionTime>, IMeasurableMemory
      */
     public static final DeletionTime LIVE = new DeletionTime(Long.MIN_VALUE, Long.MAX_VALUE);
 
-    public static final Serializer serializer = new Serializer();
+    private static final Serializer serializer = new Serializer();
     private static final Serializer legacySerializer = new LegacySerializer();
 
     private final long markedForDeleteAt;
@@ -187,7 +187,7 @@ public class DeletionTime implements Comparable<DeletionTime>, IMeasurableMemory
         return EMPTY_SIZE;
     }
     
-    public static ISerializer<DeletionTime> getSerializer(Version version)
+    public static Serializer getSerializer(Version version)
     {
         if (version.hasUIntDeletionTime())
             return serializer;
@@ -211,6 +211,15 @@ public class DeletionTime implements Comparable<DeletionTime>, IMeasurableMemory
             return mfda == Long.MIN_VALUE && localDeletionTimeUnsignedInteger == Cell.NO_DELETION_TIME_UNSIGNED_INTEGER
                  ? LIVE
                  : new DeletionTime(mfda, localDeletionTimeUnsignedInteger);
+        }
+
+        public DeletionTime deserialize(ByteBuffer buf, int offset)
+        {
+            int localDeletionTimeUnsignedInteger = buf.getInt(offset);
+            long mfda = buf.getLong(offset + 4);
+            return mfda == Long.MIN_VALUE && localDeletionTimeUnsignedInteger == Cell.NO_DELETION_TIME_UNSIGNED_INTEGER
+                   ? LIVE
+                   : new DeletionTime(mfda, localDeletionTimeUnsignedInteger);
         }
 
         public void skip(DataInputPlus in) throws IOException

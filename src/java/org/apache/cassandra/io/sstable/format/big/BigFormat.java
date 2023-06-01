@@ -287,7 +287,7 @@ public class BigFormat extends AbstractSSTableFormat<BigTableReader, BigTableWri
         @Override
         public void skip(DataInputPlus input) throws IOException
         {
-            RowIndexEntry.Serializer.skipForCache(input);
+            RowIndexEntry.Serializer.skipForCache(input, getInstance().latestVersion);
         }
 
         @Override

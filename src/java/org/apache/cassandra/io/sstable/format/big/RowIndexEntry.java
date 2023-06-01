@@ -319,7 +319,7 @@ public class RowIndexEntry extends AbstractRowIndexEntry
             }
         }
 
-        public static void skipForCache(DataInputPlus in) throws IOException
+        public static void skipForCache(DataInputPlus in, Version version) throws IOException
         {
             in.readUnsignedVInt();
             switch (in.readByte())
@@ -327,10 +327,10 @@ public class RowIndexEntry extends AbstractRowIndexEntry
                 case CACHE_NOT_INDEXED:
                     break;
                 case CACHE_INDEXED:
-                    IndexedEntry.skipForCache(in);
+                    IndexedEntry.skipForCache(in, version);
                     break;
                 case CACHE_INDEXED_SHALLOW:
-                    ShallowIndexedEntry.skipForCache(in);
+                    ShallowIndexedEntry.skipForCache(in, version);
                     break;
                 default:
                     assert false;
@@ -654,10 +654,10 @@ public class RowIndexEntry extends AbstractRowIndexEntry
                 idxInfoSerializer.serialize(indexInfo, out);
         }
 
-        static void skipForCache(DataInputPlus in) throws IOException
+        static void skipForCache(DataInputPlus in, Version version) throws IOException
         {
             in.readUnsignedVInt();
-            DeletionTime.serializer.skip(in);
+            DeletionTime.getSerializer(version).skip(in);
             in.readUnsignedVInt();
 
             in.readUnsignedVInt();
@@ -799,12 +799,12 @@ public class RowIndexEntry extends AbstractRowIndexEntry
             out.writeUnsignedVInt32(indexedPartSize);
         }
 
-        static void skipForCache(DataInputPlus in) throws IOException
+        static void skipForCache(DataInputPlus in, Version version) throws IOException
         {
             in.readUnsignedVInt();
 
             in.readUnsignedVInt();
-            DeletionTime.serializer.skip(in);
+            DeletionTime.getSerializer(version).skip(in);
             in.readUnsignedVInt();
 
             in.readUnsignedVInt();

@@ -43,6 +43,7 @@ import org.apache.cassandra.db.rows.Unfiltered;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 import org.apache.cassandra.db.rows.UnfilteredSerializer;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
+import org.apache.cassandra.io.sstable.format.Version;
 import org.apache.cassandra.io.util.FileDataInput;
 import org.apache.cassandra.io.util.FileHandle;
 import org.apache.cassandra.schema.TableMetadata;
@@ -193,12 +194,12 @@ public abstract class AbstractSSTableIterator<RIE extends AbstractRowIndexEntry>
         }
     }
 
-    protected abstract Reader createReaderInternal(RIE indexEntry, FileDataInput file, boolean shouldCloseFile);
+    protected abstract Reader createReaderInternal(RIE indexEntry, FileDataInput file, boolean shouldCloseFile, Version version);
 
     private Reader createReader(RIE indexEntry, FileDataInput file, boolean shouldCloseFile)
     {
         return slices.isEmpty() ? new NoRowsReader(file, shouldCloseFile)
-                                : createReaderInternal(indexEntry, file, shouldCloseFile);
+                                : createReaderInternal(indexEntry, file, shouldCloseFile, sstable.descriptor.version);
     };
 
     public TableMetadata metadata()

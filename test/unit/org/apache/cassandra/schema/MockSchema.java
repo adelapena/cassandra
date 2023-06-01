@@ -246,7 +246,7 @@ public class MockSchema
                 maybeSetDataLength(descriptor, size);
                 SerializationHeader header = SerializationHeader.make(cfs.metadata(), Collections.emptyList());
                 MetadataCollector collector = new MetadataCollector(cfs.metadata().comparator);
-                collector.update(new DeletionTime(timestamp, minLocalDeletionTime));
+                collector.update(DeletionTime.build(timestamp, minLocalDeletionTime));
                 BufferDecoratedKey first = readerBounds(firstToken);
                 BufferDecoratedKey last = readerBounds(lastToken);
                 StatsMetadata metadata = (StatsMetadata) collector.sstableLevel(level)
