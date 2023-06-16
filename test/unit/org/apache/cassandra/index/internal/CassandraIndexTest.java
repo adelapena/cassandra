@@ -56,6 +56,7 @@ import static org.junit.Assert.fail;
 /**
  * Smoke tests of built-in secondary index implementations
  */
+
 public class CassandraIndexTest extends CQLTester
 {
     @Test
