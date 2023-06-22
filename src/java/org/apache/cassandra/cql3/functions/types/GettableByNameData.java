@@ -465,6 +465,20 @@ public interface GettableByNameData
     public <K, V> Map<K, V> getMap(String name, TypeToken<K> keysType, TypeToken<V> valuesType);
 
     /**
+     * Returns the value for {@code name} as a vector.
+     *
+     * <p>This method uses the {@link CodecRegistry} to find a codec to convert the underlying CQL type to a
+     * {@link List} (if the CQL type is a vector, the registry will generate a codec automatically).
+     *
+     * @param name the name to retrieve.
+     * @return the value of {@code name} as a UDT value. If the value is NULL, then {@code null} will
+     * be returned.
+     * @throws IllegalArgumentException if {@code name} is not valid name for this object.
+     * @throws CodecNotFoundException   if there is no registered codec to convert the underlying CQL type to a vector.
+     */
+    public <T> List<T> getVector(String name);
+
+    /**
      * Return the value for {@code name} as a UDT value.
      *
      * <p>This method uses the {@link CodecRegistry} to find a codec to convert the underlying CQL

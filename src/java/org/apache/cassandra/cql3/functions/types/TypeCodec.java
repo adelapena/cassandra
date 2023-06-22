@@ -376,6 +376,19 @@ public abstract class TypeCodec<T>
     }
 
     /**
+     * Return a newly-created codec for the given CQL vector type. The returned codec maps the vector
+     * type into the Java type {@link List}. This method does not cache returned instances and
+     * returns a newly-allocated object at each invocation.
+     *
+     * @param type the vector type this codec should handle.
+     * @return A newly-created codec for the given CQL tuple type.
+     */
+    public static <E> TypeCodec<List<E>> vector(VectorType type, TypeCodec<E> valueCodec)
+    {
+        return VectorCodec.of(type, valueCodec);
+    }
+
+    /**
      * Return a newly-created codec for the given user-defined CQL type. The returned codec maps the
      * user-defined type into the Java type {@link UDTValue}. This method does not cache returned
      * instances and returns a newly-allocated object at each invocation.
@@ -486,6 +499,16 @@ public abstract class TypeCodec<T>
     public DataType getCqlType()
     {
         return cqlType;
+    }
+
+    /**
+     * Checks if all values are of fixed length.
+     *
+     * @return {@code true} if all values are of fixed length, {@code false} otherwise.
+     */
+    public boolean isValueLengthFixed()
+    {
+        return false;
     }
 
     /**
@@ -1021,6 +1044,12 @@ public abstract class TypeCodec<T>
         }
 
         @Override
+        public boolean isValueLengthFixed()
+        {
+            return true;
+        }
+
+        @Override
         public Long parse(String value)
         {
             try
@@ -1191,6 +1220,12 @@ public abstract class TypeCodec<T>
         }
 
         @Override
+        public boolean isValueLengthFixed()
+        {
+            return true;
+        }
+
+        @Override
         public Boolean parse(String value)
         {
             if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
@@ -1309,6 +1344,12 @@ public abstract class TypeCodec<T>
         }
 
         @Override
+        public boolean isValueLengthFixed()
+        {
+            return true;
+        }
+
+        @Override
         public Double parse(String value)
         {
             try
@@ -1362,6 +1403,12 @@ public abstract class TypeCodec<T>
         private FloatCodec()
         {
             super(DataType.cfloat());
+        }
+
+        @Override
+        public boolean isValueLengthFixed()
+        {
+            return true;
         }
 
         @Override
@@ -1482,6 +1529,12 @@ public abstract class TypeCodec<T>
         }
 
         @Override
+        public boolean isValueLengthFixed()
+        {
+            return true;
+        }
+
+        @Override
         public Byte parse(String value)
         {
             try
@@ -1535,6 +1588,12 @@ public abstract class TypeCodec<T>
         private SmallIntCodec()
         {
             super(smallint());
+        }
+
+        @Override
+        public boolean isValueLengthFixed()
+        {
+            return true;
         }
 
         @Override
@@ -1594,6 +1653,12 @@ public abstract class TypeCodec<T>
         }
 
         @Override
+        public boolean isValueLengthFixed()
+        {
+            return true;
+        }
+
+        @Override
         public Integer parse(String value)
         {
             try
@@ -1647,6 +1712,12 @@ public abstract class TypeCodec<T>
         private TimestampCodec()
         {
             super(DataType.timestamp(), Date.class);
+        }
+
+        @Override
+        public boolean isValueLengthFixed()
+        {
+            return true;
         }
 
         @Override
@@ -1717,6 +1788,12 @@ public abstract class TypeCodec<T>
         private DateCodec()
         {
             super(DataType.date(), LocalDate.class);
+        }
+
+        @Override
+        public boolean isValueLengthFixed()
+        {
+            return true;
         }
 
         @Override
@@ -1854,6 +1931,12 @@ public abstract class TypeCodec<T>
         private AbstractUUIDCodec(DataType cqlType)
         {
             super(cqlType, UUID.class);
+        }
+
+        @Override
+        public boolean isValueLengthFixed()
+        {
+            return true;
         }
 
         @Override

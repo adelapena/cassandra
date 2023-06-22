@@ -318,6 +318,16 @@ public final class CodecRegistry
                     }
                     return weight;
                 }
+                case VECTOR:
+                {
+                    int weight = level;
+                    DataType eltType = cqlType.getTypeArguments().get(0);
+                    if (eltType != null)
+                    {
+                        weight += weigh(eltType, level + 1);
+                    }
+                    return weight == 0 ? 1 : weight;
+                }
                 case UDT:
                 {
                     int weight = level;
@@ -746,6 +756,13 @@ public final class CodecRegistry
             return (TypeCodec<T>) TypeCodec.map(keyCodec, valueCodec);
         }
 
+        if (cqlType instanceof VectorType
+            && (javaType == null || List.class.isAssignableFrom(javaType.getRawType())))
+        {
+            VectorType type = (VectorType) cqlType;
+            return (TypeCodec<T>) TypeCodec.vector(type, findCodec(type.getSubtype(), null));
+        }
+
         if (cqlType instanceof TupleType
             && (javaType == null || TupleValue.class.isAssignableFrom(javaType.getRawType())))
         {
@@ -845,6 +862,12 @@ public final class CodecRegistry
                        TypeCodec.map(
                        findCodec(keyType, entry.getKey()), findCodec(valueType, entry.getValue()));
             }
+        }
+
+        if ((cqlType == null || cqlType.getName() == VECTOR) && value instanceof List)
+        {
+            VectorType type = (VectorType) cqlType;
+            return (TypeCodec<T>) TypeCodec.vector(type, findCodec(type.getSubtype(), null));
         }
 
         if ((cqlType == null || cqlType.getName() == DataType.Name.TUPLE)

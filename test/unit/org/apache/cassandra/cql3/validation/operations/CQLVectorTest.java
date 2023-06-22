@@ -35,6 +35,8 @@ import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.transport.ProtocolVersion;
 import org.assertj.core.api.Assertions;
 
+import static java.lang.String.format;
+
 public class CQLVectorTest extends CQLTester.InMemory
 {
     @Test
@@ -248,25 +250,103 @@ public class CQLVectorTest extends CQLTester.InMemory
     @Test
     public void udf() throws Throwable
     {
-        // For future authors, if this test starts to fail as vectors become supported in UDFs, please update this test
-        // to test the integration and remove the requirement that we reject UDFs all together
         createTable(KEYSPACE, "CREATE TABLE %s (pk int primary key, value vector<int, 2>)");
-        Assertions.assertThatThrownBy(() -> createFunction(KEYSPACE,
-                                                           "",
-                                                           "CREATE FUNCTION %s (x vector<int, 2>) " +
-                                                           "CALLED ON NULL INPUT " +
-                                                           "RETURNS vector<int, 2> " +
-                                                           "LANGUAGE java " +
-                                                           "AS 'return x;'"))
-                  .hasRootCauseMessage("Vectors are not supported on UDFs; given vector<int, 2>");
+        Vector<Integer> vector = vector(1, 2);
+        execute("INSERT INTO %s (pk, value) VALUES (0, ?)", vector);
 
-        Assertions.assertThatThrownBy(() -> createFunction(KEYSPACE,
-                                                           "",
-                                                           "CREATE FUNCTION %s (x list<vector<int, 2>>) " +
-                                                           "CALLED ON NULL INPUT " +
-                                                           "RETURNS list<vector<int, 2>> " +
-                                                           "LANGUAGE java " +
-                                                           "AS 'return x;'"))
-                  .hasRootCauseMessage("Vectors are not supported on UDFs; given list<vector<int, 2>>");
+        // identitiy function
+        String f =  createFunction(KEYSPACE,
+                                   "",
+                                   "CREATE FUNCTION %s (x vector<int, 2>) " +
+                                   "CALLED ON NULL INPUT " +
+                                   "RETURNS vector<int, 2> " +
+                                   "LANGUAGE java " +
+                                   "AS 'return x;'");
+        assertRows(execute(format("SELECT %s(value) FROM %%s", f)), row(vector));
+        assertRows(execute(format("SELECT %s([2, 3]) FROM %%s", f)), row(vector(2, 3)));
+        assertRows(execute(format("SELECT %s(null) FROM %%s", f)), row((Vector<Integer>) null));
+
+        // identitiy function with nested type
+        f = createFunction(KEYSPACE,
+                           "",
+                           "CREATE FUNCTION %s (x list<vector<int, 2>>) " +
+                           "CALLED ON NULL INPUT " +
+                           "RETURNS list<vector<int, 2>> " +
+                           "LANGUAGE java " +
+                           "AS 'return x;'");
+        assertRows(execute(format("SELECT %s([value]) FROM %%s", f)), row(list(vector)));
+        assertRows(execute(format("SELECT %s([[2, 3]]) FROM %%s", f)), row(list(vector(2, 3))));
+        assertRows(execute(format("SELECT %s(null) FROM %%s", f)), row((Vector<Integer>) null));
+
+        // identitiy function with elements of variable length
+        f =  createFunction(KEYSPACE,
+                            "",
+                            "CREATE FUNCTION %s (x vector<text, 2>) " +
+                            "CALLED ON NULL INPUT " +
+                            "RETURNS vector<text, 2> " +
+                            "LANGUAGE java " +
+                            "AS 'return x;'");
+        assertRows(execute(format("SELECT %s(['abc', 'defghij']) FROM %%s", f)), row(vector("abc", "defghij")));
+        assertRows(execute(format("SELECT %s(null) FROM %%s", f)), row((Vector<Integer>) null));
+
+        // function accessing vector argument elements
+        f = createFunction(KEYSPACE,
+                           "",
+                           "CREATE FUNCTION %s (x vector<int, 2>, i int) " +
+                           "CALLED ON NULL INPUT " +
+                           "RETURNS int " +
+                           "LANGUAGE java " +
+                           "AS 'return x == null ? null : x.get(i);'");
+        assertRows(execute(format("SELECT %s(value, 0), %<s(value, 1) FROM %%s", f)), row(1, 2));
+        assertRows(execute(format("SELECT %s([2, 3], 0), %<s([2, 3], 1) FROM %%s", f)), row(2, 3));
+        assertRows(execute(format("SELECT %s(null, 0) FROM %%s", f)), row((Integer) null));
+
+        // function accessing vector argument dimensions
+        f = createFunction(KEYSPACE,
+                           "",
+                           "CREATE FUNCTION %s (x vector<int, 2>) " +
+                           "CALLED ON NULL INPUT " +
+                           "RETURNS int " +
+                           "LANGUAGE java " +
+                           "AS 'return x == null ? 0 : x.size();'");
+        assertRows(execute(format("SELECT %s(value) FROM %%s", f)), row(2));
+        assertRows(execute(format("SELECT %s([2, 3]) FROM %%s", f)), row(2));
+        assertRows(execute(format("SELECT %s(null) FROM %%s", f)), row(0));
+
+        // build vector with elements of fixed length
+        f = createFunction(KEYSPACE,
+                           "",
+                           "CREATE FUNCTION %s () " +
+                           "CALLED ON NULL INPUT " +
+                           "RETURNS vector<double, 3> " +
+                           "LANGUAGE java " +
+                           "AS 'return Arrays.asList(1.3, 2.2, 3.1);'");
+        assertRows(execute(format("SELECT %s() FROM %%s", f)), row(vector(1.3, 2.2, 3.1)));
+
+        // build vector with elements of varaible length
+        f = createFunction(KEYSPACE,
+                           "",
+                           "CREATE FUNCTION %s () " +
+                           "CALLED ON NULL INPUT " +
+                           "RETURNS vector<text, 3> " +
+                           "LANGUAGE java " +
+                           "AS 'return Arrays.asList(\"a\", \"bc\", \"def\");'");
+        assertRows(execute(format("SELECT %s() FROM %%s", f)), row(vector("a", "bc", "def")));
+
+        // concat vectors, just to put it all together
+        f =  createFunction(KEYSPACE,
+                            "",
+                            "CREATE FUNCTION %s (x vector<int, 2>, y vector<int, 2>) " +
+                            "CALLED ON NULL INPUT " +
+                            "RETURNS vector<int, 4> " +
+                            "LANGUAGE java " +
+                            "AS '" +
+                            "if (x == null || y == null) return null;" +
+                            "List<Integer> l = new ArrayList<Integer>(x); " +
+                            "l.addAll(y); " +
+                            "return l;'");
+        assertRows(execute(format("SELECT %s(value, [3, 4]) FROM %%s", f)), row(vector(1, 2, 3, 4)));
+        assertRows(execute(format("SELECT %s([2, 3], value) FROM %%s", f)), row(vector(2, 3, 1, 2)));
+        assertRows(execute(format("SELECT %s(null, null) FROM %%s", f)), row((Vector<Integer>) null));
     }
 }

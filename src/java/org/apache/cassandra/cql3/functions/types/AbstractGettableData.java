@@ -273,6 +273,15 @@ implements GettableData
      * {@inheritDoc}
      */
     @Override
+    public <T> List<T> getVector(String name)
+    {
+        return getVector(getIndexOf(name));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public UDTValue getUDTValue(String name)
     {
         return getUDTValue(getIndexOf(name));

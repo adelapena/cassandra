@@ -370,6 +370,17 @@ abstract class AbstractGettableByIndexData implements GettableByIndexData
      */
     @Override
     @SuppressWarnings("unchecked")
+    public <T> List<T> getVector(int i)
+    {
+        ByteBuffer value = getValue(i);
+        return codecFor(i, List.class).deserialize(value, protocolVersion);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
     public UDTValue getUDTValue(int i)
     {
         ByteBuffer value = getValue(i);

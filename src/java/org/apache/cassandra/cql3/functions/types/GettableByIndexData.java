@@ -466,6 +466,21 @@ public interface GettableByIndexData
     public <K, V> Map<K, V> getMap(int i, TypeToken<K> keysType, TypeToken<V> valuesType);
 
     /**
+     * Returns the {@code i}th value as a vector.
+     *
+     * <p>This method uses the {@link CodecRegistry} to find a codec to convert the underlying CQL
+     * type to a {@link List} (if the CQL type is a UDT, the registry will generate a codec
+     * automatically).
+     *
+     * @param i the index ({@code 0 <= i < size()}) to retrieve.
+     * @return the value of the {@code i}th element as a vector value. If the value is NULL, then {@code null} will be
+     * returned.
+     * @throws IndexOutOfBoundsException if {@code i} is not a valid index for this object.
+     * @throws CodecNotFoundException    if there is no registered codec to convert the element's CQL type to a vector.
+     */
+    public <T> List<T> getVector(int i);
+
+    /**
      * Return the {@code i}th value as a UDT value.
      *
      * <p>This method uses the {@link CodecRegistry} to find a codec to convert the underlying CQL
