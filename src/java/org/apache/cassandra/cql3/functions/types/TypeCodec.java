@@ -17,31 +17,55 @@
  */
 package org.apache.cassandra.cql3.functions.types;
 
-import java.io.DataInput;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.text.ParseException;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-import com.google.common.io.ByteStreams;
 import com.google.common.reflect.TypeToken;
 
+import org.apache.cassandra.cql3.FieldIdentifier;
 import org.apache.cassandra.cql3.functions.types.exceptions.InvalidTypeException;
-import org.apache.cassandra.cql3.functions.types.utils.Bytes;
-import org.apache.cassandra.transport.ProtocolVersion;
-import org.apache.cassandra.utils.vint.VIntCoding;
+import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.cassandra.db.marshal.AsciiType;
+import org.apache.cassandra.db.marshal.BooleanType;
+import org.apache.cassandra.db.marshal.ByteBufferAccessor;
+import org.apache.cassandra.db.marshal.ByteType;
+import org.apache.cassandra.db.marshal.BytesType;
+import org.apache.cassandra.db.marshal.CollectionType;
+import org.apache.cassandra.db.marshal.DecimalType;
+import org.apache.cassandra.db.marshal.DoubleType;
+import org.apache.cassandra.db.marshal.DurationType;
+import org.apache.cassandra.db.marshal.FloatType;
+import org.apache.cassandra.db.marshal.InetAddressType;
+import org.apache.cassandra.db.marshal.Int32Type;
+import org.apache.cassandra.db.marshal.IntegerType;
+import org.apache.cassandra.db.marshal.ListType;
+import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.MapType;
+import org.apache.cassandra.db.marshal.SetType;
+import org.apache.cassandra.db.marshal.ShortType;
+import org.apache.cassandra.db.marshal.SimpleDateType;
+import org.apache.cassandra.db.marshal.TimeUUIDType;
+import org.apache.cassandra.db.marshal.TimestampType;
+import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.marshal.UUIDType;
+import org.apache.cassandra.utils.ByteBufferUtil;
+import org.apache.cassandra.utils.TimeUUID;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.cassandra.cql3.functions.types.DataType.*;
 
 /**
  * A Codec that can serialize and deserialize to and from a given {@link #getCqlType() CQL type} and
@@ -55,21 +79,10 @@ import static org.apache.cassandra.cql3.functions.types.DataType.*;
  * according to the native protocol specifications:
  *
  * <ol>
- * <li>{@link #serialize(Object, ProtocolVersion)}: used to serialize from the codec's Java type
+ * <li>{@link #serialize(Object)}: used to serialize from the codec's Java type
  * to a {@link ByteBuffer} instance corresponding to the codec's CQL type;
- * <li>{@link #deserialize(ByteBuffer, ProtocolVersion)}: used to deserialize a {@link ByteBuffer}
+ * <li>{@link #deserialize(ByteBuffer)}: used to deserialize a {@link ByteBuffer}
  * instance corresponding to the codec's CQL type to the codec's Java type.
- * </ol>
- *
- * <p>
- *
- * <h3>Formatting and parsing</h3>
- *
- * <p>Two methods handle the formatting and parsing of Java types into CQL strings:
- *
- * <ol>
- * <li>{@link #format(Object)}: formats the Java type handled by the codec as a CQL string;
- * <li>{@link #parse(String)}; parses a CQL string into the Java type handled by the codec.
  * </ol>
  *
  * <p>
@@ -108,10 +121,6 @@ import static org.apache.cassandra.cql3.functions.types.DataType.*;
  * types, it is also admitted that {@code NULL} CQL values map to empty Java collections
  * instead of {@code null} references. In any case, the codec's behavior in respect to {@code
  * null} values and empty ByteBuffers should be clearly documented.
- * <li>TypeCodec implementations that wish to handle Java primitive types <em>must</em> be
- * instantiated with the wrapper Java class instead, and implement the appropriate interface
- * (e.g. {@link TypeCodec.PrimitiveBooleanCodec} for primitive {@code
- * boolean} types; there is one such interface for each Java primitive type).
  * <li>When deserializing, TypeCodec implementations should not consume {@link ByteBuffer}
  * instances by performing relative read operations that modify their current position; codecs
  * should instead prefer absolute read methods, or, if necessary, they should {@link
@@ -120,7 +129,8 @@ import static org.apache.cassandra.cql3.functions.types.DataType.*;
  *
  * @param <T> The codec's Java type
  */
-public abstract class TypeCodec<T>
+@SuppressWarnings("UnstableApiUsage") // Suppress warnings about TypeToken
+public abstract class TypeCodec<T, I>
 {
 
     /**
@@ -129,7 +139,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code boolean}.
      */
-    public static PrimitiveBooleanCodec cboolean()
+    public static BooleanCodec cboolean()
     {
         return BooleanCodec.instance;
     }
@@ -140,7 +150,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code tinyint}.
      */
-    public static PrimitiveByteCodec tinyInt()
+    public static TinyIntCodec tinyInt()
     {
         return TinyIntCodec.instance;
     }
@@ -206,7 +216,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code double}.
      */
-    public static PrimitiveDoubleCodec cdouble()
+    public static DoubleCodec cdouble()
     {
         return DoubleCodec.instance;
     }
@@ -217,7 +227,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code varint}.
      */
-    public static TypeCodec<BigInteger> varint()
+    public static VarintCodec varint()
     {
         return VarintCodec.instance;
     }
@@ -228,7 +238,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code decimal}.
      */
-    public static TypeCodec<BigDecimal> decimal()
+    public static DecimalCodec decimal()
     {
         return DecimalCodec.instance;
     }
@@ -239,7 +249,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code ascii}.
      */
-    public static TypeCodec<String> ascii()
+    public static AsciiCodec ascii()
     {
         return AsciiCodec.instance;
     }
@@ -250,7 +260,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code varchar}.
      */
-    public static TypeCodec<String> varchar()
+    public static VarcharCodec varchar()
     {
         return VarcharCodec.instance;
     }
@@ -261,7 +271,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code blob}.
      */
-    public static TypeCodec<ByteBuffer> blob()
+    public static BlobCodec blob()
     {
         return BlobCodec.instance;
     }
@@ -272,7 +282,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code date}.
      */
-    public static TypeCodec<LocalDate> date()
+    public static DateCodec date()
     {
         return DateCodec.instance;
     }
@@ -283,7 +293,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code time}.
      */
-    public static PrimitiveLongCodec time()
+    public static TimeCodec time()
     {
         return TimeCodec.instance;
     }
@@ -294,7 +304,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code timestamp}.
      */
-    public static TypeCodec<Date> timestamp()
+    public static TimestampCodec timestamp()
     {
         return TimestampCodec.instance;
     }
@@ -305,7 +315,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code uuid}.
      */
-    public static TypeCodec<UUID> uuid()
+    public static UUIDCodec uuid()
     {
         return UUIDCodec.instance;
     }
@@ -316,7 +326,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code timeuuid}.
      */
-    public static TypeCodec<UUID> timeUUID()
+    public static TimeUUIDCodec timeUUID()
     {
         return TimeUUIDCodec.instance;
     }
@@ -327,7 +337,7 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for CQL type {@code inet}.
      */
-    public static TypeCodec<InetAddress> inet()
+    public static InetCodec inet()
     {
         return InetCodec.instance;
     }
@@ -341,7 +351,7 @@ public abstract class TypeCodec<T>
      * @param elementCodec the codec that will handle elements of this list.
      * @return A newly-created codec for CQL type {@code list}.
      */
-    public static <T> TypeCodec<List<T>> list(TypeCodec<T> elementCodec)
+    public static <T, I> TypeCodec<List<T>, List<I>> list(TypeCodec<T, I> elementCodec)
     {
         return new ListCodec<>(elementCodec);
     }
@@ -355,7 +365,7 @@ public abstract class TypeCodec<T>
      * @param elementCodec the codec that will handle elements of this set.
      * @return A newly-created codec for CQL type {@code set}.
      */
-    public static <T> TypeCodec<Set<T>> set(TypeCodec<T> elementCodec)
+    public static <T, I> TypeCodec<Set<T>, Set<I>> set(TypeCodec<T, I> elementCodec)
     {
         return new SetCodec<>(elementCodec);
     }
@@ -370,7 +380,7 @@ public abstract class TypeCodec<T>
      * @param valueCodec the codec that will handle values of this map.
      * @return A newly-created codec for CQL type {@code map}.
      */
-    public static <K, V> TypeCodec<Map<K, V>> map(TypeCodec<K> keyCodec, TypeCodec<V> valueCodec)
+    public static <K, V, KI, VI> TypeCodec<Map<K, V>, Map<KI, VI>> map(TypeCodec<K, KI> keyCodec, TypeCodec<V, VI> valueCodec)
     {
         return new MapCodec<>(keyCodec, valueCodec);
     }
@@ -383,9 +393,9 @@ public abstract class TypeCodec<T>
      * @param type the vector type this codec should handle.
      * @return A newly-created codec for the given CQL tuple type.
      */
-    public static <E> TypeCodec<List<E>> vector(VectorType type, TypeCodec<E> valueCodec)
+    public static <E, I> TypeCodec<List<E>, List<I>> vector(VectorType type, TypeCodec<E, I> valueCodec)
     {
-        return VectorCodec.of(type, valueCodec);
+        return new VectorCodec<>(type, valueCodec);
     }
 
     /**
@@ -396,9 +406,24 @@ public abstract class TypeCodec<T>
      * @param type the user-defined type this codec should handle.
      * @return A newly-created codec for the given user-defined CQL type.
      */
-    public static TypeCodec<UDTValue> userType(UserType type)
+    public static TypeCodec<UDTValue, ByteBuffer> userType(UserType type)
     {
-        return new UDTCodec(type);
+        CodecRegistry registry = type.getCodecRegistry();
+        UserType.Field[] fields = type.getFields();
+
+        List<FieldIdentifier> fieldNames = new ArrayList<>(fields.length);
+        List<AbstractType<?>> fieldTypes = new ArrayList<>(fields.length);
+        for (UserType.Field field : fields)
+        {
+            fieldNames.add(FieldIdentifier.forQuoted(field.getName()));
+            fieldTypes.add(registry.codecFor(field.getType()).getSerializer());
+        }
+
+        return new UDTCodec(type, new org.apache.cassandra.db.marshal.UserType(type.getKeyspace(),
+                                                                               ByteBufferUtil.bytes(type.getTypeName()),
+                                                                               fieldNames,
+                                                                               fieldTypes,
+                                                                               false));
     }
 
     /**
@@ -409,9 +434,14 @@ public abstract class TypeCodec<T>
      * @param type the tuple type this codec should handle.
      * @return A newly-created codec for the given CQL tuple type.
      */
-    public static TypeCodec<TupleValue> tuple(TupleType type)
+    public static TypeCodec<TupleValue, ByteBuffer> tuple(TupleType type)
     {
-        return new TupleCodec(type);
+        CodecRegistry registry = type.getCodecRegistry();
+        List<DataType> types = type.getComponentTypes();
+        List<AbstractType<?>> serializers = new ArrayList<>(types.size());
+        for (DataType dataType : types)
+            serializers.add(registry.codecFor(dataType).getSerializer());
+        return new TupleCodec(type, new org.apache.cassandra.db.marshal.TupleType(serializers));
     }
 
     /**
@@ -420,20 +450,13 @@ public abstract class TypeCodec<T>
      * <p>The returned codec maps the custom type into the Java type {@link ByteBuffer}, thus
      * providing a (very lightweight) support for Cassandra types that do not have a CQL equivalent.
      *
-     * <p>Note that the returned codec assumes that CQL literals for the given custom type are
-     * expressed in binary form as well, e.g. {@code 0xcafebabe}. If this is not the case, <em>the
-     * returned codec might be unable to {@link #parse(String) parse} and {@link #format(Object)
-     * format} literals for this type</em>. This is notoriously true for types inheriting from {@code
-     * org.apache.cassandra.db.marshal.AbstractCompositeType}, whose CQL literals are actually
-     * expressed as quoted strings.
-     *
      * <p>This method does not cache returned instances and returns a newly-allocated object at each
      * invocation.
      *
      * @param type the custom type this codec should handle.
      * @return A newly-created codec for the given CQL custom type.
      */
-    public static TypeCodec<ByteBuffer> custom(DataType.CustomType type)
+    public static TypeCodec<ByteBuffer, ByteBuffer> custom(DataType.CustomType type)
     {
         return new CustomCodec(type);
     }
@@ -449,27 +472,27 @@ public abstract class TypeCodec<T>
      *
      * @return the default codec for the Duration type.
      */
-    public static TypeCodec<Duration> duration()
+    public static TypeCodec<Duration, org.apache.cassandra.cql3.Duration> duration()
     {
         return DurationCodec.instance;
     }
 
     private final TypeToken<T> javaType;
-
+    final AbstractType<I> serializer;
     final DataType cqlType;
 
     /**
      * This constructor can only be used for non parameterized types. For parameterized ones, please
-     * use {@link #TypeCodec(DataType, TypeToken)} instead.
+     * use {@link #TypeCodec(DataType, AbstractType, TypeToken)} instead.
      *
      * @param javaClass The Java class this codec serializes from and deserializes to.
      */
-    protected TypeCodec(DataType cqlType, Class<T> javaClass)
+    protected TypeCodec(DataType cqlType, AbstractType<I> serializer, Class<T> javaClass)
     {
-        this(cqlType, TypeToken.of(javaClass));
+        this(cqlType, serializer, TypeToken.of(javaClass));
     }
 
-    protected TypeCodec(DataType cqlType, TypeToken<T> javaType)
+    protected TypeCodec(DataType cqlType, AbstractType<I> serializer, TypeToken<T> javaType)
     {
         checkNotNull(cqlType, "cqlType cannot be null");
         checkNotNull(javaType, "javaType cannot be null");
@@ -478,6 +501,7 @@ public abstract class TypeCodec<T>
         "Cannot create a codec for a primitive Java type (%s), please use the wrapper type instead",
         javaType);
         this.cqlType = cqlType;
+        this.serializer = serializer;
         this.javaType = javaType;
     }
 
@@ -501,14 +525,21 @@ public abstract class TypeCodec<T>
         return cqlType;
     }
 
-    /**
-     * Checks if all values are of fixed length.
-     *
-     * @return {@code true} if all values are of fixed length, {@code false} otherwise.
-     */
-    public boolean isValueLengthFixed()
+    public AbstractType<I> getSerializer()
     {
-        return false;
+        return serializer;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T toDriver(I value)
+    {
+        return (T) value;
+    }
+
+    @SuppressWarnings("unchecked")
+    public I fromDriver(T value)
+    {
+        return (I) value;
     }
 
     /**
@@ -524,15 +555,14 @@ public abstract class TypeCodec<T>
      * empty collection.
      * </ol>
      *
-     * @param value           An instance of T; may be {@code null}.
-     * @param protocolVersion the protocol version to use when serializing {@code bytes}. In most
-     *                        cases, the proper value to provide for this argument is the value returned by {@code
-     *                        ProtocolOptions#getProtocolVersion} (which is the protocol version in use by the driver).
+     * @param value An instance of T; may be {@code null}.
      * @return A {@link ByteBuffer} instance containing the serialized form of T
      * @throws InvalidTypeException if the given value does not have the expected type
      */
-    public abstract ByteBuffer serialize(T value, ProtocolVersion protocolVersion)
-    throws InvalidTypeException;
+    public ByteBuffer serialize(T value)
+    {
+        return serializer.decompose(fromDriver(value));
+    }
 
     /**
      * Deserialize the given {@link ByteBuffer} instance according to the CQL type handled by this
@@ -556,63 +586,15 @@ public abstract class TypeCodec<T>
      * consuming.
      * </ol>
      *
-     * @param bytes           A {@link ByteBuffer} instance containing the serialized form of T; may be {@code
-     *                        null} or empty.
-     * @param protocolVersion the protocol version to use when serializing {@code bytes}. In most
-     *                        cases, the proper value to provide for this argument is the value returned by {@code
-     *                        ProtocolOptions#getProtocolVersion} (which is the protocol version in use by the driver).
+     * @param bytes A {@link ByteBuffer} instance containing the serialized form of T; may be {@code
+     *              null} or empty.
      * @return An instance of T
      * @throws InvalidTypeException if the given {@link ByteBuffer} instance cannot be deserialized
      */
-    public abstract T deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-    throws InvalidTypeException;
-
-    /**
-     * Parse the given CQL literal into an instance of the Java type handled by this codec.
-     *
-     * <p>Implementors should take care of unquoting and unescaping the given CQL string where
-     * applicable. Null values and empty Strings should be accepted, as well as the string {@code
-     * "NULL"}; in most cases, implementations should interpret these inputs has equivalent to a
-     * {@code null} reference.
-     *
-     * <p>Implementing this method is not strictly mandatory: internally, the driver only uses it to
-     * parse the INITCOND when building the metadata of an aggregate function (and in most cases it
-     * will use a built-in codec, unless the INITCOND has a custom type).
-     *
-     * @param value The CQL string to parse, may be {@code null} or empty.
-     * @return An instance of T; may be {@code null} on a {@code null input}.
-     * @throws InvalidTypeException if the given value cannot be parsed into the expected type
-     */
-    public abstract T parse(String value) throws InvalidTypeException;
-
-    /**
-     * Format the given value as a valid CQL literal according to the CQL type handled by this codec.
-     *
-     * <p>Implementors should take care of quoting and escaping the resulting CQL literal where
-     * applicable. Null values should be accepted; in most cases, implementations should return the
-     * CQL keyword {@code "NULL"} for {@code null} inputs.
-     *
-     * <p>Implementing this method is not strictly mandatory. It is used:
-     *
-     * <ol>
-     * <li>in the query builder, when values are inlined in the query string (see {@code
-     * querybuilder.BuiltStatement} for a detailed explanation of when
-     * this happens);
-     * <li>in the {@code QueryLogger}, if parameter logging is enabled;
-     * <li>to format the INITCOND in {@code AggregateMetadata#asCQLQuery(boolean)};
-     * <li>in the {@code toString()} implementation of some objects ({@link UDTValue}, {@link
-     * TupleValue}, and the internal representation of a {@code ROWS} response), which may
-     * appear in driver logs.
-     * </ol>
-     * <p>
-     * If you choose not to implement this method, you should not throw an exception but instead
-     * return a constant string (for example "XxxCodec.format not implemented").
-     *
-     * @param value An instance of T; may be {@code null}.
-     * @return CQL string
-     * @throws InvalidTypeException if the given value does not have the expected type
-     */
-    public abstract String format(T value) throws InvalidTypeException;
+    public final T deserialize(ByteBuffer bytes) throws InvalidTypeException
+    {
+        return bytes == null ? null : toDriver(serializer.compose(bytes));
+    }
 
     /**
      * Return {@code true} if this codec is capable of serializing the given {@code javaType}.
@@ -710,65 +692,11 @@ public abstract class TypeCodec<T>
         return String.format("%s [%s <-> %s]", this.getClass().getSimpleName(), cqlType, javaType);
     }
 
-    /**
-     * A codec that is capable of handling primitive booleans, thus avoiding the overhead of boxing
-     * and unboxing such primitives.
-     */
-    public abstract static class PrimitiveBooleanCodec extends TypeCodec<Boolean>
+    public abstract static class SimpleCodec<T> extends TypeCodec<T, T>
     {
-
-        PrimitiveBooleanCodec(DataType cqlType)
+        public SimpleCodec(DataType cqlType, AbstractType<T> serializer, Class<T> javaClass)
         {
-            super(cqlType, Boolean.class);
-        }
-
-        public abstract ByteBuffer serializeNoBoxing(boolean v, ProtocolVersion protocolVersion);
-
-        public abstract boolean deserializeNoBoxing(ByteBuffer v, ProtocolVersion protocolVersion);
-
-        @Override
-        public ByteBuffer serialize(Boolean value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : serializeNoBoxing(value, protocolVersion);
-        }
-
-        @Override
-        public Boolean deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null || bytes.remaining() == 0
-                   ? null
-                   : deserializeNoBoxing(bytes, protocolVersion);
-        }
-    }
-
-    /**
-     * A codec that is capable of handling primitive bytes, thus avoiding the overhead of boxing and
-     * unboxing such primitives.
-     */
-    public abstract static class PrimitiveByteCodec extends TypeCodec<Byte>
-    {
-
-        PrimitiveByteCodec(DataType cqlType)
-        {
-            super(cqlType, Byte.class);
-        }
-
-        public abstract ByteBuffer serializeNoBoxing(byte v, ProtocolVersion protocolVersion);
-
-        public abstract byte deserializeNoBoxing(ByteBuffer v, ProtocolVersion protocolVersion);
-
-        @Override
-        public ByteBuffer serialize(Byte value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : serializeNoBoxing(value, protocolVersion);
-        }
-
-        @Override
-        public Byte deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null || bytes.remaining() == 0
-                   ? null
-                   : deserializeNoBoxing(bytes, protocolVersion);
+            super(cqlType, serializer, javaClass);
         }
     }
 
@@ -776,30 +704,11 @@ public abstract class TypeCodec<T>
      * A codec that is capable of handling primitive shorts, thus avoiding the overhead of boxing and
      * unboxing such primitives.
      */
-    public abstract static class PrimitiveShortCodec extends TypeCodec<Short>
+    public abstract static class PrimitiveShortCodec extends SimpleCodec<Short>
     {
-
         PrimitiveShortCodec(DataType cqlType)
         {
-            super(cqlType, Short.class);
-        }
-
-        public abstract ByteBuffer serializeNoBoxing(short v, ProtocolVersion protocolVersion);
-
-        public abstract short deserializeNoBoxing(ByteBuffer v, ProtocolVersion protocolVersion);
-
-        @Override
-        public ByteBuffer serialize(Short value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : serializeNoBoxing(value, protocolVersion);
-        }
-
-        @Override
-        public Short deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null || bytes.remaining() == 0
-                   ? null
-                   : deserializeNoBoxing(bytes, protocolVersion);
+            super(cqlType, ShortType.instance, Short.class);
         }
     }
 
@@ -807,30 +716,11 @@ public abstract class TypeCodec<T>
      * A codec that is capable of handling primitive ints, thus avoiding the overhead of boxing and
      * unboxing such primitives.
      */
-    public abstract static class PrimitiveIntCodec extends TypeCodec<Integer>
+    public abstract static class PrimitiveIntCodec extends SimpleCodec<Integer>
     {
-
         PrimitiveIntCodec(DataType cqlType)
         {
-            super(cqlType, Integer.class);
-        }
-
-        public abstract ByteBuffer serializeNoBoxing(int v, ProtocolVersion protocolVersion);
-
-        public abstract int deserializeNoBoxing(ByteBuffer v, ProtocolVersion protocolVersion);
-
-        @Override
-        public ByteBuffer serialize(Integer value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : serializeNoBoxing(value, protocolVersion);
-        }
-
-        @Override
-        public Integer deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null || bytes.remaining() == 0
-                   ? null
-                   : deserializeNoBoxing(bytes, protocolVersion);
+            super(cqlType, Int32Type.instance, Integer.class);
         }
     }
 
@@ -838,30 +728,11 @@ public abstract class TypeCodec<T>
      * A codec that is capable of handling primitive longs, thus avoiding the overhead of boxing and
      * unboxing such primitives.
      */
-    public abstract static class PrimitiveLongCodec extends TypeCodec<Long>
+    public abstract static class PrimitiveLongCodec extends SimpleCodec<Long>
     {
-
         PrimitiveLongCodec(DataType cqlType)
         {
-            super(cqlType, Long.class);
-        }
-
-        public abstract ByteBuffer serializeNoBoxing(long v, ProtocolVersion protocolVersion);
-
-        public abstract long deserializeNoBoxing(ByteBuffer v, ProtocolVersion protocolVersion);
-
-        @Override
-        public ByteBuffer serialize(Long value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : serializeNoBoxing(value, protocolVersion);
-        }
-
-        @Override
-        public Long deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null || bytes.remaining() == 0
-                   ? null
-                   : deserializeNoBoxing(bytes, protocolVersion);
+            super(cqlType, LongType.instance, Long.class);
         }
     }
 
@@ -869,61 +740,11 @@ public abstract class TypeCodec<T>
      * A codec that is capable of handling primitive floats, thus avoiding the overhead of boxing and
      * unboxing such primitives.
      */
-    public abstract static class PrimitiveFloatCodec extends TypeCodec<Float>
+    public abstract static class PrimitiveFloatCodec extends SimpleCodec<Float>
     {
-
         PrimitiveFloatCodec(DataType cqlType)
         {
-            super(cqlType, Float.class);
-        }
-
-        public abstract ByteBuffer serializeNoBoxing(float v, ProtocolVersion protocolVersion);
-
-        public abstract float deserializeNoBoxing(ByteBuffer v, ProtocolVersion protocolVersion);
-
-        @Override
-        public ByteBuffer serialize(Float value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : serializeNoBoxing(value, protocolVersion);
-        }
-
-        @Override
-        public Float deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null || bytes.remaining() == 0
-                   ? null
-                   : deserializeNoBoxing(bytes, protocolVersion);
-        }
-    }
-
-    /**
-     * A codec that is capable of handling primitive doubles, thus avoiding the overhead of boxing and
-     * unboxing such primitives.
-     */
-    public abstract static class PrimitiveDoubleCodec extends TypeCodec<Double>
-    {
-
-        PrimitiveDoubleCodec(DataType cqlType)
-        {
-            super(cqlType, Double.class);
-        }
-
-        public abstract ByteBuffer serializeNoBoxing(double v, ProtocolVersion protocolVersion);
-
-        public abstract double deserializeNoBoxing(ByteBuffer v, ProtocolVersion protocolVersion);
-
-        @Override
-        public ByteBuffer serialize(Double value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : serializeNoBoxing(value, protocolVersion);
-        }
-
-        @Override
-        public Double deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null || bytes.remaining() == 0
-                   ? null
-                   : deserializeNoBoxing(bytes, protocolVersion);
+            super(cqlType, FloatType.instance, Float.class);
         }
     }
 
@@ -931,52 +752,11 @@ public abstract class TypeCodec<T>
      * Base class for codecs handling CQL string types such as {@link DataType#varchar()}, {@link
      * DataType#text()} or {@link DataType#ascii()}.
      */
-    private abstract static class StringCodec extends TypeCodec<String>
+    public abstract static class StringCodec extends SimpleCodec<String>
     {
-
-        private final Charset charset;
-
-        private StringCodec(DataType cqlType, Charset charset)
+        private StringCodec(DataType cqlType, AbstractType<String> serializer)
         {
-            super(cqlType, String.class);
-            this.charset = charset;
-        }
-
-        @Override
-        public String parse(String value)
-        {
-            if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
-            if (!ParseUtils.isQuoted(value))
-                throw new InvalidTypeException("text or varchar values must be enclosed by single quotes");
-
-            return ParseUtils.unquote(value);
-        }
-
-        @Override
-        public String format(String value)
-        {
-            if (value == null) return "NULL";
-            return ParseUtils.quote(value);
-        }
-
-        @Override
-        public ByteBuffer serialize(String value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : ByteBuffer.wrap(value.getBytes(charset));
-        }
-
-        /**
-         * {@inheritDoc}
-         *
-         * <p>Implementation note: this method treats {@code null}s and empty buffers differently: the
-         * formers are mapped to {@code null}s while the latters are mapped to empty strings.
-         */
-        @Override
-        public String deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null) return null;
-            if (bytes.remaining() == 0) return "";
-            return new String(Bytes.getArray(bytes), charset);
+            super(cqlType, serializer, String.class);
         }
     }
 
@@ -984,50 +764,26 @@ public abstract class TypeCodec<T>
      * This codec maps a CQL {@link DataType#varchar()} to a Java {@link String}. Note that this codec
      * also handles {@link DataType#text()}, which is merely an alias for {@link DataType#varchar()}.
      */
-    private static class VarcharCodec extends StringCodec
+    public static class VarcharCodec extends StringCodec
     {
-
         private static final VarcharCodec instance = new VarcharCodec();
 
         private VarcharCodec()
         {
-            super(DataType.varchar(), Charset.forName("UTF-8"));
+            super(DataType.varchar(), UTF8Type.instance);
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#ascii()} to a Java {@link String}.
      */
-    private static class AsciiCodec extends StringCodec
+    public static class AsciiCodec extends StringCodec
     {
-
         private static final AsciiCodec instance = new AsciiCodec();
-
-        private static final Pattern ASCII_PATTERN = Pattern.compile("^\\p{ASCII}*$");
 
         private AsciiCodec()
         {
-            super(DataType.ascii(), Charset.forName("US-ASCII"));
-        }
-
-        @Override
-        public ByteBuffer serialize(String value, ProtocolVersion protocolVersion)
-        {
-            if (value != null && !ASCII_PATTERN.matcher(value).matches())
-            {
-                throw new InvalidTypeException(String.format("%s is not a valid ASCII String", value));
-            }
-            return super.serialize(value, protocolVersion);
-        }
-
-        @Override
-        public String format(String value)
-        {
-            if (value != null && !ASCII_PATTERN.matcher(value).matches())
-            {
-                throw new InvalidTypeException(String.format("%s is not a valid ASCII String", value));
-            }
-            return super.format(value);
+            super(DataType.ascii(), AsciiType.instance);
         }
     }
 
@@ -1035,69 +791,19 @@ public abstract class TypeCodec<T>
      * Base class for codecs handling CQL 8-byte integer types such as {@link DataType#bigint()},
      * {@link DataType#counter()} or {@link DataType#time()}.
      */
-    private abstract static class LongCodec extends PrimitiveLongCodec
+    public abstract static class LongCodec extends PrimitiveLongCodec
     {
-
         private LongCodec(DataType cqlType)
         {
             super(cqlType);
-        }
-
-        @Override
-        public boolean isValueLengthFixed()
-        {
-            return true;
-        }
-
-        @Override
-        public Long parse(String value)
-        {
-            try
-            {
-                return value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")
-                       ? null
-                       : Long.parseLong(value);
-            }
-            catch (NumberFormatException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse 64-bits long value from \"%s\"", value));
-            }
-        }
-
-        @Override
-        public String format(Long value)
-        {
-            if (value == null) return "NULL";
-            return Long.toString(value);
-        }
-
-        @Override
-        public ByteBuffer serializeNoBoxing(long value, ProtocolVersion protocolVersion)
-        {
-            ByteBuffer bb = ByteBuffer.allocate(8);
-            bb.putLong(0, value);
-            return bb;
-        }
-
-        @Override
-        public long deserializeNoBoxing(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return 0;
-            if (bytes.remaining() != 8)
-                throw new InvalidTypeException(
-                "Invalid 64-bits long value, expecting 8 bytes but got " + bytes.remaining());
-
-            return bytes.getLong(bytes.position());
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#bigint()} to a Java {@link Long}.
      */
-    private static class BigintCodec extends LongCodec
+    public static class BigintCodec extends LongCodec
     {
-
         private static final BigintCodec instance = new BigintCodec();
 
         private BigintCodec()
@@ -1109,9 +815,8 @@ public abstract class TypeCodec<T>
     /**
      * This codec maps a CQL {@link DataType#counter()} to a Java {@link Long}.
      */
-    private static class CounterCodec extends LongCodec
+    public static class CounterCodec extends LongCodec
     {
-
         private static final CounterCodec instance = new CounterCodec();
 
         private CounterCodec()
@@ -1123,41 +828,14 @@ public abstract class TypeCodec<T>
     /**
      * This codec maps a CQL {@link DataType#blob()} to a Java {@link ByteBuffer}.
      */
-    private static class BlobCodec extends TypeCodec<ByteBuffer>
+    public static class BlobCodec extends SimpleCodec<ByteBuffer>
     {
 
         private static final BlobCodec instance = new BlobCodec();
 
         private BlobCodec()
         {
-            super(DataType.blob(), ByteBuffer.class);
-        }
-
-        @Override
-        public ByteBuffer parse(String value)
-        {
-            return value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")
-                   ? null
-                   : Bytes.fromHexString(value);
-        }
-
-        @Override
-        public String format(ByteBuffer value)
-        {
-            if (value == null) return "NULL";
-            return Bytes.toHexString(value);
-        }
-
-        @Override
-        public ByteBuffer serialize(ByteBuffer value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : value.duplicate();
-        }
-
-        @Override
-        public ByteBuffer deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null ? null : bytes.duplicate();
+            super(DataType.blob(), BytesType.instance, ByteBuffer.class);
         }
     }
 
@@ -1166,236 +844,58 @@ public abstract class TypeCodec<T>
      * Note that no instance of this codec is part of the default set of codecs used by the Java
      * driver; instances of this codec must be manually registered.
      */
-    private static class CustomCodec extends TypeCodec<ByteBuffer>
+    public static class CustomCodec extends SimpleCodec<ByteBuffer>
     {
-
         private CustomCodec(DataType custom)
         {
-            super(custom, ByteBuffer.class);
-            assert custom.getName() == Name.CUSTOM;
-        }
-
-        @Override
-        public ByteBuffer parse(String value)
-        {
-            return value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")
-                   ? null
-                   : Bytes.fromHexString(value);
-        }
-
-        @Override
-        public String format(ByteBuffer value)
-        {
-            if (value == null) return "NULL";
-            return Bytes.toHexString(value);
-        }
-
-        @Override
-        public ByteBuffer serialize(ByteBuffer value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : value.duplicate();
-        }
-
-        @Override
-        public ByteBuffer deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null ? null : bytes.duplicate();
+            super(custom, BytesType.instance, ByteBuffer.class);
+            assert custom.getName() == DataType.Name.CUSTOM;
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#cboolean()} to a Java {@link Boolean}.
      */
-    private static class BooleanCodec extends PrimitiveBooleanCodec
+    public static class BooleanCodec extends SimpleCodec<Boolean>
     {
-
-        private static final ByteBuffer TRUE = ByteBuffer.wrap(new byte[]{ 1 });
-        private static final ByteBuffer FALSE = ByteBuffer.wrap(new byte[]{ 0 });
-
         private static final BooleanCodec instance = new BooleanCodec();
 
         private BooleanCodec()
         {
-            super(DataType.cboolean());
-        }
-
-        @Override
-        public boolean isValueLengthFixed()
-        {
-            return true;
-        }
-
-        @Override
-        public Boolean parse(String value)
-        {
-            if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
-            if (value.equalsIgnoreCase(Boolean.FALSE.toString())) return false;
-            if (value.equalsIgnoreCase(Boolean.TRUE.toString())) return true;
-
-            throw new InvalidTypeException(
-            String.format("Cannot parse boolean value from \"%s\"", value));
-        }
-
-        @Override
-        public String format(Boolean value)
-        {
-            if (value == null) return "NULL";
-            return value ? "true" : "false";
-        }
-
-        @Override
-        public ByteBuffer serializeNoBoxing(boolean value, ProtocolVersion protocolVersion)
-        {
-            return value ? TRUE.duplicate() : FALSE.duplicate();
-        }
-
-        @Override
-        public boolean deserializeNoBoxing(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return false;
-            if (bytes.remaining() != 1)
-                throw new InvalidTypeException(
-                "Invalid boolean value, expecting 1 byte but got " + bytes.remaining());
-
-            return bytes.get(bytes.position()) != 0;
+            super(DataType.cboolean(), BooleanType.instance, Boolean.class);
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#decimal()} to a Java {@link BigDecimal}.
      */
-    private static class DecimalCodec extends TypeCodec<BigDecimal>
+    public static class DecimalCodec extends SimpleCodec<BigDecimal>
     {
-
         private static final DecimalCodec instance = new DecimalCodec();
 
         private DecimalCodec()
         {
-            super(DataType.decimal(), BigDecimal.class);
-        }
-
-        @Override
-        public BigDecimal parse(String value)
-        {
-            try
-            {
-                return value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")
-                       ? null
-                       : new BigDecimal(value);
-            }
-            catch (NumberFormatException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse decimal value from \"%s\"", value));
-            }
-        }
-
-        @Override
-        public String format(BigDecimal value)
-        {
-            if (value == null) return "NULL";
-            return value.toString();
-        }
-
-        @Override
-        public ByteBuffer serialize(BigDecimal value, ProtocolVersion protocolVersion)
-        {
-            if (value == null) return null;
-            BigInteger bi = value.unscaledValue();
-            int scale = value.scale();
-            byte[] bibytes = bi.toByteArray();
-
-            ByteBuffer bytes = ByteBuffer.allocate(4 + bibytes.length);
-            bytes.putInt(scale);
-            bytes.put(bibytes);
-            bytes.rewind();
-            return bytes;
-        }
-
-        @Override
-        public BigDecimal deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return null;
-            if (bytes.remaining() < 4)
-                throw new InvalidTypeException(
-                "Invalid decimal value, expecting at least 4 bytes but got " + bytes.remaining());
-
-            bytes = bytes.duplicate();
-            int scale = bytes.getInt();
-            byte[] bibytes = new byte[bytes.remaining()];
-            bytes.get(bibytes);
-
-            BigInteger bi = new BigInteger(bibytes);
-            return new BigDecimal(bi, scale);
+            super(DataType.decimal(), DecimalType.instance, BigDecimal.class);
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#cdouble()} to a Java {@link Double}.
      */
-    private static class DoubleCodec extends PrimitiveDoubleCodec
+    public static class DoubleCodec extends SimpleCodec<Double>
     {
-
         private static final DoubleCodec instance = new DoubleCodec();
 
         private DoubleCodec()
         {
-            super(DataType.cdouble());
-        }
-
-        @Override
-        public boolean isValueLengthFixed()
-        {
-            return true;
-        }
-
-        @Override
-        public Double parse(String value)
-        {
-            try
-            {
-                return value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")
-                       ? null
-                       : Double.parseDouble(value);
-            }
-            catch (NumberFormatException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse 64-bits double value from \"%s\"", value));
-            }
-        }
-
-        @Override
-        public String format(Double value)
-        {
-            if (value == null) return "NULL";
-            return Double.toString(value);
-        }
-
-        @Override
-        public ByteBuffer serializeNoBoxing(double value, ProtocolVersion protocolVersion)
-        {
-            ByteBuffer bb = ByteBuffer.allocate(8);
-            bb.putDouble(0, value);
-            return bb;
-        }
-
-        @Override
-        public double deserializeNoBoxing(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return 0;
-            if (bytes.remaining() != 8)
-                throw new InvalidTypeException(
-                "Invalid 64-bits double value, expecting 8 bytes but got " + bytes.remaining());
-
-            return bytes.getDouble(bytes.position());
+            super(DataType.cdouble(), DoubleType.instance, Double.class);
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#cfloat()} to a Java {@link Float}.
      */
-    private static class FloatCodec extends PrimitiveFloatCodec
+    public static class FloatCodec extends PrimitiveFloatCodec
     {
 
         private static final FloatCodec instance = new FloatCodec();
@@ -1404,245 +904,54 @@ public abstract class TypeCodec<T>
         {
             super(DataType.cfloat());
         }
-
-        @Override
-        public boolean isValueLengthFixed()
-        {
-            return true;
-        }
-
-        @Override
-        public Float parse(String value)
-        {
-            try
-            {
-                return value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")
-                       ? null
-                       : Float.parseFloat(value);
-            }
-            catch (NumberFormatException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse 32-bits float value from \"%s\"", value));
-            }
-        }
-
-        @Override
-        public String format(Float value)
-        {
-            if (value == null) return "NULL";
-            return Float.toString(value);
-        }
-
-        @Override
-        public ByteBuffer serializeNoBoxing(float value, ProtocolVersion protocolVersion)
-        {
-            ByteBuffer bb = ByteBuffer.allocate(4);
-            bb.putFloat(0, value);
-            return bb;
-        }
-
-        @Override
-        public float deserializeNoBoxing(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return 0;
-            if (bytes.remaining() != 4)
-                throw new InvalidTypeException(
-                "Invalid 32-bits float value, expecting 4 bytes but got " + bytes.remaining());
-
-            return bytes.getFloat(bytes.position());
-        }
     }
 
     /**
      * This codec maps a CQL {@link DataType#inet()} to a Java {@link InetAddress}.
      */
-    private static class InetCodec extends TypeCodec<InetAddress>
+    public static class InetCodec extends SimpleCodec<InetAddress>
     {
 
         private static final InetCodec instance = new InetCodec();
 
         private InetCodec()
         {
-            super(DataType.inet(), InetAddress.class);
-        }
-
-        @Override
-        public InetAddress parse(String value)
-        {
-            if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
-
-            value = value.trim();
-            if (!ParseUtils.isQuoted(value))
-                throw new InvalidTypeException(
-                String.format("inet values must be enclosed in single quotes (\"%s\")", value));
-            try
-            {
-                return InetAddress.getByName(value.substring(1, value.length() - 1));
-            }
-            catch (Exception e)
-            {
-                throw new InvalidTypeException(String.format("Cannot parse inet value from \"%s\"", value));
-            }
-        }
-
-        @Override
-        public String format(InetAddress value)
-        {
-            if (value == null) return "NULL";
-            return '\'' + value.getHostAddress() + '\'';
-        }
-
-        @Override
-        public ByteBuffer serialize(InetAddress value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : ByteBuffer.wrap(value.getAddress());
-        }
-
-        @Override
-        public InetAddress deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return null;
-            try
-            {
-                return InetAddress.getByAddress(Bytes.getArray(bytes));
-            }
-            catch (UnknownHostException e)
-            {
-                throw new InvalidTypeException(
-                "Invalid bytes for inet value, got " + bytes.remaining() + " bytes");
-            }
+            super(DataType.inet(), InetAddressType.instance, InetAddress.class);
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#tinyint()} to a Java {@link Byte}.
      */
-    private static class TinyIntCodec extends PrimitiveByteCodec
+    public static class TinyIntCodec extends SimpleCodec<Byte>
     {
 
         private static final TinyIntCodec instance = new TinyIntCodec();
 
         private TinyIntCodec()
         {
-            super(tinyint());
-        }
-
-        @Override
-        public boolean isValueLengthFixed()
-        {
-            return true;
-        }
-
-        @Override
-        public Byte parse(String value)
-        {
-            try
-            {
-                return value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")
-                       ? null
-                       : Byte.parseByte(value);
-            }
-            catch (NumberFormatException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse 8-bits int value from \"%s\"", value));
-            }
-        }
-
-        @Override
-        public String format(Byte value)
-        {
-            if (value == null) return "NULL";
-            return Byte.toString(value);
-        }
-
-        @Override
-        public ByteBuffer serializeNoBoxing(byte value, ProtocolVersion protocolVersion)
-        {
-            ByteBuffer bb = ByteBuffer.allocate(1);
-            bb.put(0, value);
-            return bb;
-        }
-
-        @Override
-        public byte deserializeNoBoxing(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return 0;
-            if (bytes.remaining() != 1)
-                throw new InvalidTypeException(
-                "Invalid 8-bits integer value, expecting 1 byte but got " + bytes.remaining());
-
-            return bytes.get(bytes.position());
+            super(DataType.tinyint(), ByteType.instance, Byte.class);
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#smallint()} to a Java {@link Short}.
      */
-    private static class SmallIntCodec extends PrimitiveShortCodec
+    public static class SmallIntCodec extends PrimitiveShortCodec
     {
 
         private static final SmallIntCodec instance = new SmallIntCodec();
 
         private SmallIntCodec()
         {
-            super(smallint());
-        }
-
-        @Override
-        public boolean isValueLengthFixed()
-        {
-            return true;
-        }
-
-        @Override
-        public Short parse(String value)
-        {
-            try
-            {
-                return value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")
-                       ? null
-                       : Short.parseShort(value);
-            }
-            catch (NumberFormatException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse 16-bits int value from \"%s\"", value));
-            }
-        }
-
-        @Override
-        public String format(Short value)
-        {
-            if (value == null) return "NULL";
-            return Short.toString(value);
-        }
-
-        @Override
-        public ByteBuffer serializeNoBoxing(short value, ProtocolVersion protocolVersion)
-        {
-            ByteBuffer bb = ByteBuffer.allocate(2);
-            bb.putShort(0, value);
-            return bb;
-        }
-
-        @Override
-        public short deserializeNoBoxing(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return 0;
-            if (bytes.remaining() != 2)
-                throw new InvalidTypeException(
-                "Invalid 16-bits integer value, expecting 2 bytes but got " + bytes.remaining());
-
-            return bytes.getShort(bytes.position());
+            super(DataType.smallint());
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#cint()} to a Java {@link Integer}.
      */
-    private static class IntCodec extends PrimitiveIntCodec
+    public static class IntCodec extends PrimitiveIntCodec
     {
 
         private static final IntCodec instance = new IntCodec();
@@ -1651,273 +960,57 @@ public abstract class TypeCodec<T>
         {
             super(DataType.cint());
         }
-
-        @Override
-        public boolean isValueLengthFixed()
-        {
-            return true;
-        }
-
-        @Override
-        public Integer parse(String value)
-        {
-            try
-            {
-                return value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")
-                       ? null
-                       : Integer.parseInt(value);
-            }
-            catch (NumberFormatException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse 32-bits int value from \"%s\"", value));
-            }
-        }
-
-        @Override
-        public String format(Integer value)
-        {
-            if (value == null) return "NULL";
-            return Integer.toString(value);
-        }
-
-        @Override
-        public ByteBuffer serializeNoBoxing(int value, ProtocolVersion protocolVersion)
-        {
-            ByteBuffer bb = ByteBuffer.allocate(4);
-            bb.putInt(0, value);
-            return bb;
-        }
-
-        @Override
-        public int deserializeNoBoxing(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return 0;
-            if (bytes.remaining() != 4)
-                throw new InvalidTypeException(
-                "Invalid 32-bits integer value, expecting 4 bytes but got " + bytes.remaining());
-
-            return bytes.getInt(bytes.position());
-        }
     }
 
     /**
      * This codec maps a CQL {@link DataType#timestamp()} to a Java {@link Date}.
      */
-    private static class TimestampCodec extends TypeCodec<Date>
+    public static class TimestampCodec extends SimpleCodec<Date>
     {
 
         private static final TimestampCodec instance = new TimestampCodec();
 
         private TimestampCodec()
         {
-            super(DataType.timestamp(), Date.class);
-        }
-
-        @Override
-        public boolean isValueLengthFixed()
-        {
-            return true;
-        }
-
-        @Override
-        public Date parse(String value)
-        {
-            if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
-            // strip enclosing single quotes, if any
-            if (ParseUtils.isQuoted(value)) value = ParseUtils.unquote(value);
-
-            if (ParseUtils.isLongLiteral(value))
-            {
-                try
-                {
-                    return new Date(Long.parseLong(value));
-                }
-                catch (NumberFormatException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format("Cannot parse timestamp value from \"%s\"", value));
-                }
-            }
-
-            try
-            {
-                return ParseUtils.parseDate(value);
-            }
-            catch (ParseException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse timestamp value from \"%s\"", value));
-            }
-        }
-
-        @Override
-        public String format(Date value)
-        {
-            if (value == null) return "NULL";
-            return Long.toString(value.getTime());
-        }
-
-        @Override
-        public ByteBuffer serialize(Date value, ProtocolVersion protocolVersion)
-        {
-            return value == null
-                   ? null
-                   : BigintCodec.instance.serializeNoBoxing(value.getTime(), protocolVersion);
-        }
-
-        @Override
-        public Date deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null || bytes.remaining() == 0
-                   ? null
-                   : new Date(BigintCodec.instance.deserializeNoBoxing(bytes, protocolVersion));
+            super(DataType.timestamp(), TimestampType.instance, Date.class);
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#date()} to the custom {@link LocalDate} class.
      */
-    private static class DateCodec extends TypeCodec<LocalDate>
+    public static class DateCodec extends TypeCodec<LocalDate, Integer>
     {
-
         private static final DateCodec instance = new DateCodec();
-
-        private static final String pattern = "yyyy-MM-dd";
 
         private DateCodec()
         {
-            super(DataType.date(), LocalDate.class);
+            super(DataType.date(), SimpleDateType.instance, LocalDate.class);
         }
 
         @Override
-        public boolean isValueLengthFixed()
+        public LocalDate toDriver(Integer value)
         {
-            return true;
+            return LocalDate.fromDaysSinceEpoch(CodecUtils.fromCqlDateToDaysSinceEpoch(value));
         }
 
         @Override
-        public LocalDate parse(String value)
+        public Integer fromDriver(LocalDate value)
         {
-            if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
-
-            // single quotes are optional for long literals, mandatory for date patterns
-            // strip enclosing single quotes, if any
-            if (ParseUtils.isQuoted(value)) value = ParseUtils.unquote(value);
-
-            if (ParseUtils.isLongLiteral(value))
-            {
-                long unsigned;
-                try
-                {
-                    unsigned = Long.parseLong(value);
-                }
-                catch (NumberFormatException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format("Cannot parse date value from \"%s\"", value), e);
-                }
-                try
-                {
-                    int days = CodecUtils.fromCqlDateToDaysSinceEpoch(unsigned);
-                    return LocalDate.fromDaysSinceEpoch(days);
-                }
-                catch (IllegalArgumentException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format("Cannot parse date value from \"%s\"", value), e);
-                }
-            }
-
-            try
-            {
-                Date date = ParseUtils.parseDate(value, pattern);
-                return LocalDate.fromMillisSinceEpoch(date.getTime());
-            }
-            catch (ParseException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse date value from \"%s\"", value), e);
-            }
-        }
-
-        @Override
-        public String format(LocalDate value)
-        {
-            if (value == null) return "NULL";
-            return ParseUtils.quote(value.toString());
-        }
-
-        @Override
-        public ByteBuffer serialize(LocalDate value, ProtocolVersion protocolVersion)
-        {
-            if (value == null) return null;
-            int unsigned = CodecUtils.fromSignedToUnsignedInt(value.getDaysSinceEpoch());
-            return IntCodec.instance.serializeNoBoxing(unsigned, protocolVersion);
-        }
-
-        @Override
-        public LocalDate deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return null;
-            int unsigned = IntCodec.instance.deserializeNoBoxing(bytes, protocolVersion);
-            int signed = CodecUtils.fromUnsignedToSignedInt(unsigned);
-            return LocalDate.fromDaysSinceEpoch(signed);
+            return CodecUtils.fromSignedToUnsignedInt(value.getDaysSinceEpoch());
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#time()} to a Java {@link Long}.
      */
-    private static class TimeCodec extends LongCodec
+    public static class TimeCodec extends LongCodec
     {
-
         private static final TimeCodec instance = new TimeCodec();
 
         private TimeCodec()
         {
             super(DataType.time());
-        }
-
-        @Override
-        public Long parse(String value)
-        {
-            if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
-
-            // enclosing single quotes required, even for long literals
-            if (!ParseUtils.isQuoted(value))
-                throw new InvalidTypeException("time values must be enclosed by single quotes");
-            value = value.substring(1, value.length() - 1);
-
-            if (ParseUtils.isLongLiteral(value))
-            {
-                try
-                {
-                    return Long.parseLong(value);
-                }
-                catch (NumberFormatException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format("Cannot parse time value from \"%s\"", value), e);
-                }
-            }
-
-            try
-            {
-                return ParseUtils.parseTime(value);
-            }
-            catch (ParseException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse time value from \"%s\"", value), e);
-            }
-        }
-
-        @Override
-        public String format(Long value)
-        {
-            if (value == null) return "NULL";
-            return ParseUtils.quote(ParseUtils.formatTime(value));
         }
     }
 
@@ -1925,156 +1018,62 @@ public abstract class TypeCodec<T>
      * Base class for codecs handling CQL UUID types such as {@link DataType#uuid()} and {@link
      * DataType#timeuuid()}.
      */
-    private abstract static class AbstractUUIDCodec extends TypeCodec<UUID>
+    public abstract static class AbstractUUIDCodec<I> extends TypeCodec<UUID, I>
     {
-
-        private AbstractUUIDCodec(DataType cqlType)
+        private AbstractUUIDCodec(DataType cqlType, AbstractType<I> serializer)
         {
-            super(cqlType, UUID.class);
-        }
-
-        @Override
-        public boolean isValueLengthFixed()
-        {
-            return true;
-        }
-
-        @Override
-        public UUID parse(String value)
-        {
-            try
-            {
-                return value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")
-                       ? null
-                       : UUID.fromString(value);
-            }
-            catch (IllegalArgumentException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse UUID value from \"%s\"", value), e);
-            }
-        }
-
-        @Override
-        public String format(UUID value)
-        {
-            if (value == null) return "NULL";
-            return value.toString();
-        }
-
-        @Override
-        public ByteBuffer serialize(UUID value, ProtocolVersion protocolVersion)
-        {
-            if (value == null) return null;
-            ByteBuffer bb = ByteBuffer.allocate(16);
-            bb.putLong(0, value.getMostSignificantBits());
-            bb.putLong(8, value.getLeastSignificantBits());
-            return bb;
-        }
-
-        @Override
-        public UUID deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null || bytes.remaining() == 0
-                   ? null
-                   : new UUID(bytes.getLong(bytes.position()), bytes.getLong(bytes.position() + 8));
+            super(cqlType, serializer, UUID.class);
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#uuid()} to a Java {@link UUID}.
      */
-    private static class UUIDCodec extends AbstractUUIDCodec
+    public static class UUIDCodec extends AbstractUUIDCodec<UUID>
     {
-
         private static final UUIDCodec instance = new UUIDCodec();
 
         private UUIDCodec()
         {
-            super(DataType.uuid());
+            super(DataType.uuid(), UUIDType.instance);
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#timeuuid()} to a Java {@link UUID}.
      */
-    private static class TimeUUIDCodec extends AbstractUUIDCodec
+    public static class TimeUUIDCodec extends AbstractUUIDCodec<TimeUUID>
     {
-
         private static final TimeUUIDCodec instance = new TimeUUIDCodec();
 
         private TimeUUIDCodec()
         {
-            super(timeuuid());
+            super(DataType.timeuuid(), TimeUUIDType.instance);
         }
 
         @Override
-        public String format(UUID value)
+        public UUID toDriver(TimeUUID value)
         {
-            if (value == null) return "NULL";
-            if (value.version() != 1)
-                throw new InvalidTypeException(
-                String.format("%s is not a Type 1 (time-based) UUID", value));
-            return super.format(value);
+            return value.asUUID();
         }
 
         @Override
-        public ByteBuffer serialize(UUID value, ProtocolVersion protocolVersion)
+        public TimeUUID fromDriver(UUID value)
         {
-            if (value == null) return null;
-            if (value.version() != 1)
-                throw new InvalidTypeException(
-                String.format("%s is not a Type 1 (time-based) UUID", value));
-            return super.serialize(value, protocolVersion);
+            return TimeUUID.fromUuid(value);
         }
     }
 
     /**
      * This codec maps a CQL {@link DataType#varint()} to a Java {@link BigInteger}.
      */
-    private static class VarintCodec extends TypeCodec<BigInteger>
+    public static class VarintCodec extends SimpleCodec<BigInteger>
     {
-
         private static final VarintCodec instance = new VarintCodec();
 
         private VarintCodec()
         {
-            super(DataType.varint(), BigInteger.class);
-        }
-
-        @Override
-        public BigInteger parse(String value)
-        {
-            try
-            {
-                return value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")
-                       ? null
-                       : new BigInteger(value);
-            }
-            catch (NumberFormatException e)
-            {
-                throw new InvalidTypeException(
-                String.format("Cannot parse varint value from \"%s\"", value), e);
-            }
-        }
-
-        @Override
-        public String format(BigInteger value)
-        {
-            if (value == null) return "NULL";
-            return value.toString();
-        }
-
-        @Override
-        public ByteBuffer serialize(BigInteger value, ProtocolVersion protocolVersion)
-        {
-            return value == null ? null : ByteBuffer.wrap(value.toByteArray());
-        }
-
-        @Override
-        public BigInteger deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            return bytes == null || bytes.remaining() == 0 ? null : new BigInteger(Bytes.getArray(bytes));
+            super(DataType.varint(), IntegerType.instance, BigInteger.class);
         }
     }
 
@@ -2082,140 +1081,23 @@ public abstract class TypeCodec<T>
      * Base class for codecs mapping CQL {@link DataType#list(DataType) lists} and {@link
      * DataType#set(DataType) sets} to Java collections.
      */
-    public abstract static class AbstractCollectionCodec<E, C extends Collection<E>>
-    extends TypeCodec<C>
+    public abstract static class AbstractCollectionCodec<E, I, C extends Collection<E>, CI extends Collection<I>>
+    extends TypeCodec<C, CI>
     {
 
-        final TypeCodec<E> eltCodec;
+        final TypeCodec<E, I> eltCodec;
 
-        AbstractCollectionCodec(
-        CollectionType cqlType, TypeToken<C> javaType, TypeCodec<E> eltCodec)
+        AbstractCollectionCodec(DataType.CollectionType cqlType,
+                                CollectionType<CI> serializer,
+                                TypeToken<C> javaType,
+                                TypeCodec<E, I> eltCodec)
         {
-            super(cqlType, javaType);
+            super(cqlType, serializer, javaType);
             checkArgument(
-            cqlType.getName() == Name.LIST || cqlType.getName() == Name.SET,
+            cqlType.getName() == DataType.Name.LIST || cqlType.getName() == DataType.Name.SET,
             "Expecting list or set type, got %s",
             cqlType);
             this.eltCodec = eltCodec;
-        }
-
-        @Override
-        public ByteBuffer serialize(C value, ProtocolVersion protocolVersion)
-        {
-            if (value == null) return null;
-            int i = 0;
-            ByteBuffer[] bbs = new ByteBuffer[value.size()];
-            for (E elt : value)
-            {
-                if (elt == null)
-                {
-                    throw new NullPointerException("Collection elements cannot be null");
-                }
-                ByteBuffer bb;
-                try
-                {
-                    bb = eltCodec.serialize(elt, protocolVersion);
-                }
-                catch (ClassCastException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Invalid type for %s element, expecting %s but got %s",
-                    cqlType, eltCodec.getJavaType(), elt.getClass()),
-                    e);
-                }
-                bbs[i++] = bb;
-            }
-            return CodecUtils.pack(bbs, value.size(), protocolVersion);
-        }
-
-        @Override
-        public C deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return newInstance(0);
-            try
-            {
-                ByteBuffer input = bytes.duplicate();
-                int size = CodecUtils.readSize(input, protocolVersion);
-                C coll = newInstance(size);
-                for (int i = 0; i < size; i++)
-                {
-                    ByteBuffer databb = CodecUtils.readValue(input, protocolVersion);
-                    coll.add(eltCodec.deserialize(databb, protocolVersion));
-                }
-                return coll;
-            }
-            catch (BufferUnderflowException e)
-            {
-                throw new InvalidTypeException("Not enough bytes to deserialize collection", e);
-            }
-        }
-
-        @Override
-        public String format(C value)
-        {
-            if (value == null) return "NULL";
-            StringBuilder sb = new StringBuilder();
-            sb.append(getOpeningChar());
-            int i = 0;
-            for (E v : value)
-            {
-                if (i++ != 0) sb.append(',');
-                sb.append(eltCodec.format(v));
-            }
-            sb.append(getClosingChar());
-            return sb.toString();
-        }
-
-        @Override
-        public C parse(String value)
-        {
-            if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
-
-            int idx = ParseUtils.skipSpaces(value, 0);
-            if (value.charAt(idx++) != getOpeningChar())
-                throw new InvalidTypeException(
-                String.format(
-                "Cannot parse collection value from \"%s\", at character %d expecting '%s' but got '%c'",
-                value, idx, getOpeningChar(), value.charAt(idx)));
-
-            idx = ParseUtils.skipSpaces(value, idx);
-
-            if (value.charAt(idx) == getClosingChar()) return newInstance(0);
-
-            C l = newInstance(10);
-            while (idx < value.length())
-            {
-                int n;
-                try
-                {
-                    n = ParseUtils.skipCQLValue(value, idx);
-                }
-                catch (IllegalArgumentException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse collection value from \"%s\", invalid CQL value at character %d",
-                    value, idx),
-                    e);
-                }
-
-                l.add(eltCodec.parse(value.substring(idx, n)));
-                idx = n;
-
-                idx = ParseUtils.skipSpaces(value, idx);
-                if (value.charAt(idx) == getClosingChar()) return l;
-                if (value.charAt(idx++) != ',')
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse collection value from \"%s\", at character %d expecting ',' but got '%c'",
-                    value, idx, value.charAt(idx)));
-
-                idx = ParseUtils.skipSpaces(value, idx);
-            }
-            throw new InvalidTypeException(
-            String.format(
-            "Malformed collection value \"%s\", missing closing '%s'", value, getClosingChar()));
         }
 
         @Override
@@ -2231,55 +1113,32 @@ public abstract class TypeCodec<T>
             }
             return false;
         }
-
-        /**
-         * Return a new instance of {@code C} with the given estimated size.
-         *
-         * @param size The estimated size of the collection to create.
-         * @return new instance of {@code C} with the given estimated size.
-         */
-        protected abstract C newInstance(int size);
-
-        /**
-         * Return the opening character to use when formatting values as CQL literals.
-         *
-         * @return The opening character to use when formatting values as CQL literals.
-         */
-        private char getOpeningChar()
-        {
-            return cqlType.getName() == Name.LIST ? '[' : '{';
-        }
-
-        /**
-         * Return the closing character to use when formatting values as CQL literals.
-         *
-         * @return The closing character to use when formatting values as CQL literals.
-         */
-        private char getClosingChar()
-        {
-            return cqlType.getName() == Name.LIST ? ']' : '}';
-        }
     }
 
     /**
      * This codec maps a CQL {@link DataType#list(DataType) list type} to a Java {@link List}.
      * Implementation note: this codec returns mutable, non thread-safe {@link ArrayList} instances.
      */
-    private static class ListCodec<T> extends AbstractCollectionCodec<T, List<T>>
+    public static class ListCodec<T, I> extends AbstractCollectionCodec<T, I, List<T>, List<I>>
     {
-
-        private ListCodec(TypeCodec<T> eltCodec)
+        private ListCodec(TypeCodec<T, I> eltCodec)
         {
-            super(
-            DataType.list(eltCodec.getCqlType()),
-            TypeTokens.listOf(eltCodec.getJavaType()),
-            eltCodec);
+            super(DataType.list(eltCodec.getCqlType()),
+                  ListType.getInstance(eltCodec.getSerializer(), false),
+                  TypeTokens.listOf(eltCodec.getJavaType()),
+                  eltCodec);
         }
 
         @Override
-        protected List<T> newInstance(int size)
+        public List<T> toDriver(List<I> value)
         {
-            return new ArrayList<>(size);
+            return value.stream().map(eltCodec::toDriver).collect(Collectors.toList());
+        }
+
+        @Override
+        public List<I> fromDriver(List<T> value)
+        {
+            return value.stream().map(eltCodec::fromDriver).collect(Collectors.toList());
         }
     }
 
@@ -2288,36 +1147,57 @@ public abstract class TypeCodec<T>
      * Implementation note: this codec returns mutable, non thread-safe {@link LinkedHashSet}
      * instances.
      */
-    private static class SetCodec<T> extends AbstractCollectionCodec<T, Set<T>>
+    public static class SetCodec<T, I> extends AbstractCollectionCodec<T, I, Set<T>, Set<I>>
     {
 
-        private SetCodec(TypeCodec<T> eltCodec)
+        private SetCodec(TypeCodec<T, I> eltCodec)
         {
-            super(DataType.set(eltCodec.cqlType), TypeTokens.setOf(eltCodec.getJavaType()), eltCodec);
+            super(DataType.set(eltCodec.cqlType),
+                  SetType.getInstance(eltCodec.getSerializer(), false),
+                  TypeTokens.setOf(eltCodec.getJavaType()),
+                  eltCodec);
         }
 
         @Override
-        protected Set<T> newInstance(int size)
+        public Set<T> toDriver(Set<I> value)
         {
+            Set<T> result = newInstance(value.size());
+            for (I elt : value)
+                result.add(eltCodec.toDriver(elt));
+            return result;
+        }
+
+        @Override
+        public Set<I> fromDriver(Set<T> value)
+        {
+            Set<I> result = newInstance(value.size());
+            for (T elt : value)
+                result.add(eltCodec.fromDriver(elt));
+            return result;
+        }
+
+        private static <E> Set<E> newInstance(int size)
+        {
+            // we need to preserve the order of elements when converting between internal and external representations
             return new LinkedHashSet<>(size);
         }
     }
 
     /**
-     * Base class for codecs mapping CQL {@link DataType#map(DataType, DataType) maps} to a Java
-     * {@link Map}.
+     * This codec maps a CQL {@link DataType#map(DataType, DataType) map type} to a Java {@link Map}.
+     * Implementation note: this codec returns mutable, non thread-safe {@link LinkedHashMap}
+     * instances.
      */
-    public abstract static class AbstractMapCodec<K, V> extends TypeCodec<Map<K, V>>
+    public static class MapCodec<K, V, KI, VI> extends TypeCodec<Map<K, V>, Map<KI, VI>>
     {
+        final TypeCodec<K, KI> keyCodec;
+        final TypeCodec<V, VI> valueCodec;
 
-        final TypeCodec<K> keyCodec;
-
-        final TypeCodec<V> valueCodec;
-
-        AbstractMapCodec(TypeCodec<K> keyCodec, TypeCodec<V> valueCodec)
+        MapCodec(TypeCodec<K, KI> keyCodec, TypeCodec<V, VI> valueCodec)
         {
             super(
             DataType.map(keyCodec.getCqlType(), valueCodec.getCqlType()),
+            MapType.getInstance(keyCodec.getSerializer(), valueCodec.getSerializer(), false),
             TypeTokens.mapOf(keyCodec.getJavaType(), valueCodec.getJavaType()));
             this.keyCodec = keyCodec;
             this.valueCodec = valueCodec;
@@ -2338,379 +1218,57 @@ public abstract class TypeCodec<T>
         }
 
         @Override
-        public Map<K, V> parse(String value)
+        public Map<K, V> toDriver(Map<KI, VI> value)
         {
-            if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
-
-            int idx = ParseUtils.skipSpaces(value, 0);
-            if (value.charAt(idx++) != '{')
-                throw new InvalidTypeException(
-                String.format(
-                "cannot parse map value from \"%s\", at character %d expecting '{' but got '%c'",
-                value, idx, value.charAt(idx)));
-
-            idx = ParseUtils.skipSpaces(value, idx);
-
-            if (value.charAt(idx) == '}') return newInstance(0);
-
-            Map<K, V> m = new HashMap<>();
-            while (idx < value.length())
-            {
-                int n;
-                try
-                {
-                    n = ParseUtils.skipCQLValue(value, idx);
-                }
-                catch (IllegalArgumentException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse map value from \"%s\", invalid CQL value at character %d",
-                    value, idx),
-                    e);
-                }
-
-                K k = keyCodec.parse(value.substring(idx, n));
-                idx = n;
-
-                idx = ParseUtils.skipSpaces(value, idx);
-                if (value.charAt(idx++) != ':')
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse map value from \"%s\", at character %d expecting ':' but got '%c'",
-                    value, idx, value.charAt(idx)));
-                idx = ParseUtils.skipSpaces(value, idx);
-
-                try
-                {
-                    n = ParseUtils.skipCQLValue(value, idx);
-                }
-                catch (IllegalArgumentException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse map value from \"%s\", invalid CQL value at character %d",
-                    value, idx),
-                    e);
-                }
-
-                V v = valueCodec.parse(value.substring(idx, n));
-                idx = n;
-
-                m.put(k, v);
-
-                idx = ParseUtils.skipSpaces(value, idx);
-                if (value.charAt(idx) == '}') return m;
-                if (value.charAt(idx++) != ',')
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse map value from \"%s\", at character %d expecting ',' but got '%c'",
-                    value, idx, value.charAt(idx)));
-
-                idx = ParseUtils.skipSpaces(value, idx);
-            }
-            throw new InvalidTypeException(
-            String.format("Malformed map value \"%s\", missing closing '}'", value));
+            Map<K, V> result = newInstance(value.size());
+            value.forEach((k, v) -> result.put(keyCodec.toDriver(k), valueCodec.toDriver(v)));
+            return result;
         }
 
         @Override
-        public String format(Map<K, V> value)
+        public Map<KI, VI> fromDriver(Map<K, V> value)
         {
-            if (value == null) return "NULL";
-            StringBuilder sb = new StringBuilder();
-            sb.append('{');
-            int i = 0;
-            for (Map.Entry<K, V> e : value.entrySet())
-            {
-                if (i++ != 0) sb.append(',');
-                sb.append(keyCodec.format(e.getKey()));
-                sb.append(':');
-                sb.append(valueCodec.format(e.getValue()));
-            }
-            sb.append('}');
-            return sb.toString();
+            Map<KI, VI> result = newInstance(value.size());
+            value.forEach((k, v) -> result.put(keyCodec.fromDriver(k), valueCodec.fromDriver(v)));
+            return result;
         }
 
-        @Override
-        public ByteBuffer serialize(Map<K, V> value, ProtocolVersion protocolVersion)
+        private static <K, V> Map<K, V> newInstance(int size)
         {
-            if (value == null) return null;
-            int i = 0;
-            ByteBuffer[] bbs = new ByteBuffer[2 * value.size()];
-            for (Map.Entry<K, V> entry : value.entrySet())
-            {
-                ByteBuffer bbk;
-                K key = entry.getKey();
-                if (key == null)
-                {
-                    throw new NullPointerException("Map keys cannot be null");
-                }
-                try
-                {
-                    bbk = keyCodec.serialize(key, protocolVersion);
-                }
-                catch (ClassCastException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Invalid type for map key, expecting %s but got %s",
-                    keyCodec.getJavaType(), key.getClass()),
-                    e);
-                }
-                ByteBuffer bbv;
-                V v = entry.getValue();
-                if (v == null)
-                {
-                    throw new NullPointerException("Map values cannot be null");
-                }
-                try
-                {
-                    bbv = valueCodec.serialize(v, protocolVersion);
-                }
-                catch (ClassCastException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Invalid type for map value, expecting %s but got %s",
-                    valueCodec.getJavaType(), v.getClass()),
-                    e);
-                }
-                bbs[i++] = bbk;
-                bbs[i++] = bbv;
-            }
-            return CodecUtils.pack(bbs, value.size(), protocolVersion);
-        }
-
-        @Override
-        public Map<K, V> deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null || bytes.remaining() == 0) return newInstance(0);
-            try
-            {
-                ByteBuffer input = bytes.duplicate();
-                int n = CodecUtils.readSize(input, protocolVersion);
-                Map<K, V> m = newInstance(n);
-                for (int i = 0; i < n; i++)
-                {
-                    ByteBuffer kbb = CodecUtils.readValue(input, protocolVersion);
-                    ByteBuffer vbb = CodecUtils.readValue(input, protocolVersion);
-                    m.put(
-                    keyCodec.deserialize(kbb, protocolVersion),
-                    valueCodec.deserialize(vbb, protocolVersion));
-                }
-                return m;
-            }
-            catch (BufferUnderflowException e)
-            {
-                throw new InvalidTypeException("Not enough bytes to deserialize a map", e);
-            }
-        }
-
-        /**
-         * Return a new {@link Map} instance with the given estimated size.
-         *
-         * @param size The estimated size of the collection to create.
-         * @return A new {@link Map} instance with the given estimated size.
-         */
-        protected abstract Map<K, V> newInstance(int size);
-    }
-
-    /**
-     * This codec maps a CQL {@link DataType#map(DataType, DataType) map type} to a Java {@link Map}.
-     * Implementation note: this codec returns mutable, non thread-safe {@link LinkedHashMap}
-     * instances.
-     */
-    private static class MapCodec<K, V> extends AbstractMapCodec<K, V>
-    {
-
-        private MapCodec(TypeCodec<K> keyCodec, TypeCodec<V> valueCodec)
-        {
-            super(keyCodec, valueCodec);
-        }
-
-        @Override
-        protected Map<K, V> newInstance(int size)
-        {
+            // we need to preserve the order of elements when converting between internal and external representations
             return new LinkedHashMap<>(size);
         }
     }
 
     /**
-     * Base class for codecs mapping CQL {@link UserType user-defined types} (UDTs) to Java objects.
-     * It can serve as a base class for codecs dealing with direct UDT-to-Pojo mappings.
-     *
-     * @param <T> The Java type that the UDT will be mapped to.
+     * This codec maps a CQL {@link UserType} to a {@link UDTValue}.
      */
-    public abstract static class AbstractUDTCodec<T> extends TypeCodec<T>
+    public static class UDTCodec extends TypeCodec<UDTValue, ByteBuffer>
     {
+        private final UserType definition;
+        private final org.apache.cassandra.db.marshal.UserType serializer;
 
-        protected final UserType definition;
-
-        AbstractUDTCodec(UserType definition, Class<T> javaClass)
+        UDTCodec(UserType definition, org.apache.cassandra.db.marshal.UserType serializer)
         {
-            this(definition, TypeToken.of(javaClass));
-        }
-
-        AbstractUDTCodec(UserType definition, TypeToken<T> javaType)
-        {
-            super(definition, javaType);
+            super(definition, serializer, TypeToken.of(UDTValue.class));
             this.definition = definition;
+            this.serializer = serializer;
         }
 
         @Override
-        public ByteBuffer serialize(T value, ProtocolVersion protocolVersion)
+        public UDTValue toDriver(ByteBuffer value)
         {
-            if (value == null) return null;
-            int size = 0;
-            int length = definition.size();
-            ByteBuffer[] elements = new ByteBuffer[length];
+            UDTValue tuple = newInstance();
             int i = 0;
-            for (UserType.Field field : definition)
-            {
-                elements[i] =
-                serializeField(value, Metadata.quoteIfNecessary(field.getName()), protocolVersion);
-                size += 4 + (elements[i] == null ? 0 : elements[i].remaining());
-                i++;
-            }
-            ByteBuffer result = ByteBuffer.allocate(size);
-            for (ByteBuffer bb : elements)
-            {
-                if (bb == null)
-                {
-                    result.putInt(-1);
-                }
-                else
-                {
-                    result.putInt(bb.remaining());
-                    result.put(bb.duplicate());
-                }
-            }
-            return (ByteBuffer) result.flip();
+            for (ByteBuffer v : serializer.split(ByteBufferAccessor.instance, value))
+                tuple.setBytesUnsafe(i++, v);
+            return tuple;
         }
 
         @Override
-        public T deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
+        public ByteBuffer fromDriver(UDTValue value)
         {
-            if (bytes == null) return null;
-            // empty byte buffers will result in empty values
-            try
-            {
-                ByteBuffer input = bytes.duplicate();
-                T value = newInstance();
-                for (UserType.Field field : definition)
-                {
-                    if (!input.hasRemaining()) break;
-                    int n = input.getInt();
-                    ByteBuffer element = n < 0 ? null : CodecUtils.readBytes(input, n);
-                    value =
-                    deserializeAndSetField(
-                    element, value, Metadata.quoteIfNecessary(field.getName()), protocolVersion);
-                }
-                return value;
-            }
-            catch (BufferUnderflowException e)
-            {
-                throw new InvalidTypeException("Not enough bytes to deserialize a UDT", e);
-            }
-        }
-
-        @Override
-        public String format(T value)
-        {
-            if (value == null) return "NULL";
-            StringBuilder sb = new StringBuilder("{");
-            int i = 0;
-            for (UserType.Field field : definition)
-            {
-                if (i > 0) sb.append(',');
-                sb.append(Metadata.quoteIfNecessary(field.getName()));
-                sb.append(':');
-                sb.append(formatField(value, Metadata.quoteIfNecessary(field.getName())));
-                i += 1;
-            }
-            sb.append('}');
-            return sb.toString();
-        }
-
-        @Override
-        public T parse(String value)
-        {
-            if (value == null || value.isEmpty() || value.equals("NULL")) return null;
-
-            T v = newInstance();
-
-            int idx = ParseUtils.skipSpaces(value, 0);
-            if (value.charAt(idx++) != '{')
-                throw new InvalidTypeException(
-                String.format(
-                "Cannot parse UDT value from \"%s\", at character %d expecting '{' but got '%c'",
-                value, idx, value.charAt(idx)));
-
-            idx = ParseUtils.skipSpaces(value, idx);
-
-            if (value.charAt(idx) == '}') return v;
-
-            while (idx < value.length())
-            {
-
-                int n;
-                try
-                {
-                    n = ParseUtils.skipCQLId(value, idx);
-                }
-                catch (IllegalArgumentException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse UDT value from \"%s\", cannot parse a CQL identifier at character %d",
-                    value, idx),
-                    e);
-                }
-                String name = value.substring(idx, n);
-                idx = n;
-
-                if (!definition.contains(name))
-                    throw new InvalidTypeException(
-                    String.format("Unknown field %s in value \"%s\"", name, value));
-
-                idx = ParseUtils.skipSpaces(value, idx);
-                if (value.charAt(idx++) != ':')
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse UDT value from \"%s\", at character %d expecting ':' but got '%c'",
-                    value, idx, value.charAt(idx)));
-                idx = ParseUtils.skipSpaces(value, idx);
-
-                try
-                {
-                    n = ParseUtils.skipCQLValue(value, idx);
-                }
-                catch (IllegalArgumentException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse UDT value from \"%s\", invalid CQL value at character %d",
-                    value, idx),
-                    e);
-                }
-
-                String input = value.substring(idx, n);
-                v = parseAndSetField(input, v, name);
-                idx = n;
-
-                idx = ParseUtils.skipSpaces(value, idx);
-                if (value.charAt(idx) == '}') return v;
-                if (value.charAt(idx) != ',')
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse UDT value from \"%s\", at character %d expecting ',' but got '%c'",
-                    value, idx, value.charAt(idx)));
-                ++idx; // skip ','
-
-                idx = ParseUtils.skipSpaces(value, idx);
-            }
-            throw new InvalidTypeException(
-            String.format("Malformed UDT value \"%s\", missing closing '}'", value));
+            return org.apache.cassandra.db.marshal.UserType.buildValue(value.values);
         }
 
         /**
@@ -2718,341 +1276,41 @@ public abstract class TypeCodec<T>
          *
          * @return A new instance of {@code T}.
          */
-        protected abstract T newInstance();
-
-        /**
-         * Serialize an individual field in an object, as part of serializing the whole object to a CQL
-         * UDT (see {@link #serialize(Object, ProtocolVersion)}).
-         *
-         * @param source          The object to read the field from.
-         * @param fieldName       The name of the field. Note that if it is case-sensitive or contains special
-         *                        characters, it will be double-quoted (i.e. the string will contain actual quote
-         *                        characters, as in {@code "\"foobar\""}).
-         * @param protocolVersion The protocol version to use.
-         * @return The serialized field, or {@code null} if that field should be ignored.
-         */
-        protected abstract ByteBuffer serializeField(
-        T source, String fieldName, ProtocolVersion protocolVersion);
-
-        /**
-         * Deserialize an individual field and set it on an object, as part of deserializing the whole
-         * object from a CQL UDT (see {@link #deserialize(ByteBuffer, ProtocolVersion)}).
-         *
-         * @param input           The serialized form of the field.
-         * @param target          The object to set the field on.
-         * @param fieldName       The name of the field. Note that if it is case-sensitive or contains special
-         *                        characters, it will be double-quoted (i.e. the string will contain actual quote
-         *                        characters, as in {@code "\"foobar\""}).
-         * @param protocolVersion The protocol version to use.
-         * @return The target object with the field set. In most cases this should be the same as {@code
-         * target}, but if you're dealing with immutable types you'll need to return a different
-         * instance.
-         */
-        protected abstract T deserializeAndSetField(
-        ByteBuffer input, T target, String fieldName, ProtocolVersion protocolVersion);
-
-        /**
-         * Format an individual field in an object as a CQL literal, as part of formatting the whole
-         * object (see {@link #format(Object)}).
-         *
-         * @param source    The object to read the field from.
-         * @param fieldName The name of the field. Note that if it is case-sensitive or contains special
-         *                  characters, it will be double-quoted (i.e. the string will contain actual quote
-         *                  characters, as in {@code "\"foobar\""}).
-         * @return The formatted value.
-         */
-        protected abstract String formatField(T source, String fieldName);
-
-        /**
-         * Parse an individual field and set it on an object, as part of parsing the whole object (see
-         * {@link #parse(String)}).
-         *
-         * @param input     The String to parse the field from.
-         * @param target    The value to write to.
-         * @param fieldName The name of the field. Note that if it is case-sensitive or contains special
-         *                  characters, it will be double-quoted (i.e. the string will contain actual quote
-         *                  characters, as in {@code "\"foobar\""}).
-         * @return The target object with the field set. In most cases this should be the same as {@code
-         * target}, but if you're dealing with immutable types you'll need to return a different
-         * instance.
-         */
-        protected abstract T parseAndSetField(String input, T target, String fieldName);
-    }
-
-    /**
-     * This codec maps a CQL {@link UserType} to a {@link UDTValue}.
-     */
-    private static class UDTCodec extends AbstractUDTCodec<UDTValue>
-    {
-
-        private UDTCodec(UserType definition)
-        {
-            super(definition, UDTValue.class);
-        }
-
-        @Override
-        public boolean accepts(Object value)
-        {
-            return super.accepts(value) && ((UDTValue) value).getType().equals(definition);
-        }
-
-        @Override
         protected UDTValue newInstance()
         {
             return definition.newValue();
         }
-
-        @Override
-        protected ByteBuffer serializeField(
-        UDTValue source, String fieldName, ProtocolVersion protocolVersion)
-        {
-            return source.getBytesUnsafe(fieldName);
-        }
-
-        @Override
-        protected UDTValue deserializeAndSetField(
-        ByteBuffer input, UDTValue target, String fieldName, ProtocolVersion protocolVersion)
-        {
-            return target.setBytesUnsafe(fieldName, input);
-        }
-
-        @Override
-        protected String formatField(UDTValue source, String fieldName)
-        {
-            DataType elementType = definition.getFieldType(fieldName);
-            TypeCodec<Object> codec = definition.getCodecRegistry().codecFor(elementType);
-            return codec.format(source.get(fieldName, codec.getJavaType()));
-        }
-
-        @Override
-        protected UDTValue parseAndSetField(String input, UDTValue target, String fieldName)
-        {
-            DataType elementType = definition.getFieldType(fieldName);
-            TypeCodec<Object> codec = definition.getCodecRegistry().codecFor(elementType);
-            target.set(fieldName, codec.parse(input), codec.getJavaType());
-            return target;
-        }
-    }
-
-    /**
-     * Base class for codecs mapping CQL {@link TupleType tuples} to Java objects. It can serve as a
-     * base class for codecs dealing with direct tuple-to-Pojo mappings.
-     *
-     * @param <T> The Java type that this codec handles.
-     */
-    public abstract static class AbstractTupleCodec<T> extends TypeCodec<T>
-    {
-
-        protected final TupleType definition;
-
-        AbstractTupleCodec(TupleType definition, Class<T> javaClass)
-        {
-            this(definition, TypeToken.of(javaClass));
-        }
-
-        AbstractTupleCodec(TupleType definition, TypeToken<T> javaType)
-        {
-            super(definition, javaType);
-            this.definition = definition;
-        }
-
-        @Override
-        public boolean accepts(DataType cqlType)
-        {
-            // a tuple codec should accept tuple values of a different type,
-            // provided that the latter is contained in this codec's type.
-            return super.accepts(cqlType) && definition.contains((TupleType) cqlType);
-        }
-
-        @Override
-        public ByteBuffer serialize(T value, ProtocolVersion protocolVersion)
-        {
-            if (value == null) return null;
-            int size = 0;
-            int length = definition.getComponentTypes().size();
-            ByteBuffer[] elements = new ByteBuffer[length];
-            for (int i = 0; i < length; i++)
-            {
-                elements[i] = serializeField(value, i, protocolVersion);
-                size += 4 + (elements[i] == null ? 0 : elements[i].remaining());
-            }
-            ByteBuffer result = ByteBuffer.allocate(size);
-            for (ByteBuffer bb : elements)
-            {
-                if (bb == null)
-                {
-                    result.putInt(-1);
-                }
-                else
-                {
-                    result.putInt(bb.remaining());
-                    result.put(bb.duplicate());
-                }
-            }
-            return (ByteBuffer) result.flip();
-        }
-
-        @Override
-        public T deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        {
-            if (bytes == null) return null;
-            // empty byte buffers will result in empty values
-            try
-            {
-                ByteBuffer input = bytes.duplicate();
-                T value = newInstance();
-                int i = 0;
-                while (input.hasRemaining() && i < definition.getComponentTypes().size())
-                {
-                    int n = input.getInt();
-                    ByteBuffer element = n < 0 ? null : CodecUtils.readBytes(input, n);
-                    value = deserializeAndSetField(element, value, i++, protocolVersion);
-                }
-                return value;
-            }
-            catch (BufferUnderflowException e)
-            {
-                throw new InvalidTypeException("Not enough bytes to deserialize a tuple", e);
-            }
-        }
-
-        @Override
-        public String format(T value)
-        {
-            if (value == null) return "NULL";
-            StringBuilder sb = new StringBuilder("(");
-            int length = definition.getComponentTypes().size();
-            for (int i = 0; i < length; i++)
-            {
-                if (i > 0) sb.append(',');
-                sb.append(formatField(value, i));
-            }
-            sb.append(')');
-            return sb.toString();
-        }
-
-        @Override
-        public T parse(String value)
-        {
-            if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
-
-            T v = newInstance();
-
-            int idx = ParseUtils.skipSpaces(value, 0);
-            if (value.charAt(idx++) != '(')
-                throw new InvalidTypeException(
-                String.format(
-                "Cannot parse tuple value from \"%s\", at character %d expecting '(' but got '%c'",
-                value, idx, value.charAt(idx)));
-
-            idx = ParseUtils.skipSpaces(value, idx);
-
-            if (value.charAt(idx) == ')') return v;
-
-            int i = 0;
-            while (idx < value.length())
-            {
-                int n;
-                try
-                {
-                    n = ParseUtils.skipCQLValue(value, idx);
-                }
-                catch (IllegalArgumentException e)
-                {
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse tuple value from \"%s\", invalid CQL value at character %d",
-                    value, idx),
-                    e);
-                }
-
-                String input = value.substring(idx, n);
-                v = parseAndSetField(input, v, i);
-                idx = n;
-                i += 1;
-
-                idx = ParseUtils.skipSpaces(value, idx);
-                if (value.charAt(idx) == ')') return v;
-                if (value.charAt(idx) != ',')
-                    throw new InvalidTypeException(
-                    String.format(
-                    "Cannot parse tuple value from \"%s\", at character %d expecting ',' but got '%c'",
-                    value, idx, value.charAt(idx)));
-                ++idx; // skip ','
-
-                idx = ParseUtils.skipSpaces(value, idx);
-            }
-            throw new InvalidTypeException(
-            String.format("Malformed tuple value \"%s\", missing closing ')'", value));
-        }
-
-        /**
-         * Return a new instance of {@code T}.
-         *
-         * @return A new instance of {@code T}.
-         */
-        protected abstract T newInstance();
-
-        /**
-         * Serialize an individual field in an object, as part of serializing the whole object to a CQL
-         * tuple (see {@link #serialize(Object, ProtocolVersion)}).
-         *
-         * @param source          The object to read the field from.
-         * @param index           The index of the field.
-         * @param protocolVersion The protocol version to use.
-         * @return The serialized field, or {@code null} if that field should be ignored.
-         */
-        protected abstract ByteBuffer serializeField(
-        T source, int index, ProtocolVersion protocolVersion);
-
-        /**
-         * Deserialize an individual field and set it on an object, as part of deserializing the whole
-         * object from a CQL tuple (see {@link #deserialize(ByteBuffer, ProtocolVersion)}).
-         *
-         * @param input           The serialized form of the field.
-         * @param target          The object to set the field on.
-         * @param index           The index of the field.
-         * @param protocolVersion The protocol version to use.
-         * @return The target object with the field set. In most cases this should be the same as {@code
-         * target}, but if you're dealing with immutable types you'll need to return a different
-         * instance.
-         */
-        protected abstract T deserializeAndSetField(
-        ByteBuffer input, T target, int index, ProtocolVersion protocolVersion);
-
-        /**
-         * Format an individual field in an object as a CQL literal, as part of formatting the whole
-         * object (see {@link #format(Object)}).
-         *
-         * @param source The object to read the field from.
-         * @param index  The index of the field.
-         * @return The formatted value.
-         */
-        protected abstract String formatField(T source, int index);
-
-        /**
-         * Parse an individual field and set it on an object, as part of parsing the whole object (see
-         * {@link #parse(String)}).
-         *
-         * @param input  The String to parse the field from.
-         * @param target The value to write to.
-         * @param index  The index of the field.
-         * @return The target object with the field set. In most cases this should be the same as {@code
-         * target}, but if you're dealing with immutable types you'll need to return a different
-         * instance.
-         */
-        protected abstract T parseAndSetField(String input, T target, int index);
     }
 
     /**
      * This codec maps a CQL {@link TupleType tuple} to a {@link TupleValue}.
      */
-    private static class TupleCodec extends AbstractTupleCodec<TupleValue>
+    public static class TupleCodec extends TypeCodec<TupleValue, ByteBuffer>
     {
+        private final TupleType definition;
+        private final org.apache.cassandra.db.marshal.TupleType serializer;
 
-        private TupleCodec(TupleType definition)
+        TupleCodec(TupleType definition, org.apache.cassandra.db.marshal.TupleType serializer)
         {
-            super(definition, TupleValue.class);
+            super(definition, serializer, TypeToken.of(TupleValue.class));
+            this.definition = definition;
+            this.serializer = serializer;
+        }
+
+        @Override
+        public TupleValue toDriver(ByteBuffer value)
+        {
+            TupleValue tuple = newInstance();
+            int i = 0;
+            for (ByteBuffer v : serializer.split(ByteBufferAccessor.instance, value))
+                tuple.setBytesUnsafe(i++, v);
+            return tuple;
+        }
+
+        @Override
+        public ByteBuffer fromDriver(TupleValue value)
+        {
+            return org.apache.cassandra.db.marshal.TupleType.buildValue(value.values);
         }
 
         @Override
@@ -3063,114 +1321,36 @@ public abstract class TypeCodec<T>
             return super.accepts(value) && definition.contains(((TupleValue) value).getType());
         }
 
-        @Override
+        /**
+         * Return a new instance of {@code T}.
+         *
+         * @return A new instance of {@code T}.
+         */
         protected TupleValue newInstance()
         {
             return definition.newValue();
         }
-
-        @Override
-        protected ByteBuffer serializeField(
-        TupleValue source, int index, ProtocolVersion protocolVersion)
-        {
-            if (index >= source.values.length) return null;
-            return source.getBytesUnsafe(index);
-        }
-
-        @Override
-        protected TupleValue deserializeAndSetField(
-        ByteBuffer input, TupleValue target, int index, ProtocolVersion protocolVersion)
-        {
-            if (index >= target.values.length) return target;
-            return target.setBytesUnsafe(index, input);
-        }
-
-        @Override
-        protected String formatField(TupleValue value, int index)
-        {
-            DataType elementType = definition.getComponentTypes().get(index);
-            TypeCodec<Object> codec = definition.getCodecRegistry().codecFor(elementType);
-            return codec.format(value.get(index, codec.getJavaType()));
-        }
-
-        @Override
-        protected TupleValue parseAndSetField(String input, TupleValue target, int index)
-        {
-            DataType elementType = definition.getComponentTypes().get(index);
-            TypeCodec<Object> codec = definition.getCodecRegistry().codecFor(elementType);
-            target.set(index, codec.parse(input), codec.getJavaType());
-            return target;
-        }
     }
 
-    private static class DurationCodec extends TypeCodec<Duration>
+    public static class DurationCodec extends TypeCodec<Duration, org.apache.cassandra.cql3.Duration>
     {
-
         private static final DurationCodec instance = new DurationCodec();
 
         private DurationCodec()
         {
-            super(DataType.duration(), Duration.class);
+            super(DataType.duration(), DurationType.instance, Duration.class);
         }
 
         @Override
-        public ByteBuffer serialize(Duration duration, ProtocolVersion protocolVersion)
-        throws InvalidTypeException
+        public Duration toDriver(org.apache.cassandra.cql3.Duration duration)
         {
-            if (duration == null) return null;
-            long months = duration.getMonths();
-            long days = duration.getDays();
-            long nanoseconds = duration.getNanoseconds();
-            int size =
-            VIntCoding.computeVIntSize(months)
-            + VIntCoding.computeVIntSize(days)
-            + VIntCoding.computeVIntSize(nanoseconds);
-            ByteBuffer bb = ByteBuffer.allocate(size);
-            VIntCoding.writeVInt(months, bb);
-            VIntCoding.writeVInt(days, bb);
-            VIntCoding.writeVInt(nanoseconds, bb);
-            bb.flip();
-            return bb;
+            return Duration.newInstance(duration.getMonths(), duration.getDays(), duration.getNanoseconds());
         }
 
         @Override
-        public Duration deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion)
-        throws InvalidTypeException
+        public org.apache.cassandra.cql3.Duration fromDriver(Duration duration)
         {
-            if (bytes == null || bytes.remaining() == 0)
-            {
-                return null;
-            }
-            else
-            {
-                DataInput in = ByteStreams.newDataInput(Bytes.getArray(bytes));
-                try
-                {
-                    int months = VIntCoding.readVInt32(in);
-                    int days = VIntCoding.readVInt32(in);
-                    long nanoseconds = VIntCoding.readVInt(in);
-                    return Duration.newInstance(months, days, nanoseconds);
-                }
-                catch (IOException e)
-                {
-                    // cannot happen
-                    throw new AssertionError();
-                }
-            }
-        }
-
-        @Override
-        public Duration parse(String value) throws InvalidTypeException
-        {
-            if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
-            return Duration.from(value);
-        }
-
-        @Override
-        public String format(Duration value) throws InvalidTypeException
-        {
-            if (value == null) return "NULL";
-            return value.toString();
+            return org.apache.cassandra.cql3.Duration.newInstance(duration.getMonths(), duration.getDays(), duration.getNanoseconds());
         }
     }
 }

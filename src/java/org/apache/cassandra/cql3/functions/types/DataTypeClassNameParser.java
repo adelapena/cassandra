@@ -135,7 +135,7 @@ public class DataTypeClassNameParser
             parser.skipBlankAndComma();
             String typeName =
             TypeCodec.varchar()
-                     .deserialize(Bytes.fromHexString("0x" + parser.readOne()), protocolVersion);
+                     .deserialize(Bytes.fromHexString("0x" + parser.readOne()));
             parser.skipBlankAndComma();
             Map<String, String> rawFields = parser.getNameAndTypeParameters();
             List<UserType.Field> fields = new ArrayList<>(rawFields.size());
@@ -312,7 +312,7 @@ public class DataTypeClassNameParser
                 {
                     name =
                     TypeCodec.varchar()
-                             .deserialize(Bytes.fromHexString("0x" + bbHex), ProtocolVersion.CURRENT);
+                             .deserialize(Bytes.fromHexString("0x" + bbHex));
                 }
                 catch (NumberFormatException e)
                 {

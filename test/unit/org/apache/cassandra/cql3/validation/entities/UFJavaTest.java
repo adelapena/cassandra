@@ -715,7 +715,7 @@ public class UFJavaTest extends CQLTester
     }
 
     @Test
-    public void testJavaUTCollections() throws Throwable
+    public void testJavaUserTypeCollections() throws Throwable
     {
         String type = KEYSPACE + '.' + createType("CREATE TYPE %s (txt text, i int)");
 

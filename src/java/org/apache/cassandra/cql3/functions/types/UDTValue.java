@@ -22,7 +22,6 @@ package org.apache.cassandra.cql3.functions.types;
  */
 public class UDTValue extends AbstractData<UDTValue>
 {
-
     private final UserType definition;
 
     UDTValue(UserType definition)
@@ -88,9 +87,25 @@ public class UDTValue extends AbstractData<UDTValue>
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        TypeCodec<Object> codec = getCodecRegistry().codecFor(definition);
-        sb.append(codec.format(this));
+        StringBuilder sb = new StringBuilder("{");
+        int i = 0;
+        for (UserType.Field field : definition)
+        {
+            if (i > 0)
+                sb.append(',');
+
+            String name = Metadata.quoteIfNecessary(field.getName());
+            sb.append(name);
+            sb.append(':');
+
+            if (isNull(name))
+                sb.append("NULL");
+            else
+                sb.append(get(name, codecFor(i)).toString());
+
+            i += 1;
+        }
+        sb.append('}');
         return sb.toString();
     }
 }

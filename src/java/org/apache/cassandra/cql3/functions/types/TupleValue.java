@@ -22,7 +22,6 @@ package org.apache.cassandra.cql3.functions.types;
  */
 public class TupleValue extends AbstractAddressableByIndexData<TupleValue>
 {
-
     private final TupleType type;
 
     /**
@@ -84,9 +83,19 @@ public class TupleValue extends AbstractAddressableByIndexData<TupleValue>
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        TypeCodec<Object> codec = getCodecRegistry().codecFor(type);
-        sb.append(codec.format(this));
+        StringBuilder sb = new StringBuilder("(");
+        int length = type.getComponentTypes().size();
+        for (int i = 0; i < length; i++)
+        {
+            if (i > 0)
+                sb.append(',');
+
+            if (isNull(i))
+                sb.append("NULL");
+            else
+                sb.append(get(i, codecFor(i)).toString());
+        }
+        sb.append(')');
         return sb.toString();
     }
 }

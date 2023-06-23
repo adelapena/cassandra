@@ -124,7 +124,13 @@ public class UFSecurityTest extends CQLTester
          "     org.apache.cassandra.utils.vint.VIntCoding.computeUnsignedVIntSize(0L); return 0d;" +
          "} catch (Exception t) {" +
          "     throw new RuntimeException(t);" +
-         '}'}
+         '}'},
+        {"org.apache.cassandra.db.marshal.Int32Type",
+         "try {" +
+         "     org.apache.cassandra.db.marshal.Int32Type v = org.apache.cassandra.db.marshal.Int32Type.instance; v.decompose(0); return 0d;" +
+         "} catch (Exception t) {" +
+         "     throw new RuntimeException(t);" +
+         '}'},
         };
 
         for (String[] typeAndSource : typesAndSources)

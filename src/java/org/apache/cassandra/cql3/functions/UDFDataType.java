@@ -28,7 +28,6 @@ import com.google.common.reflect.TypeToken;
 
 import org.apache.cassandra.cql3.functions.types.DataType;
 import org.apache.cassandra.cql3.functions.types.TypeCodec;
-import org.apache.cassandra.cql3.functions.types.TypeCodec.*;
 import org.apache.cassandra.cql3.functions.types.exceptions.InvalidTypeException;
 
 import org.apache.cassandra.db.marshal.AbstractType;
@@ -53,7 +52,7 @@ public final class UDFDataType
     /**
      * The Java driver type used to serialize and deserialize the UDF/UDA data.
      */
-    private final TypeCodec<?> typeCodec;
+    private final TypeCodec<?, ?> typeCodec;
 
     /**
      * The java type corresponding to this data type.
@@ -177,11 +176,11 @@ public final class UDFDataType
         if (buffer == null || (buffer.remaining() == 0 && abstractType.isEmptyValueMeaningless()))
             return null;
 
-        return typeCodec.deserialize(buffer, protocolVersion);
+        return typeCodec.deserialize(buffer);
     }
 
     /**
-     * Serialized the specified oject.
+     * Serialized the specified object.
      *
      * @param protocolVersion the protocol version
      * @param value the value to serialize
@@ -196,97 +195,7 @@ public final class UDFDataType
         if (!toJavaClass().isAssignableFrom(value.getClass()))
             throw new InvalidTypeException("Invalid value for CQL type " + toDataType().getName());
 
-        return ((TypeCodec<Object>) typeCodec).serialize(value, protocolVersion);
-    }
-
-    /**
-     * Serialized the specified byte.
-     *
-     * @param protocolVersion the protocol version
-     * @param value the value to serialize
-     * @return the serialized byte
-     */
-    public ByteBuffer decompose(ProtocolVersion protocolVersion, byte value)
-    {
-        if (!(typeCodec instanceof PrimitiveByteCodec))
-            throw new InvalidTypeException("Invalid value for CQL type " + toDataType().getName());
-
-        return ((PrimitiveByteCodec) typeCodec).serializeNoBoxing(value, protocolVersion);
-    }
-
-    /**
-     * Serialized the specified byte.
-     *
-     * @param protocolVersion the protocol version
-     * @param value the value to serialize
-     * @return the serialized byte
-     */
-    public ByteBuffer decompose(ProtocolVersion protocolVersion, short value)
-    {
-        if (!(typeCodec instanceof PrimitiveShortCodec))
-            throw new InvalidTypeException("Invalid value for CQL type " + toDataType().getName());
-
-        return ((PrimitiveShortCodec) typeCodec).serializeNoBoxing(value, protocolVersion);
-    }
-
-    /**
-     * Serialized the specified byte.
-     *
-     * @param protocolVersion the protocol version
-     * @param value the value to serialize
-     * @return the serialized byte
-     */
-    public ByteBuffer decompose(ProtocolVersion protocolVersion, int value)
-    {
-        if (!(typeCodec instanceof PrimitiveIntCodec))
-            throw new InvalidTypeException("Invalid value for CQL type " + toDataType().getName());
-
-        return ((PrimitiveIntCodec) typeCodec).serializeNoBoxing(value, protocolVersion);
-    }
-
-    /**
-     * Serialized the specified byte.
-     *
-     * @param protocolVersion the protocol version
-     * @param value the value to serialize
-     * @return the serialized byte
-     */
-    public ByteBuffer decompose(ProtocolVersion protocolVersion, long value)
-    {
-        if (!(typeCodec instanceof PrimitiveLongCodec))
-            throw new InvalidTypeException("Invalid value for CQL type " + toDataType().getName());
-
-        return ((PrimitiveLongCodec) typeCodec).serializeNoBoxing(value, protocolVersion);
-    }
-
-    /**
-     * Serialized the specified byte.
-     *
-     * @param protocolVersion the protocol version
-     * @param value the value to serialize
-     * @return the serialized byte
-     */
-    public ByteBuffer decompose(ProtocolVersion protocolVersion, float value)
-    {
-        if (!(typeCodec instanceof PrimitiveFloatCodec))
-            throw new InvalidTypeException("Invalid value for CQL type " + toDataType().getName());
-
-        return ((PrimitiveFloatCodec) typeCodec).serializeNoBoxing(value, protocolVersion);
-    }
-
-    /**
-     * Serialized the specified byte.
-     *
-     * @param protocolVersion the protocol version
-     * @param value the value to serialize
-     * @return the serialized byte
-     */
-    public ByteBuffer decompose(ProtocolVersion protocolVersion, double value)
-    {
-        if (!(typeCodec instanceof PrimitiveDoubleCodec))
-            throw new InvalidTypeException("Invalid value for CQL type " + toDataType().getName());
-
-        return ((PrimitiveDoubleCodec) typeCodec).serializeNoBoxing(value, protocolVersion);
+        return ((TypeCodec<Object, ?>) typeCodec).serialize(value);
     }
 
     public ArgumentDeserializer getArgumentDeserializer()

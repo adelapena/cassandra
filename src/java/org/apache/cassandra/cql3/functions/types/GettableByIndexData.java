@@ -31,6 +31,7 @@ import org.apache.cassandra.cql3.functions.types.exceptions.InvalidTypeException
 /**
  * Collection of (typed) CQL values that can be retrieved by index (starting at zero).
  */
+@SuppressWarnings("UnstableApiUsage") // Suppress warnings about TypeToken
 public interface GettableByIndexData
 {
 
@@ -603,5 +604,5 @@ public interface GettableByIndexData
      *                                   accept} the underlying CQL type.
      * @throws IndexOutOfBoundsException if {@code i} is not a valid index for this object.
      */
-    <T> T get(int i, TypeCodec<T> codec);
+    <T> T get(int i, TypeCodec<T, ?> codec);
 }

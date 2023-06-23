@@ -22,8 +22,8 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import org.apache.cassandra.transport.ProtocolVersion;
 import org.apache.cassandra.cql3.functions.types.exceptions.InvalidTypeException;
+import org.apache.cassandra.transport.ProtocolVersion;
 
 /**
  * A tuple type.
@@ -43,27 +43,6 @@ public class TupleType extends DataType
         this.types = ImmutableList.copyOf(types);
         this.protocolVersion = protocolVersion;
         this.codecRegistry = codecRegistry;
-    }
-
-    /**
-     * Creates a "disconnected" tuple type (<b>you should prefer {@code
-     * Metadata#newTupleType(DataType...) cluster.getMetadata().newTupleType(...)} whenever
-     * possible</b>).
-     *
-     * <p>This method is only exposed for situations where you don't have a {@code Cluster} instance
-     * available. If you create a type with this method and use it with a {@code Cluster} later, you
-     * won't be able to set tuple fields with custom codecs registered against the cluster, or you
-     * might get errors if the protocol versions don't match.
-     *
-     * @param protocolVersion the protocol version to use.
-     * @param codecRegistry   the codec registry to use.
-     * @param types           the types for the tuple type.
-     * @return the newly created tuple type.
-     */
-    public static TupleType of(
-    ProtocolVersion protocolVersion, CodecRegistry codecRegistry, DataType... types)
-    {
-        return new TupleType(Arrays.asList(types), protocolVersion, codecRegistry);
     }
 
     /**
@@ -114,7 +93,7 @@ public class TupleType extends DataType
             if (values[i] == null) t.setValue(i, null);
             else
                 t.setValue(
-                i, codecRegistry.codecFor(dataType, values[i]).serialize(values[i], protocolVersion));
+                i, codecRegistry.codecFor(dataType, values[i]).serialize(values[i]));
         }
         return t;
     }

@@ -65,7 +65,6 @@ import org.apache.cassandra.schema.Types;
 import org.apache.cassandra.schema.UserFunctions;
 import org.apache.cassandra.schema.Views;
 import org.apache.cassandra.service.ClientState;
-import org.apache.cassandra.transport.ProtocolVersion;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.cassandra.utils.JavaDriverUtils;
 
@@ -125,14 +124,14 @@ public class CQLSSTableWriter implements Closeable
     private final AbstractSSTableSimpleWriter writer;
     private final ModificationStatement modificationStatement;
     private final List<ColumnSpecification> boundNames;
-    private final List<TypeCodec> typeCodecs;
+    private final List<TypeCodec<?, ?>> typeCodecs;
 
     private CQLSSTableWriter(AbstractSSTableSimpleWriter writer, ModificationStatement modificationStatement, List<ColumnSpecification> boundNames)
     {
         this.writer = writer;
         this.modificationStatement = modificationStatement;
         this.boundNames = boundNames;
-        this.typeCodecs = boundNames.stream().map(bn ->  JavaDriverUtils.codecFor(JavaDriverUtils.driverType(bn.type)))
+        this.typeCodecs = boundNames.stream().map(bn -> JavaDriverUtils.codecFor(JavaDriverUtils.driverType(bn.type)))
                                              .collect(Collectors.toList());
     }
 
@@ -360,7 +359,7 @@ public class CQLSSTableWriter implements Closeable
 
         try
         {
-            return codec.serialize(value, ProtocolVersion.CURRENT);
+            return codec.serialize(value);
         }
         catch (ClassCastException cce)
         {

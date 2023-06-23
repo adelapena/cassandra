@@ -17,8 +17,10 @@
  */
 package org.apache.cassandra.cql3.functions.types.exceptions;
 
+import org.apache.cassandra.cql3.functions.types.TypeCodec;
+
 /**
- * Thrown when a suitable {@link org.apache.cassandra.cql3.functions.types.TypeCodec} cannot be found by {@link
+ * Thrown when a suitable {@link TypeCodec} cannot be found by {@link
  * org.apache.cassandra.cql3.functions.types.CodecRegistry} instances.
  */
 @SuppressWarnings("serial")

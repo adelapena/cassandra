@@ -64,7 +64,6 @@ import org.apache.cassandra.schema.TableMetadata;
 import org.apache.cassandra.schema.TableMetadataRef;
 import org.apache.cassandra.schema.Types;
 import org.apache.cassandra.service.ClientState;
-import org.apache.cassandra.transport.ProtocolVersion;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.cassandra.utils.JavaDriverUtils;
 
@@ -331,7 +330,7 @@ public class StressCQLSSTableWriter implements Closeable
         if (value == null || value == UNSET_VALUE)
             return (ByteBuffer) value;
 
-        return codec.serialize(value, ProtocolVersion.CURRENT);
+        return codec.serialize(value);
     }
     /**
      * The writer loads data in directories corresponding to how they laid out on the server.

@@ -593,5 +593,5 @@ public interface SettableByIndexData<T extends SettableByIndexData<T>>
      *                                   accept} the underlying CQL type.
      * @throws IndexOutOfBoundsException if {@code i} is not a valid index for this object.
      */
-    <V> T set(int i, V v, TypeCodec<V> codec);
+    <V> T set(int i, V v, TypeCodec<V, ?> codec);
 }

@@ -630,5 +630,5 @@ public interface SettableByNameData<T extends SettableData<T>>
      *                                  accept} the underlying CQL type.
      * @throws IllegalArgumentException if {@code name} is not a valid name for this object.
      */
-    <V> T set(String name, V v, TypeCodec<V> codec);
+    <V> T set(String name, V v, TypeCodec<V, ?> codec);
 }

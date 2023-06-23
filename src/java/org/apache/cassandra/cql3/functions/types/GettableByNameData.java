@@ -603,5 +603,5 @@ public interface GettableByNameData
      *                                   accept} the underlying CQL type.
      * @throws IndexOutOfBoundsException if {@code i} is not a valid index for this object.
      */
-    <T> T get(String name, TypeCodec<T> codec);
+    <T> T get(String name, TypeCodec<T, ?> codec);
 }

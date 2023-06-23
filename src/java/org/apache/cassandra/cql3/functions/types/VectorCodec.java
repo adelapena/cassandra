@@ -18,17 +18,8 @@
 
 package org.apache.cassandra.cql3.functions.types;
 
-import java.nio.ByteBuffer;
-import java.util.Iterator;
 import java.util.List;
-
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-
-import org.apache.cassandra.cql3.functions.types.exceptions.InvalidTypeException;
-import org.apache.cassandra.transport.ProtocolVersion;
-import org.apache.cassandra.utils.vint.VIntCoding;
+import java.util.stream.Collectors;
 
 /**
  * {@link TypeCodec} for vectors. Vectors are represented as {@link List}s for convenience, since it's probably easier
@@ -37,175 +28,29 @@ import org.apache.cassandra.utils.vint.VIntCoding;
  *
  * @param <E> The type of the vector elements.
  */
-public abstract class VectorCodec<E> extends TypeCodec<List<E>>
+public class VectorCodec<E, I> extends TypeCodec<List<E>, List<I>>
 {
     protected final VectorType type;
-    protected final TypeCodec<E> subtypeCodec;
+    protected final TypeCodec<E, I> subtypeCodec;
 
-    private VectorCodec(VectorType type, TypeCodec<E> subtypeCodec)
+    public VectorCodec(VectorType type, TypeCodec<E, I> subtypeCodec)
     {
-        super(type, TypeTokens.vectorOf(subtypeCodec.getJavaType()));
+        super(type,
+              org.apache.cassandra.db.marshal.VectorType.getInstance(subtypeCodec.getSerializer(), type.getDimensions()),
+              TypeTokens.vectorOf(subtypeCodec.getJavaType()));
         this.type = type;
         this.subtypeCodec = subtypeCodec;
     }
 
-    public static <E> VectorCodec<E> of(VectorType type, TypeCodec<E> subtypeCodec)
+    @Override
+    public List<E> toDriver(List<I> value)
     {
-        return subtypeCodec.isValueLengthFixed()
-               ? new FixedLength<>(type, subtypeCodec)
-               : new VariableLength<>(type, subtypeCodec);
+        return value.stream().map(subtypeCodec::toDriver).collect(Collectors.toList());
     }
 
     @Override
-    public List<E> parse(String value) throws InvalidTypeException
+    public List<I> fromDriver(List<E> value)
     {
-        if (value == null || value.isEmpty() || value.equalsIgnoreCase("NULL")) return null;
-
-        ImmutableList.Builder<E> values = ImmutableList.builder();
-        for (String element : Splitter.on(", ").split(value.substring(1, value.length() - 1)))
-        {
-            values.add(subtypeCodec.parse(element));
-        }
-
-        return values.build();
-    }
-
-    @Override
-    public String format(List<E> value) throws InvalidTypeException
-    {
-        return value == null ? "NULL" : Iterables.toString(value);
-    }
-
-    /**
-     * {@link VectorCodec} for vectors of elements using a fixed-length encoding.
-     */
-    private static class FixedLength<E> extends VectorCodec<E>
-    {
-        public FixedLength(VectorType type, TypeCodec<E> subtypeCodec)
-        {
-            super(type, subtypeCodec);
-        }
-
-        @Override
-        public boolean isValueLengthFixed()
-        {
-            return true;
-        }
-
-        @Override
-        public ByteBuffer serialize(List<E> value, ProtocolVersion protocolVersion) throws InvalidTypeException
-        {
-            if (value == null || type.getDimensions() <= 0)
-                return null;
-
-            ByteBuffer[] valueBuffs = new ByteBuffer[type.getDimensions()];
-            Iterator<E> values = value.iterator();
-            int allValueBuffsSize = 0;
-            for (int i = 0; i < type.getDimensions(); ++i)
-            {
-                ByteBuffer valueBuff = subtypeCodec.serialize(values.next(), protocolVersion);
-                allValueBuffsSize += valueBuff.limit();
-                valueBuff.rewind();
-                valueBuffs[i] = valueBuff;
-            }
-
-            // Since we already did an early return for <= 0 dimensions above
-            assert valueBuffs.length > 0;
-
-            ByteBuffer rv = ByteBuffer.allocate(allValueBuffsSize);
-            for (int i = 0; i < type.getDimensions(); ++i)
-            {
-                rv.put(valueBuffs[i]);
-            }
-            rv.flip();
-            return rv;
-        }
-
-        @Override
-        public List<E> deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException
-        {
-            if (bytes == null || bytes.remaining() == 0)
-                return null;
-
-            // Determine element size by dividing count of remaining bytes by number of elements.
-            // This should have a remainder of zero since all elements are of the same fixed size.
-            int elementSize = Math.floorDiv(bytes.remaining(), type.getDimensions());
-            assert bytes.remaining() % type.getDimensions() == 0
-            : String.format("Expected elements of uniform size, observed %d elements with total bytes %d",
-                            type.getDimensions(), bytes.remaining());
-
-            ImmutableList.Builder<E> values = ImmutableList.builder();
-            for (int i = 0; i < type.getDimensions(); ++i)
-            {
-                ByteBuffer slice = bytes.slice();
-                slice.limit(elementSize);
-                values.add(subtypeCodec.deserialize(slice, protocolVersion));
-                bytes.position(bytes.position() + elementSize);
-            }
-
-            // Restore the input ByteBuffer to its original state
-            bytes.rewind();
-
-            return values.build();
-        }
-    }
-
-    /**
-     * {@link VectorCodec} for vectors of elements using a varaible-length encoding.
-     */
-    private static class VariableLength<E> extends VectorCodec<E>
-    {
-        public VariableLength(VectorType type, TypeCodec<E> subtypeCodec)
-        {
-            super(type, subtypeCodec);
-        }
-
-        @Override
-        public ByteBuffer serialize(List<E> values, ProtocolVersion version) throws InvalidTypeException
-        {
-            if (values == null)
-                return null;
-
-            assert values.size() == type.getDimensions();
-
-            int i = 0;
-            int outputSize = 0;
-            ByteBuffer[] buffers = new ByteBuffer[values.size()];
-            for (E value : values)
-            {
-                ByteBuffer bb = subtypeCodec.serialize(value, version);
-                buffers[i++] = bb;
-                int elemSize = bb.remaining();
-                outputSize += elemSize + VIntCoding.computeUnsignedVIntSize(elemSize);
-            }
-
-            ByteBuffer output = ByteBuffer.allocate(outputSize);
-            for (ByteBuffer bb : buffers)
-            {
-                VIntCoding.writeUnsignedVInt32(bb.remaining(), output);
-                output.put(bb.duplicate());
-            }
-            return (ByteBuffer) output.flip();
-        }
-
-        @Override
-        public List<E> deserialize(ByteBuffer bytes, ProtocolVersion version) throws InvalidTypeException
-        {
-            if (bytes == null || bytes.remaining() == 0)
-                return null;
-
-            ByteBuffer input = bytes.duplicate();
-            ImmutableList.Builder<E> values = ImmutableList.builder();
-
-            for (int i = 0; i < type.getDimensions(); i++)
-            {
-                int size = VIntCoding.getUnsignedVInt32(input, input.position());
-                input.position(input.position() + VIntCoding.computeUnsignedVIntSize(size));
-
-                ByteBuffer value = size < 0 ? null : CodecUtils.readBytes(input, size);
-                values.add(subtypeCodec.deserialize(value, version));
-            }
-            return values.build();
-        }
+        return value.stream().map(subtypeCodec::fromDriver).collect(Collectors.toList());
     }
 }

@@ -437,8 +437,8 @@ public abstract class UDFunction extends UserFunction implements ScalarFunction
     {
         // Get the TypeCodec stuff in Java Driver initialized.
         // This is to get the classes loaded outside of the restricted sandbox's security context of a UDF.
-        TypeCodec.inet().format(InetAddress.getLoopbackAddress());
-        TypeCodec.ascii().format("");
+        TypeCodec.inet().serialize(InetAddress.getLoopbackAddress());
+        TypeCodec.ascii().serialize("");
     }
 
     private static final class ThreadIdAndCpuTime extends CompletableFuture<Object>

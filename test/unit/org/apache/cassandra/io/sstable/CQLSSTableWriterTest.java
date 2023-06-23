@@ -52,7 +52,6 @@ import org.apache.cassandra.exceptions.*;
 import org.apache.cassandra.schema.Schema;
 import org.apache.cassandra.schema.TableMetadataRef;
 import org.apache.cassandra.service.StorageService;
-import org.apache.cassandra.transport.ProtocolVersion;
 import org.apache.cassandra.utils.*;
 
 import static org.apache.cassandra.utils.Clock.Global.currentTimeMillis;
@@ -628,14 +627,14 @@ public class CQLSSTableWriterTest
         for (UntypedResultSet.Row row: resultSet) {
             assertEquals(cnt,
                          row.getInt("k"));
-            List<UDTValue> values = (List<UDTValue>) collectionCodec.deserialize(row.getBytes("v1"),
-                                                                                 ProtocolVersion.CURRENT);
+            List<UDTValue> values = (List<UDTValue>) collectionCodec.deserialize(row.getBytes("v1")
+            );
             assertEquals(values.get(0).getInt("a"), cnt * 10);
             assertEquals(values.get(0).getInt("b"), cnt * 20);
             assertEquals(values.get(1).getInt("a"), cnt * 30);
             assertEquals(values.get(1).getInt("b"), cnt * 40);
 
-            UDTValue v2 = (UDTValue) tuple3Codec.deserialize(row.getBytes("v2"), ProtocolVersion.CURRENT);
+            UDTValue v2 = (UDTValue) tuple3Codec.deserialize(row.getBytes("v2"));
 
             assertEquals(v2.getInt("a"), cnt * 100);
             assertEquals(v2.getInt("b"), cnt * 200);
@@ -690,8 +689,8 @@ public class CQLSSTableWriterTest
         for (UntypedResultSet.Row row: resultSet) {
             assertEquals(cnt,
                          row.getInt("k"));
-            UDTValue nestedTpl = (UDTValue) nestedTupleCodec.deserialize(row.getBytes("v1"),
-                                                                         ProtocolVersion.CURRENT);
+            UDTValue nestedTpl = (UDTValue) nestedTupleCodec.deserialize(row.getBytes("v1")
+            );
             assertEquals(nestedTpl.getInt("c"), cnt * 100);
             UDTValue tpl = nestedTpl.getUDTValue("tpl");
             assertEquals(tpl.getInt("a"), cnt * 200);

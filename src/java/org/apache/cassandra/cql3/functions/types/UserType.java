@@ -101,6 +101,11 @@ public class UserType extends DataType implements Iterable<UserType.Field>
         return builder.build();
     }
 
+    public Field[] getFields()
+    {
+        return byIdx;
+    }
+
     /**
      * Returns a new empty value for this user type definition.
      *

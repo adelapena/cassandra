@@ -327,7 +327,7 @@ implements GettableData
      * {@inheritDoc}
      */
     @Override
-    public <T> T get(String name, TypeCodec<T> codec)
+    public <T> T get(String name, TypeCodec<T, ?> codec)
     {
         return get(getIndexOf(name), codec);
     }

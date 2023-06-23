@@ -1661,6 +1661,7 @@ public abstract class CQLTester
                     expectedByteValue = expectedByteValue.duplicate();
                 if (!Objects.equal(expectedByteValue, actualValue))
                 {
+                    System.out.println("*** ACTUAL SERIALIZER: " + column.type.getSerializer());
                     Object actualValueDecoded = actualValue == null ? null : column.type.getSerializer().deserialize(actualValue);
                     if (!Objects.equal(expected != null ? expected[j] : null, actualValueDecoded))
                     {

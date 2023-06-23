@@ -52,12 +52,12 @@ public final class JavaDriverUtils
         }
     }
 
-    public static TypeCodec<Object> codecFor(AbstractType<?> abstractType)
+    public static TypeCodec<Object, ?> codecFor(AbstractType<?> abstractType)
     {
         return codecFor(driverType(abstractType));
     }
 
-    public static TypeCodec<Object> codecFor(DataType dataType)
+    public static TypeCodec<Object, ?> codecFor(DataType dataType)
     {
         return codecRegistry.codecFor(dataType);
     }
