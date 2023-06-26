@@ -26,7 +26,7 @@ import org.apache.lucene.util.ByteBlockPool;
 /**
  * This is a copy of {@code org.apache.lucene.index.ByteSliceReader} done to
  * make it visible in the {@code org.apache.cassandra.index.sai.memory} package.
- *
+ * <p>
  * IndexInput that knows how to read the byte slices written by RAMPostingSlices.
  * We read the bytes in each slice until we hit the end of that slice at which
  * point we read the forwarding address of the next slice and then jump to it.
@@ -120,5 +120,26 @@ final class ByteSliceReader extends DataInput
     public void readBytes(byte[] b, int offset, int len)
     {
         throw new UnsupportedOperationException("readBytes is not supported by ByteSliceReader");
+    }
+
+    @Override
+    public void skipBytes(long l)
+    {
+        while (l > 0)
+        {
+            final int numLeft = limit - upto;
+            if (numLeft < l)
+            {
+                // Skip entire slice
+                l -= numLeft;
+                nextSlice();
+            }
+            else
+            {
+                // This slice is the last one
+                upto += l;
+                break;
+            }
+        }
     }
 }

@@ -26,11 +26,11 @@ import com.google.common.annotations.VisibleForTesting;
 
 import org.agrona.collections.LongArrayList;
 import org.apache.cassandra.index.sai.IndexContext;
+import org.apache.cassandra.index.sai.disk.ResettableByteBuffersIndexOutput;
 import org.apache.cassandra.index.sai.disk.v1.DirectReaders;
 import org.apache.cassandra.index.sai.postings.PostingList;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
-import org.apache.cassandra.index.sai.disk.io.RAMIndexOutput;
 import org.apache.cassandra.index.sai.disk.v1.SAICodecUtils;
 import org.apache.lucene.store.DataOutput;
 import org.apache.lucene.store.IndexOutput;
@@ -38,14 +38,14 @@ import org.apache.lucene.util.packed.DirectWriter;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Math.max;
-import static org.apache.lucene.codecs.lucene50.Lucene50PostingsFormat.BLOCK_SIZE;
 
 /**
  * Encodes, compresses and writes postings lists to disk.
- *
+ * <p>
  * All postings in the posting list are delta encoded, then deltas are divided into blocks for compression.
  * The deltas are based on the final value of the previous block. For the first block in the posting list
  * the first value in the block is written as a VLong prior to block delta encodings.
+ * </p>
  * <p>
  * In packed blocks, longs are encoded with the same bit width (FoR compression). The block size (i.e. number of
  * longs inside block) is fixed (currently 128). Additionally blocks that are all the same value are encoded in an
@@ -86,6 +86,9 @@ import static org.apache.lucene.codecs.lucene50.Lucene50PostingsFormat.BLOCK_SIZ
 @NotThreadSafe
 public class PostingsWriter implements Closeable
 {
+    // import static org.apache.lucene.codecs.lucene50.Lucene50PostingsFormat.BLOCK_SIZE;
+    private final static int BLOCK_SIZE = 128;
+
     private static final String POSTINGS_MUST_BE_SORTED_ERROR_MSG = "Postings must be sorted ascending, got [%s] after [%s]";
 
     private final IndexOutput dataOutput;
@@ -93,7 +96,7 @@ public class PostingsWriter implements Closeable
     private final long[] deltaBuffer;
     private final LongArrayList blockOffsets = new LongArrayList();
     private final LongArrayList blockMaximumPostings = new LongArrayList();
-    private final RAMIndexOutput inMemoryOutput = new RAMIndexOutput("blockOffsets");
+    private final ResettableByteBuffersIndexOutput inMemoryOutput = new ResettableByteBuffersIndexOutput(1024, "blockOffsets");
 
     private final long startOffset;
 
@@ -259,7 +262,7 @@ public class PostingsWriter implements Closeable
 
         writeSortedFoRBlock(blockOffsets, inMemoryOutput);
         dataOutput.writeVLong(inMemoryOutput.getFilePointer());
-        inMemoryOutput.writeTo(dataOutput);
+        inMemoryOutput.copyTo(dataOutput);
         writeSortedFoRBlock(blockMaximumPostings, dataOutput);
     }
 
