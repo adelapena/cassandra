@@ -27,7 +27,6 @@ import com.google.common.annotations.VisibleForTesting;
 import org.agrona.collections.LongArrayList;
 import org.apache.cassandra.index.sai.IndexContext;
 import org.apache.cassandra.index.sai.disk.ResettableByteBuffersIndexOutput;
-import org.apache.cassandra.index.sai.disk.v1.DirectReaders;
 import org.apache.cassandra.index.sai.postings.PostingList;
 import org.apache.cassandra.index.sai.disk.format.IndexComponent;
 import org.apache.cassandra.index.sai.disk.format.IndexDescriptor;
@@ -270,8 +269,8 @@ public class PostingsWriter implements Closeable
     {
         final int bitsPerValue = maxDelta == 0 ? 0 : DirectWriter.unsignedBitsRequired(maxDelta);
 
-        assert DirectReaders.SUPPORTED_BITS_PER_VALUE.contains(bitsPerValue) :
-        "Unsupported bits per value of " + bitsPerValue + " bits. Supported values are: " + DirectReaders.SUPPORTED_BITS_PER_VALUE_STRING;
+        assert bitsPerValue <= 64 :
+        "Unsupported bits per value of " + bitsPerValue + " bits. Bits per value should be no more than 64.";
 
         // If we have a first posting, indicating that this is the first block in the posting list
         // then write it prior to the deltas.

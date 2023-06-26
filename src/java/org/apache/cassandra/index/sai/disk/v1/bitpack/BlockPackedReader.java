@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import org.apache.cassandra.index.sai.disk.io.IndexFileUtils;
 import org.apache.cassandra.index.sai.disk.io.IndexInputReader;
-import org.apache.cassandra.index.sai.disk.v1.DirectReaders;
 import org.apache.cassandra.index.sai.disk.v1.LongArray;
 import org.apache.cassandra.index.sai.disk.v1.SAICodecUtils;
 import org.apache.cassandra.io.util.FileHandle;
@@ -70,10 +69,9 @@ public class BlockPackedReader implements LongArray.Factory
             {
                 final int token = in.readByte() & 0xFF;
                 final int bitsPerValue = token >>> BlockPackedWriter.BPV_SHIFT;
-                if (!DirectReaders.SUPPORTED_BITS_PER_VALUE.contains(bitsPerValue))
+                if (bitsPerValue > 64)
                 {
-                    throw new CorruptIndexException(String.format("Block %d is corrupted. Bits per value is %d. Supported values are %s.",
-                                                                  i, bitsPerValue, DirectReaders.SUPPORTED_BITS_PER_VALUE_STRING), in);
+                    throw new CorruptIndexException(String.format("Block %d is corrupted. Bits per value should be no more than 64 and is %d.", i, bitsPerValue), in);
                 }
                 if ((token & BlockPackedWriter.MIN_VALUE_EQUALS_0) == 0)
                 {
