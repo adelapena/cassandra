@@ -90,7 +90,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -180,7 +180,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -244,7 +244,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -353,7 +353,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -507,7 +507,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -592,7 +592,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -709,7 +709,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -781,7 +781,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -870,7 +870,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -979,7 +979,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -1069,7 +1069,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -1186,7 +1186,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -1275,7 +1275,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -1392,7 +1392,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -1501,7 +1501,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -1609,7 +1609,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -1699,7 +1699,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -1895,7 +1895,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -1980,7 +1980,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -2113,7 +2113,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -2222,7 +2222,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -2330,7 +2330,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -2415,7 +2415,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -2505,7 +2505,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -2623,7 +2623,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -2756,7 +2756,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -2865,7 +2865,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -2973,7 +2973,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -3037,7 +3037,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -3154,7 +3154,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -3226,7 +3226,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -3344,7 +3344,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -3476,7 +3476,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -3608,7 +3608,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -3741,7 +3741,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -3858,7 +3858,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -3972,7 +3972,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -4089,7 +4089,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -4192,7 +4192,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -4264,7 +4264,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -4354,7 +4354,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -4438,7 +4438,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -4551,7 +4551,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -4669,7 +4669,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -4741,7 +4741,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -4850,7 +4850,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -4939,7 +4939,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -5094,7 +5094,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -5184,7 +5184,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -5273,7 +5273,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -5390,7 +5390,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -5499,7 +5499,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -5607,7 +5607,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -5725,7 +5725,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -5814,7 +5814,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -5922,7 +5922,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -6012,7 +6012,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -6129,7 +6129,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -6214,7 +6214,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -6347,7 +6347,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -6465,7 +6465,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -6573,7 +6573,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -6662,7 +6662,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -6794,7 +6794,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -6902,7 +6902,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -7009,7 +7009,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -7118,7 +7118,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -7208,7 +7208,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -7298,7 +7298,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -7388,7 +7388,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -7497,7 +7497,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -7587,7 +7587,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -7671,7 +7671,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -7788,7 +7788,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -7905,7 +7905,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -7995,7 +7995,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -8102,7 +8102,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -8192,7 +8192,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -8276,7 +8276,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -8365,7 +8365,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -8450,7 +8450,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -8512,7 +8512,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -8602,7 +8602,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -8708,7 +8708,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -8904,7 +8904,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -8975,7 +8975,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -9092,7 +9092,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -9200,7 +9200,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -9332,7 +9332,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -9449,7 +9449,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -9555,7 +9555,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -9663,7 +9663,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -9752,7 +9752,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -9824,7 +9824,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -9886,7 +9886,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -9992,7 +9992,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -10082,7 +10082,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -10214,7 +10214,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
@@ -10303,7 +10303,7 @@ jobs:
     - REPEATED_UTESTS_STRESS_COUNT: 500
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
-    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest#countTest
+    - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.ByteBuddyExamplesTest
     - REPEATED_JVM_DTESTS_COUNT: 10000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
