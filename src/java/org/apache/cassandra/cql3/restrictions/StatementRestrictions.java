@@ -301,7 +301,7 @@ public final class StatementRestrictions
         ColumnMetadata def = restriction.getFirstColumn();
         if (def.isPartitionKey())
             partitionKeyRestrictions = partitionKeyRestrictions.mergeWith(restriction);
-        else if (def.isClusteringColumn())
+        else if (def.isClusteringColumn() && (indexRegistry == null || !restriction.hasSupportingIndex(indexRegistry)))
             clusteringColumnsRestrictions = clusteringColumnsRestrictions.mergeWith(restriction, indexRegistry);
         else
             nonPrimaryKeyRestrictions = nonPrimaryKeyRestrictions.addRestriction((SingleRestriction) restriction);
