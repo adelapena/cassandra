@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.CQL3Type;
+import org.apache.cassandra.cql3.CqlBuilder;
 import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.cql3.statements.schema.IndexTarget;
 import org.apache.cassandra.db.CassandraWriteContext;
@@ -253,7 +254,13 @@ public class StorageAttachedIndex implements Index
             throw new InvalidRequestException("Unsupported type: " + type.asCQL3Type());
         }
 
-        AbstractAnalyzer.fromOptions(type, options);
+        Map<String, String> analysisOptions = AbstractAnalyzer.getAnalyzerOptions(options);
+        if (target.left.isPrimaryKeyColumn() && !analysisOptions.isEmpty())
+        {
+            throw new InvalidRequestException("Analysis options are not supported on primary key columns, but found " +
+                                              new CqlBuilder().append(analysisOptions));
+        }
+        AbstractAnalyzer.fromOptions(type, analysisOptions);
 
         return Collections.emptyMap();
     }
