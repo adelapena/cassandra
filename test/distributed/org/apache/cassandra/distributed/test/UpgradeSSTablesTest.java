@@ -41,6 +41,7 @@ import org.apache.cassandra.distributed.api.ConsistencyLevel;
 import org.apache.cassandra.distributed.api.ICluster;
 import org.apache.cassandra.distributed.api.IInvokableInstance;
 import org.apache.cassandra.distributed.api.LogAction;
+import org.apache.cassandra.distributed.api.NodeToolResult;
 import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.concurrent.CountDownLatch;
@@ -83,7 +84,12 @@ public class UpgradeSSTablesTest extends TestBaseImpl
                 ColumnFamilyStore cfs = Keyspace.open(ks).getColumnFamilyStore("tbl");
                 CompactionManager.instance.submitMaximal(cfs, FBUtilities.nowInSeconds(), false, OperationType.COMPACTION);
             }).apply(KEYSPACE);
-            Assert.assertEquals(0, cluster.get(1).nodetool("upgradesstables", "-a", KEYSPACE, "tbl"));
+
+            NodeToolResult nodetoolResult = cluster.get(1).nodetoolResult("upgradesstables", "-a", KEYSPACE, "tbl");
+            Assert.assertEquals(String.format("Expected return code 0 but found %s, stdout: %s, stderr: %s",
+                                              nodetoolResult.getRc(), nodetoolResult.getStdout(), nodetoolResult.getStderr()),
+                                0, nodetoolResult.getRc());
+
             future.get();
             Assert.assertFalse(logAction.grep("Compaction interrupted").getResult().isEmpty());
         }
