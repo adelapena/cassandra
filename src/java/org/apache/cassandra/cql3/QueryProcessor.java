@@ -62,7 +62,6 @@ import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.partitions.PartitionIterators;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.exceptions.*;
-import org.apache.cassandra.gms.Gossiper;
 import org.apache.cassandra.metrics.CQLMetrics;
 import org.apache.cassandra.service.*;
 import org.apache.cassandra.service.pager.QueryPager;
@@ -80,11 +79,6 @@ import static org.apache.cassandra.utils.Clock.Global.nanoTime;
 public class QueryProcessor implements QueryHandler
 {
     public static final CassandraVersion CQL_VERSION = new CassandraVersion("3.4.7");
-
-    // See comments on QueryProcessor #prepare
-    public static final CassandraVersion NEW_PREPARED_STATEMENT_BEHAVIOUR_SINCE_30 = new CassandraVersion("3.0.26");
-    public static final CassandraVersion NEW_PREPARED_STATEMENT_BEHAVIOUR_SINCE_3X = new CassandraVersion("3.11.12");
-    public static final CassandraVersion NEW_PREPARED_STATEMENT_BEHAVIOUR_SINCE_40 = new CassandraVersion("4.0.2");
 
     public static final QueryProcessor instance = new QueryProcessor();
 
@@ -635,28 +629,6 @@ public class QueryProcessor implements QueryHandler
         return prepare(query, clientState);
     }
 
-    private volatile boolean newPreparedStatementBehaviour = false;
-    public boolean useNewPreparedStatementBehaviour()
-    {
-        if (newPreparedStatementBehaviour || DatabaseDescriptor.getForceNewPreparedStatementBehaviour())
-            return true;
-
-        synchronized (this)
-        {
-            CassandraVersion minVersion = Gossiper.instance.getMinVersion(DatabaseDescriptor.getWriteRpcTimeout(TimeUnit.MILLISECONDS), TimeUnit.MILLISECONDS);
-            if (minVersion != null &&
-                ((minVersion.major == 3 && minVersion.minor == 0 && minVersion.compareTo(NEW_PREPARED_STATEMENT_BEHAVIOUR_SINCE_30) >= 0) ||
-                 (minVersion.major == 3 && minVersion.minor > 0 && minVersion.compareTo(NEW_PREPARED_STATEMENT_BEHAVIOUR_SINCE_3X) >= 0) ||
-                 (minVersion.compareTo(NEW_PREPARED_STATEMENT_BEHAVIOUR_SINCE_40, true) >= 0)))
-            {
-                logger.info("Fully upgraded to at least {}", minVersion);
-                newPreparedStatementBehaviour = true;
-            }
-
-            return newPreparedStatementBehaviour;
-        }
-    }
-
     /**
      * This method got slightly out of hand, but this is with best intentions: to allow users to be upgraded from any
      * prior version, and help implementers avoid previous mistakes by clearly separating fully qualified and non-fully
@@ -679,7 +651,6 @@ public class QueryProcessor implements QueryHandler
      */
     public ResultMessage.Prepared prepare(String queryString, ClientState clientState)
     {
-        boolean useNewPreparedStatementBehaviour = useNewPreparedStatementBehaviour();
         MD5Digest hashWithoutKeyspace = computeId(queryString, null);
         MD5Digest hashWithKeyspace = computeId(queryString, clientState.getRawKeyspace());
         Prepared cachedWithoutKeyspace = preparedStatements.getIfPresent(hashWithoutKeyspace);
@@ -689,19 +660,11 @@ public class QueryProcessor implements QueryHandler
 
         if (safeToReturnCached)
         {
-            if (useNewPreparedStatementBehaviour)
-            {
-                if (cachedWithoutKeyspace.fullyQualified) // For fully qualified statements, we always skip keyspace to avoid digest switching
-                    return createResultMessage(hashWithoutKeyspace, cachedWithoutKeyspace);
+            if (cachedWithoutKeyspace.fullyQualified) // For fully qualified statements, we always skip keyspace to avoid digest switching
+                return createResultMessage(hashWithoutKeyspace, cachedWithoutKeyspace);
 
-                if (clientState.getRawKeyspace() != null && !cachedWithKeyspace.fullyQualified) // For non-fully qualified statements, we always include keyspace to avoid ambiguity
-                    return createResultMessage(hashWithKeyspace, cachedWithKeyspace);
-
-            }
-            else // legacy caches, pre-CASSANDRA-15252 behaviour
-            {
+            if (clientState.getRawKeyspace() != null && !cachedWithKeyspace.fullyQualified) // For non-fully qualified statements, we always include keyspace to avoid ambiguity
                 return createResultMessage(hashWithKeyspace, cachedWithKeyspace);
-            }
         }
         else
         {
@@ -719,26 +682,12 @@ public class QueryProcessor implements QueryHandler
 
         if (prepared.fullyQualified)
         {
-            ResultMessage.Prepared qualifiedWithoutKeyspace = storePreparedStatement(queryString, null, prepared);
-            ResultMessage.Prepared qualifiedWithKeyspace = null;
-            if (clientState.getRawKeyspace() != null)
-                qualifiedWithKeyspace = storePreparedStatement(queryString, clientState.getRawKeyspace(), prepared);
-
-            if (!useNewPreparedStatementBehaviour && qualifiedWithKeyspace != null)
-                return qualifiedWithKeyspace;
-
-            return qualifiedWithoutKeyspace;
+            return storePreparedStatement(queryString, null, prepared);
         }
         else
         {
             clientState.warnAboutUseWithPreparedStatements(hashWithKeyspace, clientState.getRawKeyspace());
-
-            ResultMessage.Prepared nonQualifiedWithKeyspace = storePreparedStatement(queryString, clientState.getRawKeyspace(), prepared);
-            ResultMessage.Prepared nonQualifiedWithNullKeyspace = storePreparedStatement(queryString, null, prepared);
-            if (!useNewPreparedStatementBehaviour)
-                return nonQualifiedWithNullKeyspace;
-
-            return nonQualifiedWithKeyspace;
+            return storePreparedStatement(queryString, clientState.getRawKeyspace(), prepared);
         }
     }
 
