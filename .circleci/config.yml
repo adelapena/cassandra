@@ -91,7 +91,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -198,7 +198,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -262,7 +262,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -370,7 +370,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -459,7 +459,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -548,7 +548,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -613,7 +613,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -722,7 +722,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -839,7 +839,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -947,7 +947,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -1101,7 +1101,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -1233,7 +1233,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -1365,7 +1365,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -1483,7 +1483,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -1592,7 +1592,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -1681,7 +1681,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -1799,7 +1799,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -1888,7 +1888,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -1996,7 +1996,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -2129,7 +2129,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -2283,7 +2283,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -2400,7 +2400,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -2509,7 +2509,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -2617,7 +2617,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -2707,7 +2707,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -2796,7 +2796,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -2914,7 +2914,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -3109,7 +3109,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -3194,7 +3194,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -3327,7 +3327,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -3445,7 +3445,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -3553,7 +3553,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -3638,7 +3638,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -3728,7 +3728,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -3846,7 +3846,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -3979,7 +3979,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -4097,7 +4097,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -4292,7 +4292,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -4400,7 +4400,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -4507,7 +4507,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -4624,7 +4624,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -4714,7 +4714,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -4785,7 +4785,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -4918,7 +4918,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -5036,7 +5036,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -5140,7 +5140,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -5212,7 +5212,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -5302,7 +5302,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -5415,7 +5415,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -5533,7 +5533,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -5605,7 +5605,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -5695,7 +5695,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -5802,7 +5802,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -5934,7 +5934,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -6052,7 +6052,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -6142,7 +6142,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -6250,7 +6250,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -6359,7 +6359,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -6477,7 +6477,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -6562,7 +6562,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -6695,7 +6695,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -6785,7 +6785,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -6893,7 +6893,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -6965,7 +6965,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -7049,7 +7049,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -7133,7 +7133,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -7242,7 +7242,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -7332,7 +7332,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -7422,7 +7422,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -7512,7 +7512,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -7621,7 +7621,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -7684,7 +7684,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -7792,7 +7792,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -7910,7 +7910,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -8018,7 +8018,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -8126,7 +8126,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -8243,7 +8243,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -8315,7 +8315,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -8404,7 +8404,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -8511,7 +8511,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -8601,7 +8601,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -8665,7 +8665,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -8750,7 +8750,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -8868,7 +8868,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -8976,7 +8976,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -9093,7 +9093,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -9182,7 +9182,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -9266,7 +9266,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -9355,7 +9355,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -9427,7 +9427,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -9516,7 +9516,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -9600,7 +9600,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -9690,7 +9690,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -9796,7 +9796,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -9928,7 +9928,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -10017,7 +10017,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
@@ -10106,7 +10106,7 @@ jobs:
     - REPEATED_SIMULATOR_DTESTS: null
     - REPEATED_SIMULATOR_DTESTS_COUNT: 500
     - REPEATED_JVM_DTESTS: org.apache.cassandra.distributed.test.UpgradeSSTablesTest#upgradeSSTablesInterruptsOngoingCompaction
-    - REPEATED_JVM_DTESTS_COUNT: 200
+    - REPEATED_JVM_DTESTS_COUNT: 1000
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
     - REPEATED_DTESTS: null
