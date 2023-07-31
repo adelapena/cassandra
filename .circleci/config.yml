@@ -106,7 +106,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -195,7 +195,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -350,7 +350,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -468,7 +468,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -540,7 +540,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -629,7 +629,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -719,7 +719,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -836,7 +836,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -925,7 +925,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -1042,7 +1042,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -1146,7 +1146,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -1249,7 +1249,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -1339,7 +1339,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -1534,7 +1534,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -1624,7 +1624,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -1728,7 +1728,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -1831,7 +1831,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -1949,7 +1949,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -2021,7 +2021,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -2139,7 +2139,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -2256,7 +2256,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -2370,7 +2370,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -2487,7 +2487,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -2558,7 +2558,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -2648,7 +2648,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -2719,7 +2719,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -2852,7 +2852,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -2941,7 +2941,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -3096,7 +3096,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -3186,7 +3186,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -3275,7 +3275,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -3392,7 +3392,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -3496,7 +3496,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -3585,7 +3585,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -3674,7 +3674,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -3791,7 +3791,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -3909,7 +3909,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -3998,7 +3998,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -4130,7 +4130,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -4233,7 +4233,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -4318,7 +4318,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -4407,7 +4407,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -4510,7 +4510,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -4600,7 +4600,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -4690,7 +4690,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -4780,7 +4780,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -4897,7 +4897,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -5014,7 +5014,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -5104,7 +5104,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -5211,7 +5211,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -5296,7 +5296,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -5380,7 +5380,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -5442,7 +5442,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -5532,7 +5532,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -5638,7 +5638,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -5833,7 +5833,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -5904,7 +5904,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -6021,7 +6021,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -6153,7 +6153,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -6270,7 +6270,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -6376,7 +6376,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -6479,7 +6479,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -6568,7 +6568,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -6640,7 +6640,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -6702,7 +6702,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -6808,7 +6808,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -6898,7 +6898,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -6987,7 +6987,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
@@ -7091,7 +7091,7 @@ jobs:
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
     - DTEST_REPO: https://github.com/adelapena/cassandra-dtest.git
-    - DTEST_BRANCH: 18361-4.1-repro
+    - DTEST_BRANCH: 18361-4.1-repro-test
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
