@@ -19,8 +19,6 @@
 package org.apache.cassandra.distributed.test;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.LinkedHashMap;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
@@ -41,25 +39,27 @@ public class UDFTest extends TestBaseImpl
         relies on the keyspace not being null.
          */
         String[] createStmts = {
-        "CREATE TABLE "+KEYSPACE+".current (city text, PRIMARY KEY (city))",
-        "CREATE TYPE IF NOT EXISTS "+KEYSPACE+".aggst (lt int, ge int)",
-        "CREATE FUNCTION "+KEYSPACE+".udf_not_null ()\n" +
-        "CALLED ON NULL INPUT\n" +
-        "RETURNS boolean LANGUAGE java AS $$\n" +
-        "udfContext.newUDTValue(\"aggst\");\n"+
-        "return Boolean.TRUE;\n" +
-        "$$;",
-        };
+                "CREATE TABLE " + KEYSPACE + ".current (city text, PRIMARY KEY (city))",
+                "CREATE TYPE IF NOT EXISTS " + KEYSPACE + ".aggst (lt int, ge int)",
+                "CREATE FUNCTION " + KEYSPACE + ".udf_not_null ()\n" +
+                "CALLED ON NULL INPUT\n" +
+                "RETURNS boolean LANGUAGE java AS $$\n" +
+                "udfContext.newUDTValue(\"aggst\");\n" +
+                "return Boolean.TRUE;\n" +
+                "$$;",
+                };
         try (Cluster cluster = init(Cluster.create(1, config -> config.set("enable_user_defined_functions", "true"))))
         {
-            for (String stmt : createStmts) {
+            for (String stmt : createStmts)
+            {
                 cluster.schemaChange(stmt);
             }
-            cluster.coordinator(1).execute("INSERT INTO "+KEYSPACE+".current (city) VALUES ('Helsinki')", ConsistencyLevel.ALL);
-            assertRows(cluster.coordinator(1).execute( "SELECT "+KEYSPACE+".udf_not_null() AS m FROM "+KEYSPACE+".current", ConsistencyLevel.ALL), row( Boolean.TRUE ));
+            cluster.coordinator(1).execute("INSERT INTO " + KEYSPACE + ".current (city) VALUES ('Helsinki')", ConsistencyLevel.ALL);
+            String select = "SELECT " + KEYSPACE + ".udf_not_null() AS m FROM " + KEYSPACE + ".current";
+            assertRows(cluster.coordinator(1).execute(select, ConsistencyLevel.ALL), row(Boolean.TRUE));
             cluster.get(1).shutdown().get();
             cluster.get(1).startup();
-            assertRows(cluster.coordinator(1).execute( "SELECT "+KEYSPACE+".udf_not_null() AS m FROM "+KEYSPACE+".current", ConsistencyLevel.ALL), row(Boolean.TRUE));
+            assertRows(cluster.coordinator(1).execute(select, ConsistencyLevel.ALL), row(Boolean.TRUE));
         }
     }
 }
