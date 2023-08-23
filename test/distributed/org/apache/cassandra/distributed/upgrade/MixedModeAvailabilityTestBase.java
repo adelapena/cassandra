@@ -50,37 +50,19 @@ public abstract class MixedModeAvailabilityTestBase extends UpgradeTestBase
     private static final String INSERT = withKeyspace("INSERT INTO %s.t (k, c, v) VALUES (?, ?, ?)");
     private static final String SELECT = withKeyspace("SELECT * FROM %s.t WHERE k = ?");
 
+    private final boolean upgradedCoordinator;
     private final ConsistencyLevel writeConsistencyLevel;
     private final ConsistencyLevel readConsistencyLevel;
 
-    public MixedModeAvailabilityTestBase(ConsistencyLevel writeConsistencyLevel, ConsistencyLevel readConsistencyLevel)
+    public MixedModeAvailabilityTestBase(boolean upgradedCoordinator, ConsistencyLevel writeConsistencyLevel, ConsistencyLevel readConsistencyLevel)
     {
+        this.upgradedCoordinator = upgradedCoordinator;
         this.writeConsistencyLevel = writeConsistencyLevel;
         this.readConsistencyLevel = readConsistencyLevel;
     }
 
     @Test
-    public void testAvailabilityCoordinatorNotUpgraded() throws Throwable
-    {
-        testAvailability(false, writeConsistencyLevel, readConsistencyLevel);
-    }
-
-    @Test
-    public void testAvailabilityCoordinatorUpgraded() throws Throwable
-    {
-        testAvailability(true, writeConsistencyLevel, readConsistencyLevel);
-    }
-
-    protected static void testAvailability(ConsistencyLevel writeConsistencyLevel,
-                                           ConsistencyLevel readConsistencyLevel) throws Throwable
-    {
-        testAvailability(true, writeConsistencyLevel, readConsistencyLevel);
-        testAvailability(false, writeConsistencyLevel, readConsistencyLevel);
-    }
-
-    private static void testAvailability(boolean upgradedCoordinator,
-                                         ConsistencyLevel writeConsistencyLevel,
-                                         ConsistencyLevel readConsistencyLevel) throws Throwable
+    public void testAvailabilityCoordinator() throws Throwable
     {
         new TestCase()
         .nodes(NUM_NODES)

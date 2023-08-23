@@ -23,10 +23,10 @@ import org.apache.cassandra.distributed.api.ConsistencyLevel;
 /**
  * {@link MixedModeAvailabilityTestBase} for upgrades from v30 with QUORUM-QUORUM write-read consistency.
  */
-public class MixedModeAvailabilityV30QuorumQuorumTest extends MixedModeAvailabilityTestBase
+public class MixedModeAvailabilityUpgradedQuorumQuorumTest extends MixedModeAvailabilityTestBase
 {
-    public MixedModeAvailabilityV30QuorumQuorumTest()
+    public MixedModeAvailabilityUpgradedQuorumQuorumTest()
     {
-        super(ConsistencyLevel.QUORUM, ConsistencyLevel.QUORUM);
+        super(true, ConsistencyLevel.QUORUM, ConsistencyLevel.QUORUM);
     }
 }

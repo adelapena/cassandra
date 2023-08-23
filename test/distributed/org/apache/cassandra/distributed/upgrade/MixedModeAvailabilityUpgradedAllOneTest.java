@@ -23,10 +23,10 @@ import org.apache.cassandra.distributed.api.ConsistencyLevel;
 /**
  * {@link MixedModeAvailabilityTestBase} for upgrades from v30 with ALL-ONE write-read consistency.
  */
-public class MixedModeAvailabilityV30AllOneTest extends MixedModeAvailabilityTestBase
+public class MixedModeAvailabilityUpgradedAllOneTest extends MixedModeAvailabilityTestBase
 {
-    public MixedModeAvailabilityV30AllOneTest()
+    public MixedModeAvailabilityUpgradedAllOneTest()
     {
-        super(ConsistencyLevel.ALL, ConsistencyLevel.ONE);
+        super(true, ConsistencyLevel.ALL, ConsistencyLevel.ONE);
     }
 }
