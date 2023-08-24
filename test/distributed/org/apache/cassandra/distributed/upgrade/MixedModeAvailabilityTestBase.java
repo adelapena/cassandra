@@ -33,7 +33,6 @@ import org.apache.cassandra.net.Verb;
 import org.assertj.core.api.Assertions;
 
 import static java.lang.String.format;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ALL;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ONE;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.QUORUM;
@@ -79,8 +78,8 @@ public abstract class MixedModeAvailabilityTestBase extends UpgradeTestBase
         .nodes(NUM_NODES)
         .nodesToUpgrade(upgradedCoordinator ? 1 : 2)
         .upgradesToCurrentFrom(v30)
-        .withConfig(config -> config.set("read_request_timeout_in_ms", SECONDS.toMillis(30))
-                                    .set("write_request_timeout_in_ms", SECONDS.toMillis(30)))
+        .withConfig(config -> config.set("read_request_timeout", "1m")
+                                    .set("write_request_timeout", "1m"))
         // use retry of 10ms so that each check is consistent
         // At the start of the world cfs.sampleLatencyNanos == 0, which means speculation acts as if ALWAYS is done,
         // but after the first refresh this gets set high enough that we don't trigger speculation for the rest of the test!
