@@ -71,13 +71,6 @@ public abstract class MixedModeAvailabilityTestBase extends UpgradeTestBase
         testAvailability(true, writeConsistencyLevel, readConsistencyLevel);
     }
 
-    protected static void testAvailability(ConsistencyLevel writeConsistencyLevel,
-                                           ConsistencyLevel readConsistencyLevel) throws Throwable
-    {
-        testAvailability(true, writeConsistencyLevel, readConsistencyLevel);
-        testAvailability(false, writeConsistencyLevel, readConsistencyLevel);
-    }
-
     private static void testAvailability(boolean upgradedCoordinator,
                                          ConsistencyLevel writeConsistencyLevel,
                                          ConsistencyLevel readConsistencyLevel) throws Throwable
