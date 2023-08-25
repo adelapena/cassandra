@@ -21,12 +21,12 @@ package org.apache.cassandra.distributed.upgrade;
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
 
 /**
- * {@link MixedModeAvailabilityTestBase} for upgrades from v3X with ALL-ONE write-read consistency.
+ * {@link MixedModeAvailabilityTestBase} for all upgrade paths to current with ONE-ALL write-read consistency.
  */
-public class MixedModeAvailabilityV3XAllOneTest extends MixedModeAvailabilityTestBase
+public class MixedModeAvailabilityOneAllTest extends MixedModeAvailabilityTestBase
 {
-    public MixedModeAvailabilityV3XAllOneTest()
+    public MixedModeAvailabilityOneAllTest()
     {
-        super(v3X, ConsistencyLevel.ALL, ConsistencyLevel.ONE);
+        super(ConsistencyLevel.ONE, ConsistencyLevel.ALL);
     }
 }
