@@ -18,15 +18,16 @@
 
 package org.apache.cassandra.distributed.upgrade;
 
-import org.apache.cassandra.distributed.api.ConsistencyLevel;
+import com.vdurmont.semver4j.Semver;
 
 /**
- * {@link MixedModeAvailabilityTestBase} for upgrades from v30 with ONE-ALL write-read consistency.
+ * {@link MixedModeAvailabilityTestBase} for upgrades from v50.
  */
-public class MixedModeAvailabilityV30OneAllTest extends MixedModeAvailabilityTestBase
+public class MixedModeAvailabilityV50Test extends MixedModeAvailabilityTestBase
 {
-    public MixedModeAvailabilityV30OneAllTest()
+    @Override
+    protected Semver from()
     {
-        super(ConsistencyLevel.ONE, ConsistencyLevel.ALL);
+        return v50;
     }
 }

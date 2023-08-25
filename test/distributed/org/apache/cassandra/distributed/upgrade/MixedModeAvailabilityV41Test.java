@@ -18,15 +18,16 @@
 
 package org.apache.cassandra.distributed.upgrade;
 
-import org.apache.cassandra.distributed.api.ConsistencyLevel;
+import com.vdurmont.semver4j.Semver;
 
 /**
- * {@link MixedModeAvailabilityTestBase} for upgrades from v30 with QUORUM-QUORUM write-read consistency.
+ * {@link MixedModeAvailabilityTestBase} for upgrades from v41.
  */
-public class MixedModeAvailabilityV30QuorumQuorumTest extends MixedModeAvailabilityTestBase
+public class MixedModeAvailabilityV41Test extends MixedModeAvailabilityTestBase
 {
-    public MixedModeAvailabilityV30QuorumQuorumTest()
+    @Override
+    protected Semver from()
     {
-        super(ConsistencyLevel.QUORUM, ConsistencyLevel.QUORUM);
+        return v41;
     }
 }
