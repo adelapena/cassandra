@@ -28,7 +28,6 @@ import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
 
 import static java.lang.String.format;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.*;
 import static org.apache.cassandra.distributed.shared.AssertUtils.assertRows;
 import static org.apache.cassandra.distributed.shared.AssertUtils.row;
