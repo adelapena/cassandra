@@ -78,7 +78,7 @@ public abstract class MixedModeAvailabilityTestBase extends UpgradeTestBase
         .setup(cluster -> {
             // always use rapid read protection to speed up queries with down nodes
             cluster.schemaChange(withKeyspace("CREATE TABLE %s.t (k uuid, c int, v int, PRIMARY KEY (k, c)) " +
-                                              "WITH speculative_retry = 'ALWAYS' AND read_repair='NONE'"));
+                                              "WITH speculative_retry = 'ALWAYS'"));
             cluster.setUncaughtExceptionsFilter(throwable -> throwable instanceof RejectedExecutionException);
         })
         .runAfterNodeUpgrade((cluster, n) -> {
