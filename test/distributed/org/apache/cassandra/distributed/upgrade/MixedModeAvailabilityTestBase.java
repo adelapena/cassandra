@@ -23,6 +23,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import org.junit.Test;
 
+import com.vdurmont.semver4j.Semver;
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
 import org.apache.cassandra.distributed.api.ICoordinator;
 
@@ -41,11 +42,13 @@ public abstract class MixedModeAvailabilityTestBase extends UpgradeTestBase
     private static final String INSERT = withKeyspace("INSERT INTO %s.t (k, c, v) VALUES (?, ?, ?)");
     private static final String SELECT = withKeyspace("SELECT * FROM %s.t WHERE k = ?");
 
+    private final Semver from;
     private final ConsistencyLevel writeConsistencyLevel;
     private final ConsistencyLevel readConsistencyLevel;
 
-    public MixedModeAvailabilityTestBase(ConsistencyLevel writeConsistencyLevel, ConsistencyLevel readConsistencyLevel)
+    public MixedModeAvailabilityTestBase(Semver from, ConsistencyLevel writeConsistencyLevel, ConsistencyLevel readConsistencyLevel)
     {
+        this.from = from;
         this.writeConsistencyLevel = writeConsistencyLevel;
         this.readConsistencyLevel = readConsistencyLevel;
     }
@@ -53,25 +56,23 @@ public abstract class MixedModeAvailabilityTestBase extends UpgradeTestBase
     @Test
     public void testAvailabilityCoordinatorNotUpgraded() throws Throwable
     {
-        testAvailability(false, writeConsistencyLevel, readConsistencyLevel);
+        testAvailability(false);
     }
 
     @Test
     public void testAvailabilityCoordinatorUpgraded() throws Throwable
     {
-        testAvailability(true, writeConsistencyLevel, readConsistencyLevel);
+        testAvailability(true);
     }
 
-    private static void testAvailability(boolean upgradedCoordinator,
-                                         ConsistencyLevel writeConsistencyLevel,
-                                         ConsistencyLevel readConsistencyLevel) throws Throwable
+    private void testAvailability(boolean upgradedCoordinator) throws Throwable
     {
         new TestCase()
         .nodes(NUM_NODES)
         .nodesToUpgrade(upgradedCoordinator ? 1 : 2)
-        .upgradesToCurrentFrom(v30)
-        .withConfig(config -> config.set("read_request_timeout", "10m")
-                                    .set("write_request_timeout", "10m"))
+        .singleUpgradeToCurrentFrom(from)
+        .withConfig(config -> config.set("read_request_timeout", "1m")
+                                    .set("write_request_timeout", "1m"))
         .setup(cluster -> {
             // always use rapid read protection to speed up queries with down nodes
             cluster.schemaChange(withKeyspace("CREATE TABLE %s.t (k uuid, c int, v int, PRIMARY KEY (k, c)) " +
