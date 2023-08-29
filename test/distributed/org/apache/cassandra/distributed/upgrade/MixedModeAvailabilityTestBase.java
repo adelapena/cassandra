@@ -31,6 +31,9 @@ import static java.lang.String.format;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ALL;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ONE;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.QUORUM;
+import static org.apache.cassandra.distributed.api.Feature.GOSSIP;
+import static org.apache.cassandra.distributed.api.Feature.NATIVE_PROTOCOL;
+import static org.apache.cassandra.distributed.api.Feature.NETWORK;
 import static org.apache.cassandra.distributed.shared.AssertUtils.assertRows;
 import static org.apache.cassandra.distributed.shared.AssertUtils.row;
 
@@ -71,8 +74,9 @@ public abstract class MixedModeAvailabilityTestBase extends UpgradeTestBase
         .nodes(NUM_NODES)
         .nodesToUpgrade(upgradedCoordinator ? 1 : 2)
         .singleUpgradeToCurrentFrom(from)
-        .withConfig(config -> config.set("read_request_timeout", "1m")
-                                    .set("write_request_timeout", "1m"))
+        .withConfig(config -> config.with(GOSSIP, NETWORK, NATIVE_PROTOCOL)
+                                    .set("read_request_timeout", "5m")
+                                    .set("write_request_timeout", "5m"))
         .setup(cluster -> {
             // always use rapid read protection to speed up queries with down nodes
             cluster.schemaChange(withKeyspace("CREATE TABLE %s.t (k uuid, c int, v int, PRIMARY KEY (k, c)) " +
