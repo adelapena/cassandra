@@ -21,12 +21,12 @@ package org.apache.cassandra.distributed.upgrade;
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
 
 /**
- * {@link MixedModeAvailabilityTestBase} for all upgrade paths to current with QUORUM-QUORUM write-read consistency.
+ * {@link MixedModeAvailabilityTestBase} for upgrades from v41 to current with ONE-ALL write-read consistency.
  */
-public class MixedModeAvailabilityQuorumQuorumTest extends MixedModeAvailabilityTestBase
+public class MixedModeAvailabilityV41OneAllTest extends MixedModeAvailabilityTestBase
 {
-    public MixedModeAvailabilityQuorumQuorumTest()
+    public MixedModeAvailabilityV41OneAllTest()
     {
-        super(ConsistencyLevel.QUORUM, ConsistencyLevel.QUORUM);
+        super(v41, ConsistencyLevel.ONE, ConsistencyLevel.ALL);
     }
 }
