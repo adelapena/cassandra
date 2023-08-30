@@ -40,6 +40,7 @@ import org.apache.cassandra.utils.CassandraVersion;
 import org.apache.cassandra.utils.Pair;
 
 import static java.lang.String.format;
+import static org.apache.cassandra.config.CassandraRelevantProperties.GOSSIPER_QUARANTINE_DELAY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -53,6 +54,15 @@ import static org.junit.Assert.assertTrue;
 @RunWith(Parameterized.class)
 public class InsertUpdateIfConditionTest extends CQLTester
 {
+    static
+    {
+        // Gossip has a notion of quarantine, which is used to remove "fat clients" and "gossip only members"
+        // from the ring if not updated recently (recently is defined by this config).
+        // The reason for setting to 0 is to make sure even under such an aggressive environment, we do NOT remove
+        // nodes from the peers table
+        GOSSIPER_QUARANTINE_DELAY.setInt(0);
+    }
+
     @Parameterized.Parameter(0)
     public String clusterMinVersion;
 
