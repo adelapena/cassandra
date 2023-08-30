@@ -19,6 +19,7 @@
 package org.apache.cassandra.db.marshal;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -365,6 +366,7 @@ public final class VectorType<T> extends AbstractType<List<T>>
 
         public abstract <V> List<V> split(V buffer, ValueAccessor<V> accessor);
         public abstract <V> V serializeRaw(List<V> elements, ValueAccessor<V> accessor);
+        public abstract float[] deserializeFloatArray(ByteBuffer input);
 
         @Override
         public String toString(List<T> value)
@@ -486,6 +488,19 @@ public final class VectorType<T> extends AbstractType<List<T>>
             checkConsumedFully(input, accessor, offset);
 
             return result;
+        }
+
+        @Override
+        public float[] deserializeFloatArray(ByteBuffer input)
+        {
+            if (input == null || input.remaining() == 0)
+                return null;
+
+            FloatBuffer floatBuffer = input.asFloatBuffer();
+            float[] floatArray = new float[floatBuffer.remaining()];
+            floatBuffer.get(floatArray);
+
+            return floatArray;
         }
 
         @Override
@@ -624,6 +639,11 @@ public final class VectorType<T> extends AbstractType<List<T>>
             checkConsumedFully(input, accessor, offset);
 
             return result;
+        }
+
+        public float[] deserializeFloatArray(ByteBuffer input)
+        {
+            throw new UnsupportedOperationException();
         }
 
         @Override
