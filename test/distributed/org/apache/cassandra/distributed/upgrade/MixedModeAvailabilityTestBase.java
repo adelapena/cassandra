@@ -31,6 +31,7 @@ import static org.apache.cassandra.distributed.api.ConsistencyLevel.ALL;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ONE;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.QUORUM;
 import static org.apache.cassandra.distributed.api.Feature.GOSSIP;
+import static org.apache.cassandra.distributed.api.Feature.NETWORK;
 import static org.apache.cassandra.distributed.shared.AssertUtils.assertRows;
 import static org.apache.cassandra.distributed.shared.AssertUtils.row;
 
@@ -71,7 +72,7 @@ public abstract class MixedModeAvailabilityTestBase extends UpgradeTestBase
         .nodes(NUM_NODES)
         .nodesToUpgrade(upgradedCoordinator ? 1 : 2)
         .upgradesToCurrentFrom(v30)
-        .withConfig(config -> config.with(GOSSIP)
+        .withConfig(config -> config.with(GOSSIP, NETWORK)
                                     .set("read_request_timeout", "5m")
                                     .set("write_request_timeout", "5m"))
         .setup(cluster -> {
