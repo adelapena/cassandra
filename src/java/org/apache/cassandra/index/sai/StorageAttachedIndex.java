@@ -109,7 +109,9 @@ public class StorageAttachedIndex implements Index
 
     @VisibleForTesting
     public static final String ANALYSIS_ON_KEY_COLUMNS_MESSAGE = "Analysis options are not supported on primary key columns, but found ";
-    
+
+    public static final String ANN_LIMIT_ERROR = "Use of ANN OF in an ORDER BY clause requires a LIMIT that is not greater than %s. LIMIT was %s";
+
     private static final Logger logger = LoggerFactory.getLogger(StorageAttachedIndex.class);
 
     private static class StorageAttachedIndexBuildingSupport implements IndexBuildingSupport
@@ -536,7 +538,7 @@ public class StorageAttachedIndex implements Index
     }
 
     @Override
-    public Comparator<List<ByteBuffer>> getPostQueryOrdering(Restriction restriction, int columnIndex, QueryOptions options)
+    public Comparator<ByteBuffer> getPostQueryOrdering(Restriction restriction, QueryOptions options)
     {
         // For now, only support ANN
         assert restriction instanceof SingleColumnRestriction.AnnRestriction;
@@ -549,10 +551,10 @@ public class StorageAttachedIndex implements Index
         float[] target = TypeUtil.decomposeVector(indexContext, annRestriction.value(options).duplicate());
 
         return (leftBuf, rightBuf) -> {
-            float[] left = TypeUtil.decomposeVector(indexContext, leftBuf.get(columnIndex).duplicate());
+            float[] left = TypeUtil.decomposeVector(indexContext, leftBuf.duplicate());
             double scoreLeft = function.compare(left, target);
 
-            float[] right = TypeUtil.decomposeVector(indexContext, rightBuf.get(columnIndex).duplicate());
+            float[] right = TypeUtil.decomposeVector(indexContext, rightBuf.duplicate());
             double scoreRight = function.compare(right, target);
             return Double.compare(scoreRight, scoreLeft); // descending order
         };
@@ -564,10 +566,9 @@ public class StorageAttachedIndex implements Index
         if (!getIndexContext().isVector())
             return;
 
-        // to avoid overflow HNSW internal data structure and avoid OOM when filtering top-k
-        if (command.limits().isUnlimited() || command.limits().count() > MAX_TOP_K)
-            throw new InvalidRequestException(String.format("Use of ANN OF in an ORDER BY clause requires a LIMIT that is not greater than %s. LIMIT was %s",
-                                                            MAX_TOP_K, command.limits().isUnlimited() ? "NO LIMIT" : command.limits().count()));
+        // to avoid overflow of the vector graph internal data structure and avoid OOM when filtering top-k
+        if (command.limits().count() > MAX_TOP_K)
+            throw new InvalidRequestException(String.format(ANN_LIMIT_ERROR, MAX_TOP_K, command.limits().count()));
     }
 
     @Override
@@ -712,7 +713,8 @@ public class StorageAttachedIndex implements Index
         @Override
         public void updateRow(Row oldRow, Row newRow)
         {
-            indexContext.getMemtableIndexManager().update(key, oldRow, newRow, memtable);
+            adjustMemtableSize(indexContext.getMemtableIndexManager().update(key, oldRow, newRow, memtable),
+                               CassandraWriteContext.fromContext(writeContext).getGroup());
         }
 
         void adjustMemtableSize(long additionalSpace, OpOrder.Group opGroup)
