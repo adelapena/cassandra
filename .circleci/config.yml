@@ -105,12 +105,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -124,8 +124,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -196,12 +196,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -215,8 +215,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -262,12 +262,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -281,8 +281,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -373,12 +373,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -392,8 +392,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -529,12 +529,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -548,8 +548,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -616,12 +616,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -635,8 +635,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -735,12 +735,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -754,8 +754,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -809,12 +809,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -828,8 +828,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -900,12 +900,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -919,8 +919,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -1011,12 +1011,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -1030,8 +1030,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -1131,12 +1131,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -1150,8 +1150,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -1222,12 +1222,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -1241,8 +1241,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -1341,12 +1341,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -1360,8 +1360,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -1452,12 +1452,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -1471,8 +1471,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -1562,12 +1562,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -1581,8 +1581,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -1654,12 +1654,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -1673,8 +1673,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -1850,12 +1850,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -1869,8 +1869,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -1937,12 +1937,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -1956,8 +1956,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -2072,12 +2072,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -2091,8 +2091,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -2183,12 +2183,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -2202,8 +2202,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -2293,12 +2293,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -2312,8 +2312,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -2380,12 +2380,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -2399,8 +2399,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -2472,12 +2472,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -2491,8 +2491,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -2583,12 +2583,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -2602,8 +2602,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -2693,12 +2693,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -2712,8 +2712,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -2759,12 +2759,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -2778,8 +2778,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -2878,12 +2878,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -2897,8 +2897,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -2952,12 +2952,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -2971,8 +2971,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -3072,12 +3072,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -3091,8 +3091,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -3206,12 +3206,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -3225,8 +3225,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -3340,12 +3340,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -3359,8 +3359,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -3475,12 +3475,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -3494,8 +3494,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -3594,12 +3594,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -3613,8 +3613,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -3710,12 +3710,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -3729,8 +3729,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -3829,12 +3829,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -3848,8 +3848,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -3902,12 +3902,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -3921,8 +3921,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -3994,12 +3994,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -4013,8 +4013,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -4080,12 +4080,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -4099,8 +4099,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -4153,12 +4153,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -4172,8 +4172,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -4264,12 +4264,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -4283,8 +4283,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -4398,12 +4398,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -4417,8 +4417,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -4489,12 +4489,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -4508,8 +4508,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -4646,12 +4646,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -4665,8 +4665,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -4738,12 +4738,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -4757,8 +4757,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -4829,12 +4829,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -4848,8 +4848,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -4948,12 +4948,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -4967,8 +4967,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -5059,12 +5059,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -5078,8 +5078,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -5169,12 +5169,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -5188,8 +5188,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -5261,12 +5261,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -5280,8 +5280,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -5371,12 +5371,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -5390,8 +5390,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -5463,12 +5463,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -5482,8 +5482,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -5597,12 +5597,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -5616,8 +5616,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -5708,12 +5708,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -5727,8 +5727,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -5799,12 +5799,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -5818,8 +5818,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -5933,12 +5933,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -5952,8 +5952,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -6043,12 +6043,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -6062,8 +6062,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -6130,12 +6130,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -6149,8 +6149,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -6238,12 +6238,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -6257,8 +6257,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -6330,12 +6330,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -6349,8 +6349,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -6440,12 +6440,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -6459,8 +6459,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -6532,12 +6532,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -6551,8 +6551,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -6643,12 +6643,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -6662,8 +6662,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -6735,12 +6735,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -6754,8 +6754,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -6821,12 +6821,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -6840,8 +6840,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -6940,12 +6940,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -6959,8 +6959,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -7059,12 +7059,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -7078,8 +7078,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -7151,12 +7151,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -7170,8 +7170,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -7260,12 +7260,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -7279,8 +7279,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -7347,12 +7347,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -7366,8 +7366,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -7433,12 +7433,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -7452,8 +7452,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -7497,12 +7497,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -7516,8 +7516,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -7589,12 +7589,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -7608,8 +7608,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -7697,12 +7697,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -7716,8 +7716,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -7893,12 +7893,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -7912,8 +7912,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -7966,12 +7966,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -7985,8 +7985,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -8085,12 +8085,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -8104,8 +8104,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -8195,12 +8195,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -8214,8 +8214,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -8329,12 +8329,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -8348,8 +8348,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -8448,12 +8448,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -8467,8 +8467,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -8556,12 +8556,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -8575,8 +8575,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -8666,12 +8666,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -8685,8 +8685,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -8757,12 +8757,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -8776,8 +8776,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -8831,12 +8831,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -8850,8 +8850,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -8895,12 +8895,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -8914,8 +8914,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -9003,12 +9003,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -9022,8 +9022,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -9095,12 +9095,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -9114,8 +9114,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -9229,12 +9229,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -9248,8 +9248,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -9320,12 +9320,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -9339,8 +9339,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -9426,12 +9426,12 @@ jobs:
     - CASS_DRIVER_NO_EXTENSIONS: true
     - CASS_DRIVER_NO_CYTHON: true
     - CASSANDRA_SKIP_SYNC: true
-    - DTEST_REPO: https://github.com/jacek-lewandowski/cassandra-dtest.git
-    - DTEST_BRANCH: CASSANDRA-18361
+    - DTEST_REPO: https://github.com/apache/cassandra-dtest.git
+    - DTEST_BRANCH: trunk
     - CCM_MAX_HEAP_SIZE: 1024M
     - CCM_HEAP_NEWSIZE: 256M
     - REPEATED_TESTS_STOP_ON_FAILURE: false
-    - REPEATED_UTESTS: null
+    - REPEATED_UTESTS: org.apache.cassandra.index.SecondaryIndexManagerTest,org.apache.cassandra.index.sasi.SASIIndexTest
     - REPEATED_UTESTS_COUNT: 500
     - REPEATED_UTESTS_FQLTOOL: null
     - REPEATED_UTESTS_FQLTOOL_COUNT: 500
@@ -9445,8 +9445,8 @@ jobs:
     - REPEATED_JVM_DTESTS_COUNT: 500
     - REPEATED_JVM_UPGRADE_DTESTS: null
     - REPEATED_JVM_UPGRADE_DTESTS_COUNT: 500
-    - REPEATED_DTESTS: secondary_indexes_test.py::TestSecondaryIndexes::test_failing_manual_rebuild_index
-    - REPEATED_DTESTS_COUNT: 200
+    - REPEATED_DTESTS: null
+    - REPEATED_DTESTS_COUNT: 500
     - REPEATED_LARGE_DTESTS: null
     - REPEATED_LARGE_DTESTS_COUNT: 100
     - REPEATED_UPGRADE_DTESTS: null
@@ -9472,6 +9472,12 @@ workflows:
     - j8_unit_tests:
         requires:
         - start_j8_unit_tests
+        - j8_build
+    - start_j8_unit_tests_repeat:
+        type: approval
+    - j8_unit_tests_repeat:
+        requires:
+        - start_j8_unit_tests_repeat
         - j8_build
     - start_j8_jvm_dtests:
         type: approval
@@ -9533,6 +9539,12 @@ workflows:
         requires:
         - start_j11_unit_tests
         - j8_build
+    - start_j11_unit_tests_repeat:
+        type: approval
+    - j11_unit_tests_repeat:
+        requires:
+        - start_j11_unit_tests_repeat
+        - j8_build
     - start_j8_utests_long:
         type: approval
     - j8_utests_long:
@@ -9557,6 +9569,18 @@ workflows:
         requires:
         - start_j11_utests_cdc
         - j8_build
+    - start_j8_utests_cdc_repeat:
+        type: approval
+    - j8_utests_cdc_repeat:
+        requires:
+        - start_j8_utests_cdc_repeat
+        - j8_build
+    - start_j11_utests_cdc_repeat:
+        type: approval
+    - j11_utests_cdc_repeat:
+        requires:
+        - start_j11_utests_cdc_repeat
+        - j8_build
     - start_j8_utests_compression:
         type: approval
     - j8_utests_compression:
@@ -9568,6 +9592,18 @@ workflows:
     - j11_utests_compression:
         requires:
         - start_j11_utests_compression
+        - j8_build
+    - start_j8_utests_compression_repeat:
+        type: approval
+    - j8_utests_compression_repeat:
+        requires:
+        - start_j8_utests_compression_repeat
+        - j8_build
+    - start_j11_utests_compression_repeat:
+        type: approval
+    - j11_utests_compression_repeat:
+        requires:
+        - start_j11_utests_compression_repeat
         - j8_build
     - start_j8_utests_stress:
         type: approval
@@ -9605,6 +9641,18 @@ workflows:
         requires:
         - start_j11_utests_system_keyspace_directory
         - j8_build
+    - start_j8_utests_system_keyspace_directory_repeat:
+        type: approval
+    - j8_utests_system_keyspace_directory_repeat:
+        requires:
+        - start_j8_utests_system_keyspace_directory_repeat
+        - j8_build
+    - start_j11_utests_system_keyspace_directory_repeat:
+        type: approval
+    - j11_utests_system_keyspace_directory_repeat:
+        requires:
+        - start_j11_utests_system_keyspace_directory_repeat
+        - j8_build
     - start_j8_dtest_jars_build:
         type: approval
     - j8_dtest_jars_build:
@@ -9635,12 +9683,6 @@ workflows:
         requires:
         - start_j8_dtests_offheap
         - j8_build
-    - start_j8_dtests_offheap_repeat:
-        type: approval
-    - j8_dtests_offheap_repeat:
-        requires:
-        - start_j8_dtests_offheap_repeat
-        - j8_build
     - start_j11_dtests:
         type: approval
     - j11_dtests:
@@ -9658,12 +9700,6 @@ workflows:
     - j11_dtests_offheap:
         requires:
         - start_j11_dtests_offheap
-        - j8_build
-    - start_j11_dtests_offheap_repeat:
-        type: approval
-    - j11_dtests_offheap_repeat:
-        requires:
-        - start_j11_dtests_offheap_repeat
         - j8_build
     - start_j8_dtests_large:
         type: approval
@@ -9775,30 +9811,6 @@ workflows:
         requires:
         - start_j11_cqlsh_tests_offheap
         - j8_build
-    - start_j8_dtests_repeat:
-        type: approval
-    - j8_dtests_repeat:
-        requires:
-        - start_j8_dtests_repeat
-        - j8_build
-    - start_j8_dtests_vnode_repeat:
-        type: approval
-    - j8_dtests_vnode_repeat:
-        requires:
-        - start_j8_dtests_vnode_repeat
-        - j8_build
-    - start_j11_dtests_repeat:
-        type: approval
-    - j11_dtests_repeat:
-        requires:
-        - start_j11_dtests_repeat
-        - j8_build
-    - start_j11_dtests_vnode_repeat:
-        type: approval
-    - j11_dtests_vnode_repeat:
-        requires:
-        - start_j11_dtests_vnode_repeat
-        - j8_build
   java8_pre-commit_tests:
     jobs:
     - start_pre-commit_tests:
@@ -9807,6 +9819,9 @@ workflows:
         requires:
         - start_pre-commit_tests
     - j8_unit_tests:
+        requires:
+        - j8_build
+    - j8_unit_tests_repeat:
         requires:
         - j8_build
     - j8_simulator_dtests:
@@ -9839,6 +9854,9 @@ workflows:
     - j11_unit_tests:
         requires:
         - j8_build
+    - j11_unit_tests_repeat:
+        requires:
+        - j8_build
     - start_utests_long:
         type: approval
     - j8_utests_long:
@@ -9859,6 +9877,14 @@ workflows:
         requires:
         - start_utests_cdc
         - j8_build
+    - j8_utests_cdc_repeat:
+        requires:
+        - start_utests_cdc
+        - j8_build
+    - j11_utests_cdc_repeat:
+        requires:
+        - start_utests_cdc
+        - j8_build
     - start_utests_compression:
         type: approval
     - j8_utests_compression:
@@ -9866,6 +9892,14 @@ workflows:
         - start_utests_compression
         - j8_build
     - j11_utests_compression:
+        requires:
+        - start_utests_compression
+        - j8_build
+    - j8_utests_compression_repeat:
+        requires:
+        - start_utests_compression
+        - j8_build
+    - j11_utests_compression_repeat:
         requires:
         - start_utests_compression
         - j8_build
@@ -9898,6 +9932,13 @@ workflows:
         requires:
         - start_utests_system_keyspace_directory
         - j8_build
+    - j8_utests_system_keyspace_directory_repeat:
+        requires:
+        - j8_build
+    - j11_utests_system_keyspace_directory_repeat:
+        requires:
+        - start_utests_system_keyspace_directory
+        - j8_build
     - start_jvm_upgrade_dtests:
         type: approval
     - j8_dtest_jars_build:
@@ -9910,13 +9951,7 @@ workflows:
     - j8_dtests:
         requires:
         - j8_build
-    - j8_dtests_repeat:
-        requires:
-        - j8_build
     - j8_dtests_vnode:
-        requires:
-        - j8_build
-    - j8_dtests_vnode_repeat:
         requires:
         - j8_build
     - start_j8_dtests_offheap:
@@ -9925,29 +9960,15 @@ workflows:
         requires:
         - start_j8_dtests_offheap
         - j8_build
-    - j8_dtests_offheap_repeat:
-        requires:
-        - start_j8_dtests_offheap
-        - j8_build
     - j11_dtests:
-        requires:
-        - j8_build
-    - j11_dtests_repeat:
         requires:
         - j8_build
     - j11_dtests_vnode:
         requires:
         - j8_build
-    - j11_dtests_vnode_repeat:
-        requires:
-        - j8_build
     - start_j11_dtests_offheap:
         type: approval
     - j11_dtests_offheap:
-        requires:
-        - start_j11_dtests_offheap
-        - j8_build
-    - j11_dtests_offheap_repeat:
         requires:
         - start_j11_dtests_offheap
         - j8_build
@@ -10054,6 +10075,12 @@ workflows:
         requires:
         - start_j11_unit_tests
         - j11_build
+    - start_j11_unit_tests_repeat:
+        type: approval
+    - j11_unit_tests_repeat:
+        requires:
+        - start_j11_unit_tests_repeat
+        - j11_build
     - start_j11_jvm_dtests:
         type: approval
     - j11_jvm_dtests:
@@ -10095,12 +10122,6 @@ workflows:
     - j11_dtests_offheap:
         requires:
         - start_j11_dtests_offheap
-        - j11_build
-    - start_j11_dtests_offheap_repeat:
-        type: approval
-    - j11_dtests_offheap_repeat:
-        requires:
-        - start_j11_dtests_offheap_repeat
         - j11_build
     - start_j11_dtests_large:
         type: approval
@@ -10166,11 +10187,23 @@ workflows:
         requires:
         - start_j11_utests_cdc
         - j11_build
+    - start_j11_utests_cdc_repeat:
+        type: approval
+    - j11_utests_cdc_repeat:
+        requires:
+        - start_j11_utests_cdc_repeat
+        - j11_build
     - start_j11_utests_compression:
         type: approval
     - j11_utests_compression:
         requires:
         - start_j11_utests_compression
+        - j11_build
+    - start_j11_utests_compression_repeat:
+        type: approval
+    - j11_utests_compression_repeat:
+        requires:
+        - start_j11_utests_compression_repeat
         - j11_build
     - start_j11_utests_stress:
         type: approval
@@ -10190,17 +10223,11 @@ workflows:
         requires:
         - start_j11_utests_system_keyspace_directory
         - j11_build
-    - start_j11_dtests_repeat:
+    - start_j11_utests_system_keyspace_directory_repeat:
         type: approval
-    - j11_dtests_repeat:
+    - j11_utests_system_keyspace_directory_repeat:
         requires:
-        - start_j11_dtests_repeat
-        - j11_build
-    - start_j11_dtests_vnode_repeat:
-        type: approval
-    - j11_dtests_vnode_repeat:
-        requires:
-        - start_j11_dtests_vnode_repeat
+        - start_j11_utests_system_keyspace_directory_repeat
         - j11_build
   java11_pre-commit_tests:
     jobs:
@@ -10210,6 +10237,9 @@ workflows:
         requires:
         - start_pre-commit_tests
     - j11_unit_tests:
+        requires:
+        - j11_build
+    - j11_unit_tests_repeat:
         requires:
         - j11_build
     - j11_jvm_dtests:
@@ -10227,13 +10257,7 @@ workflows:
     - j11_dtests:
         requires:
         - j11_build
-    - j11_dtests_repeat:
-        requires:
-        - j11_build
     - j11_dtests_vnode:
-        requires:
-        - j11_build
-    - j11_dtests_vnode_repeat:
         requires:
         - j11_build
     - start_j11_dtests_offheap:
@@ -10241,12 +10265,6 @@ workflows:
     - j11_dtests_offheap:
         requires:
         - start_j11_dtests_offheap
-        - j11_build
-    - start_j11_dtests_offheap_repeat:
-        type: approval
-    - j11_dtests_offheap_repeat:
-        requires:
-        - start_j11_dtests_offheap_repeat
         - j11_build
     - start_j11_dtests_large:
         type: approval
@@ -10302,9 +10320,17 @@ workflows:
         requires:
         - start_utests_cdc
         - j11_build
+    - j11_utests_cdc_repeat:
+        requires:
+        - start_utests_cdc
+        - j11_build
     - start_utests_compression:
         type: approval
     - j11_utests_compression:
+        requires:
+        - start_utests_compression
+        - j11_build
+    - j11_utests_compression_repeat:
         requires:
         - start_utests_compression
         - j11_build
@@ -10323,6 +10349,10 @@ workflows:
     - start_utests_system_keyspace_directory:
         type: approval
     - j11_utests_system_keyspace_directory:
+        requires:
+        - start_utests_system_keyspace_directory
+        - j11_build
+    - j11_utests_system_keyspace_directory_repeat:
         requires:
         - start_utests_system_keyspace_directory
         - j11_build
