@@ -93,6 +93,12 @@ public class DataResolver<E extends Endpoints<E>, P extends ReplicaPlan.ForRead<
         return resolve(null);
     }
 
+    private int blockFor()
+    {
+        P plan = replicaPlan();
+        return plan.consistencyLevel().blockFor(plan.replicationStrategy());
+    }
+
     public PartitionIterator resolve(@Nullable Runnable runOnShortRead)
     {
         // We could get more responses while this method runs, which is ok (we're happy to ignore any response not here
@@ -133,11 +139,8 @@ public class DataResolver<E extends Endpoints<E>, P extends ReplicaPlan.ForRead<
         if (command.rowFilter().isEmpty())
             return false;
 
-        if (command.isTopK())
-            return false;
-
         Index.QueryPlan queryPlan = command.indexQueryPlan();
-        if (queryPlan == null )
+        if (queryPlan == null)
             return true;
 
         return queryPlan.supportsReplicaFilteringProtection(command.rowFilter());
@@ -164,24 +167,16 @@ public class DataResolver<E extends Endpoints<E>, P extends ReplicaPlan.ForRead<
 
         private boolean needsReadRepair()
         {
-            // each replica may return different estimated top-K rows, it doesn't mean data is not replicated.
-            if (command.isTopK())
-                return false;
-
-            return replicas.size() > 1;
+            return blockFor() > 1;
         }
 
         private boolean needShortReadProtection()
         {
-            // SRP doesn't make sense for top-k which needs to re-query replica with larger limit instead of fetching more partitions
-            if (command.isTopK())
-                return false;
-
             // If we have only one result, there is no read repair to do and we can't get short reads
             // Also, so-called "short reads" stems from nodes returning only a subset of the results they have for a
             // partition due to the limit, but that subset not being enough post-reconciliation. So if we don't have limit,
             // don't bother protecting against short reads.
-            return replicas.size() > 1 && !command.limits().isUnlimited();
+            return blockFor() > 1 && !command.limits().isUnlimited();
         }
     }
 
