@@ -66,6 +66,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -2131,18 +2132,29 @@ public abstract class CQLTester
         return Arrays.asList(values);
     }
 
-    @SafeVarargs
-    protected static <T> Vector<T> vector(T... values)
+    public static Vector<Integer> intVector(int... v)
     {
-        return new Vector<>(values);
+        return new Vector<>(ArrayUtils.toObject(v));
     }
 
-    protected static Vector<Float> vector(float[] v)
+    public static Vector<Float> floatVector(float... v)
     {
-        var v2 = new Float[v.length];
-        for (int i = 0; i < v.length; i++)
-            v2[i] = v[i];
-        return new Vector<>(v2);
+        return new Vector<>(ArrayUtils.toObject(v));
+    }
+
+    public static Vector<Long> longVector(long... v)
+    {
+        return new Vector<>(ArrayUtils.toObject(v));
+    }
+
+    public static Vector<BigInteger> bigintVector(BigInteger... v)
+    {
+        return new Vector<>(v);
+    }
+
+    public static Vector<String> stringVector(String... v)
+    {
+        return new Vector<>(v);
     }
 
     /** @return a normalized vector with the given dimension */
@@ -2226,7 +2238,8 @@ public abstract class CQLTester
     {
         private final T[] values;
 
-        public Vector(T[] values)
+        @SafeVarargs
+        public Vector(T... values)
         {
             this.values = values;
         }

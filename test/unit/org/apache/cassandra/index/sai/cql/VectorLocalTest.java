@@ -33,13 +33,10 @@ import org.junit.Test;
 
 import io.github.jbellis.jvector.vector.VectorSimilarityFunction;
 import org.apache.cassandra.cql3.UntypedResultSet;
-import org.apache.cassandra.db.ColumnFamilyStore;
-import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.marshal.FloatType;
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.VectorType;
 import org.apache.cassandra.dht.Murmur3Partitioner;
-import org.apache.cassandra.index.sai.SAITester;
 import org.apache.cassandra.index.sai.disk.v1.SegmentBuilder;
 import org.apache.cassandra.index.sai.utils.Glove;
 import org.assertj.core.data.Percentage;
@@ -341,7 +338,7 @@ public class VectorLocalTest extends VectorTester
             {
                 float[] v = word2vec.vector(word2vec.word(vectorCount++));
                 for (int j = 0; j < getRandom().nextIntBetween(1, 4); j++) {
-                    execute("INSERT INTO %s (pk, val) VALUES (?, ?)", pk++, vector(v));
+                    execute("INSERT INTO %s (pk, val) VALUES (?, ?)", pk++, floatVector(v));
                     population.add(v);
                 }
             }
@@ -362,7 +359,7 @@ public class VectorLocalTest extends VectorTester
         {
             var q = word2vec.vector(word2vec.word(i));
             int limit = Math.min(getRandom().nextIntBetween(10, 50), vectorCountPerSSTable);
-            UntypedResultSet result = execute("SELECT * FROM %s ORDER BY val ann of ? LIMIT ?", vector(q), limit);
+            UntypedResultSet result = execute("SELECT * FROM %s ORDER BY val ann of ? LIMIT ?", floatVector(q), limit);
             assertThat(result).hasSize(limit);
 
             List<float[]> resultVectors = getVectorsFromResult(result);

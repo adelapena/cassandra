@@ -45,7 +45,7 @@ public class VectorSegmentationTest extends VectorTester
         {
             float[] vector = nextVector();
             vectors.add(vector);
-            execute("INSERT INTO %s (pk, val) VALUES (?, ?)", row, vector(vector));
+            execute("INSERT INTO %s (pk, val) VALUES (?, ?)", row, floatVector(vector));
         }
 
         flush();
@@ -56,7 +56,7 @@ public class VectorSegmentationTest extends VectorTester
 
         int limit = 35;
         float[] queryVector = nextVector();
-        UntypedResultSet resultSet = execute("SELECT * FROM %s ORDER BY val ANN OF ? LIMIT " + limit, vector(queryVector));
+        UntypedResultSet resultSet = execute("SELECT * FROM %s ORDER BY val ANN OF ? LIMIT " + limit, floatVector(queryVector));
         assertThat(resultSet.size()).isEqualTo(limit);
 
         List<float[]> resultVectors = getVectorsFromResult(resultSet);
@@ -80,7 +80,7 @@ public class VectorSegmentationTest extends VectorTester
             for (int row = 0; row < rowsPerSSTable; row++)
             {
                 float[] vector = nextVector();
-                execute("INSERT INTO %s (pk, val) VALUES (?, ?)", pk++, vector(vector));
+                execute("INSERT INTO %s (pk, val) VALUES (?, ?)", pk++, floatVector(vector));
                 vectors.add(vector);
             }
 
@@ -89,7 +89,7 @@ public class VectorSegmentationTest extends VectorTester
 
         int limit = 30;
         float[] queryVector = nextVector();
-        UntypedResultSet resultSet = execute("SELECT * FROM %s ORDER BY val ANN OF ? LIMIT " + limit, vector(queryVector));
+        UntypedResultSet resultSet = execute("SELECT * FROM %s ORDER BY val ANN OF ? LIMIT " + limit, floatVector(queryVector));
         assertThat(resultSet.size()).isEqualTo(limit);
 
         List<float[]> resultVectors = getVectorsFromResult(resultSet);
@@ -101,7 +101,7 @@ public class VectorSegmentationTest extends VectorTester
         compact();
 
         queryVector = nextVector();
-        resultSet = execute("SELECT * FROM %s ORDER BY val ANN OF ? LIMIT " + limit, vector(queryVector));
+        resultSet = execute("SELECT * FROM %s ORDER BY val ANN OF ? LIMIT " + limit, floatVector(queryVector));
         assertThat(resultSet.size()).isEqualTo(limit);
 
         resultVectors = getVectorsFromResult(resultSet);
