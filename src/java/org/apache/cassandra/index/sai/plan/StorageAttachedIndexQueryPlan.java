@@ -66,12 +66,19 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
     {
         ImmutableSet.Builder<Index> selectedIndexesBuilder = ImmutableSet.builder();
 
+        RowFilter preIndexFilter = rowFilter;
+        RowFilter postIndexFilter = rowFilter;
+
         for (RowFilter.Expression expression : rowFilter)
         {
-            // we ignore user-defined expressions here because we don't have a way to translate their #isSatifiedBy
+            // we ignore IN and user-defined expressions here because we don't have a way to translate their #isSatifiedBy
             // method, they will be included in the filter returned by QueryPlan#postIndexQueryFilter()
-            if (expression.isUserDefined())
+            if (expression.operator().isIN() || expression.isUserDefined())
+            {
+                preIndexFilter = rowFilter.without(expression);
                 continue;
+            }
+            postIndexFilter = postIndexFilter.without(expression);
 
             for (StorageAttachedIndex index : indexes)
             {
@@ -85,14 +92,7 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
         ImmutableSet<Index> selectedIndexes = selectedIndexesBuilder.build();
         if (selectedIndexes.isEmpty())
             return null;
-
-        /*
-         * postIndexFilter comprised by those expressions in the read command row filter that can't be handled by
-         * {@link FilterTree#satisfiedBy(Unfiltered, Row, boolean)}. This includes expressions targeted
-         * at {@link RowFilter.UserExpression}s.
-         */
-        RowFilter postIndexFilter = rowFilter.restrict(RowFilter.Expression::isUserDefined);
-        return new StorageAttachedIndexQueryPlan(cfs, queryMetrics, postIndexFilter, rowFilter, selectedIndexes);
+        return new StorageAttachedIndexQueryPlan(cfs, queryMetrics, postIndexFilter, preIndexFilter, selectedIndexes);
     }
 
     @Override
