@@ -42,7 +42,6 @@ import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.RowUpdateBuilder;
 import org.apache.cassandra.db.commitlog.CommitLogSegment.CDCState;
 import org.apache.cassandra.exceptions.CDCWriteException;
-import org.apache.cassandra.io.util.FileUtils;
 import org.apache.cassandra.schema.TableMetadata;
 
 public class CommitLogSegmentManagerCDCTest extends CQLTester
@@ -91,7 +90,7 @@ public class CommitLogSegmentManagerCDCTest extends CQLTester
 
             // Simulate a CDC consumer reading files then deleting them
             for (File f : new File(DatabaseDescriptor.getCDCLogLocation()).tryList())
-                FileUtils.deleteWithConfirm(f);
+                f.deleteIfExists();
 
             // Update size tracker to reflect deleted files. Should flip flag on current allocatingFrom to allow.
             cdcMgr.updateCDCTotalSize();
@@ -204,7 +203,7 @@ public class CommitLogSegmentManagerCDCTest extends CQLTester
         BufferedReader in = new BufferedReader(new FileReader(cdcIndexFile));
         String input = in.readLine();
         input = in.readLine();
-        Assert.assertTrue("Expected COMPLETED in index file, got: " + input, input.equals("COMPLETED"));
+        Assert.assertEquals("Expected COMPLETED in index file, got: " + input, "COMPLETED", input);
         in.close();
     }
 
@@ -273,7 +272,7 @@ public class CommitLogSegmentManagerCDCTest extends CQLTester
         // Build up a list of expected index files after replay and then clear out cdc_raw
         List<CDCIndexData> oldData = parseCDCIndexData();
         for (File f : new File(DatabaseDescriptor.getCDCLogLocation()).tryList())
-            FileUtils.deleteWithConfirm(f.absolutePath());
+            f.deleteIfExists();
 
         try
         {
@@ -327,7 +326,10 @@ public class CommitLogSegmentManagerCDCTest extends CQLTester
             for (CDCIndexData cid : oldData)
             {
                 if (cid.fileName.equals(ncid.fileName))
+                {
                     found = true;
+                    break;
+                }
             }
             if (!found)
                 Assert.fail(String.format("Unexpected new CDCIndexData found after replay: %s\n", ncid));
@@ -359,14 +361,10 @@ public class CommitLogSegmentManagerCDCTest extends CQLTester
 
         CDCIndexData(File f) throws IOException
         {
-            String line = "";
+            String line;
             try (BufferedReader br = new BufferedReader(new FileReader(f)))
             {
                 line = br.readLine();
-            }
-            catch (Exception e)
-            {
-                throw e;
             }
             fileName = f.name();
             offset = Integer.parseInt(line);
@@ -382,7 +380,7 @@ public class CommitLogSegmentManagerCDCTest extends CQLTester
         public boolean equals(Object other)
         {
             CDCIndexData cid = (CDCIndexData)other;
-            return fileName.equals(cid.fileName) && offset == cid.offset;
+            return fileName.equals(cid.fileName) && offset == cid.offset && this.getClass().equals(other.getClass());
         }
     }
 
@@ -496,7 +494,7 @@ public class CommitLogSegmentManagerCDCTest extends CQLTester
                 cdcMgr.awaitManagementTasksCompletion();
                 // Delete all files in cdc_raw
                 for (File f : new File(DatabaseDescriptor.getCDCLogLocation()).tryList())
-                    f.delete();
+                    f.deleteIfExists();
                 cdcMgr.updateCDCTotalSize();
                 // Confirm cdc update process changes flag on active segment
                 expectCurrentCDCState(CDCState.PERMITTED);
@@ -504,7 +502,7 @@ public class CommitLogSegmentManagerCDCTest extends CQLTester
 
             // Clear out archived CDC files
             for (File f : new File(DatabaseDescriptor.getCDCLogLocation()).tryList()) {
-                FileUtils.deleteWithConfirm(f);
+                f.deleteIfExists();
             }
         });
     }
