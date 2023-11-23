@@ -121,16 +121,21 @@ public final class CreateKeyspaceStatement extends AlterSchemaStatement
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     Set<String> clientWarnings(KeyspacesDiff diff)
     {
-        // this threshold is deprecated, it will be replaced by the guardrail used in #validate(ClientState)
-        int keyspaceCount = Schema.instance.getKeyspaces().size();
-        if (keyspaceCount > DatabaseDescriptor.keyspaceCountWarnThreshold())
+        // This threshold is deprecated, it will be replaced by the guardrail used in #validate(ClientState).
+        // In the meantime, the deprecated threshold will be ignored if the guardrail is enabled (see CASSANDRA-19047).
+        if (DatabaseDescriptor.getGuardrailsConfig().getKeyspacesWarnThreshold() == -1)
         {
-            String msg = String.format("Cluster already contains %d keyspaces. Having a large number of keyspaces will significantly slow down schema dependent cluster operations.",
-                                       keyspaceCount);
-            logger.warn(msg);
-            clientWarnings.add(msg);
+            int keyspaceCount = Schema.instance.getKeyspaces().size();
+            if (keyspaceCount > DatabaseDescriptor.keyspaceCountWarnThreshold())
+            {
+                String msg = String.format("Cluster already contains %d keyspaces. Having a large number of keyspaces will significantly slow down schema dependent cluster operations.",
+                                           keyspaceCount);
+                logger.warn(msg);
+                clientWarnings.add(msg);
+            }
         }
 
         return clientWarnings;

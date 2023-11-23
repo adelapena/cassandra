@@ -408,17 +408,22 @@ public final class CreateTableStatement extends AlterSchemaStatement
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public Set<String> clientWarnings(KeyspacesDiff diff)
     {
-        // this threshold is deprecated, it will be replaced by the guardrail used in #validate(ClientState)
-        int tableCount = Schema.instance.getNumberOfTables();
-        if (tableCount > DatabaseDescriptor.tableCountWarnThreshold())
+        // This threshold is deprecated, it will be replaced by the guardrail used in #validate(ClientState).
+        // In the meantime, the deprecated threshold will be ignored if the guardrail is enabled (see CASSANDRA-19047).
+        if (DatabaseDescriptor.getGuardrailsConfig().getTablesWarnThreshold() == -1)
         {
-            String msg = String.format("Cluster already contains %d tables in %d keyspaces. Having a large number of tables will significantly slow down schema dependent cluster operations.",
-                                       tableCount,
-                                       Schema.instance.getKeyspaces().size());
-            logger.warn(msg);
-            return ImmutableSet.of(msg);
+            int tableCount = Schema.instance.getNumberOfTables();
+            if (tableCount > DatabaseDescriptor.tableCountWarnThreshold())
+            {
+                String msg = String.format("Cluster already contains %d tables in %d keyspaces. Having a large number of tables will significantly slow down schema dependent cluster operations.",
+                                           tableCount,
+                                           Schema.instance.getKeyspaces().size());
+                logger.warn(msg);
+                return ImmutableSet.of(msg);
+            }
         }
         return ImmutableSet.of();
     }

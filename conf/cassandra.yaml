@@ -1626,6 +1626,7 @@ report_unconfirmed_repaired_data_mismatches: false
 # cluster. When the number of tables/keyspaces in the cluster exceeds the following thresholds
 # a client warning will be sent back to the user when creating a table or keyspace.
 # As of cassandra 4.1, these properties are deprecated in favor of keyspaces_warn_threshold and tables_warn_threshold
+# These thresholds will be ignored if the newer tables_warn_threshold/keyspaces_warn_threshold are enabled.
 # table_count_warn_threshold: 150
 # keyspace_count_warn_threshold: 40
 
@@ -1689,10 +1690,14 @@ drop_compact_storage_enabled: false
 
 # Guardrail to warn or fail when creating more user keyspaces than threshold.
 # The two thresholds default to -1 to disable.
+# This guardrail is meant to replace the deprecated keyspace_count_warn_threshold property.
+# Enabling this guardrail will disable the deprecated keyspace_count_warn_threshold property it replaces.
 # keyspaces_warn_threshold: -1
 # keyspaces_fail_threshold: -1
 # Guardrail to warn or fail when creating more user tables than threshold.
 # The two thresholds default to -1 to disable.
+# This guardrail is meant to replace the deprecated table_count_warn_threshold property.
+# Enabling this guardrail will disable the deprecated table_count_warn_threshold property it replaces.
 # tables_warn_threshold: -1
 # tables_fail_threshold: -1
 # Guardrail to enable or disable the ability to create uncompressed tables

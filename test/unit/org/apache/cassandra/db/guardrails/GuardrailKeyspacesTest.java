@@ -20,7 +20,10 @@ package org.apache.cassandra.db.guardrails;
 
 import org.junit.Test;
 
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.schema.Schema;
+import org.apache.cassandra.service.ClientWarn;
+import org.assertj.core.api.Assertions;
 
 import static java.lang.String.format;
 
@@ -72,6 +75,34 @@ public class GuardrailKeyspacesTest extends ThresholdTester
         testExcludedUsers(this::createKeyspaceQuery,
                           this::createKeyspaceQuery,
                           this::createKeyspaceQuery);
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    public void testDeprecatedProperty() throws Throwable
+    {
+        // set a low value for the deprecated keyspace_count_warn_threshold property
+        int threshold = DatabaseDescriptor.keyspaceCountWarnThreshold();
+        DatabaseDescriptor.setKeyspaceCountWarnThreshold(1);
+        ClientWarn.instance.captureWarnings();
+
+        // the deprecated keyspace_count_warn_threshold property should be triggerable when the guardrail is disabled
+        Guardrails.instance.setKeyspacesThreshold(-1, -1);
+        String ks = createKeyspaceName();
+        execute(createKeyspaceQuery(ks));
+        Assertions.assertThat(ClientWarn.instance.getWarnings()).anyMatch(s -> s.contains("Cluster already contains"));
+        dropKeyspace(ks);
+        ClientWarn.instance.resetWarnings();
+
+        // the deprecated keyspace_count_warn_threshold property should be ignored when the guardrail is enabled
+        Guardrails.instance.setKeyspacesThreshold(100, -1);
+        execute(createKeyspaceQuery(ks));
+        Assertions.assertThat(ClientWarn.instance.getWarnings()).isNullOrEmpty();
+        dropKeyspace(ks);
+        ClientWarn.instance.resetWarnings();
+
+        // restore defaults
+        DatabaseDescriptor.setKeyspaceCountWarnThreshold(threshold);
     }
 
     private void dropKeyspace(String keyspaceName)

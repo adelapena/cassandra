@@ -20,7 +20,10 @@ package org.apache.cassandra.db.guardrails;
 
 import org.junit.Test;
 
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.Keyspace;
+import org.apache.cassandra.service.ClientWarn;
+import org.assertj.core.api.Assertions;
 
 import static java.lang.String.format;
 
@@ -72,6 +75,34 @@ public class GuardrailTablesTest extends ThresholdTester
         testExcludedUsers(this::createTableQuery,
                           this::createTableQuery,
                           this::createTableQuery);
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    public void testDeprecatedProperty() throws Throwable
+    {
+        // set a low value for the deprecated table_count_warn_threshold property
+        int threshold = DatabaseDescriptor.tableCountWarnThreshold();
+        DatabaseDescriptor.setTableCountWarnThreshold(1);
+        ClientWarn.instance.captureWarnings();
+
+        // the deprecated table_count_warn_threshold property should be triggerable when the guardrail is disabled
+        Guardrails.instance.setTablesThreshold(-1, -1);
+        String table = createTableName();
+        execute(createTableQuery(table));
+        Assertions.assertThat(ClientWarn.instance.getWarnings()).anyMatch(s -> s.contains("Cluster already contains"));
+        dropTable(table);
+        ClientWarn.instance.resetWarnings();
+
+        // the deprecated table_count_warn_threshold property should be ignored when the guardrail is enabled
+        Guardrails.instance.setTablesThreshold(100, -1);
+        execute(createTableQuery(table));
+        Assertions.assertThat(ClientWarn.instance.getWarnings()).isNullOrEmpty();
+        dropTable(table);
+        ClientWarn.instance.resetWarnings();
+
+        // restore defaults
+        DatabaseDescriptor.setTableCountWarnThreshold(threshold);
     }
 
     @Override
