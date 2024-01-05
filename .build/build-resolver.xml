@@ -233,7 +233,6 @@
 
         <copy todir="${build.lib}" quiet="true">
             <file file="${local.repository}/org/apache/cassandra/deps/futures-2.1.6-py2.py3-none-any.zip"/>
-            <file file="${local.repository}/org/apache/cassandra/deps/six-1.12.0-py2.py3-none-any.zip"/>
             <file file="${local.repository}/org/apache/cassandra/deps/geomet-0.1.0.zip"/>
             <file file="${local.repository}/org/apache/cassandra/deps/pure_sasl-0.6.2-py2-none-any.zip"/>
             <file file="${local.repository}/org/apache/cassandra/deps/wcwidth-0.2.5-py2.py3-none-any.zip"/>
