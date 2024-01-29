@@ -421,7 +421,7 @@ public class ActiveRepairService implements IEndpointStateChangeSubscriber, IFai
      *
      * @return Future for asynchronous call or null if there is no need to repair
      */
-    public RepairSession submitRepairSession(TimeUUID parentRepairSession,
+    public RepairSession createRepairSession(TimeUUID parentRepairSession,
                                              CommonRange range,
                                              String keyspace,
                                              RepairParallelism parallelismDegree,
@@ -431,7 +431,6 @@ public class ActiveRepairService implements IEndpointStateChangeSubscriber, IFai
                                              boolean optimiseStreams,
                                              boolean repairPaxos,
                                              boolean paxosOnly,
-                                             ExecutorPlus executor,
                                              String... cfnames)
     {
         if (repairPaxos && previewKind != PreviewKind.NONE)
@@ -460,7 +459,6 @@ public class ActiveRepairService implements IEndpointStateChangeSubscriber, IFai
             sessions.remove(session.getId());
             LocalSessions.unregisterListener(session);
         });
-        session.start(executor);
         return session;
     }
 

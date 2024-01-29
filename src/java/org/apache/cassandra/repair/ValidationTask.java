@@ -18,11 +18,16 @@
 package org.apache.cassandra.repair;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.exceptions.RepairException;
 import org.apache.cassandra.locator.InetAddressAndPort;
 import org.apache.cassandra.repair.messages.RepairMessage;
 import org.apache.cassandra.repair.messages.ValidationRequest;
+import org.apache.cassandra.service.ActiveRepairService;
 import org.apache.cassandra.streaming.PreviewKind;
 import org.apache.cassandra.utils.MerkleTrees;
 import org.apache.cassandra.utils.concurrent.AsyncFuture;
@@ -42,6 +47,9 @@ public class ValidationTask extends AsyncFuture<TreeResponse> implements Runnabl
     private final PreviewKind previewKind;
     private final SharedContext ctx;
 
+    private static final Logger logger = LoggerFactory.getLogger(ActiveRepairService.class);
+    private static final AtomicInteger count = new AtomicInteger(0);
+
     public ValidationTask(SharedContext ctx, RepairJobDesc desc, InetAddressAndPort endpoint, long nowInSec, PreviewKind previewKind)
     {
         this.ctx = ctx;
@@ -56,6 +64,7 @@ public class ValidationTask extends AsyncFuture<TreeResponse> implements Runnabl
      */
     public void run()
     {
+        logger.info("*** Sending merkle tree request to {} for {} ranges, thread={}, count={}", endpoint, desc.ranges.size(), Thread.currentThread(), count.incrementAndGet());
         RepairMessage.sendMessageWithFailureCB(ctx, notDone(this),
                                                new ValidationRequest(desc, nowInSec),
                                                VALIDATION_REQ,
@@ -70,6 +79,7 @@ public class ValidationTask extends AsyncFuture<TreeResponse> implements Runnabl
      */
     public synchronized void treesReceived(MerkleTrees trees)
     {
+        logger.info("*** Receiving merkle tree request from {} for {} ranges, thread={}, count={}", endpoint, desc.ranges == null ? null : desc.ranges.size(), Thread.currentThread(), count.decrementAndGet());
         if (trees == null)
         {
             tryFailure(RepairException.warn(desc, previewKind, "Validation failed in " + endpoint));

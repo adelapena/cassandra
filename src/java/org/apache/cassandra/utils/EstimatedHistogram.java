@@ -334,7 +334,7 @@ public class EstimatedHistogram implements DoubleToLongFunction
             // calculation, and accept the unnecessary whitespace prefixes that will occasionally occur
             if (i == 0 && count == 0)
                 continue;
-            log.debug(String.format(formatstr, names[i], count));
+//            log.debug(String.format(formatstr, names[i], count));
         }
     }
 

@@ -61,11 +61,12 @@ public abstract class AbstractRepairTask implements RepairTask
                                                      String... cfnames)
     {
         List<RepairSession> futures = new ArrayList<>(options.getRanges().size());
+        List<RepairJob> jobs = new ArrayList<>(options.getRanges().size() * cfnames.length);
 
         for (CommonRange commonRange : commonRanges)
         {
-            logger.info("Starting RepairSession for {}", commonRange);
-            RepairSession session = coordinator.ctx.repair().submitRepairSession(parentSession,
+            logger.info("*** Starting RepairSession for {} common ranges", commonRange.ranges.size());
+            RepairSession session = coordinator.ctx.repair().createRepairSession(parentSession,
                                                                                  commonRange,
                                                                                  keyspace,
                                                                                  options.getParallelism(),
@@ -75,14 +76,49 @@ public abstract class AbstractRepairTask implements RepairTask
                                                                                  options.optimiseStreams(),
                                                                                  options.repairPaxos(),
                                                                                  options.paxosOnly(),
-                                                                                 executor,
                                                                                  cfnames);
             if (session == null)
                 continue;
+
             session.addCallback(new RepairSessionCallback(session));
             futures.add(session);
+            jobs.addAll(session.start());
         }
+
+        executeSequential(executor, jobs, options.getJobThreads());
         return futures;
+    }
+
+    private static void executeSequential(ExecutorPlus executor, List<RepairJob> jobs, int sequentialGroups)
+    {
+        Lists.partition(jobs, jobs.size() / sequentialGroups)
+             .forEach(group -> executeSequential(executor, group));
+    }
+
+    private static void executeSequential(ExecutorPlus executor, List<RepairJob> jobs)
+    {
+        if (jobs == null || jobs.isEmpty())
+            return;
+
+        RepairJob firstJob = jobs.get(0);
+        RepairJob currentJob = firstJob;
+        for (int i = 1; i < jobs.size(); i++)
+        {
+            RepairJob newTask = jobs.get(i);
+            currentJob.addCallback(new FutureCallback<>()
+            {
+                @Override
+                public void onSuccess(RepairResult result)
+                {
+                    executor.execute(newTask);
+                }
+                // failure is handled at root of session chain
+                @Override
+                public void onFailure(Throwable t) {}
+            });
+            currentJob = newTask;
+        }
+        executor.execute(firstJob);
     }
 
     protected Future<CoordinatedRepairResult> runRepair(TimeUUID parentSession,

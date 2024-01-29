@@ -281,15 +281,13 @@ public class RepairSession extends AsyncFuture<RepairSessionResult> implements I
      *
      * This first validates if all replica are available, and if they are,
      * creates RepairJobs and submit to run on given executor.
-     *
-     * @param executor Executor to run validation
      */
-    public void start(ExecutorPlus executor)
+    public List<RepairJob> start()
     {
         state.phase.start();
         String message;
         if (terminated)
-            return;
+            return Collections.emptyList();
 
         logger.info("{} parentSessionId = {}: new session: will sync {} on range {} for {}.{}",
                     previewKind.logPrefix(getId()), state.parentRepairSession, repairedNodes(), state.commonRange, state.keyspace, Arrays.toString(state.cfnames));
@@ -309,7 +307,7 @@ public class RepairSession extends AsyncFuture<RepairSessionResult> implements I
             {
                 SystemDistributedKeyspace.failRepairs(getId(), state.keyspace, state.cfnames, new RuntimeException(message));
             }
-            return;
+            return Collections.emptyList();
         }
 
         // Checking all nodes are live
@@ -326,7 +324,7 @@ public class RepairSession extends AsyncFuture<RepairSessionResult> implements I
                 {
                     SystemDistributedKeyspace.failRepairs(getId(), state.keyspace, state.cfnames, e);
                 }
-                return;
+                return Collections.emptyList();
             }
         }
 
@@ -337,9 +335,9 @@ public class RepairSession extends AsyncFuture<RepairSessionResult> implements I
         {
             RepairJob job = new RepairJob(this, cfname);
             state.register(job.state);
-            executor.execute(job);
             jobs.add(job);
         }
+//        executeSequential(executor, jobs);
         this.jobs = jobs;
 
         // When all RepairJobs are done without error, cleanup and set the final result
@@ -370,6 +368,8 @@ public class RepairSession extends AsyncFuture<RepairSessionResult> implements I
                 forceShutdown(t);
             }
         }, taskExecutor);
+
+        return jobs;
     }
 
     public synchronized void terminate(@Nullable Throwable reason)

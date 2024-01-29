@@ -119,6 +119,8 @@ public class RepairJob extends AsyncFuture<RepairResult> implements Runnable
      */
     public void run()
     {
+        logger.info("*** REPAIR JOB RUN table={} incremental={} thread={}, executor={} ranges={}", desc.columnFamily, session.isIncremental, Thread.currentThread().getId(), taskExecutor, session.ranges().size());
+
         state.phase.start();
         Keyspace ks = Keyspace.open(desc.keyspace);
         ColumnFamilyStore cfs = ks.getColumnFamilyStore(desc.columnFamily);
@@ -209,7 +211,7 @@ public class RepairJob extends AsyncFuture<RepairResult> implements Runnable
         });
 
         // When all validations complete, submit sync tasks
-        Future<List<SyncStat>> syncResults = treeResponses.flatMap(session.optimiseStreams && !session.pullRepair ? this::optimisedSyncing : this::standardSyncing, taskExecutor);
+        Future<List<SyncStat>> syncResults = treeResponses.flatMap(x -> session.optimiseStreams && !session.pullRepair ? optimisedSyncing(x) : standardSyncing(x, cfs.name), taskExecutor);
 
         // When all sync complete, set the final result
         syncResults.addCallback(new FutureCallback<List<SyncStat>>()
@@ -265,8 +267,12 @@ public class RepairJob extends AsyncFuture<RepairResult> implements Runnable
         return session.state.commonRange.transEndpoints.contains(ep);
     }
 
-    private Future<List<SyncStat>> standardSyncing(List<TreeResponse> trees)
+    private Future<List<SyncStat>> standardSyncing(List<TreeResponse> trees, String table)
     {
+        logger.info("*** SYNCING {} {} TREE RESPONSES ({} TREES) (thread {} {} {} has {} validation tasks)",
+                    table, trees.size(), trees.stream().mapToLong(t -> t.trees.size()).sum(),
+                    Thread.currentThread(), Thread.currentThread().getName(), Thread.currentThread().getId(), validationTasks.size());
+        trees.forEach(t -> logger.info("*** TREE RESPONSE: {} {}", table, t.endpoint));
         List<SyncTask> syncTasks = createStandardSyncTasks(ctx, desc,
                                                            trees,
                                                            ctx.broadcastAddressAndPort(),
