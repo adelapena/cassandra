@@ -91,7 +91,10 @@ public abstract class AbstractRepairTask implements RepairTask
 
     private static void executeSequential(ExecutorPlus executor, List<RepairJob> jobs, int sequentialGroups)
     {
-        Lists.partition(jobs, jobs.size() / sequentialGroups)
+        if (jobs == null || jobs.isEmpty())
+            return;
+
+        Lists.partition(jobs, Math.max(1, jobs.size() / sequentialGroups))
              .forEach(group -> executeSequential(executor, group));
     }
 
