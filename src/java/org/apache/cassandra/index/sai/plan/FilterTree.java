@@ -26,7 +26,6 @@ import java.util.ListIterator;
 import com.google.common.collect.ListMultimap;
 
 import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.rows.ColumnData;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.db.rows.Unfiltered;
 import org.apache.cassandra.schema.ColumnMetadata;
@@ -77,7 +76,8 @@ public class FilterTree
             return false;
 
         final long now = FBUtilities.nowInSeconds();
-        BooleanOperator localOperator = getLocalOperator((Row) unfiltered, staticRow);
+        // Downgrade AND to OR if strict filtering isn't safe:
+        BooleanOperator localOperator = strict ? baseOperator : BooleanOperator.OR;
         boolean result = localOperator == BooleanOperator.AND;
 
         Iterator<ColumnMetadata> columnIterator = expressions.keySet().iterator();
@@ -118,38 +118,6 @@ public class FilterTree
             }
         }
         return result;
-    }
-
-    private BooleanOperator getLocalOperator(Row regularRow, Row staticRow)
-    {
-        // This is an AND query, but the coordinator has indicated strict filtering might not be allowed... 
-        if (baseOperator == BooleanOperator.AND && !strict)
-        {
-            Long lastTimestamp = null;
-
-            for (ColumnMetadata column : expressions.keySet())
-            {
-                // We only care about partial updates on non-key columns. 
-                if (column.isPrimaryKeyColumn())
-                    continue;
-
-                Row row = column.kind == Kind.STATIC ? staticRow : regularRow;
-                ColumnData data = row.getColumnData(column);
-
-                if (data == null)
-                    // Degrade to non-strict filtering if we're missing a value for a filtered column, as it could be
-                    // partially updated on another replica.
-                    return BooleanOperator.OR;
-
-                if (lastTimestamp == null)
-                    lastTimestamp = data.maxTimestamp();
-                else if (lastTimestamp != data.maxTimestamp())
-                    // Degrade to non-strict filtering on a partial update (i.e. cells w/ different timestamps).
-                    return BooleanOperator.OR;
-            }
-        }
-
-        return baseOperator;
     }
 
     private boolean singletonMatch(ByteBuffer value, Expression filter)
