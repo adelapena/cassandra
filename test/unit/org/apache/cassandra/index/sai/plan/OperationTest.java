@@ -112,25 +112,20 @@ public class OperationTest
     public void beforeTest()
     {
         ReadCommand command = PartitionRangeReadCommand.allDataRead(BACKEND.metadata(), FBUtilities.nowInSeconds());
-        controller = new QueryController(BACKEND,
-                                         command,
-                                         null,
-                                         new QueryContext(command, DatabaseDescriptor.getRangeRpcTimeout(TimeUnit.MILLISECONDS)),
-                                         null);
+        controller = new QueryController(BACKEND, command, null, contextWithUnrepairedMatches(command), null);
 
         command = PartitionRangeReadCommand.allDataRead(CLUSTERING_BACKEND.metadata(), FBUtilities.nowInSeconds());
-        controllerClustering = new QueryController(CLUSTERING_BACKEND,
-                                                   command,
-                                                   null,
-                                                   new QueryContext(command, DatabaseDescriptor.getRangeRpcTimeout(TimeUnit.MILLISECONDS)),
-                                                   null);
+        controllerClustering = new QueryController(CLUSTERING_BACKEND, command, null, contextWithUnrepairedMatches(command), null);
 
         command = PartitionRangeReadCommand.allDataRead(STATIC_BACKEND.metadata(), FBUtilities.nowInSeconds());
-        controllerStatic = new QueryController(STATIC_BACKEND,
-                                               command,
-                                               null,
-                                               new QueryContext(command, DatabaseDescriptor.getRangeRpcTimeout(TimeUnit.MILLISECONDS)),
-                                               null);
+        controllerStatic = new QueryController(STATIC_BACKEND, command, null, contextWithUnrepairedMatches(command), null);
+    }
+
+    private static QueryContext contextWithUnrepairedMatches(ReadCommand command)
+    {
+        QueryContext context = new QueryContext(command, DatabaseDescriptor.getRangeRpcTimeout(TimeUnit.MILLISECONDS));
+        context.hasUnrepairedMatches = true;
+        return context;
     }
 
     @Test

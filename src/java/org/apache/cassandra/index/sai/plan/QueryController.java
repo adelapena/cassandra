@@ -73,9 +73,10 @@ import static org.apache.cassandra.config.CassandraRelevantProperties.SAI_VECTOR
 
 public class QueryController
 {
+    final QueryContext queryContext;
+
     private final ColumnFamilyStore cfs;
     private final ReadCommand command;
-    private final QueryContext queryContext;
     private final TableQueryMetrics tableQueryMetrics;
     private final RowFilter filterOperation;
     private final List<DataRange> ranges;
@@ -235,7 +236,15 @@ public class QueryController
                             unrepaired.add(index);
 
                     // Always build an iterator for the un-repaired set, given this must include Memtable indexes...  
-                    builder.add(IndexSearchResultIterator.build(queryViewPair.left, unrepaired, mergeRange, queryContext, true));
+                    IndexSearchResultIterator unrepairedIterator =
+                            IndexSearchResultIterator.build(queryViewPair.left, unrepaired, mergeRange, queryContext, true);
+
+                    // ...but ignore it if our combined results are empty.
+                    if (unrepairedIterator.getCount() > 0)
+                    {
+                        builder.add(unrepairedIterator);
+                        queryContext.hasUnrepairedMatches = true;
+                    }
 
                     // ...then only add an iterator to the repaired intersection if repaired SSTable indexes exist. 
                     if (!repaired.isEmpty())

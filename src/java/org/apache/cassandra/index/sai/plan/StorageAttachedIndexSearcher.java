@@ -376,11 +376,11 @@ public class StorageAttachedIndexSearcher implements Index.Searcher
                 queryContext.partitionsRead++;
                 queryContext.checkpoint();
 
-                return applyIndexFilter(key, partition, filterTree, queryContext);
+                return applyIndexFilter(key, partition, filterTree);
             }
         }
 
-        private UnfilteredRowIterator applyIndexFilter(PrimaryKey key, UnfilteredRowIterator partition, FilterTree tree, QueryContext queryContext)
+        private UnfilteredRowIterator applyIndexFilter(PrimaryKey key, UnfilteredRowIterator partition, FilterTree tree)
         {
             Row staticRow = partition.staticRow();
             List<Unfiltered> clusters = new ArrayList<>();
@@ -468,7 +468,7 @@ public class StorageAttachedIndexSearcher implements Index.Searcher
      * Used by {@link StorageAttachedIndexSearcher#filterReplicaFilteringProtection} to filter rows for columns that
      * have transformations so won't get handled correctly by the row filter.
      */
-    private static PartitionIterator applyIndexFilter(PartitionIterator response, FilterTree tree, QueryContext queryContext)
+    private static PartitionIterator applyIndexFilter(PartitionIterator response, FilterTree tree, QueryContext context)
     {
         return new PartitionIterator()
         {
@@ -535,7 +535,7 @@ public class StorageAttachedIndexSearcher implements Index.Searcher
                         while (delegate.hasNext())
                         {
                             Row row = delegate.next();
-                            queryContext.rowsFiltered++;
+                            context.rowsFiltered++;
                             if (tree.isSatisfiedBy(delegate.partitionKey(), row, staticRow))
                                 return row;
                         }

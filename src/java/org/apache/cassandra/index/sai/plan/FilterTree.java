@@ -28,6 +28,7 @@ import com.google.common.collect.ListMultimap;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.db.rows.Unfiltered;
+import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.schema.ColumnMetadata;
 import org.apache.cassandra.schema.ColumnMetadata.Kind;
 import org.apache.cassandra.utils.FBUtilities;
@@ -46,13 +47,15 @@ public class FilterTree
     protected final BooleanOperator baseOperator;
     protected final ListMultimap<ColumnMetadata, Expression> expressions;
     protected final List<FilterTree> children = new ArrayList<>();
-    private final boolean strict;
+    private final boolean isStrict;
+    private final QueryContext context;
 
-    FilterTree(BooleanOperator baseOperator, ListMultimap<ColumnMetadata, Expression> expressions, boolean strict)
+    FilterTree(BooleanOperator baseOperator, ListMultimap<ColumnMetadata, Expression> expressions, boolean isStrict, QueryContext context)
     {
         this.baseOperator = baseOperator;
         this.expressions = expressions;
-        this.strict = strict;
+        this.isStrict = isStrict;
+        this.context = context;
     }
 
     void addChild(FilterTree child)
@@ -77,7 +80,7 @@ public class FilterTree
 
         final long now = FBUtilities.nowInSeconds();
         // Downgrade AND to OR if strict filtering isn't safe:
-        BooleanOperator localOperator = strict ? baseOperator : BooleanOperator.OR;
+        BooleanOperator localOperator = isStrict || !context.hasUnrepairedMatches() ? baseOperator : BooleanOperator.OR;
         boolean result = localOperator == BooleanOperator.AND;
 
         Iterator<ColumnMetadata> columnIterator = expressions.keySet().iterator();

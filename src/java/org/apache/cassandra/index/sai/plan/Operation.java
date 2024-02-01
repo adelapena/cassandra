@@ -36,6 +36,7 @@ import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CollectionType;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.index.sai.StorageAttachedIndex;
 import org.apache.cassandra.index.sai.analyzer.AbstractAnalyzer;
 import org.apache.cassandra.index.sai.iterators.KeyRangeIterator;
@@ -309,7 +310,7 @@ public class Operation
 
         abstract void analyze(List<RowFilter.Expression> expressionList, QueryController controller);
 
-        abstract FilterTree filterTree(boolean strict);
+        abstract FilterTree filterTree(boolean strict, QueryContext context);
 
         abstract KeyRangeIterator rangeIterator(QueryController controller);
 
@@ -348,13 +349,13 @@ public class Operation
             }
         }
 
-        FilterTree buildFilter(QueryController controller, boolean strict)
+        FilterTree buildFilter(QueryController controller, boolean isStrict)
         {
             analyzeTree(controller);
-            FilterTree tree = filterTree(strict);
+            FilterTree tree = filterTree(isStrict, controller.queryContext);
             for (Node child : children())
                 if (child.canFilter())
-                    tree.addChild(child.buildFilter(controller, strict));
+                    tree.addChild(child.buildFilter(controller, isStrict));
             return tree;
         }
     }
@@ -385,9 +386,9 @@ public class Operation
         }
 
         @Override
-        FilterTree filterTree(boolean strict)
+        FilterTree filterTree(boolean isStrict, QueryContext context)
         {
-            return new FilterTree(BooleanOperator.AND, expressionMap, strict);
+            return new FilterTree(BooleanOperator.AND, expressionMap, isStrict, context);
         }
 
         @Override
@@ -416,10 +417,10 @@ public class Operation
         }
 
         @Override
-        FilterTree filterTree(boolean strict)
+        FilterTree filterTree(boolean isStrict, QueryContext context)
         {
             // There should only be one expression, so AND/OR would both work here. 
-            return new FilterTree(BooleanOperator.AND, expressionMap, true);
+            return new FilterTree(BooleanOperator.AND, expressionMap, isStrict, context);
         }
 
         public ExpressionNode(RowFilter.Expression expression)

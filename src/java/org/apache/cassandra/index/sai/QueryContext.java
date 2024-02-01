@@ -29,7 +29,7 @@ import static org.apache.cassandra.config.CassandraRelevantProperties.SAI_TEST_D
 
 /**
  * Tracks state relevant to the execution of a single query, including metrics and timeout monitoring.
- *
+ * <p>
  * Fields here are non-volatile, as they are accessed from a single thread.
  */
 @NotThreadSafe
@@ -57,6 +57,8 @@ public class QueryContext
     public long balancedTreePostingsDecodes = 0;
 
     public boolean queryTimedOut = false;
+
+    public boolean hasUnrepairedMatches = false;
 
     private VectorQueryContext vectorContext;
 
@@ -86,5 +88,10 @@ public class QueryContext
         if (vectorContext == null)
             vectorContext = new VectorQueryContext(readCommand);
         return vectorContext;
+    }
+    
+    public boolean hasUnrepairedMatches()
+    {
+        return hasUnrepairedMatches;
     }
 }
