@@ -40,15 +40,10 @@ import org.apache.cassandra.cql3.statements.StatementType;
 import org.apache.cassandra.distributed.Cluster;
 import org.apache.cassandra.distributed.api.ConsistencyLevel;
 import org.apache.cassandra.distributed.test.TestBaseImpl;
-import org.apache.cassandra.index.Index;
-import org.apache.cassandra.index.IndexStatusManager;
 import org.apache.cassandra.index.sai.plan.Expression;
-import org.apache.cassandra.locator.InetAddressAndPort;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.apache.cassandra.distributed.api.ConsistencyLevel.ALL;
-import static org.apache.cassandra.distributed.api.ConsistencyLevel.QUORUM;
 import static org.apache.cassandra.distributed.api.Feature.GOSSIP;
 import static org.apache.cassandra.distributed.api.Feature.NETWORK;
 import static org.apache.cassandra.distributed.shared.AssertUtils.assertRows;
@@ -86,7 +81,7 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
     private static final String TEST_TABLE_NAME = "test_partial_updates";
     private static final int PARTITIONS_PER_TEST = 20;
     private static final int PAGE_SIZE = PARTITIONS_PER_TEST / 4;
-    private static final int NODES = 3;
+    private static final int NODES = 2;
 
     private static Cluster CLUSTER;
 
@@ -115,7 +110,6 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
     {
         final boolean restrictPartitionKey;
         final String[] columns;
-        final ConsistencyLevel readCL;
         final boolean existing;
         final StatementType partialUpdateType;
         final int partitionKey;
@@ -124,7 +118,6 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
 
         Specification(boolean restrictPartitionKey,
                       String[] columns,
-                      ConsistencyLevel readCL,
                       boolean existing,
                       StatementType partialUpdateType,
                       int partitionKey,
@@ -133,7 +126,6 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
         {
             this.restrictPartitionKey = restrictPartitionKey;
             this.columns = columns;
-            this.readCL = readCL;
             this.existing = existing;
             this.partialUpdateType = partialUpdateType;
             this.partitionKey = partitionKey;
@@ -157,7 +149,6 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
             return "restrictPartitionKey=" + restrictPartitionKey +
                    ", columns=" + Arrays.toString(columns) +
                    ", existing=" + existing +
-                   ", readCL=" + readCL +
                    ", partialUpdateType=" + partialUpdateType +
                    ", partitionKey=" + partitionKey +
                    ", flushPartials=" + flushPartials +
@@ -171,14 +162,14 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
             if (o == null || getClass() != o.getClass()) return false;
             Specification that = (Specification) o;
             return Arrays.equals(columns, that.columns) 
-                   && readCL == that.readCL && existing == that.existing && restrictPartitionKey == that.restrictPartitionKey 
+                   && existing == that.existing && restrictPartitionKey == that.restrictPartitionKey 
                    && partialUpdateType == that.partialUpdateType && partitionKey == that.partitionKey && flushPartials == that.flushPartials;
         }
 
         @Override
         public int hashCode()
         {
-            int result = Objects.hash(readCL, existing, restrictPartitionKey, partialUpdateType, partitionKey, flushPartials);
+            int result = Objects.hash(existing, restrictPartitionKey, partialUpdateType, partitionKey, flushPartials);
             result = 31 * result + Arrays.hashCode(columns);
             return result < 0 ? -result : result;
         }
@@ -232,7 +223,7 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
             CLUSTER.get(1).nodetoolResult("repair", KEYSPACE).asserts().success();
         }
 
-        public void writePartialRows()
+        public void writeUnrepairedRows()
         {
             // Bookmark the model state before partial updates are applied:
             for (Map<String, Integer> row : currentRows)
@@ -257,7 +248,6 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
         private int updateReplica(int node, String column, int partitionIndex)
         {
             int value = nextCellValue++;
-
             int partitionKey = specification.partitionKey + partitionIndex;
 
             if (currentRows.size() > partitionIndex)
@@ -282,9 +272,6 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
                                        KEYSPACE, specification.tableName(), column, nextTimestamp++);
             CLUSTER.get(node).executeInternal(dml, partitionKey, partitionKey, value);
             node = nextNode(node);
-
-            if (specification.readCL == QUORUM)
-                CLUSTER.get(node).executeInternal(dml, partitionKey, partitionKey, value);
             return node;
         }
 
@@ -304,9 +291,6 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
 
             CLUSTER.get(node).executeInternal(dml);
             node = nextNode(node);
-
-            if (specification.readCL == QUORUM)
-                CLUSTER.get(node).executeInternal(dml);
             return node;
         }
         
@@ -402,39 +386,14 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
             if (needsAllowFiltering)
                 select.append(" ALLOW FILTERING");
 
-            InetAddressAndPort node2AddressAndPort = InetAddressAndPort.getByAddress(CLUSTER.get(2).broadcastAddress());
-            Map<String, Index.Status> node2IndexStatusFrom1;
-            Map<String, Index.Status> node2IndexStatusFrom3;
-
-            // Make sure node 2, which is the only complete replica, can't participate in a QUORUM...
-            if (specification.readCL == QUORUM)
-            {
-                node2IndexStatusFrom1 = CLUSTER.get(1).callsOnInstance(() -> IndexStatusManager.instance.peerIndexStatus.remove(node2AddressAndPort)).call();
-                node2IndexStatusFrom3 = CLUSTER.get(3).callsOnInstance(() -> IndexStatusManager.instance.peerIndexStatus.remove(node2AddressAndPort)).call();
-            }
-            else
-            {
-                node2IndexStatusFrom1 = null;
-                node2IndexStatusFrom3 = null;
-            }
-
-            Object[][] fullResult = CLUSTER.coordinator(1).execute(select.toString(), specification.readCL);
+            Object[][] fullResult = CLUSTER.coordinator(1).execute(select.toString(), ALL);
 
             if (!specification.restrictPartitionKey)
             {
                 // If we're not restricting on partition key, we expect PARTITIONS_PER_TEST / 2 results, and so using a
                 // PAGE_SIZE of PARTITIONS_PER_TEST / 4 should create at least one page boundary.
-                Iterator<Object[]> pagedResult = CLUSTER.coordinator(1).executeWithPaging(select.toString(), specification.readCL, PAGE_SIZE);
+                Iterator<Object[]> pagedResult = CLUSTER.coordinator(1).executeWithPaging(select.toString(), ALL, PAGE_SIZE);
                 assertRows(pagedResult, fullResult);
-            }
-
-            // ...but bring it back up immediately after we make the query:
-            if (specification.readCL == QUORUM)
-            {
-                assertNotNull(node2IndexStatusFrom1);
-                assertNotNull(node2IndexStatusFrom3);
-                CLUSTER.get(1).runOnInstance(() -> IndexStatusManager.instance.peerIndexStatus.put(node2AddressAndPort, node2IndexStatusFrom1));
-                CLUSTER.get(3).runOnInstance(() -> IndexStatusManager.instance.peerIndexStatus.put(node2AddressAndPort, node2IndexStatusFrom3));
             }
 
             return fullResult;
@@ -458,42 +417,39 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
         // used in partition-restricted queries.
         int nextPartitionKey = 0;
 
-        for (ConsistencyLevel readCL : new ConsistencyLevel[] { ALL, QUORUM })
+        for (boolean flushPartials : new boolean[] { false, true })
         {
-            for (boolean flushPartials : new boolean[] { false, true })
+            for (boolean restrictPartitionKey : new boolean[] { false, true })
             {
-                for (boolean restrictPartitionKey : new boolean[] { false, true })
-                {
-                    for (String[] columns : new String[][] { { "ck", "a" }, { "ck", "s" }, { "s", "a" }, { "a", "b" }, { "s", "x" }, { "a", "x" }, { "a", "y" }, { "a" }, { "s" } })
-                        for (boolean existing : new boolean[] { false, true })
-                        {
-                            parameters.add(new Object[] { new Specification(restrictPartitionKey, columns, readCL, existing, StatementType.INSERT, nextPartitionKey, flushPartials, EQ) });
-                            nextPartitionKey += PARTITIONS_PER_TEST;
-                        }
-
-                    // Deletion scenarios assume existing data.
-                    for (String[] columns : new String[][] { { "s", "a" }, { "a", "b" }, { "s", "x" }, { "a", "x" }, { "a", "y" }, { "a" }, { "s" } })
-                    {
-                        parameters.add(new Object[] { new Specification(restrictPartitionKey, columns, readCL, true, StatementType.DELETE, nextPartitionKey, flushPartials, EQ) });
-                        nextPartitionKey += PARTITIONS_PER_TEST;
-                    }
-                }
-
-                // Note that scenarios around indexes on a partition key element only appear here where we neither
-                // delete nor restrict on partition, as both would be nonsensical.
-                for (String[] columns : new String[][] { { "pk2", "a" }, { "s", "a" }, { "a", "b" }, { "s", "x" }, { "a", "x" }, { "a", "y" }, { "a" }, { "s" } })
+                for (String[] columns : new String[][] { { "ck", "a" }, { "ck", "s" }, { "s", "a" }, { "a", "b" }, { "s", "x" }, { "a", "x" }, { "a", "y" }, { "a" }, { "s" } })
                     for (boolean existing : new boolean[] { false, true })
                     {
-                        parameters.add(new Object[]{ new Specification(false, columns, readCL, existing, StatementType.INSERT, nextPartitionKey, flushPartials, RANGE) });
+                        parameters.add(new Object[] { new Specification(restrictPartitionKey, columns, existing, StatementType.INSERT, nextPartitionKey, flushPartials, EQ) });
                         nextPartitionKey += PARTITIONS_PER_TEST;
                     }
 
                 // Deletion scenarios assume existing data.
                 for (String[] columns : new String[][] { { "s", "a" }, { "a", "b" }, { "s", "x" }, { "a", "x" }, { "a", "y" }, { "a" }, { "s" } })
                 {
-                    parameters.add(new Object[]{ new Specification(false, columns, readCL, true, StatementType.DELETE, nextPartitionKey, flushPartials, RANGE) });
+                    parameters.add(new Object[] { new Specification(restrictPartitionKey, columns, true, StatementType.DELETE, nextPartitionKey, flushPartials, EQ) });
                     nextPartitionKey += PARTITIONS_PER_TEST;
                 }
+            }
+
+            // Note that scenarios around indexes on a partition key element only appear here where we neither
+            // delete nor restrict on partition, as both would be nonsensical.
+            for (String[] columns : new String[][] { { "pk2", "a" }, { "s", "a" }, { "a", "b" }, { "s", "x" }, { "a", "x" }, { "a", "y" }, { "a" }, { "s" } })
+                for (boolean existing : new boolean[] { false, true })
+                {
+                    parameters.add(new Object[]{ new Specification(false, columns, existing, StatementType.INSERT, nextPartitionKey, flushPartials, RANGE) });
+                    nextPartitionKey += PARTITIONS_PER_TEST;
+                }
+
+            // Deletion scenarios assume existing data.
+            for (String[] columns : new String[][] { { "s", "a" }, { "a", "b" }, { "s", "x" }, { "a", "x" }, { "a", "y" }, { "a" }, { "s" } })
+            {
+                parameters.add(new Object[]{ new Specification(false, columns, true, StatementType.DELETE, nextPartitionKey, flushPartials, RANGE) });
+                nextPartitionKey += PARTITIONS_PER_TEST;
             }
         }
 
@@ -513,7 +469,7 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
         }
 
         // Introduce partial writes that span replicas:
-        model.writePartialRows();
+        model.writeUnrepairedRows();
 
         if (specification.flushPartials)
             // Flushg partial rows from Memtable-attached indexes to SSTable indexes:
