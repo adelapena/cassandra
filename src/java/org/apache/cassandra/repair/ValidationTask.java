@@ -63,8 +63,8 @@ public class ValidationTask extends AsyncFuture<TreeResponse> implements Runnabl
      */
     public void run()
     {
-        logger.info("*** Sending merkle tree request to {} for {} ranges, thread={}, count={}",
-                    endpoint, desc.ranges.size(), Thread.currentThread(), count.incrementAndGet());
+        logger.info("*** Sending merkle tree request to {} for table {} and ranges {}.., thread={}, count={}",
+                    endpoint, desc.columnFamily, desc.ranges == null || desc.ranges.isEmpty() ? null : desc.ranges.iterator().next(), Thread.currentThread(), count.incrementAndGet());
         RepairMessage.sendMessageWithFailureCB(ctx, notDone(this),
                                                new ValidationRequest(desc, nowInSec),
                                                VALIDATION_REQ,
@@ -79,8 +79,8 @@ public class ValidationTask extends AsyncFuture<TreeResponse> implements Runnabl
      */
     public synchronized void treesReceived(MerkleTrees trees)
     {
-        logger.info("*** Receiving merkle tree request from {} for {} ranges, thread={}, count={}",
-                    endpoint, desc.ranges == null ? null : desc.ranges.size(), Thread.currentThread(), count.decrementAndGet());
+        logger.info("*** Receiving merkle tree request from {} for table {} and ranges {}.., thread={}, count={}",
+                    endpoint, desc.columnFamily, desc.ranges == null || desc.ranges.isEmpty() ? null : desc.ranges.iterator().next(), Thread.currentThread(), count.decrementAndGet());
         if (trees == null)
         {
             tryFailure(RepairException.warn(desc, previewKind, "Validation failed in " + endpoint));
