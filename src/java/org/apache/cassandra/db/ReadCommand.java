@@ -1015,7 +1015,7 @@ public abstract class ReadCommand extends AbstractReadQuery
         private static final int IS_FOR_THRIFT = 0x02;
         private static final int HAS_INDEX = 0x04;
         private static final int ACCEPTS_TRANSIENT = 0x08;
-        private static final int STRICT_FILTERING = 0x10;
+        private static final int NEEDS_RECONCILIATION = 0x10;
 
         private final SchemaProvider schema;
 
@@ -1070,14 +1070,14 @@ public abstract class ReadCommand extends AbstractReadQuery
             return (flags & HAS_INDEX) != 0;
         }
 
-        private static int strictFilteringFlag(boolean useStrictFiltering)
+        private static int needsReconciliationFlag(boolean needsReconciliation)
         {
-            return useStrictFiltering ? STRICT_FILTERING : 0;
+            return needsReconciliation ? NEEDS_RECONCILIATION : 0;
         }
         
-        private static boolean useStrictFiltering(int flags)
+        private static boolean needsReconciliation(int flags)
         {
-            return (flags & STRICT_FILTERING) != 0;
+            return (flags & NEEDS_RECONCILIATION) != 0;
         }
 
         public void serialize(ReadCommand command, DataOutputPlus out, int version) throws IOException
@@ -1087,7 +1087,7 @@ public abstract class ReadCommand extends AbstractReadQuery
                     digestFlag(command.isDigestQuery())
                     | indexFlag(null != command.indexQueryPlan())
                     | acceptsTransientFlag(command.acceptsTransient())
-                    | strictFilteringFlag(command.rowFilter().isStrict())
+                    | needsReconciliationFlag(command.rowFilter().needsReconciliation())
             );
             if (command.isDigestQuery())
                 out.writeUnsignedVInt32(command.digestVersion());
@@ -1121,12 +1121,12 @@ public abstract class ReadCommand extends AbstractReadQuery
 
             boolean hasIndex = hasIndex(flags);
             int digestVersion = isDigest ? in.readUnsignedVInt32() : 0;
-            boolean useStrictFiltering = useStrictFiltering(flags);
+            boolean needsReconciliation = needsReconciliation(flags);
 
             TableMetadata metadata = schema.getExistingTableMetadata(TableId.deserialize(in));
             long nowInSec = version >= MessagingService.VERSION_50 ? CassandraUInt.toLong(in.readInt()) : in.readInt();
             ColumnFilter columnFilter = ColumnFilter.serializer.deserialize(in, version, metadata);
-            RowFilter rowFilter = RowFilter.serializer.deserialize(in, version, metadata, useStrictFiltering);
+            RowFilter rowFilter = RowFilter.serializer.deserialize(in, version, metadata, needsReconciliation);
             DataLimits limits = DataLimits.serializer.deserialize(in, version,  metadata);
 
             Index.QueryPlan indexQueryPlan = null;

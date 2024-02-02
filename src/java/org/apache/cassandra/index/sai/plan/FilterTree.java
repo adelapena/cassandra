@@ -79,7 +79,7 @@ public class FilterTree
             return false;
 
         final long now = FBUtilities.nowInSeconds();
-        // Downgrade AND to OR if strict filtering isn't safe:
+        // Downgrade AND to OR unless the coordinator indicates strict filtering is safe or all matches are repaired:
         BooleanOperator localOperator = isStrict || !context.hasUnrepairedMatches() ? baseOperator : BooleanOperator.OR;
         boolean result = localOperator == BooleanOperator.AND;
 

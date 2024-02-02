@@ -92,30 +92,17 @@ public class RowFilter implements Iterable<RowFilter.Expression>
 
     protected final List<Expression> expressions;
 
-    /**
-     * This flag determines whether intersections (AND queries) are safe or must be downgraded to unions (OR queries)
-     * to return enough information to the coordinator to produce a correct query result. Strict filtering is trivially 
-     * safe in all cases where there is no coordinator resolution of reads from multiple replicas. It is also safe where
-     * intersections do not involve multiple non-key (and therefore mutable) columns. It is also safe when the data 
-     * being filtered does not contain partial updates or is fully repaired, although determining whether or not this is
-     * the case is left to the particular filtering or indexing implementations.
-     * 
-     * @see StatementRestrictions#getRowFilter(IndexRegistry, QueryOptions)
-     * 
-     * @see <a href="https://issues.apache.org/jira/browse/CASSANDRA-19007">CASSANDRA-19007</a>
-     * @see <a href="https://issues.apache.org/jira/browse/CASSANDRA-19018">CASSANDRA-19018</a>
-     */
-    private final boolean isStrict;
+    private final boolean needsReconciliation;
 
-    protected RowFilter(List<Expression> expressions, boolean isStrict)
+    protected RowFilter(List<Expression> expressions, boolean needsReconciliation)
     {
         this.expressions = expressions;
-        this.isStrict = isStrict;
+        this.needsReconciliation = needsReconciliation;
     }
 
-    public static RowFilter create(boolean isStrict)
+    public static RowFilter create(boolean needsReconciliation)
     {
-        return new RowFilter(new ArrayList<>(), isStrict);
+        return new RowFilter(new ArrayList<>(), needsReconciliation);
     }
 
     public static RowFilter none()
@@ -151,9 +138,28 @@ public class RowFilter implements Iterable<RowFilter.Expression>
         return expressions;
     }
 
+    /**
+     * @return true if this filter belongs to a read that requires reconciliation at the coordinator
+     * @see StatementRestrictions#getRowFilter(IndexRegistry, QueryOptions)
+     */
+    public boolean needsReconciliation()
+    {
+        return needsReconciliation;
+    }
+
+    /**
+     * If this filter belongs to a read that requires reconciliation at the coordinator, and it contains an intersection
+     * on two or more non-key (and therefore mutable) columns, we cannot strictly apply it to local, unrepaired rows.
+     * When this occurs, we must downgrade the intersection to a union and allow the coordinator to filter strictly 
+     * before sending results to the client.
+     * 
+     * @return true if strict filtering is safe
+     *
+     * @see <a href="https://issues.apache.org/jira/browse/CASSANDRA-19018">CASSANDRA-19018</a>
+     */
     public boolean isStrict()
     {
-        return isStrict;
+        return !needsReconciliation || expressions.stream().filter(e -> !e.column.isPrimaryKeyColumn()).count() <= 1;
     }
 
     /**
@@ -361,7 +367,7 @@ public class RowFilter implements Iterable<RowFilter.Expression>
 
     protected RowFilter withNewExpressions(List<Expression> expressions)
     {
-        return new RowFilter(expressions, isStrict());
+        return new RowFilter(expressions, needsReconciliation);
     }
 
     public boolean isEmpty()
@@ -1074,7 +1080,7 @@ public class RowFilter implements Iterable<RowFilter.Expression>
 
         }
 
-        public RowFilter deserialize(DataInputPlus in, int version, TableMetadata metadata, boolean useStrictFiltering) throws IOException
+        public RowFilter deserialize(DataInputPlus in, int version, TableMetadata metadata, boolean needsReconciliation) throws IOException
         {
             in.readBoolean(); // Unused
             int size = in.readUnsignedVInt32();
@@ -1082,7 +1088,7 @@ public class RowFilter implements Iterable<RowFilter.Expression>
             for (int i = 0; i < size; i++)
                 expressions.add(Expression.serializer.deserialize(in, version, metadata));
 
-            return new RowFilter(expressions, useStrictFiltering);
+            return new RowFilter(expressions, needsReconciliation);
         }
 
         public long serializedSize(RowFilter filter, int version)
