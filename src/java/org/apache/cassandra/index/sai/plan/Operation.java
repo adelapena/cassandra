@@ -258,13 +258,13 @@ public class Operation
      */
     static KeyRangeIterator buildIterator(QueryController controller)
     {
-        var orderings = controller.filterOperation().getExpressions()
+        var orderings = controller.indexFilter().getExpressions()
                                   .stream().filter(e -> e.operator() == Operator.ANN).collect(Collectors.toList());
         assert orderings.size() <= 1;
-        if (controller.filterOperation().getExpressions().size() == 1 && orderings.size() == 1)
+        if (controller.indexFilter().getExpressions().size() == 1 && orderings.size() == 1)
             // If we only have one expression, we just use the ANN index to order and limit.
             return controller.getTopKRows(orderings.get(0));
-        var iterator = Node.buildTree(controller.filterOperation()).analyzeTree(controller).rangeIterator(controller);
+        var iterator = Node.buildTree(controller.indexFilter()).analyzeTree(controller).rangeIterator(controller);
         if (orderings.isEmpty())
             return iterator;
         return controller.getTopKRows(iterator, orderings.get(0));
@@ -281,7 +281,7 @@ public class Operation
      */
     static FilterTree buildFilter(QueryController controller, boolean strict)
     {
-        return Node.buildTree(controller.filterOperation()).buildFilter(controller, strict);
+        return Node.buildTree(controller.indexFilter()).buildFilter(controller, strict);
     }
 
     static abstract class Node

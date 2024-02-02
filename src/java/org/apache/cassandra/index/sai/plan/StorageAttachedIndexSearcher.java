@@ -64,12 +64,12 @@ public class StorageAttachedIndexSearcher implements Index.Searcher
     public StorageAttachedIndexSearcher(ColumnFamilyStore cfs,
                                         TableQueryMetrics tableQueryMetrics,
                                         ReadCommand command,
-                                        RowFilter filterOperation,
+                                        RowFilter indexFilter,
                                         long executionQuotaMs)
     {
         this.command = command;
         this.queryContext = new QueryContext(command, executionQuotaMs);
-        this.queryController = new QueryController(cfs, command, filterOperation, queryContext, tableQueryMetrics);
+        this.queryController = new QueryController(cfs, command, indexFilter, queryContext, tableQueryMetrics);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class StorageAttachedIndexSearcher implements Index.Searcher
     @Override
     public PartitionIterator filterReplicaFilteringProtection(PartitionIterator fullResponse)
     {
-        for (RowFilter.Expression expression : queryController.filterOperation())
+        for (RowFilter.Expression expression : queryController.indexFilter())
         {
             if (queryController.hasAnalyzer(expression))
                 return applyIndexFilter(fullResponse, Operation.buildFilter(queryController, true), queryContext);

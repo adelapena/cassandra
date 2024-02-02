@@ -78,7 +78,7 @@ public class QueryController
     private final ColumnFamilyStore cfs;
     private final ReadCommand command;
     private final TableQueryMetrics tableQueryMetrics;
-    private final RowFilter filterOperation;
+    private final RowFilter indexFilter;
     private final List<DataRange> ranges;
     private final AbstractBounds<PartitionPosition> mergeRange;
     private final PrimaryKey.Factory keyFactory;
@@ -88,7 +88,7 @@ public class QueryController
 
     public QueryController(ColumnFamilyStore cfs,
                            ReadCommand command,
-                           RowFilter filterOperation,
+                           RowFilter indexFilter,
                            QueryContext queryContext,
                            TableQueryMetrics tableQueryMetrics)
     {
@@ -96,7 +96,7 @@ public class QueryController
         this.command = command;
         this.queryContext = queryContext;
         this.tableQueryMetrics = tableQueryMetrics;
-        this.filterOperation = filterOperation;
+        this.indexFilter = indexFilter;
         this.ranges = dataRanges(command);
         DataRange first = ranges.get(0);
         DataRange last = ranges.get(ranges.size() - 1);
@@ -127,9 +127,9 @@ public class QueryController
         return command.metadata();
     }
 
-    public RowFilter filterOperation()
+    public RowFilter indexFilter()
     {
-        return this.filterOperation;
+        return this.indexFilter;
     }
     
     public boolean usesStrictFiltering()
