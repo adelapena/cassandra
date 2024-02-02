@@ -486,16 +486,9 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
     }
 
     @After
-    public void deletePartition()
+    public void truncateTable()
     {
-        // Note that because we don't truncate here, we're implicitly verifying the unreachability of these partitions
-        // in subsequent tests (where matches will still exist in the SSTable indexes themselves).
-        for (int i = 0; i < PARTITIONS_PER_TEST; i++)
-        {
-            int partitionKey = specification.partitionKey + i;
-            CLUSTER.coordinator(1).execute(String.format("DELETE FROM %s.%s WHERE pk = %d AND pk2 = %d",
-                                                         KEYSPACE, specification.tableName(), partitionKey, partitionKey), ALL);
-        }
+        CLUSTER.coordinator(1).execute(String.format("TRUNCATE TABLE %s.%s ", KEYSPACE, specification.tableName()), ALL);
     }
 
     @AfterClass
