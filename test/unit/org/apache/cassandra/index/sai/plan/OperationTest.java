@@ -158,15 +158,15 @@ public class OperationTest
         Unfiltered row = buildRow(buildCell(age, instance.decompose(6), System.currentTimeMillis()));
         Row staticRow = buildRow(Clustering.STATIC_CLUSTERING);
 
-        assertFalse(filterTree.isSatisfiedBy(key, row, staticRow));
+        assertFalse(filterTree.isSatisfiedBy(key, (Row) row, staticRow));
 
         row = buildRow(buildCell(age, instance.decompose(5), System.currentTimeMillis()));
 
-        assertTrue(filterTree.isSatisfiedBy(key, row, staticRow));
+        assertTrue(filterTree.isSatisfiedBy(key, (Row) row, staticRow));
 
         row = buildRow(buildCell(age, instance.decompose(6), System.currentTimeMillis()));
 
-        assertFalse(filterTree.isSatisfiedBy(key, row, staticRow));
+        assertFalse(filterTree.isSatisfiedBy(key, (Row) row, staticRow));
 
         // range with exclusions - age > 1 AND age <= 10
         node = new Operation.AndNode();
@@ -179,7 +179,7 @@ public class OperationTest
         {
             row = buildRow(buildCell(age, instance.decompose(i), System.currentTimeMillis()));
 
-            boolean result = filterTree.isSatisfiedBy(key, row, staticRow);
+            boolean result = filterTree.isSatisfiedBy(key, (Row) row, staticRow);
             assertTrue(exclusions.contains(i) != result);
         }
 
@@ -195,7 +195,7 @@ public class OperationTest
         {
             row = buildRow(buildCell(age, instance.decompose(i), System.currentTimeMillis()));
 
-            boolean result = filterTree.isSatisfiedBy(key, row, staticRow);
+            boolean result = filterTree.isSatisfiedBy(key, (Row) row, staticRow);
             assertTrue(result);
         }
 
@@ -211,20 +211,20 @@ public class OperationTest
         row = buildRow(buildCell(age, instance.decompose(6), startTime),
                        buildCell(timestamp, LongType.instance.decompose(11L), startTime + 1));
 
-        assertFalse(filterTreeStrict.isSatisfiedBy(key, row, staticRow));
-        assertTrue(filterTreeNonStrict.isSatisfiedBy(key, row, staticRow)); // matches on timestamp >= 10
+        assertFalse(filterTreeStrict.isSatisfiedBy(key, (Row) row, staticRow));
+        assertTrue(filterTreeNonStrict.isSatisfiedBy(key, (Row) row, staticRow)); // matches on timestamp >= 10
 
         row = buildRow(buildCell(age, instance.decompose(5), startTime + 2),
                        buildCell(timestamp, LongType.instance.decompose(22L), startTime + 3));
 
-        assertTrue(filterTreeStrict.isSatisfiedBy(key, row, staticRow));
-        assertTrue(filterTreeNonStrict.isSatisfiedBy(key, row, staticRow));
+        assertTrue(filterTreeStrict.isSatisfiedBy(key, (Row) row, staticRow));
+        assertTrue(filterTreeNonStrict.isSatisfiedBy(key, (Row) row, staticRow));
 
         row = buildRow(buildCell(age, instance.decompose(5), startTime + 4),
                        buildCell(timestamp, LongType.instance.decompose(9L), startTime + 5));
 
-        assertFalse(filterTreeStrict.isSatisfiedBy(key, row, staticRow));
-        assertTrue(filterTreeNonStrict.isSatisfiedBy(key, row, staticRow)); // matches on age = 5
+        assertFalse(filterTreeStrict.isSatisfiedBy(key, (Row) row, staticRow));
+        assertTrue(filterTreeNonStrict.isSatisfiedBy(key, (Row) row, staticRow)); // matches on age = 5
     }
 
     @Test
@@ -273,7 +273,7 @@ public class OperationTest
         ColumnMetadata score = getColumn(CLUSTERING_BACKEND, UTF8Type.instance.decompose("score"));
 
         DecoratedKey key = buildKey(CLUSTERING_BACKEND, "0");
-        Unfiltered row = buildRow(Clustering.make(UTF8Type.instance.fromString("US"), Int32Type.instance.decompose(27)),
+        Row row = buildRow(Clustering.make(UTF8Type.instance.fromString("US"), Int32Type.instance.decompose(27)),
                                   buildCell(height, instance.decompose(182), System.currentTimeMillis()),
                                   buildCell(score, DoubleType.instance.decompose(1.0d), System.currentTimeMillis()));
         Row staticRow = buildRow(Clustering.STATIC_CLUSTERING);
@@ -344,7 +344,7 @@ public class OperationTest
         final ColumnMetadata value = getColumn(STATIC_BACKEND, UTF8Type.instance.decompose("value"));
 
         DecoratedKey key = buildKey(STATIC_BACKEND, 0);
-        Unfiltered row = buildRow(Clustering.make(UTF8Type.instance.fromString("date"), LongType.instance.decompose(20160401L)),
+        Row row = buildRow(Clustering.make(UTF8Type.instance.fromString("date"), LongType.instance.decompose(20160401L)),
                                   buildCell(value, DoubleType.instance.decompose(24.56), System.currentTimeMillis()));
         Row staticRow = buildRow(Clustering.STATIC_CLUSTERING,
                                  buildCell(sensorType, UTF8Type.instance.decompose("TEMPERATURE"), System.currentTimeMillis()));

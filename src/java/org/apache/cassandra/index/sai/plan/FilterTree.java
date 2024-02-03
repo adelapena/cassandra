@@ -27,7 +27,6 @@ import com.google.common.collect.ListMultimap;
 
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.db.rows.Unfiltered;
 import org.apache.cassandra.index.sai.QueryContext;
 import org.apache.cassandra.schema.ColumnMetadata;
 import org.apache.cassandra.schema.ColumnMetadata.Kind;
@@ -63,19 +62,35 @@ public class FilterTree
         children.add(child);
     }
 
-    public boolean isSatisfiedBy(DecoratedKey key, Unfiltered unfiltered, Row staticRow)
+    /**
+     * @return true if this node of the tree or any of its children filter a non-static column
+     */
+    public boolean restrictsNonStaticRow()
     {
-        boolean result = localSatisfiedBy(key, unfiltered, staticRow);
+        for (ColumnMetadata column : expressions.keySet())
+            if (!column.isStatic())
+                return true;
 
         for (FilterTree child : children)
-            result = baseOperator.apply(result, child.isSatisfiedBy(key, unfiltered, staticRow));
+            if (child.restrictsNonStaticRow())
+                return true;
+
+        return false;
+    }
+
+    public boolean isSatisfiedBy(DecoratedKey key, Row row, Row staticRow)
+    {
+        boolean result = localSatisfiedBy(key, row, staticRow);
+
+        for (FilterTree child : children)
+            result = baseOperator.apply(result, child.isSatisfiedBy(key, row, staticRow));
 
         return result;
     }
 
-    private boolean localSatisfiedBy(DecoratedKey key, Unfiltered unfiltered, Row staticRow)
+    private boolean localSatisfiedBy(DecoratedKey key, Row row, Row staticRow)
     {
-        if (unfiltered == null || !unfiltered.isRow())
+        if (row == null)
             return false;
 
         final long now = FBUtilities.nowInSeconds();
@@ -87,7 +102,7 @@ public class FilterTree
         while (columnIterator.hasNext())
         {
             ColumnMetadata column = columnIterator.next();
-            Row row = column.kind == Kind.STATIC ? staticRow : (Row) unfiltered;
+            Row localRow = column.kind == Kind.STATIC ? staticRow : row;
 
             // If there is a column with multiple expressions that can mean an OR, or (in the case of map
             // collections) it can mean different map indexes.
@@ -102,12 +117,12 @@ public class FilterTree
 
                 if (filter.getIndexTermType().isNonFrozenCollection())
                 {
-                    Iterator<ByteBuffer> valueIterator = filter.getIndexTermType().valuesOf(row, now);
+                    Iterator<ByteBuffer> valueIterator = filter.getIndexTermType().valuesOf(localRow, now);
                     result = localOperator.apply(result, collectionMatch(valueIterator, filter));
                 }
                 else
                 {
-                    ByteBuffer value = filter.getIndexTermType().valueOf(key, row, now);
+                    ByteBuffer value = filter.getIndexTermType().valueOf(key, localRow, now);
                     result = localOperator.apply(result, singletonMatch(value, filter));
                 }
 

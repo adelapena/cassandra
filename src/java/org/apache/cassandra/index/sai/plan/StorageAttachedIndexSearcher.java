@@ -26,8 +26,6 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Iterators;
-
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.DataRange;
 import org.apache.cassandra.db.DecoratedKey;
@@ -383,54 +381,57 @@ public class StorageAttachedIndexSearcher implements Index.Searcher
         private UnfilteredRowIterator applyIndexFilter(PrimaryKey key, UnfilteredRowIterator partition, FilterTree tree)
         {
             Row staticRow = partition.staticRow();
-            List<Unfiltered> clusters = new ArrayList<>();
+            List<Unfiltered> matchingRows = new ArrayList<>();
+            boolean hasMatch = false;
 
             // We need to filter the partition rows before filtering on the static row. If this is done in the other
             // order then we get incorrect results if we are filtering on a partition key index on a table with a
             // composite partition key.
             while (partition.hasNext())
             {
-                Unfiltered row = partition.next();
-                queryContext.rowsFiltered++;
-                if (tree.isSatisfiedBy(partition.partitionKey(), row, staticRow))
+                Unfiltered unfiltered = partition.next();
+
+                if (unfiltered.isRow())
                 {
-                    clusters.add(row);
+                    queryContext.rowsFiltered++;
+
+                    if (tree.isSatisfiedBy(partition.partitionKey(), (Row) unfiltered, staticRow))
+                    {
+                        matchingRows.add(unfiltered);
+                        hasMatch = true;
+                    }
                 }
             }
 
-            if (clusters.isEmpty())
+            if (!hasMatch)
             {
                 queryContext.rowsFiltered++;
+
                 if (tree.isSatisfiedBy(key.partitionKey(), staticRow, staticRow))
-                {
-                    clusters.add(staticRow);
-                }
+                    hasMatch = true;
             }
 
-            /*
-             * If {@code clusters} is empty, which means either all clustering row and static row pairs failed,
-             *       or static row and static row pair failed. In both cases, we should not return any partition.
-             * If {@code clusters} is not empty, which means either there are some clustering row and static row pairs match the filters,
-             *       or static row and static row pair matches the filters. In both cases, we should return a partition with static row,
-             *       and remove the static row marker from the {@code clusters} for the latter case.
-             */
-            if (clusters.isEmpty())
+            if (!hasMatch)
             {
                 // shadowed by expired TTL or row tombstone or range tombstone
                 if (topK)
                     queryContext.vectorContext().recordShadowedPrimaryKey(key);
 
+                // If there are no matches, return an empty partition. If reconciliation is required at the
+                // coordinator, replica filtering protection may make a second round trip to complete its view
+                // of the partition.
                 return null;
             }
 
-            return new PartitionIterator(partition, staticRow, Iterators.filter(clusters.iterator(), u -> !((Row)u).isStatic()));
+            // Return all matches found, along with the static row... 
+            return new PartitionIterator(partition, staticRow, matchingRows.iterator());
         }
 
         private static class PartitionIterator extends AbstractUnfilteredRowIterator
         {
             private final Iterator<Unfiltered> rows;
 
-            public PartitionIterator(UnfilteredRowIterator partition, Row staticRow, Iterator<Unfiltered> content)
+            public PartitionIterator(UnfilteredRowIterator partition, Row staticRow, Iterator<Unfiltered> rows)
             {
                 super(partition.metadata(),
                       partition.partitionKey(),
@@ -440,7 +441,7 @@ public class StorageAttachedIndexSearcher implements Index.Searcher
                       partition.isReverseOrder(),
                       partition.stats());
 
-                rows = content;
+                this.rows = rows;
             }
 
             @Override
@@ -489,6 +490,11 @@ public class StorageAttachedIndexSearcher implements Index.Searcher
             {
                 RowIterator delegate = response.next();
                 Row staticRow = delegate.staticRow();
+
+                // If we only restrict static columns, and we pass the filter, simply pass through the delegate, as all
+                // non-static rows are matches. If we fail on the filter, no rows are matches, so return nothing.
+                if (!tree.restrictsNonStaticRow())
+                    return tree.isSatisfiedBy(delegate.partitionKey(), staticRow, staticRow) ? delegate : null;
 
                 return new RowIterator()
                 {

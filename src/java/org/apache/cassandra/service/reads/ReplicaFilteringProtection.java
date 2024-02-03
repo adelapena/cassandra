@@ -66,6 +66,7 @@ import org.apache.cassandra.locator.ReplicaPlan;
 import org.apache.cassandra.locator.ReplicaPlans;
 import org.apache.cassandra.metrics.TableMetrics;
 import org.apache.cassandra.net.MessagingService;
+import org.apache.cassandra.schema.ColumnMetadata;
 import org.apache.cassandra.schema.TableMetadata;
 import org.apache.cassandra.service.ClientWarn;
 import org.apache.cassandra.service.StorageProxy;
@@ -83,7 +84,7 @@ import org.apache.cassandra.utils.btree.BTreeSet;
  * the rows in a replica response that don't have a corresponding row in other replica responses, and requests them by
  * primary key to the "silent" replicas in a second fetch round.
  * <p>
- * See CASSANDRA-8272, CASSANDRA-8273, and CASSANDRA-15907 for further details.
+ * See CASSANDRA-8272, CASSANDRA-8273, CASSANDRA-15907, and CASSANDRA-19018 for further details.
  */
 public class ReplicaFilteringProtection<E extends Endpoints<E>>
 {
@@ -197,6 +198,9 @@ public class ReplicaFilteringProtection<E extends Endpoints<E>>
                 for (int i = 0; i < sources.size(); i++)
                     builders.add(i, new PartitionBuilder(partitionKey, sources.get(i), columns, stats));
 
+                boolean[] silentRowAt = new boolean[builders.size()];
+                boolean[] silentColumnAt = new boolean[builders.size()];
+
                 return new UnfilteredRowIterators.MergeListener()
                 {
                     @Override
@@ -208,34 +212,46 @@ public class ReplicaFilteringProtection<E extends Endpoints<E>>
                     }
 
                     @Override
-                    public Row onMergedRows(Row merged, Row[] versions)
+                    public void onMergedRows(Row merged, Row[] versions)
                     {
-                        // cache the row versions to be able to regenerate the original row iterator
+                        // Cache the row versions to be able to regenerate the original row iterator:
                         for (int i = 0; i < versions.length; i++)
                             builders.get(i).addRow(versions[i]);
 
                         if (merged.isEmpty())
-                            return merged;
+                            return;
 
-                        boolean isPotentiallyOutdated = false;
-                        boolean isStatic = merged.isStatic();
+                        Arrays.fill(silentRowAt, false);
+
+                        // Check for outdated rows at the row level...
                         for (int i = 0; i < versions.length; i++)
+                            if (versions[i] == null || (merged.isStatic() && versions[i].isEmpty()))
+                                silentRowAt[i] = true;
+
+                        // ...and then if nothing is amiss at the row level, check the individual columns:
+                        for (ColumnMetadata column : columns)
                         {
-                            Row version = versions[i];
-                            if (version == null || (isStatic && version.isEmpty()))
+                            Arrays.fill(silentColumnAt, false);
+                            boolean allSilent = true;
+
+                            for (int i = 0; i < versions.length; i++)
                             {
-                                isPotentiallyOutdated = true;
-                                builders.get(i).addToFetch(merged);
+                                // If the version at this replica is null, we've already marked it for fetching:
+                                if (versions[i] != null && versions[i].getColumnData(column) == null)
+                                    silentColumnAt[i] = true;
+                                else
+                                    allSilent = false;
                             }
+
+                            for (int i = 0; i < versions.length; i++)
+                                // Mark the replica silent if there is a divergent silent column. If all replicas are
+                                // silent for the column, there should be nothing to fetch.
+                                silentRowAt[i] |= silentColumnAt[i] && !allSilent;
                         }
 
-                        // If the row is potentially outdated (because some replica didn't send anything and so it _may_ be
-                        // an outdated result that is only present because other replica have filtered the up-to-date result
-                        // out), then we skip the row. In other words, the results of the initial merging of results by this
-                        // protection assume the worst case scenario where every row that might be outdated actually is.
-                        // This ensures that during this first phase (collecting additional row to fetch) we are guaranteed
-                        // to look at enough data to ultimately fulfill the query limit.
-                        return isPotentiallyOutdated ? null : merged;
+                        for (int i = 0; i < silentRowAt.length; i++)
+                            if (silentRowAt[i])
+                                builders.get(i).addToFetch(merged);
                     }
 
                     @Override
@@ -334,8 +350,7 @@ public class ReplicaFilteringProtection<E extends Endpoints<E>>
             public boolean hasNext()
             {
                 // If there are no cached partition builders for this source, advance the first phase iterator, which
-                // will force the RFP merge listener to load at least the next protected partition. Note that this may
-                // load more than one partition if any divergence between replicas is discovered by the merge listener.
+                // will force the RFP merge listener to load at least the next protected partition.
                 if (partitions.isEmpty())
                 {
                     PartitionIterators.consumeNext(merged);
@@ -366,6 +381,8 @@ public class ReplicaFilteringProtection<E extends Endpoints<E>>
         private final Queue<Unfiltered> contents = new ArrayDeque<>();
         private BTreeSet.Builder<Clustering<?>> toFetch;
         private int partitionRowsCached;
+
+        private boolean unresolvedStatic = false;
 
         private PartitionBuilder(DecoratedKey key, Replica source, RegularAndStaticColumns columns, EncodingStats stats)
         {
@@ -412,7 +429,9 @@ public class ReplicaFilteringProtection<E extends Endpoints<E>>
             // ClusteringIndexNamesFilter we'll build from this later does not expect it), but the fact
             // we created a builder in the first place will act as a marker that the static row must be
             // fetched, even if no other rows are added for this partition.
-            if (!row.isStatic())
+            if (row.isStatic())
+                unresolvedStatic = true;
+            else
                 toFetch.add(row.clustering());
         }
 
@@ -519,7 +538,7 @@ public class ReplicaFilteringProtection<E extends Endpoints<E>>
 
             // build the read command taking into account that we could be requesting only in the static row
             DataLimits limits = clusterings.isEmpty() ? DataLimits.cqlLimits(1) : DataLimits.NONE;
-            ClusteringIndexFilter filter = new ClusteringIndexNamesFilter(clusterings, command.isReversed());
+            ClusteringIndexFilter filter = unresolvedStatic ? command.clusteringIndexFilter(key) : new ClusteringIndexNamesFilter(clusterings, command.isReversed());
             SinglePartitionReadCommand cmd = SinglePartitionReadCommand.create(command.metadata(),
                                                                                command.nowInSec(),
                                                                                command.columnFilter(),

@@ -196,6 +196,7 @@ public class RowFilter implements Iterable<RowFilter.Expression>
         {
             DecoratedKey pk;
 
+            @Override
             protected BaseRowIterator<?> applyToPartition(BaseRowIterator<?> partition)
             {
                 pk = partition.partitionKey();
@@ -221,6 +222,7 @@ public class RowFilter implements Iterable<RowFilter.Expression>
                 return iterator;
             }
 
+            @Override
             public Row applyToRow(Row row)
             {
                 Row purged = row.purge(DeletionPurger.PURGE_ALL, nowInSec, metadata.enforceStrictLiveness());

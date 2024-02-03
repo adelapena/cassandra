@@ -46,7 +46,6 @@ import org.apache.cassandra.db.filter.DataLimits;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.guardrails.Guardrails;
 import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.db.rows.Unfiltered;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 import org.apache.cassandra.dht.AbstractBounds;
 import org.apache.cassandra.dht.Range;
@@ -192,7 +191,7 @@ public class QueryController
      * {@link KeyRangeIntersectionIterator}, which is then added, along with results from searches on the unrepaired
      * set, to a top-level {@link KeyRangeUnionIterator}, and returned. This is done to ensure that AND queries do not
      * prematurely filter out matches on un-repaired partial updates. Post-filtering must also take this into
-     * account. (see {@link FilterTree#isSatisfiedBy(DecoratedKey, Unfiltered, Row)}) Note that Memtable-attached 
+     * account. (see {@link FilterTree#isSatisfiedBy(DecoratedKey, Row, Row)}) Note that Memtable-attached 
      * indexes are treated as part of the unrepaired set.
      */
     public KeyRangeIterator.Builder getIndexQueryResults(Collection<Expression> expressions)
@@ -244,6 +243,11 @@ public class QueryController
                     {
                         builder.add(unrepairedIterator);
                         queryContext.hasUnrepairedMatches = true;
+                    }
+                    else
+                    {
+                        // We're not going to use this, so release the resources it holds.
+                        unrepairedIterator.close();
                     }
 
                     // ...then only add an iterator to the repaired intersection if repaired SSTable indexes exist. 

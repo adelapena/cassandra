@@ -80,7 +80,6 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
 {
     private static final String TEST_TABLE_NAME = "test_partial_updates";
     private static final int PARTITIONS_PER_TEST = 20;
-    private static final int PAGE_SIZE = PARTITIONS_PER_TEST / 4;
     private static final int NODES = 2;
 
     private static Cluster CLUSTER;
@@ -388,13 +387,8 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
 
             Object[][] fullResult = CLUSTER.coordinator(1).execute(select.toString(), ALL);
 
-            if (!specification.restrictPartitionKey)
-            {
-                // If we're not restricting on partition key, we expect PARTITIONS_PER_TEST / 2 results, and so using a
-                // PAGE_SIZE of PARTITIONS_PER_TEST / 4 should create at least one page boundary.
-                Iterator<Object[]> pagedResult = CLUSTER.coordinator(1).executeWithPaging(select.toString(), ALL, PAGE_SIZE);
-                assertRows(pagedResult, fullResult);
-            }
+            Iterator<Object[]> pagedResult = CLUSTER.coordinator(1).executeWithPaging(select.toString(), ALL, 1);
+            assertRows(pagedResult, fullResult);
 
             return fullResult;
         }
@@ -421,7 +415,7 @@ public class PartialUpdateHandlingTest extends TestBaseImpl
         {
             for (boolean restrictPartitionKey : new boolean[] { false, true })
             {
-                for (String[] columns : new String[][] { { "ck", "a" }, { "ck", "s" }, { "s", "a" }, { "a", "b" }, { "s", "x" }, { "a", "x" }, { "a", "y" }, { "a" }, { "s" } })
+                for (String[] columns : new String[][] { { "ck", "a" }, { "ck", "s" }, { "s", "a" }, { "a", "b" }, { "s", "x" }, { "s", "y" }, { "a", "x" }, { "a", "y" }, { "a" }, { "s" } })
                     for (boolean existing : new boolean[] { false, true })
                     {
                         parameters.add(new Object[] { new Specification(restrictPartitionKey, columns, existing, StatementType.INSERT, nextPartitionKey, flushPartials, EQ) });
