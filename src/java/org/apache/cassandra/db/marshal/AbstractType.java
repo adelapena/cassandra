@@ -767,7 +767,7 @@ public abstract class AbstractType<T> implements Comparator<ByteBuffer>, Assignm
                 if (isTuple() && !isDroppedColumn)
                     throw columnException(columnName, false, isCounterTable, false,
                                           "tuple type %s is not frozen, which should not have happened",
-                                          asCQL3Type());
+                                          asCQL3Type().toSchemaString());
 
                 for (AbstractType<?> subType : subTypes())
                 {

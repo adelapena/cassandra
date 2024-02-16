@@ -322,14 +322,6 @@ public class SerializationHeader
                                                     boolean isPrimaryKeyColumn)
         {
             boolean dropped = table.getDroppedColumn(columnName) != null;
-            if (!dropped && type.isTuple() && type.isMultiCell())
-            {
-                logger.debug("Error reading SSTable header {}, the type for column {} in {} is not-frozen {}, " +
-                             "but the column isn't marked as dropped, which is invalid; " +
-                             "Will continue with that type, but something may break.",
-                             descriptor, ColumnIdentifier.toCQLString(columnName), table, type.asCQL3Type().toSchemaString());
-                dropped = true;
-            }
 
             try
             {
@@ -341,12 +333,12 @@ public class SerializationHeader
                 AbstractType<?> fixed = e.tryFix();
                 if (fixed == null)
                 {
-                    // We don't know how to fix. We log an error here, so we know where the problem is coming from. But we
+                    // We don't know how to fix. We log an warn here, so we know where the problem is coming from. But we
                     // otherwise use the type verbatim in the off chance that the type breakage doesn't impact anything.
-                    logger.debug("Error reading SSTable header {}, the type for column {} in {} is {}, which is " +
-                                 "invalid ({}); Will continue with that type, but something may break.",
-                                 descriptor, ColumnIdentifier.toCQLString(columnName), table, type.asCQL3Type().toSchemaString(),
-                                 e.getMessage());
+                    logger.warn("Error reading SSTable header {}, the type for column {} in {} is {}, which is " +
+                                "invalid ({}); Will continue with that type, but something may break.",
+                                descriptor, ColumnIdentifier.toCQLString(columnName), table, type.asCQL3Type().toSchemaString(),
+                                e.getMessage());
                     return type;
                 }
                 else
