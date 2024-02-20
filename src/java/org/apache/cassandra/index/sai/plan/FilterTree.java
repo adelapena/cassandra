@@ -95,7 +95,7 @@ public class FilterTree
 
         final long now = FBUtilities.nowInSeconds();
         // Downgrade AND to OR unless the coordinator indicates strict filtering is safe or all matches are repaired:
-        BooleanOperator localOperator = isStrict || !context.hasUnrepairedMatches() ? baseOperator : BooleanOperator.OR;
+        BooleanOperator localOperator = isStrict || !context.hasUnrepairedMatches ? baseOperator : BooleanOperator.OR;
         boolean result = localOperator == BooleanOperator.AND;
 
         Iterator<ColumnMetadata> columnIterator = expressions.keySet().iterator();

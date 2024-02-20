@@ -265,10 +265,10 @@ public class CompactionIterator extends CompactionInfo.Holder implements Unfilte
 
                 return new UnfilteredRowIterators.MergeListener()
                 {
-                    public void onMergedPartitionLevelDeletion(DeletionTime mergedDeletion, DeletionTime[] versions)
-                    {
-                    }
+                    @Override
+                    public void onMergedPartitionLevelDeletion(DeletionTime mergedDeletion, DeletionTime[] versions) {}
 
+                    @Override
                     public void onMergedRows(Row merged, Row[] versions)
                     {
                         indexTransaction.start();
@@ -276,13 +276,11 @@ public class CompactionIterator extends CompactionInfo.Holder implements Unfilte
                         indexTransaction.commit();
                     }
 
-                    public void onMergedRangeTombstoneMarkers(RangeTombstoneMarker mergedMarker, RangeTombstoneMarker[] versions)
-                    {
-                    }
+                    @Override
+                    public void onMergedRangeTombstoneMarkers(RangeTombstoneMarker mergedMarker, RangeTombstoneMarker[] versions) {}
 
-                    public void close()
-                    {
-                    }
+                    @Override
+                    public void close() {}
                 };
             }
         };

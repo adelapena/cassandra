@@ -100,6 +100,12 @@ public class RowFilter implements Iterable<RowFilter.Expression>
         this.needsReconciliation = needsReconciliation;
     }
 
+    /**
+     * 
+     * @param needsReconciliation whether or not this filter belongs to a read that requires coordinator reconciliation 
+     * 
+     * @return a new {@link RowFilter} with an empty {@link Expression} list
+     */
     public static RowFilter create(boolean needsReconciliation)
     {
         return new RowFilter(new ArrayList<>(), needsReconciliation);
@@ -150,8 +156,8 @@ public class RowFilter implements Iterable<RowFilter.Expression>
     /**
      * If this filter belongs to a read that requires reconciliation at the coordinator, and it contains an intersection
      * on two or more non-key (and therefore mutable) columns, we cannot strictly apply it to local, unrepaired rows.
-     * When this occurs, we must downgrade the intersection to a union and allow the coordinator to filter strictly 
-     * before sending results to the client.
+     * When this occurs, we must downgrade the intersection of expressions to a union and leave the coordinator to 
+     * filter strictly before sending results to the client.
      * 
      * @return true if strict filtering is safe
      *
@@ -177,6 +183,14 @@ public class RowFilter implements Iterable<RowFilter.Expression>
         return false;
     }
 
+    /**
+     * Note that the application of this transformation does not yet take {@link #isStrict()} into account. This means
+     * that even when strict filtering is not safe, expressions will be applied as intersections rather than unions.
+     * The filter will always be evaluated strictly in conjunction with replica filtering protection at the 
+     * coordinator, however, even after CASSANDRA-19007 is addressed.
+     * 
+     * @see <a href="https://issues.apache.org/jira/browse/CASSANDRA-190007">CASSANDRA-19007</a>
+     */
     protected Transformation<BaseRowIterator<?>> filter(TableMetadata metadata, long nowInSec)
     {
         List<Expression> partitionLevelExpressions = new ArrayList<>();
@@ -192,7 +206,7 @@ public class RowFilter implements Iterable<RowFilter.Expression>
         long numberOfRegularColumnExpressions = rowLevelExpressions.size();
         final boolean filterNonStaticColumns = numberOfRegularColumnExpressions > 0;
 
-        return new Transformation<BaseRowIterator<?>>()
+        return new Transformation<>()
         {
             DecoratedKey pk;
 
@@ -210,8 +224,8 @@ public class RowFilter implements Iterable<RowFilter.Expression>
                     }
 
                 BaseRowIterator<?> iterator = partition instanceof UnfilteredRowIterator
-                        ? Transformation.apply((UnfilteredRowIterator) partition, this)
-                        : Transformation.apply((RowIterator) partition, this);
+                                              ? Transformation.apply((UnfilteredRowIterator) partition, this)
+                                              : Transformation.apply((RowIterator) partition, this);
 
                 if (filterNonStaticColumns && !iterator.hasNext())
                 {

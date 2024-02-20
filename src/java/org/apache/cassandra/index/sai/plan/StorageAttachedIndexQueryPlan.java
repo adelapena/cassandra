@@ -66,14 +66,14 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
     public static StorageAttachedIndexQueryPlan create(ColumnFamilyStore cfs,
                                                        TableQueryMetrics queryMetrics,
                                                        Set<StorageAttachedIndex> indexes,
-                                                       RowFilter rowFilter)
+                                                       RowFilter filter)
     {
         ImmutableSet.Builder<Index> selectedIndexesBuilder = ImmutableSet.builder();
 
-        RowFilter preIndexFilter = rowFilter;
-        RowFilter postIndexFilter = rowFilter;
+        RowFilter preIndexFilter = filter;
+        RowFilter postIndexFilter = filter;
 
-        for (RowFilter.Expression expression : rowFilter)
+        for (RowFilter.Expression expression : filter)
         {
             // We ignore any expressions here (currently IN and user-defined expressions) where we don't have a way to
             // translate their #isSatifiedBy method, they will be included in the filter returned by 
@@ -85,7 +85,7 @@ public class StorageAttachedIndexQueryPlan implements Index.QueryPlan
             // a duplicate expression - a = 1 and a = 1. The without method removes all instances of the expression.
             if (expression.operator().isIN() || expression.isUserDefined())
             {
-                if (!rowFilter.isStrict())
+                if (!filter.isStrict())
                     throw new InvalidRequestException(String.format(UNSUPPORTED_NON_STRICT_OPERATOR, expression.operator()));
 
                 if (preIndexFilter.getExpressions().contains(expression))
