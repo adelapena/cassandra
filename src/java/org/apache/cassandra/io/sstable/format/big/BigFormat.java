@@ -362,9 +362,9 @@ public class BigFormat implements SSTableFormat
         }
 
         @Override
-        public boolean hasExplicitlyFrozenTuples()
+        public boolean hasImplicitlyFrozenTuples()
         {
-            return false;
+            return true;
         }
     }
 }

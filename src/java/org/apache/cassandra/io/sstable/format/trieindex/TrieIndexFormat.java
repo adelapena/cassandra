@@ -320,7 +320,7 @@ public class TrieIndexFormat implements SSTableFormat
         private final boolean hasMaxColumnValueLengths;
 
         private final int correspondingMessagingVersion;
-        private final boolean hasExplicitlyFrozenTuples;
+        private final boolean hasImplicitlyFrozenTuples;
 
         TrieIndexVersion(String version)
         {
@@ -332,7 +332,7 @@ public class TrieIndexFormat implements SSTableFormat
             hasOriginatingHostId = version.matches("(a[d-z])|(b[b-z])") || version.compareTo("ca") >= 0;
             hasMaxColumnValueLengths = version.matches("b[a-z]"); // DSE only field
             correspondingMessagingVersion = version.compareTo("ca") >= 0 ? MessagingService.VERSION_SG_10 : MessagingService.VERSION_3014;
-            hasExplicitlyFrozenTuples = version.compareTo("cc") >= 0 && version.compareTo("da") < 0; // we don't know if what DA is going to be eventually, but it is almost certain it will not include explicitly frozen tuples
+            hasImplicitlyFrozenTuples = version.compareTo("cc") < 0 || version.compareTo("da") >= 0; // we don't know if what DA is going to be eventually, but it is almost certain it will not include explicitly frozen tuples
         }
 
         // this is for the ab version which was used in the LABS, and then has been renamed to ba
@@ -460,9 +460,9 @@ public class TrieIndexFormat implements SSTableFormat
         }
 
         @Override
-        public boolean hasExplicitlyFrozenTuples()
+        public boolean hasImplicitlyFrozenTuples()
         {
-            return hasExplicitlyFrozenTuples;
+            return hasImplicitlyFrozenTuples;
         }
     }
 }

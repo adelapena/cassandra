@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -423,7 +421,7 @@ public class SerializationHeader
             int pkCount = pkColumns.size();
 
             if (pkCount == 1)
-                return validateType(descriptor, table, pkColumns.get(0).name.bytes, fullType, !sstableVersion.hasExplicitlyFrozenTuples(), isForOfflineTool);
+                return validateType(descriptor, table, pkColumns.get(0).name.bytes, fullType, sstableVersion.hasImplicitlyFrozenTuples(), isForOfflineTool);
 
             List<AbstractType<?>> subTypes = fullType.subTypes();
             assert fullType instanceof CompositeType && subTypes.size() == pkCount
@@ -448,7 +446,7 @@ public class SerializationHeader
                                          table,
                                          columns.get(i).name.bytes,
                                          types.get(i),
-                                         !sstableVersion.hasExplicitlyFrozenTuples(),
+                                         sstableVersion.hasImplicitlyFrozenTuples(),
                                          isForOfflineTool));
             }
             return updated;
@@ -470,7 +468,7 @@ public class SerializationHeader
                 for (Map.Entry<ByteBuffer, AbstractType<?>> e : map.entrySet())
                 {
                     ByteBuffer name = e.getKey();
-                    AbstractType<?> type = validateType(descriptor, metadata, name, e.getValue(), !sstableVersion.hasExplicitlyFrozenTuples(), isForOfflineTool);
+                    AbstractType<?> type = validateType(descriptor, metadata, name, e.getValue(), sstableVersion.hasImplicitlyFrozenTuples(), isForOfflineTool);
                     AbstractType<?> other = typeMap.put(name, type);
                     if (other != null && !other.equals(type))
                         throw new IllegalStateException("Column " + name + " occurs as both regular and static with types " + other + "and " + e.getValue());
