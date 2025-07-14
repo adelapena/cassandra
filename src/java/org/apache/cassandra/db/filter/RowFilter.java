@@ -147,7 +147,7 @@ public class RowFilter implements Iterable<RowFilter.Expression>
 
     /**
      * @return true if this filter belongs to a read that requires reconciliation at the coordinator
-     * @see StatementRestrictions#getRowFilter(IndexRegistry, QueryOptions)
+     * @see StatementRestrictions#getRowFilter(IndexRegistry, QueryOptions, org.apache.cassandra.cql3.statements.SelectOptions)
      */
     public boolean needsReconciliation()
     {

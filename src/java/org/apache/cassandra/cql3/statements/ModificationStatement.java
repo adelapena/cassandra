@@ -1265,6 +1265,7 @@ public abstract class ModificationStatement implements CQLStatement.SingleKeyspa
                                    null,
                                    ONE,
                                    null,
-                                   StatementSource.INTERNAL);
+                                   StatementSource.INTERNAL,
+                                   SelectOptions.EMPTY);
     }
 }

@@ -17,14 +17,17 @@
  */
 package org.apache.cassandra.cql3.statements;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.cassandra.cql3.QualifiedName;
 import org.apache.cassandra.exceptions.SyntaxException;
 
 import static java.lang.String.format;
@@ -32,6 +35,7 @@ import static org.apache.cassandra.utils.LocalizeString.toLowerCaseLocalized;
 
 public class PropertyDefinitions
 {
+    public static final String MULTIPLE_DEFINITIONS_ERROR = "Multiple definitions for property '%s'";
     private static final Pattern POSITIVE_PATTERN = Pattern.compile("(1|true|yes)");
     private static final Pattern NEGATIVE_PATTERN = Pattern.compile("(0|false|no)");
     
@@ -41,14 +45,20 @@ public class PropertyDefinitions
 
     public void addProperty(String name, String value) throws SyntaxException
     {
-        if (properties.put(name, value) != null)
-            throw new SyntaxException(format("Multiple definitions for property '%s'", name));
+        if (properties.putIfAbsent(name, value) != null)
+            throw new SyntaxException(String.format(MULTIPLE_DEFINITIONS_ERROR, name));
     }
 
     public void addProperty(String name, Map<String, String> value) throws SyntaxException
     {
-        if (properties.put(name, value) != null)
-            throw new SyntaxException(format("Multiple definitions for property '%s'", name));
+        if (properties.putIfAbsent(name, value) != null)
+            throw new SyntaxException(String.format(MULTIPLE_DEFINITIONS_ERROR, name));
+    }
+
+    public void addProperty(String name, Set<QualifiedName> value) throws SyntaxException
+    {
+        if (properties.putIfAbsent(name, value) != null)
+            throw new SyntaxException(String.format(MULTIPLE_DEFINITIONS_ERROR, name));
     }
 
     public void validate(Set<String> keywords, Set<String> obsolete) throws SyntaxException
@@ -93,11 +103,27 @@ public class PropertyDefinitions
         return (String)val;
     }
 
+    @Nullable
+    public Set<QualifiedName> getQualifiedNames(String name) throws SyntaxException
+    {
+        Object val = properties.get(name);
+        if (val == null)
+            return null;
+        if (val instanceof Map && ((Map<?, ?>)val).isEmpty()) // to solve the ambiguity between empty map and empty set
+            return Collections.emptySet();
+        if (!(val instanceof Set))
+            throw new SyntaxException(String.format("Invalid value for property '%s'. It should be a set of identifiers.", name));
+        return (Set<QualifiedName>) val;
+    }
+
+    @Nullable
     protected Map<String, String> getMap(String name) throws SyntaxException
     {
         Object val = properties.get(name);
         if (val == null)
             return null;
+        if (val instanceof Set && ((Set<?>)val).isEmpty()) // to solve the ambiguity between empty map and empty set
+            return Collections.emptyMap();
         if (!(val instanceof Map))
             throw new SyntaxException(format("Invalid value for property '%s'. It should be a map.", name));
         return (Map<String, String>)val;

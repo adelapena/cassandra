@@ -174,6 +174,7 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
     private final Selection selection;
     private final Term limit;
     private final Term perPartitionLimit;
+    private final SelectOptions selectOptions;
 
     private final StatementRestrictions restrictions;
 
@@ -208,7 +209,8 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
                            ColumnComparator<List<ByteBuffer>> orderingComparator,
                            Term limit,
                            Term perPartitionLimit,
-                           StatementSource source)
+                           StatementSource source,
+                           SelectOptions selectOptions)
     {
         this.table = table;
         this.bindVariables = bindVariables;
@@ -221,6 +223,7 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
         this.limit = limit;
         this.perPartitionLimit = perPartitionLimit;
         this.source = source;
+        this.selectOptions = selectOptions;
     }
 
     @Override
@@ -288,7 +291,8 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
                                    null,
                                    null,
                                    null,
-                                   StatementSource.INTERNAL);
+                                   StatementSource.INTERNAL,
+                                   SelectOptions.EMPTY);
     }
 
     @Override
@@ -335,6 +339,7 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
             Guardrails.allowFilteringEnabled.ensureEnabled(state);
     }
 
+    @Override
     public ResultMessage.Rows execute(QueryState state, QueryOptions options, Dispatcher.RequestTime requestTime)
     {
         ConsistencyLevel cl = options.getConsistency();
@@ -465,6 +470,7 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
                               PotentialTxnConflicts potentialTxnConflicts)
     {
         RowFilter rowFilter = getRowFilter(options, state);
+        selectOptions.validate();
 
         if (restrictions.isKeyRange())
         {
@@ -637,6 +643,7 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
         return new ResultMessage.Rows(rset);
     }
 
+    @Override
     public ResultMessage.Rows executeLocally(QueryState state, QueryOptions options) throws RequestExecutionException, RequestValidationException
     {
         return executeInternal(state, options, options.getNowInSeconds(state), Dispatcher.RequestTime.forImmediateExecution());
@@ -1030,7 +1037,7 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
     public RowFilter getRowFilter(QueryOptions options, ClientState state) throws InvalidRequestException
     {
         IndexRegistry indexRegistry = IndexRegistry.obtain(table);
-        RowFilter filter = restrictions.getRowFilter(indexRegistry, options);
+        RowFilter filter = restrictions.getRowFilter(indexRegistry, options, selectOptions);
 
         if (filter.needsReconciliation() && filter.isMutableIntersection() && restrictions.needFiltering(table))
             Guardrails.intersectFilteringQueryEnabled.ensureEnabled(state);
@@ -1240,6 +1247,7 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
         public final Term.Raw perPartitionLimit;
         private ClientState state;
         public final StatementSource source;
+        public final SelectOptions options;
 
         public RawStatement(QualifiedName cfName,
                             Parameters parameters,
@@ -1247,7 +1255,8 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
                             WhereClause whereClause,
                             Term.Raw limit,
                             Term.Raw perPartitionLimit,
-                            StatementSource source)
+                            StatementSource source,
+                            SelectOptions options)
         {
             super(cfName);
             this.parameters = parameters;
@@ -1256,6 +1265,7 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
             this.limit = limit;
             this.perPartitionLimit = perPartitionLimit;
             this.source = source;
+            this.options = options;
         }
 
         public SelectStatement prepare(ClientState state)
@@ -1345,7 +1355,8 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
                                        orderingComparator,
                                        prepareLimit(variableSpecifications, limit, keyspace(), limitReceiver()),
                                        prepareLimit(variableSpecifications, perPartitionLimit, keyspace(), perPartitionLimitReceiver()),
-                                       source);
+                                       source,
+                                       options);
         }
 
         private Set<ColumnMetadata> getResultSetOrdering(StatementRestrictions restrictions, Map<ColumnMetadata, Ordering> orderingColumns)

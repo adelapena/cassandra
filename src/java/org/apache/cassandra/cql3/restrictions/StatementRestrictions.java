@@ -27,6 +27,7 @@ import com.google.common.collect.Streams;
 
 import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.cql3.functions.Function;
+import org.apache.cassandra.cql3.statements.SelectOptions;
 import org.apache.cassandra.cql3.statements.StatementType;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.RowFilter;
@@ -735,8 +736,10 @@ public final class StatementRestrictions
         filterRestrictions.add(expression);
     }
 
-    public RowFilter getRowFilter(IndexRegistry indexRegistry, QueryOptions options)
+    public RowFilter getRowFilter(IndexRegistry indexRegistry, QueryOptions options, SelectOptions selectOptions)
     {
+        // TODO: Figure out how to apply "selectOptions"
+
         if (filterRestrictions.isEmpty())
             return RowFilter.none();
 
