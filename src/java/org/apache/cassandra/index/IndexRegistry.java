@@ -94,6 +94,12 @@ public interface IndexRegistry extends Iterable<Index>
         }
 
         @Override
+        public Index getIndexByName(String indexName)
+        {
+            return null;
+        }
+
+        @Override
         public Optional<Index> getBestIndexFor(RowFilter.Expression expression)
         {
             return Optional.empty();
@@ -279,6 +285,12 @@ public interface IndexRegistry extends Iterable<Index>
         }
 
         @Override
+        public Index getIndexByName(String indexName)
+        {
+            return index;
+        }
+
+        @Override
         public Collection<Index> listIndexes()
         {
             return Collections.singletonList(index);
@@ -314,6 +326,10 @@ public interface IndexRegistry extends Iterable<Index>
     Collection<Index.Group> listIndexGroups();
 
     Index getIndex(IndexMetadata indexMetadata);
+
+    @Nullable
+    Index getIndexByName(String indexName);
+
     Collection<Index> listIndexes();
 
     @Override

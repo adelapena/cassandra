@@ -272,7 +272,7 @@ public class MessagingService extends MessagingServiceMBeanImpl implements Messa
     public static final int VERSION_3014 = 11;
     public static final int VERSION_40 = 12;
     public static final int VERSION_50 = 13; // c14227 TTL overflow, 'uint' timestamps
-    public static final int VERSION_51 = 14; // TCM
+    public static final int VERSION_51 = 14; // TCM, index hints
     public static final int minimum_version = VERSION_40;
     public static final int maximum_version = VERSION_51;
     // we want to use a modified behavior for the tools and clients - that is, since they are not running a server, they
