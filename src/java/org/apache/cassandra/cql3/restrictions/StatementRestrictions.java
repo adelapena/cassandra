@@ -18,18 +18,37 @@
 package org.apache.cassandra.cql3.restrictions;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.NavigableSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Streams;
 
-import org.apache.cassandra.cql3.*;
+import org.apache.cassandra.cql3.ColumnIdentifier;
+import org.apache.cassandra.cql3.Operator;
+import org.apache.cassandra.cql3.Ordering;
+import org.apache.cassandra.cql3.QualifiedName;
+import org.apache.cassandra.cql3.QueryOptions;
+import org.apache.cassandra.cql3.Relation;
+import org.apache.cassandra.cql3.VariableSpecifications;
+import org.apache.cassandra.cql3.WhereClause;
 import org.apache.cassandra.cql3.functions.Function;
-import org.apache.cassandra.cql3.statements.SelectOptions;
 import org.apache.cassandra.cql3.statements.StatementType;
-import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.Clustering;
+import org.apache.cassandra.db.Keyspace;
+import org.apache.cassandra.db.PartitionPosition;
+import org.apache.cassandra.db.Slices;
+import org.apache.cassandra.db.filter.IndexHints;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.guardrails.Guardrails;
 import org.apache.cassandra.db.marshal.AbstractType;
@@ -37,7 +56,7 @@ import org.apache.cassandra.db.marshal.FloatType;
 import org.apache.cassandra.db.marshal.VectorType;
 import org.apache.cassandra.db.virtual.VirtualKeyspaceRegistry;
 import org.apache.cassandra.db.virtual.VirtualTable;
-import org.apache.cassandra.dht.*;
+import org.apache.cassandra.dht.AbstractBounds;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.IndexRegistry;
@@ -45,9 +64,6 @@ import org.apache.cassandra.schema.ColumnMetadata;
 import org.apache.cassandra.schema.TableMetadata;
 import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.utils.btree.BTreeSet;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 import static org.apache.cassandra.cql3.statements.RequestValidations.checkFalse;
 import static org.apache.cassandra.cql3.statements.RequestValidations.invalidRequest;
@@ -84,6 +100,11 @@ public final class StatementRestrictions
      * The Column Family meta data
      */
     public final TableMetadata table;
+
+    /**
+     * The index hints, needed to validate {@code ALLOW FILTERING}.
+     */
+    protected final IndexHints indexHints;
 
     /**
      * Restrictions on partitioning columns
@@ -132,13 +153,14 @@ public final class StatementRestrictions
      */
     public static StatementRestrictions empty(StatementType type, TableMetadata table)
     {
-        return new StatementRestrictions(type, table, false);
+        return new StatementRestrictions(type, table, IndexHints.NONE, false);
     }
 
-    private StatementRestrictions(StatementType type, TableMetadata table, boolean allowFiltering)
+    private StatementRestrictions(StatementType type, TableMetadata table, IndexHints indexHints, boolean allowFiltering)
     {
         this.type = type;
         this.table = table;
+        this.indexHints = indexHints;
         this.partitionKeyRestrictions = new PartitionKeyRestrictions(table.partitionKeyAsClusteringComparator());
         this.clusteringColumnsRestrictions = new ClusteringColumnRestrictions(table, allowFiltering);
         this.nonPrimaryKeyRestrictions = RestrictionSet.empty();
@@ -148,6 +170,7 @@ public final class StatementRestrictions
     public StatementRestrictions(ClientState state,
                                  StatementType type,
                                  TableMetadata table,
+                                 IndexHints indexHints,
                                  WhereClause whereClause,
                                  VariableSpecifications boundNames,
                                  List<Ordering> orderings,
@@ -155,7 +178,7 @@ public final class StatementRestrictions
                                  boolean allowFiltering,
                                  boolean forView)
     {
-        this(state, type, table, whereClause, boundNames, orderings, selectsOnlyStaticColumns, type.allowUseOfSecondaryIndices(), allowFiltering, forView);
+        this(state, type, table, indexHints, whereClause, boundNames, orderings, selectsOnlyStaticColumns, type.allowUseOfSecondaryIndices(), allowFiltering, forView);
     }
 
     /*
@@ -165,6 +188,7 @@ public final class StatementRestrictions
     public StatementRestrictions(ClientState state,
                                  StatementType type,
                                  TableMetadata table,
+                                 IndexHints indexHints,
                                  WhereClause whereClause,
                                  VariableSpecifications boundNames,
                                  List<Ordering> orderings,
@@ -173,7 +197,7 @@ public final class StatementRestrictions
                                  boolean allowFiltering,
                                  boolean forView)
     {
-        this(type, table, allowFiltering);
+        this(type, table, indexHints, allowFiltering);
 
         final IndexRegistry indexRegistry = type.allowUseOfSecondaryIndices() && allowUseOfSecondaryIndices
                                             ? IndexRegistry.obtain(table)
@@ -736,10 +760,8 @@ public final class StatementRestrictions
         filterRestrictions.add(expression);
     }
 
-    public RowFilter getRowFilter(IndexRegistry indexRegistry, QueryOptions options, SelectOptions selectOptions)
+    public RowFilter getRowFilter(IndexRegistry indexRegistry, QueryOptions options)
     {
-        // TODO: Figure out how to apply "selectOptions"
-
         if (filterRestrictions.isEmpty())
             return RowFilter.none();
 

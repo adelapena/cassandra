@@ -93,6 +93,7 @@ import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.filter.ColumnFilter;
 import org.apache.cassandra.db.filter.DataLimits;
+import org.apache.cassandra.db.filter.IndexHints;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.guardrails.Guardrails;
 import org.apache.cassandra.db.marshal.CompositeType;
@@ -470,20 +471,27 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
                               PotentialTxnConflicts potentialTxnConflicts)
     {
         RowFilter rowFilter = getRowFilter(options, state);
-        selectOptions.validate();
 
         if (restrictions.isKeyRange())
         {
             if (restrictions.usesSecondaryIndexing() && !SchemaConstants.isLocalSystemKeyspace(table.keyspace))
                 Guardrails.nonPartitionRestrictedIndexQueryEnabled.ensureEnabled(state);
 
-            return getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
+            ReadQuery query = getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
+            selectOptions.validate(table, IndexRegistry.obtain(table), query.indexQueryPlan());
+            return query;
         }
 
         if (restrictions.usesSecondaryIndexing() && !rowFilter.isStrict())
-            return getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
+        {
+            ReadQuery query = getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
+            selectOptions.validate(table, IndexRegistry.obtain(table), query.indexQueryPlan());
+            return query;
+        }
 
-        return getSliceCommands(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
+        ReadQuery query = getSliceCommands(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
+        selectOptions.validate(table, IndexRegistry.obtain(table), query.indexQueryPlan());
+        return query;
     }
 
     private ResultMessage.Rows execute(ReadQuery query,
@@ -1037,7 +1045,7 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
     public RowFilter getRowFilter(QueryOptions options, ClientState state) throws InvalidRequestException
     {
         IndexRegistry indexRegistry = IndexRegistry.obtain(table);
-        RowFilter filter = restrictions.getRowFilter(indexRegistry, options, selectOptions);
+        RowFilter filter = restrictions.getRowFilter(indexRegistry, options);
 
         if (filter.needsReconciliation() && filter.isMutableIntersection() && restrictions.needFiltering(table))
             Guardrails.intersectFilteringQueryEnabled.ensureEnabled(state);
@@ -1297,11 +1305,15 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
         {
             TableMetadata table = Schema.instance.validateTable(keyspace(), name());
 
+            // Besides actual restrictions (where clauses), prepareRestrictions will include the user-provided index hints,
+            // which are needed to determine what indexes to use for the query and to validate whether filtering is needed.
+            IndexHints indexHints = options.parseIndexHints(table, IndexRegistry.obtain(table));
+
             List<Selectable> selectables = RawSelector.toSelectables(selectClause, table);
             boolean containsOnlyStaticColumns = selectOnlyStaticColumns(table, selectables);
 
             List<Ordering> orderings = getOrderings(table);
-            StatementRestrictions restrictions = prepareRestrictions(state, table, variableSpecifications, orderings, containsOnlyStaticColumns, forView);
+            StatementRestrictions restrictions = prepareRestrictions(state, table, variableSpecifications, orderings, indexHints, containsOnlyStaticColumns, forView);
 
             // If we order post-query, the sorted column needs to be in the ResultSet for sorting,
             // even if we don't ultimately ship them to the client (CASSANDRA-4911).
@@ -1447,6 +1459,8 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
          *
          * @param metadata the column family meta data
          * @param boundNames the variable specifications
+         * @param orderings the orderings
+         * @param indexHints the index hints
          * @param selectsOnlyStaticColumns {@code true} if the query select only static columns, {@code false} otherwise.
          * @return the restrictions
          * @throws InvalidRequestException if a problem occurs while building the restrictions
@@ -1455,12 +1469,14 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
                                                           TableMetadata metadata,
                                                           VariableSpecifications boundNames,
                                                           List<Ordering> orderings,
+                                                          IndexHints indexHints,
                                                           boolean selectsOnlyStaticColumns,
                                                           boolean forView) throws InvalidRequestException
         {
             return new StatementRestrictions(state,
                                              StatementType.SELECT,
                                              metadata,
+                                             indexHints,
                                              whereClause,
                                              boundNames,
                                              orderings,

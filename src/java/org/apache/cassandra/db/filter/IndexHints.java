@@ -39,11 +39,11 @@ import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.IndexRegistry;
 import org.apache.cassandra.io.util.DataInputPlus;
 import org.apache.cassandra.io.util.DataOutputPlus;
+import org.apache.cassandra.locator.InetAddressAndPort;
 import org.apache.cassandra.net.MessagingService;
 import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.schema.TableMetadata;
-import org.apache.cassandra.tcm.ClusterMetadata;
-import org.apache.cassandra.utils.CassandraVersion;
+import org.apache.cassandra.utils.FBUtilities;
 
 import static java.lang.String.format;
 
@@ -439,9 +439,11 @@ public class IndexHints
         }
 
         // Ensure that all nodes in the cluster are in a version that supports index hints, including this one
-        CassandraVersion minVersion = ClusterMetadata.current().directory.clusterMinVersion.cassandraVersion;
-        if (minVersion.major < 6)
-            throw new InvalidRequestException("Index hints are not supported in clusters below " + MessagingService.VERSION_51 + '.');
+        Set<InetAddressAndPort> badNodes = MessagingService.instance().endpointsWithConnectionsOnVersionBelow(table.keyspace, MessagingService.VERSION_51);
+        if (MessagingService.current_version < MessagingService.VERSION_51)
+            badNodes.add(FBUtilities.getBroadcastAddressAndPort());
+        if (!badNodes.isEmpty())
+            throw new InvalidRequestException("Index hints are not supported in clusters below 14.");
 
         return hints;
     }

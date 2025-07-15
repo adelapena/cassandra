@@ -44,6 +44,7 @@ import org.apache.cassandra.config.CassandraRelevantProperties;
 import org.apache.cassandra.config.Config;
 import org.apache.cassandra.config.DataStorageSpec;
 import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.cql3.CqlBuilder;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.filter.ColumnFilter;
 import org.apache.cassandra.db.filter.DataLimits;
@@ -329,6 +330,7 @@ public abstract class ReadCommand extends AbstractReadQuery
      *
      * @return index query plan chosen for this query
      */
+    @Override
     @Nullable
     public Index.QueryPlan indexQueryPlan()
     {
@@ -937,8 +939,7 @@ public abstract class ReadCommand extends AbstractReadQuery
 
     public abstract Verb verb();
 
-    protected abstract void appendCQLWhereClause(StringBuilder sb);
-
+    protected abstract void appendCQLWhereClause(CqlBuilder builder);
     // Skip purgeable tombstones. We do this because it's safe to do (post-merge of the memtable and sstable at least), it
     // can save us some bandwith, and avoid making us throw a TombstoneOverwhelmingException for purgeable tombstones (which
     // are to some extend an artefact of compaction lagging behind and hence counting them is somewhat unintuitive).

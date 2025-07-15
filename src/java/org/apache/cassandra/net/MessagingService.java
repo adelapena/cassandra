@@ -22,8 +22,10 @@ import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -45,6 +47,8 @@ import org.apache.cassandra.locator.InetAddressAndPort;
 import org.apache.cassandra.locator.Replica;
 import org.apache.cassandra.metrics.MessagingMetrics;
 import org.apache.cassandra.service.AbstractWriteResponseHandler;
+import org.apache.cassandra.service.StorageService;
+import org.apache.cassandra.tcm.ClusterMetadata;
 import org.apache.cassandra.utils.ExecutorUtils;
 import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.concurrent.AsyncPromise;
@@ -532,7 +536,7 @@ public class MessagingService extends MessagingServiceMBeanImpl implements Messa
         // expire the callback if the message failed to enqueue (failed to establish a connection or exceeded queue capacity)
         while (true)
         {
-            OutboundConnections connections = getOutbound(to);
+            OutboundConnections connections = getOutbound(to, true);
             try
             {
                 connections.enqueue(message, specifyConnection);
@@ -724,10 +728,10 @@ public class MessagingService extends MessagingServiceMBeanImpl implements Messa
         socketFactory.awaitTerminationUntil(deadlineNanos);
     }
 
-    private OutboundConnections getOutbound(InetAddressAndPort to)
+    private OutboundConnections getOutbound(InetAddressAndPort to, boolean tryRegister)
     {
         OutboundConnections connections = channelManagers.get(to);
-        if (connections == null)
+        if (connections == null && tryRegister)
             connections = OutboundConnections.tryRegister(channelManagers, to, new OutboundConnectionSettings(to).withDefaults(ConnectionCategory.MESSAGING));
         return connections;
     }
@@ -776,5 +780,29 @@ public class MessagingService extends MessagingServiceMBeanImpl implements Messa
         {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Returns the endpoints for the given keyspace that are known to be alive and have a connection whose
+     * messaging version is older than the given version. To be used for example when we want to be sure a message
+     * can be serialized to all endpoints, according to their negotiated version at connection time.
+     *
+     * @param keyspace a keyspace
+     * @param version a messaging version
+     * @return a set of alive endpoints in the given keyspace with messaging version below the given version
+     */
+    public Set<InetAddressAndPort> endpointsWithConnectionsOnVersionBelow(String keyspace, int version)
+    {
+        Set<InetAddressAndPort> nodes = new HashSet<>();
+        for (InetAddressAndPort node : ClusterMetadata.current().directory.allAddresses())
+        {
+            ConnectionType.MESSAGING_TYPES.forEach(type -> {
+                OutboundConnections connections = getOutbound(node, false);
+                OutboundConnection connection = connections != null ? connections.connectionFor(type) : null;
+                if (connection != null && connection.messagingVersion() < version)
+                    nodes.add(node);
+            });
+        }
+        return nodes;
     }
 }
