@@ -41,6 +41,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
+
 import org.apache.cassandra.locator.InetAddressAndPort;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -1216,7 +1217,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     /**
      * Called at query time to choose which (if any) of the registered index implementations to use for a given query.
      * <p>
-     * This is a two step processes, firstly compiling the set of searchable indexes then choosing the one which reduces
+     * This is a two-step processes, firstly compiling the set of searchable indexes then choosing the one which reduces
      * the search space the most.
      * <p>
      * In the first phase, if the command's RowFilter contains any custom index expressions, the indexes that they
@@ -1225,6 +1226,15 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
      * <p>
      * The filtered set then sorted by selectivity, as reported by the Index implementations' getEstimatedResultRows
      * method.
+     * Once we have the filtered set of indexes, one is selected as the best one according to the following rules:
+     * <ol>
+     *     <li>An index included by the query's index hints is better than an index not included by the hints.</li>
+     *     <li>If it's a contains restriction, then a non-analyzed index is better.</li>
+     *     <li>An index more selective according to {@link Index#getEstimatedResultRows()} is better. This is done
+     *     accordingly to the {@link Index.QueryPlan#getEstimatedResultRows()} method. Please note that some index
+     *     implementations (SASI and SAI) will always return -1 for that method to prioritize themselves. Third party
+     *     implementations can also return similar fixed values.</li>
+     * </ol>
      * <p>
      * Implementation specific validation of the target expression, either custom or standard, by the selected
      * index should be performed in the searcherFor method to ensure that we pick the right index regardless of
@@ -1273,11 +1283,21 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
             return null;
         }
 
+        // Prepare a plan comparator based first on the user-provided hints, which will prefer the plan closest to
+        // satisfying the index hints, then on the index-provided selectivity, which prefers the most selective index.
+        // Selectivity is determined by the Index#getEstimatedResultRows() method. Please note that some index
+        // implementations may return fixed values for that method to prioritize themselves.
+        // We let pass plans that don't satisfy the index hints so we can provide a better error message later,
+        // at the validation at the end of this method. That validation will be done over the plan that is closest to
+        // satisfying the index hints, so the error message will only complain about the missing parts.
+        Comparator<Index.QueryPlan> planComparator =
+            rowFilter.indexHints.comparator().thenComparing(Comparator.<Index.QueryPlan>naturalOrder().reversed());
+
         // find the best plan
         Index.QueryPlan selected = queryPlans.size() == 1
                                    ? Iterables.getOnlyElement(queryPlans)
                                    : queryPlans.stream()
-                                               .min(Comparator.naturalOrder())
+                                               .min(planComparator)
                                                .orElseThrow(() -> new AssertionError("Could not select most selective index"));
 
         // pay for an additional threadlocal get() rather than build the strings unnecessarily
@@ -1308,26 +1328,12 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
     @Override
     public Optional<Index> getBestIndexFor(RowFilter.Expression expression, IndexHints hints)
     {
-        // TODO: hints?
-        for (Index i : indexes.values())
-        {
-            if (i.supportsExpression(expression.column(), expression.operator()))
-            {
-                return Optional.of(i);
-            }
-        }
-
-        return Optional.empty();
+        return hints.getBestIndexFor(indexes.values(), i -> i.supportsExpression(expression.column(), expression.operator()));
     }
 
-    public <T extends Index> Optional<T> getBestIndexFor(RowFilter.Expression expression, Class<T> indexType)
+    public <T extends Index> Optional<T> getBestIndexFor(RowFilter.Expression expression, Class<T> indexType, IndexHints hints)
     {
-        // TODO: hints?
-        for (Index i : indexes.values())
-            if (indexType.isInstance(i) && i.supportsExpression(expression.column(), expression.operator()))
-                return Optional.of(indexType.cast(i));
-
-        return Optional.empty();
+        return hints.getBestIndexFor(indexes.values(), i -> i.supportsExpression(expression.column(), expression.operator()) && indexType.isInstance(i)).map(indexType::cast);
     }
 
     /**
