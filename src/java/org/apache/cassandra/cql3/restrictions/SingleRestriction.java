@@ -17,11 +17,13 @@
  */
 package org.apache.cassandra.cql3.restrictions;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.google.common.collect.RangeSet;
 
 import org.apache.cassandra.cql3.QueryOptions;
+import org.apache.cassandra.db.filter.IndexHints;
 import org.apache.cassandra.dht.IPartitioner;
 import org.apache.cassandra.index.Index;
 
@@ -108,4 +110,6 @@ public interface SingleRestriction extends Restriction
      * @throws UnsupportedOperationException if the operator is not an operator selecting ranges of data.
      */
     void restrict(RangeSet<ClusteringElements> rangeSet, QueryOptions options, IPartitioner partitioner);
+
+    Index findSupportingIndex(Collection<Index> indexes, IndexHints indexHints);
 }

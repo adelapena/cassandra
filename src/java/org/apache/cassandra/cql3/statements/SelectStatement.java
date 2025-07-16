@@ -1862,7 +1862,8 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
 
             Index.QueryPlan indexQueryPlan = Keyspace.openAndGetStore(table).indexManager.getBestIndexQueryPlanFor(rowFilter);
 
-            Index index = restriction.findSupportingIndex(indexQueryPlan.getIndexes());
+            // TODO: Do we care about indexing hints here?
+            Index index = restriction.findSupportingIndex(indexQueryPlan.getIndexes(), IndexHints.NONE);
             assert index != null;
             Comparator<ByteBuffer> comparator = index.getPostQueryOrdering(restriction, options);
             return (a, b) -> compare(comparator, a.get(columnIndex), b.get(columnIndex));

@@ -46,6 +46,7 @@ import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.db.ReadExecutionController;
 import org.apache.cassandra.db.RegularAndStaticColumns;
 import org.apache.cassandra.db.WriteContext;
+import org.apache.cassandra.db.filter.IndexHints;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.lifecycle.ILifecycleTransaction;
 import org.apache.cassandra.db.marshal.AbstractType;
@@ -746,6 +747,17 @@ public interface Index
          * @return the indexes that are members of this group
          */
         Set<Index> getIndexes();
+
+        /**
+         * Returns the indexes that are members of this group that are not excluded by the hints.
+         *
+         * @param hints the index hints with the indexes to exclude.
+         * @return the indexes that are members of this group that are not excluded by the hints.
+         */
+        default Set<? extends Index> getNotExcludedIndexes(IndexHints hints)
+        {
+            return hints.notExcluded(getIndexes());
+        }
 
         /**
          * Adds the specified {@link Index} as a member of this group.

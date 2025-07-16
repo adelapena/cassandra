@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.IndexHints;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.lifecycle.ILifecycleTransaction;
 import org.apache.cassandra.db.marshal.AbstractType;
@@ -100,7 +101,7 @@ public interface IndexRegistry extends Iterable<Index>
         }
 
         @Override
-        public Optional<Index> getBestIndexFor(RowFilter.Expression expression)
+        public Optional<Index> getBestIndexFor(RowFilter.Expression expression, IndexHints indexHints)
         {
             return Optional.empty();
         }
@@ -303,7 +304,7 @@ public interface IndexRegistry extends Iterable<Index>
         }
 
         @Override
-        public Optional<Index> getBestIndexFor(RowFilter.Expression expression)
+        public Optional<Index> getBestIndexFor(RowFilter.Expression expression, IndexHints indexHints)
         {
             return Optional.empty();
         }
@@ -332,13 +333,24 @@ public interface IndexRegistry extends Iterable<Index>
 
     Collection<Index> listIndexes();
 
+    /**
+     * Lists the indexes in this registry, minus the ones excluded by the specified {@link IndexHints}.
+     *
+     * @param hints the index hints with the indexes to exclude.
+     * @return the indexes in this registry that are not excluded by the hints.
+     */
+    default Collection<Index> listNotExcludedIndexes(IndexHints hints)
+    {
+        return hints.notExcluded(listIndexes());
+    }
+
     @Override
     default Iterator<Index> iterator()
     {
         return listIndexes().iterator();
     }
 
-    Optional<Index> getBestIndexFor(RowFilter.Expression expression);
+    Optional<Index> getBestIndexFor(RowFilter.Expression expression, IndexHints hints);
 
     /**
      * Called at write time to ensure that values present in the update

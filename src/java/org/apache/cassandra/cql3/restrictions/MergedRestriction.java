@@ -18,6 +18,7 @@
 
 package org.apache.cassandra.cql3.restrictions;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,7 @@ import com.google.common.collect.RangeSet;
 import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.cql3.QueryOptions;
 import org.apache.cassandra.cql3.functions.Function;
+import org.apache.cassandra.db.filter.IndexHints;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.dht.IPartitioner;
 import org.apache.cassandra.index.Index;
@@ -277,12 +279,12 @@ public final class MergedRestriction implements SingleRestriction
     }
 
     @Override
-    public boolean needsFiltering(Index.Group indexGroup)
+    public boolean needsFiltering(Index.Group indexGroup, IndexHints indexHints)
     {
         // multiple contains might require filtering on some indexes, since that is equivalent to a disjunction (or)
         boolean hasMultipleContains = containsCount > 1;
 
-        for (Index index : indexGroup.getIndexes())
+        for (Index index : indexGroup.getNotExcludedIndexes(indexHints))
         {
             if (isSupportedBy(index) && !(hasMultipleContains && index.filtersMultipleContains()))
                 return false;
@@ -292,11 +294,23 @@ public final class MergedRestriction implements SingleRestriction
     }
 
     @Override
-    public Index findSupportingIndex(Iterable<Index> indexes)
+    public Index findSupportingIndex(IndexRegistry indexRegistry, IndexHints indexHints)
     {
         for (int i = 0, m = restrictions.size(); i < m; i++)
         {
-            Index index = restrictions.get(i).findSupportingIndex(indexes);
+            Index index = restrictions.get(i).findSupportingIndex(indexRegistry, indexHints);
+            if (index != null)
+                return index;
+        }
+        return null;
+    }
+
+    @Override
+    public Index findSupportingIndex(Collection<Index> indexes, IndexHints indexHints)
+    {
+        for (int i = 0, m = restrictions.size(); i < m; i++)
+        {
+            Index index = restrictions.get(i).findSupportingIndex(indexes, indexHints);
             if (index != null)
                 return index;
         }
@@ -335,11 +349,11 @@ public final class MergedRestriction implements SingleRestriction
     }
 
     @Override
-    public void addToRowFilter(RowFilter filter, IndexRegistry indexRegistry, QueryOptions options)
+    public void addToRowFilter(RowFilter filter, IndexRegistry indexRegistry, QueryOptions options,IndexHints indexHints)
     {
         for (int i = 0, m = restrictions.size(); i < m; i++)
         {
-            restrictions.get(i).addToRowFilter(filter, indexRegistry, options);
+            restrictions.get(i).addToRowFilter(filter, indexRegistry, options, indexHints);
         }
     }
 }

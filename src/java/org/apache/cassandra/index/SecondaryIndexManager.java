@@ -55,6 +55,7 @@ import org.apache.cassandra.db.compaction.CompactionManager;
 import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.filter.ColumnFilter;
 import org.apache.cassandra.db.filter.DataLimits;
+import org.apache.cassandra.db.filter.IndexHints;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.lifecycle.SSTableSet;
 import org.apache.cassandra.db.lifecycle.View;
@@ -1304,8 +1305,10 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         return joiner.toString();
     }
 
-    public Optional<Index> getBestIndexFor(RowFilter.Expression expression)
+    @Override
+    public Optional<Index> getBestIndexFor(RowFilter.Expression expression, IndexHints hints)
     {
+        // TODO: hints?
         for (Index i : indexes.values())
         {
             if (i.supportsExpression(expression.column(), expression.operator()))
@@ -1319,6 +1322,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
 
     public <T extends Index> Optional<T> getBestIndexFor(RowFilter.Expression expression, Class<T> indexType)
     {
+        // TODO: hints?
         for (Index i : indexes.values())
             if (indexType.isInstance(i) && i.supportsExpression(expression.column(), expression.operator()))
                 return Optional.of(indexType.cast(i));
