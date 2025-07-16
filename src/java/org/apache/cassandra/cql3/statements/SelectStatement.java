@@ -51,6 +51,7 @@ import org.apache.cassandra.auth.Permission;
 import org.apache.cassandra.cql3.CQLStatement;
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.cql3.ColumnSpecification;
+import org.apache.cassandra.cql3.CqlBuilder;
 import org.apache.cassandra.cql3.Ordering;
 import org.apache.cassandra.cql3.QualifiedName;
 import org.apache.cassandra.cql3.QueryOptions;
@@ -471,25 +472,24 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
                               PotentialTxnConflicts potentialTxnConflicts)
     {
         RowFilter rowFilter = getRowFilter(options, state);
+        ReadQuery query;
 
         if (restrictions.isKeyRange())
         {
             if (restrictions.usesSecondaryIndexing() && !SchemaConstants.isLocalSystemKeyspace(table.keyspace))
                 Guardrails.nonPartitionRestrictedIndexQueryEnabled.ensureEnabled(state);
 
-            ReadQuery query = getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
-            selectOptions.validate(table, IndexRegistry.obtain(table), query.indexQueryPlan());
-            return query;
+            query = getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
         }
-
-        if (restrictions.usesSecondaryIndexing() && !rowFilter.isStrict())
+        else if (restrictions.usesSecondaryIndexing() && !rowFilter.isStrict())
         {
-            ReadQuery query = getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
-            selectOptions.validate(table, IndexRegistry.obtain(table), query.indexQueryPlan());
-            return query;
+            query = getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
+        }
+        else
+        {
+            query = getSliceCommands(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
         }
 
-        ReadQuery query = getSliceCommands(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
         selectOptions.validate(table, IndexRegistry.obtain(table), query.indexQueryPlan());
         return query;
     }
@@ -1947,10 +1947,10 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
     public String asCQL(QueryOptions options, ClientState state)
     {
         ColumnFilter columnFilter = selection.newSelectors(options).getColumnFilter();
-        StringBuilder sb = new StringBuilder();
+        CqlBuilder builder = new CqlBuilder();
 
-        sb.append("SELECT ").append(queriedColumns().toCQLString());
-        sb.append(" FROM ").append(table.keyspace).append('.').append(table.name);
+        builder.append("SELECT ").append(queriedColumns().toCQLString());
+        builder.append(" FROM ").append(table.keyspace).append('.').append(table.name);
         if (isPartitionRangeQuery())
         {
             // partition range
@@ -1970,16 +1970,16 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
 
             if (!dataRange.isUnrestricted(table) || !rowFilter.isEmpty())
             {
-                sb.append(" WHERE ");
+                builder.append(" WHERE ");
                 // We put the row filter first because the data range can end by "ORDER BY"
                 if (!rowFilter.isEmpty())
                 {
-                    sb.append(rowFilter);
+                    builder.append(rowFilter);
                     if (!dataRange.isUnrestricted(table))
-                        sb.append(" AND ");
+                        builder.append(" AND ");
                 }
                 if (!dataRange.isUnrestricted(table))
-                    sb.append(dataRange.toCQLString(table, rowFilter));
+                    builder.append(dataRange.toCQLString(table, rowFilter));
             }
         }
         else
@@ -1992,50 +1992,50 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
             if (filter == null)
                 return "EMPTY";
 
-            sb.append(" WHERE ");
+            builder.append(" WHERE ");
 
 
             boolean compoundPk = table.partitionKeyColumns().size() > 1;
-            if (compoundPk) sb.append('(');
-            sb.append(ColumnMetadata.toCQLString(table.partitionKeyColumns()));
-            if (compoundPk) sb.append(')');
+            if (compoundPk) builder.append('(');
+            builder.append(ColumnMetadata.toCQLString(table.partitionKeyColumns()));
+            if (compoundPk) builder.append(')');
             if (keys.size() == 1)
             {
-                sb.append(" = ");
-                if (compoundPk) sb.append('(');
-                DataRange.appendKeyString(sb, table.partitionKeyType, Iterables.getOnlyElement(keys));
-                if (compoundPk) sb.append(')');
+                builder.append(" = ");
+                if (compoundPk) builder.append('(');
+                DataRange.appendKeyString(builder, table.partitionKeyType, Iterables.getOnlyElement(keys));
+                if (compoundPk) builder.append(')');
             }
             else
             {
-                sb.append(" IN (");
+                builder.append(" IN (");
                 boolean first = true;
                 for (ByteBuffer key : keys)
                 {
                     if (!first)
-                        sb.append(", ");
+                        builder.append(", ");
 
-                    if (compoundPk) sb.append('(');
-                    DataRange.appendKeyString(sb, table.partitionKeyType, key);
-                    if (compoundPk) sb.append(')');
+                    if (compoundPk) builder.append('(');
+                    DataRange.appendKeyString(builder, table.partitionKeyType, key);
+                    if (compoundPk) builder.append(')');
                     first = false;
                 }
 
-                sb.append(')');
+                builder.append(')');
             }
 
             RowFilter rowFilter = getRowFilter(options, state);
             if (!rowFilter.isEmpty())
-                sb.append(" AND ").append(rowFilter);
+                builder.append(" AND ").append(rowFilter);
 
             String filterString = filter.toCQLString(table, rowFilter);
             if (!filterString.isEmpty())
-                sb.append(" AND ").append(filterString);
+                builder.append(" AND ").append(filterString);
         }
 
         DataLimits limits = getDataLimits(getLimit(options), getPerPartitionLimit(options), options.getPageSize(), getAggregationSpec(options));
         if (limits != DataLimits.NONE)
-            sb.append(' ').append(limits);
-        return sb.toString();
+            builder.append(' ').append(limits);
+        return builder.toString();
     }
 }
