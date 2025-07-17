@@ -51,8 +51,7 @@ public class IndexHintsDistributedTest extends TestBaseImpl
     {
         try (Cluster cluster = init(Cluster.build(NUM_REPLICAS)
                                            .withConfig(config -> config.with(GOSSIP).with(NETWORK).set("storage_compatibility_mode", "NONE"))
-                                           .start(),
-                                    RF))
+                                           .start(), RF))
         {
             // null indicates that the query should succeed
             testSelectWithIndexHints(cluster, null);
@@ -91,14 +90,12 @@ public class IndexHintsDistributedTest extends TestBaseImpl
         SAIUtil.waitForIndexQueryable(cluster, KEYSPACE);
 
         // insert some data
-        cluster.coordinator(1).execute(withKeyspace("INSERT INTO %s.t (k, v) VALUES (0, 'apple banana')"), ConsistencyLevel.ALL);
         cluster.coordinator(1).execute(withKeyspace("INSERT INTO %s.t (k, v) VALUES (1, 'apple')"), ConsistencyLevel.ALL);
         cluster.coordinator(1).execute(withKeyspace("INSERT INTO %s.t (k, v) VALUES (2, 'orange')"), ConsistencyLevel.ALL);
 
         // prepare a template query that will behave differently depending on index hints
         String select = withKeyspace("SELECT * FROM %s.t WHERE v = 'apple'");
-        Object[][] eqRows = new Object[][]{ row(1, "apple") }; // without analyzer
-        Object[][] matchRows = new Object[][]{ row(1, "apple"), row(0, "apple banana") }; // with analyzer
+        Object[][] eqRows = new Object[][]{ row(1, "apple") };
 
         beforeAndAfterFlush(cluster, KEYSPACE, () -> {
             // test included indexes
@@ -106,7 +103,8 @@ public class IndexHintsDistributedTest extends TestBaseImpl
             assertSelect(cluster, expectedErrorMessage, select + " WITH included_indexes = {non_analyzed_sai_idx}", eqRows);
 
             // test excluded indexes
-            assertSelect(cluster, expectedErrorMessage, select + " WITH excluded_indexes = {legacy_idx, non_analyzed_sai_idx}", matchRows);
+            assertSelect(cluster, expectedErrorMessage, select + " WITH excluded_indexes = {legacy_idx}", eqRows);
+            assertSelect(cluster, expectedErrorMessage, select + " WITH excluded_indexes = {non_analyzed_sai_idx}", eqRows);
         });
     }
 

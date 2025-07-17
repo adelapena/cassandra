@@ -770,7 +770,7 @@ public final class StatementRestrictions
                                       && options.getConsistency().needsReconciliation()
                                       && Keyspace.open(table.keyspace).getReplicationStrategy().getReplicationFactor().allReplicas > 1;
 
-        RowFilter filter = RowFilter.create(needsReconciliation);
+        RowFilter filter = RowFilter.create(needsReconciliation, indexHints);
         for (Restrictions restrictions : filterRestrictions.getRestrictions())
             restrictions.addToRowFilter(filter, indexRegistry, options, indexHints);
 

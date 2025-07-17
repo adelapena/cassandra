@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
@@ -485,7 +486,14 @@ public class IndexHints
      */
     public Comparator<Index.QueryPlan> comparator()
     {
-        return Comparator.comparing(plan -> Sets.intersection(included, metadata(plan.getIndexes())).size());
+        return Comparator.comparing(new Function<Index.QueryPlan, Integer>()
+        {
+            @Override
+            public Integer apply(Index.QueryPlan plan)
+            {
+                return Sets.intersection(included, metadata(plan.getIndexes())).size();
+            }
+        });
     }
 
     @Override
