@@ -47,7 +47,6 @@ import org.apache.cassandra.locator.InetAddressAndPort;
 import org.apache.cassandra.locator.Replica;
 import org.apache.cassandra.metrics.MessagingMetrics;
 import org.apache.cassandra.service.AbstractWriteResponseHandler;
-import org.apache.cassandra.service.StorageService;
 import org.apache.cassandra.tcm.ClusterMetadata;
 import org.apache.cassandra.utils.ExecutorUtils;
 import org.apache.cassandra.utils.FBUtilities;
@@ -226,6 +225,7 @@ public class MessagingService extends MessagingServiceMBeanImpl implements Messa
         VERSION_40(12),
         // c14227 TTL overflow, 'uint' timestamps
         VERSION_50(13),
+        // TCM, index hints
         VERSION_51(14);
 
         public static final Version MIN_ACCORD_VERSION = Version.VERSION_51;
@@ -282,7 +282,7 @@ public class MessagingService extends MessagingServiceMBeanImpl implements Messa
     // we want to use a modified behavior for the tools and clients - that is, since they are not running a server, they
     // should not need to run in a compatibility mode. They should be able to connect to the server regardless whether
     // it uses messaving version 4 or 5
-    public static final Version current = DatabaseDescriptor.getStorageCompatibilityMode().isBefore(5) ? Version.VERSION_40 : Version.VERSION_51;
+    public static final Version current = currentVersion();
     public static final int current_version = current.value;
     static AcceptVersions accept_messaging;
     static AcceptVersions accept_streaming;
@@ -315,6 +315,11 @@ public class MessagingService extends MessagingServiceMBeanImpl implements Messa
             throw new IllegalStateException("Unkown serialization version: " + version);
 
         return ordinal;
+    }
+
+    private static Version currentVersion()
+    {
+        return DatabaseDescriptor.getStorageCompatibilityMode().isBefore(5) ? Version.VERSION_40 : Version.VERSION_51;
     }
 
     private static class MSHandle

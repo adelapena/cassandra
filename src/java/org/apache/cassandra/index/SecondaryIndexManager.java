@@ -1297,7 +1297,7 @@ public class SecondaryIndexManager implements IndexRegistry, INotificationConsum
         Index.QueryPlan selected = queryPlans.size() == 1
                                    ? Iterables.getOnlyElement(queryPlans)
                                    : queryPlans.stream()
-                                               .min(planComparator)
+                                               .max(planComparator)
                                                .orElseThrow(() -> new AssertionError("Could not select most selective index"));
 
         // pay for an additional threadlocal get() rather than build the strings unnecessarily

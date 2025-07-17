@@ -118,9 +118,6 @@ abstract class AbstractReadQuery extends MonitorableImpl implements ReadQuery
         if (limits() != DataLimits.NONE)
             builder.append(' ').append(limits());
 
-        // ALLOW FILTERING might not be strictly necessary
-        builder.append(" ALLOW FILTERING");
-
         builder.appendOptions(b -> {
             IndexHints indexHints = rowFilter().indexHints;
             Set<String> included = new HashSet<>();
