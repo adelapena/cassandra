@@ -64,6 +64,6 @@ public class SinglePartitionReadCommandCQLTest extends ReadCommandCQLTester<Sing
     @Override
     protected SinglePartitionReadCommand parseCommand(String query)
     {
-        return parseReadCommandGroup(query).get(0);
+        return parseReadCommandGroupQueries(query).get(0);
     }
 }

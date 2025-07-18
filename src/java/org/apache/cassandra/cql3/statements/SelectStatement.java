@@ -472,26 +472,19 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
                               PotentialTxnConflicts potentialTxnConflicts)
     {
         RowFilter rowFilter = getRowFilter(options, state);
-        ReadQuery query;
 
         if (restrictions.isKeyRange())
         {
             if (restrictions.usesSecondaryIndexing() && !SchemaConstants.isLocalSystemKeyspace(table.keyspace))
                 Guardrails.nonPartitionRestrictedIndexQueryEnabled.ensureEnabled(state);
 
-            query = getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
-        }
-        else if (restrictions.usesSecondaryIndexing() && !rowFilter.isStrict())
-        {
-            query = getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
-        }
-        else
-        {
-            query = getSliceCommands(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
+            return getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
         }
 
-        selectOptions.validate(table, IndexRegistry.obtain(table), query.indexQueryPlan());
-        return query;
+        if (restrictions.usesSecondaryIndexing() && !rowFilter.isStrict())
+            return getRangeCommand(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
+
+        return getSliceCommands(options, state, columnFilter, rowFilter, limit, nowInSec, potentialTxnConflicts);
     }
 
     private ResultMessage.Rows execute(ReadQuery query,
@@ -824,7 +817,7 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
             SinglePartitionReadQuery.createGroup(table, nowInSec, columnFilter, rowFilter, limit, decoratedKeys, filter, potentialTxnConflicts);
 
         // If there's a secondary index that the commands can use, have it validate the request parameters.
-        group.maybeValidateIndex();
+        group.maybeValidateIndex(selectOptions);
 
         return group;
     }
@@ -891,7 +884,7 @@ public class SelectStatement implements CQLStatement.SingleKeyspaceCqlStatement,
             PartitionRangeReadQuery.create(table, nowInSec, columnFilter, rowFilter, limit, new DataRange(keyBounds, clusteringIndexFilter), potentialTxnConflicts);
 
         // If there's a secondary index that the command can use, have it validate the request parameters.
-        command.maybeValidateIndex();
+        command.maybeValidateIndex(selectOptions);
 
         return command;
     }

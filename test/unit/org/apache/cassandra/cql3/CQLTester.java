@@ -1764,7 +1764,15 @@ public abstract class CQLTester
         return  (ReadCommand) readQuery;
     }
 
-    protected List<SinglePartitionReadCommand> parseReadCommandGroup(String query)
+    protected SinglePartitionReadCommand.Group parseReadCommandGroup(String query)
+    {
+        SelectStatement select = (SelectStatement) parseStatement(query);
+        ReadQuery readQuery = select.getQuery(QueryOptions.DEFAULT, QueryState.forInternalCalls().getNowInSeconds());
+        Assertions.assertThat(readQuery).isInstanceOf(SinglePartitionReadCommand.Group.class);
+        return (SinglePartitionReadCommand.Group) readQuery;
+    }
+
+    protected List<SinglePartitionReadCommand> parseReadCommandGroupQueries(String query)
     {
         SelectStatement select = (SelectStatement) parseStatement(query);
         ReadQuery readQuery = select.getQuery(QueryOptions.DEFAULT, QueryState.forInternalCalls().getNowInSeconds());
@@ -2689,12 +2697,12 @@ public abstract class CQLTester
         assertInvalidMessage(null, query, values);
     }
 
-    protected void assertInvalidMessage(String errorMessage, String query, Object... values) throws Throwable
+    protected void assertInvalidMessage(String errorMessage, String query, Object... values)
     {
         assertInvalidThrowMessage(errorMessage, null, query, values);
     }
 
-    protected void assertInvalidMessageNet(String errorMessage, String query, Object... values) throws Throwable
+    protected void assertInvalidMessageNet(String errorMessage, String query, Object... values)
     {
         assertInvalidThrowMessage(Optional.of(ProtocolVersion.CURRENT), errorMessage, null, query, values);
     }

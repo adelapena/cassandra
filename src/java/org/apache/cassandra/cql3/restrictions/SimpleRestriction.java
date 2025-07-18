@@ -205,9 +205,11 @@ public final class SimpleRestriction implements SingleRestriction
         if (isOnToken())
             return null;
 
-        return indexHints.getBestIndexFor(indexes, this::isSupportedBy).orElse(null);
+        for (Index index : indexes)
+            if (isSupportedBy(index) && !indexHints.excludes(index))
+                return index;
+        return null;
     }
-    
 
     @Override
     public boolean isSupportedBy(Index index)

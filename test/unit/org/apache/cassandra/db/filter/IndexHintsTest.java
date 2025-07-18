@@ -25,19 +25,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.cassandra.cql3.QualifiedName;
-import org.apache.cassandra.cql3.statements.PropertyDefinitions;
-import org.apache.cassandra.cql3.statements.SelectOptions;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.CQLTester;
 import org.apache.cassandra.cql3.Operator;
-import org.apache.cassandra.cql3.restrictions.StatementRestrictions;
+import org.apache.cassandra.cql3.QualifiedName;
+import org.apache.cassandra.cql3.statements.PropertyDefinitions;
+import org.apache.cassandra.cql3.statements.SelectOptions;
 import org.apache.cassandra.cql3.statements.schema.IndexTarget;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.ReadCommand;
+import org.apache.cassandra.db.SinglePartitionReadCommand;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.exceptions.SyntaxException;
 import org.apache.cassandra.index.CustomIndexTest;
@@ -53,6 +53,7 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert;
 
 import static java.lang.String.format;
+import static org.apache.cassandra.cql3.restrictions.StatementRestrictions.REQUIRES_ALLOW_FILTERING_MESSAGE;
 import static org.apache.cassandra.db.filter.IndexHints.CONFLICTING_INDEXES_ERROR;
 import static org.apache.cassandra.db.filter.IndexHints.MISSING_INDEX_ERROR;
 import static org.apache.cassandra.db.filter.IndexHints.TOO_MANY_INDEXES_ERROR;
@@ -75,6 +76,7 @@ public class IndexHintsTest extends CQLTester
         // Set the messaging version that adds support for the new index hints before starting the server
         CQLTester.setUpClass();
         CQLTester.enableCoordinatorExecution();
+        DatabaseDescriptor.setPrioritizeSAIOverLegacyIndex(true);
     }
 
     /**
@@ -93,7 +95,7 @@ public class IndexHintsTest extends CQLTester
         execute(query + "WITH included_indexes={} AND excluded_indexes={}");
 
         // index hints with unparseable properties
-        assertInvalidThrowMessage("Invalid value for property 'included_indexes'. It should be a set of identifiers.",
+        assertInvalidThrowMessage("mismatched input",
                                   SyntaxException.class,
                                   query + "WITH included_indexes={'a': 'b'}");
 
@@ -393,8 +395,8 @@ public class IndexHintsTest extends CQLTester
         // with a single-partition read command
         formattedQuery = formatQuery("SELECT * FROM %%s WHERE k=1 AND a = 0 AND b = 0 ALLOW FILTERING " +
                                      "WITH included_indexes={idx1} AND excluded_indexes={idx2}");
-        command = parseReadCommand(formattedQuery);
-        Assertions.assertThat(command.toCQLString())
+        SinglePartitionReadCommand.Group group = parseReadCommandGroup(formattedQuery);
+        Assertions.assertThat(group.queries.get(0).toCQLString())
                   .contains(" WITH included_indexes = {idx1} AND excluded_indexes = {idx2}");
     }
 
@@ -990,7 +992,7 @@ public class IndexHintsTest extends CQLTester
         // excluding SASI
         assertThatIndexQueryPlanFor("SELECT * FROM %s WHERE v=0 WITH excluded_indexes={sasi}").selects(legacy);
         assertThatIndexQueryPlanFor("SELECT * FROM %s WHERE v=1 WITH excluded_indexes={sasi}", row1).selects(legacy);
-        assertIndexDoesNotSupportOperator("SELECT * FROM %s WHERE v>1 WITH excluded_indexes={sasi}", "v"); // legacy doesn't support >
+        assertIndexDoesNotSupportOperator("SELECT * FROM %s WHERE v>1 WITH excluded_indexes={sasi}"); // legacy doesn't support >
         assertThatIndexQueryPlanFor("SELECT * FROM %s WHERE v>1 ALLOW FILTERING WITH excluded_indexes={sasi}", row2, row3).selectsNone();
 
         // excluding legacy
@@ -1139,14 +1141,14 @@ public class IndexHintsTest extends CQLTester
     {
         Assertions.assertThatThrownBy(callable)
                   .isInstanceOf(InvalidRequestException.class)
-                  .hasMessage(StatementRestrictions.REQUIRES_ALLOW_FILTERING_MESSAGE);
+                  .hasMessage(REQUIRES_ALLOW_FILTERING_MESSAGE);
     }
 
-    private void assertIndexDoesNotSupportOperator(String query, String column)
+    private void assertIndexDoesNotSupportOperator(String query)
     {
         Assertions.assertThatThrownBy(() -> execute(query))
                   .isInstanceOf(InvalidRequestException.class)
-                  .hasMessage(format("foo", column));
+                  .hasMessage(REQUIRES_ALLOW_FILTERING_MESSAGE);
     }
 
     private void assertConflictingHints(String query, String indexName)

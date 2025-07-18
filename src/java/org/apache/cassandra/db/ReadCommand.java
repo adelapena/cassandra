@@ -45,6 +45,7 @@ import org.apache.cassandra.config.Config;
 import org.apache.cassandra.config.DataStorageSpec;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.CqlBuilder;
+import org.apache.cassandra.cql3.statements.SelectOptions;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.filter.ColumnFilter;
 import org.apache.cassandra.db.filter.DataLimits;
@@ -72,6 +73,7 @@ import org.apache.cassandra.exceptions.CoordinatorBehindException;
 import org.apache.cassandra.exceptions.QueryCancelledException;
 import org.apache.cassandra.exceptions.UnknownIndexException;
 import org.apache.cassandra.exceptions.UnknownTableException;
+import org.apache.cassandra.index.IndexRegistry;
 import org.apache.cassandra.metrics.TCMMetrics;
 import org.apache.cassandra.net.MessageFlag;
 import org.apache.cassandra.net.MessagingService;
@@ -473,12 +475,14 @@ public abstract class ReadCommand extends AbstractReadQuery
      * violates the implementation specific validation rules.
      */
     @Override
-    public void maybeValidateIndex()
+    public void maybeValidateIndex(SelectOptions selectOptions)
     {
         if (null != indexQueryPlan)
         {
             indexQueryPlan.validate(this);
         }
+
+        selectOptions.validate(metadata(), IndexRegistry.obtain(metadata()), indexQueryPlan());
     }
 
     /**
