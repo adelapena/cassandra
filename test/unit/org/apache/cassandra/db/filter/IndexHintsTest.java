@@ -495,8 +495,8 @@ public class IndexHintsTest extends CQLTester
     public void testLegacyIndexWithAllowFiltering() throws Throwable
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, v1 int, v2 int, v3 int)");
-        String idx1 = createIndex("CREATE INDEX idx1 ON %s(v1)");
-        String idx2 = createIndex("CREATE INDEX idx2 ON %s(v2)");
+        String idx1 = createIndex("CREATE INDEX idx1 ON %s(v1) USING 'legacy_local_table'");
+        String idx2 = createIndex("CREATE INDEX idx2 ON %s(v2) USING 'legacy_local_table'");
 
         String insert = "INSERT INTO %s (k, v1, v2, v3) VALUES (?, ?, ?, ?)";
         Object[] row1 = new Object[]{ 1, 0, 1, 1 };
@@ -564,8 +564,8 @@ public class IndexHintsTest extends CQLTester
     public void testLegacyIndexWithoutAllowFiltering() throws Throwable
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, v1 int, v2 int, v3 int)");
-        String idx1 = createIndex("CREATE INDEX idx1 ON %s(v1)");
-        String idx2 = createIndex("CREATE INDEX idx2 ON %s(v2)");
+        String idx1 = createIndex("CREATE INDEX idx1 ON %s(v1) USING 'legacy_local_table'");
+        String idx2 = createIndex("CREATE INDEX idx2 ON %s(v2) USING 'legacy_local_table'");
 
         String insert = "INSERT INTO %s (k, v1, v2, v3) VALUES (?, ?, ?, ?)";
         Object[] row1 = new Object[]{ 1, 0, 1, 1 };
@@ -634,8 +634,8 @@ public class IndexHintsTest extends CQLTester
     public void testSAIWithAllowFiltering() throws Throwable
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, v1 int, v2 int, v3 int)");
-        String idx1 = createIndex("CREATE CUSTOM INDEX idx1 ON %s(v1) USING 'StorageAttachedIndex'");
-        String idx2 = createIndex("CREATE CUSTOM INDEX idx2 ON %s(v2) USING 'StorageAttachedIndex'");
+        String idx1 = createIndex("CREATE INDEX idx1 ON %s(v1) USING 'sai'");
+        String idx2 = createIndex("CREATE INDEX idx2 ON %s(v2) USING 'sai'");
 
         String insert = "INSERT INTO %s (k, v1, v2, v3) VALUES (?, ?, ?, ?)";
         Object[] row1 = new Object[]{ 1, 0, 1, 1 };
@@ -707,8 +707,8 @@ public class IndexHintsTest extends CQLTester
     public void testSAIWithoutAllowFiltering() throws Throwable
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, v1 int, v2 int, v3 int)");
-        String idx1 = createIndex("CREATE CUSTOM INDEX idx1 ON %s(v1) USING 'StorageAttachedIndex'");
-        String idx2 = createIndex("CREATE CUSTOM INDEX idx2 ON %s(v2) USING 'StorageAttachedIndex'");
+        String idx1 = createIndex("CREATE INDEX idx1 ON %s(v1) USING 'sai'");
+        String idx2 = createIndex("CREATE INDEX idx2 ON %s(v2) USING 'sai'");
 
         String insert = "INSERT INTO %s (k, v1, v2, v3) VALUES (?, ?, ?, ?)";
         Object[] row1 = new Object[]{ 1, 0, 1, 1 };
@@ -779,7 +779,7 @@ public class IndexHintsTest extends CQLTester
     @Test
     public void testLegacy()
     {
-        testSingletonIndex("CREATE INDEX %s ON %%s(%s)");
+        testSingletonIndex("CREATE INDEX %s ON %%s(%s) USING 'legacy_local_table'");
     }
 
     @Test
@@ -842,9 +842,9 @@ public class IndexHintsTest extends CQLTester
     public void testMixedIndexImplementations()
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, v1 int, v2 int, v3 int)");
-        String idx1 = createIndex("CREATE CUSTOM INDEX idx1 ON %s(v1) USING 'StorageAttachedIndex'");
-        String idx2 = createIndex("CREATE CUSTOM INDEX idx2 ON %s(v2) USING 'StorageAttachedIndex'");
-        String idx3 = createIndex("CREATE INDEX idx3 ON %s(v3)");
+        String idx1 = createIndex("CREATE INDEX idx1 ON %s(v1) USING 'sai'");
+        String idx2 = createIndex("CREATE INDEX idx2 ON %s(v2) USING 'sai'");
+        String idx3 = createIndex("CREATE INDEX idx3 ON %s(v3) USING 'legacy_local_table'");
 
         String insert = "INSERT INTO %s (k, v1, v2, v3) VALUES (?, ?, ?, ?)";
         Object[] row1 = new Object[]{ 1, 0, 1, 1 };
@@ -964,7 +964,7 @@ public class IndexHintsTest extends CQLTester
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, v int)");
         String sasi = createIndex("CREATE CUSTOM INDEX sasi ON %s(v) USING 'org.apache.cassandra.index.sasi.SASIIndex'");
-        String legacy = createIndex("CREATE INDEX legacy ON %s(v)");
+        String legacy = createIndex("CREATE INDEX legacy ON %s(v) USING 'legacy_local_table'");
 
         String insert = "INSERT INTO %s (k, v) VALUES (?, ?)";
         Object[] row1 = new Object[]{ 1, 1 };
@@ -1005,8 +1005,8 @@ public class IndexHintsTest extends CQLTester
     public void testMultipleIndexesOnSameColumnLegacyAndSAI()
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, v int)");
-        String sai = createIndex("CREATE CUSTOM INDEX sai ON %s(v) USING 'StorageAttachedIndex'");
-        String legacy = createIndex("CREATE INDEX legacy ON %s(v)");
+        String sai = createIndex("CREATE INDEX sai ON %s(v) USING 'sai'");
+        String legacy = createIndex("CREATE INDEX legacy ON %s(v) USING 'legacy_local_table'");
 
         String insert = "INSERT INTO %s (k, v) VALUES (?, ?)";
         Object[] row1 = new Object[]{ 1, 0 };
@@ -1028,7 +1028,7 @@ public class IndexHintsTest extends CQLTester
     public void testMultipleIndexesOnSameColumnSAIAndSASI()
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, v int)");
-        String sai = createIndex("CREATE CUSTOM INDEX sai ON %s(v) USING 'StorageAttachedIndex'");
+        String sai = createIndex("CREATE INDEX sai ON %s(v) USING 'sai'");
         String sasi = createIndex("CREATE CUSTOM INDEX sasi ON %s(v) USING 'org.apache.cassandra.index.sasi.SASIIndex'");
 
         String insert = "INSERT INTO %s (k, v) VALUES (?, ?)";
@@ -1051,8 +1051,8 @@ public class IndexHintsTest extends CQLTester
     public void testDuplicatedHints()
     {
         createTable("CREATE TABLE %s (k int PRIMARY KEY, v1 int, v2 int, v3 int)");
-        String idx1 = createIndex("CREATE INDEX idx1 ON %s(v1)");
-        String idx2 = createIndex("CREATE CUSTOM INDEX idx2 ON %s(v2) USING 'StorageAttachedIndex'");
+        String idx1 = createIndex("CREATE INDEX idx1 ON %s(v1) USING 'legacy_local_table'");
+        String idx2 = createIndex("CREATE INDEX idx2 ON %s(v2) USING 'sai'");
         String idx3 = createIndex("CREATE CUSTOM INDEX idx3 ON %s(v3) USING 'org.apache.cassandra.index.sasi.SASIIndex'");
 
         assertThatIndexQueryPlanFor("SELECT * FROM %s WHERE v1=0 WITH included_indexes={idx1,idx1}").selects(idx1);

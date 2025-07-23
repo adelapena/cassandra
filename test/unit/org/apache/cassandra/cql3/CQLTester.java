@@ -278,7 +278,7 @@ public abstract class CQLTester
     private static final Map<ClusterSettings, Cluster> clusters = new HashMap<>();
     private static final Map<ClusterSettings, Session> sessions = new HashMap<>();
 
-    private static Consumer<Cluster.Builder> clusterBuilderConfigurator;
+    private static Consumer<Cluster.Builder> clusterBuilderConfigurator = builder -> {};
 
     public static final List<ProtocolVersion> PROTOCOL_VERSIONS = new ArrayList<>(ProtocolVersion.SUPPORTED.size());
 
