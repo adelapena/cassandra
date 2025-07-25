@@ -247,11 +247,11 @@ final class RestrictionSet implements Restrictions, Iterable<SingleRestriction>
     }
 
     @Override
-    public Index findSupportingIndex(IndexRegistry indexRegistry, IndexHints indexHints)
+    public Index findSupportingIndex(Iterable<Index> indexes, IndexHints indexHints)
     {
         for (SingleRestriction restriction : restrictions.values())
         {
-            Index index = restriction.findSupportingIndex(indexRegistry, indexHints);
+            Index index = restriction.findSupportingIndex(indexes, indexHints);
             if (index != null)
                 return index;
         }

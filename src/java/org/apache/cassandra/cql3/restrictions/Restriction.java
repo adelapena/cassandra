@@ -86,26 +86,25 @@ public interface Restriction
     /**
      * Check if the restriction is on indexed columns.
      *
-     * @param indexRegistry the index registry
+     * @param indexes the available indexes
      * @param indexHints the user-provided index hints, which might exclude some indexes or explicitly expect some
      *                   indexes requested by the user
-     *                
      * @return <code>true</code> if the restriction is on indexed columns, <code>false</code> otherwise
      */
-    default boolean hasSupportingIndex(IndexRegistry indexRegistry, IndexHints indexHints)
+    default boolean hasSupportingIndex(Iterable<Index> indexes, IndexHints indexHints)
     {
-        return findSupportingIndex(indexRegistry, indexHints) != null;
+        return findSupportingIndex(indexes, indexHints) != null;
     }
 
     /**
      * Find the first index supporting this restriction.
      *
-     * @param indexRegistry the index registry
+     * @param indexes the available indexes
      * @param indexHints the user-provided index hints, which might exclude some indexes or explicitly expect some
      *                   indexes requested by the user
      * @return an {@code Index} if the restriction is on indexed columns, {@code null} otherwise.
      */
-    Index findSupportingIndex(IndexRegistry indexRegistry, IndexHints indexHints);
+    Index findSupportingIndex(Iterable<Index> indexes, IndexHints indexHints);
 
     /**
      * Adds to the specified row filter the expressions corresponding to this <code>Restriction</code>.

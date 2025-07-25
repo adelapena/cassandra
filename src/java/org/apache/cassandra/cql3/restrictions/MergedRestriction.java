@@ -18,7 +18,6 @@
 
 package org.apache.cassandra.cql3.restrictions;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -294,19 +293,7 @@ public final class MergedRestriction implements SingleRestriction
     }
 
     @Override
-    public Index findSupportingIndex(IndexRegistry indexRegistry, IndexHints indexHints)
-    {
-        for (int i = 0, m = restrictions.size(); i < m; i++)
-        {
-            Index index = restrictions.get(i).findSupportingIndex(indexRegistry, indexHints);
-            if (index != null)
-                return index;
-        }
-        return null;
-    }
-
-    @Override
-    public Index findSupportingIndex(Collection<Index> indexes, IndexHints indexHints)
+    public Index findSupportingIndex(Iterable<Index> indexes, IndexHints indexHints)
     {
         for (int i = 0, m = restrictions.size(); i < m; i++)
         {

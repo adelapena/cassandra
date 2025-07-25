@@ -20,7 +20,6 @@ package org.apache.cassandra.cql3.restrictions;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -194,13 +193,7 @@ public final class SimpleRestriction implements SingleRestriction
     }
 
     @Override
-    public Index findSupportingIndex(IndexRegistry indexRegistry, IndexHints indexHints)
-    {
-        return findSupportingIndex(indexRegistry.listIndexes(), indexHints);
-    }
-
-    @Override
-    public Index findSupportingIndex(Collection<Index> indexes, IndexHints indexHints)
+    public Index findSupportingIndex(Iterable<Index> indexes, IndexHints indexHints)
     {
         if (isOnToken())
             return null;

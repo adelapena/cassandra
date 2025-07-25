@@ -86,15 +86,15 @@ class RestrictionSetWrapper implements Restrictions
         return restrictions.size();
     }
 
-    public boolean hasSupportingIndex(IndexRegistry indexRegistry, IndexHints indexHints)
+    public boolean hasSupportingIndex(Iterable<Index> indexes, IndexHints indexHints)
     {
-        return restrictions.hasSupportingIndex(indexRegistry, indexHints);
+        return restrictions.hasSupportingIndex(indexes, indexHints);
     }
 
     @Override
-    public Index findSupportingIndex(IndexRegistry indexRegistry, IndexHints indexHints)
+    public Index findSupportingIndex(Iterable<Index> indexes, IndexHints indexHints)
     {
-        return restrictions.findSupportingIndex(indexRegistry, indexHints);
+        return restrictions.findSupportingIndex(indexes, indexHints);
     }
 
     @Override
